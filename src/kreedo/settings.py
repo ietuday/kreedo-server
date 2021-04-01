@@ -53,9 +53,13 @@ INSTALLED_APPS = [
     ###### THIRD PARTY
     'rest_framework',
     'debug_toolbar',
+    'import_export',
+    'django_filters',
 
     ########## APPS
     'users',
+    'schools',
+    'address'
 ]
 
 MIDDLEWARE = [
