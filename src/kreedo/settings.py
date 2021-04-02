@@ -162,3 +162,7 @@ from .conf.email_conf import*
 
 ##########  Import Toolbar Configuration File
 from .conf.toolbar_conf import*
+
+
+##########  Import Logger 
+from .conf.logger_conf import*

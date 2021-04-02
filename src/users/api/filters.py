@@ -14,4 +14,8 @@ class UserDetailFilter(filters.FilterSet):
                 'email_verified','phone_verified','school_name']
 
 
+class ReportingToFilter(filters.FilterSet):
+    class Meta:
+        model = ReportingTo
+        fields = '__all__'
 
