@@ -55,6 +55,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             print("error------------", ex)
     
     
+    
     # def create(self,validated_data):
     #     print("CREATE@@@@@@@@@@@@@@@@@@", self)
     
