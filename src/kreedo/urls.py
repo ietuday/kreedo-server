@@ -24,6 +24,9 @@ admin.site.index_title = "Welcome to Kreedo Admin Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', include('users.api.urls')),
+
+
 ]
 
 
