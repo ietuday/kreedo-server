@@ -8,7 +8,7 @@ from kreedo.core import TimestampAwareModel
 from users.managers import *
 from address.models import*
 from schools.models import *
-# Create your models here.
+
 
 """  Relationship Choice """
 Mother = 'Mother'
@@ -21,18 +21,30 @@ Relationship_With_Child_Choice = [
         (Guardian, 'Guardian')
     ]
 
+
+""" Type Model """
+class UserType(TimestampAwareModel):
+    name = models.CharField(max_length=50, unique=True)
+    is_active = models.BooleanField(default=False)
+    objects  = UserTypeManager
+
+    class Meta:
+        verbose_name = 'UserType'
+        verbose_name_plural = 'UserTypes'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+    
+    def get_absolute_url(self):
+        return reverse('UserType_detail', kwargs={"pk":self.pk})
+
+
+
 """ Role Model """
 class Role(TimestampAwareModel):
-    name = models.CharField(max_length=50, null=True,blank=True, unique=True)
-    is_kreedo = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    web_kreedo = models.BooleanField(default=False)
-    web_school_account_owner = models.BooleanField(default=False)
-    web_school_school_admin = models.BooleanField(default=False)
-    mobile_app_accessor = models.BooleanField(default=False)
-    mobile_app_collabrator = models.BooleanField(default=False)
-    mobile_app_teacher = models.BooleanField(default=False)
-    assigned_to_id = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=50, unique=True)
+    type = models.ForeignKey(UserType, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False)
     objects  = RoleManager
 
@@ -47,6 +59,9 @@ class Role(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('Role_detail', kwargs={"pk":self.pk})
 
+
+
+
 """ User Detail Model """
 class UserDetail(TimestampAwareModel):
     user_obj = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, to_field='id', primary_key=True)
@@ -54,14 +69,14 @@ class UserDetail(TimestampAwareModel):
     activation_key = models.TextField(blank=True, null=False, default='', verbose_name='Activation Key')
     activation_key_expires = models.DateTimeField(blank=True,null=True,
             verbose_name='Activation Key Expiration DateTime')
-    address = models.ForeignKey(to='address.Address', on_delete=models.CASCADE, null=True, blank=True)
+    address = models.ForeignKey(to='address.Address', on_delete=models.PROTECT, null=True, blank=True)
     reason_for_discontinution = models.TextField(blank=True,null=True)
     relationship_with_child = models.CharField(max_length=25, choices=Relationship_With_Child_Choice)
+    type = models.ForeignKey(UserType, on_delete=models.PROTECT)
     role = models.ManyToManyField(Role, related_name='user_role', blank=True)
-    own_schools = models.ManyToManyField(School, related_name='user_own_schools', blank=True)
     email_verified = models.BooleanField(default=False,verbose_name='Email Verified')
     phone_verified = models.BooleanField(default=False, verbose_name='Phone Verified')
-    school = models.ForeignKey(to='schools.School', on_delete=models.CASCADE, related_name='user_school', null=True, blank=True)
+    objects  = UserDetailManager
 
     class Meta:
         verbose_name = 'UserDetail'
@@ -76,10 +91,11 @@ class UserDetail(TimestampAwareModel):
 
 
 class ReportingTo(TimestampAwareModel):
-    reporting_to = models.ForeignKey('UserDetail', on_delete=models.CASCADE, null=True, blank=True)
-    role = models.ForeignKey('Role', on_delete=models.CASCADE, null=True, blank=True)
-    user = models.ForeignKey('UserDetail', on_delete=models.CASCADE,related_name='user', null=True,blank=True)
+    reporting_to = models.ForeignKey('UserDetail', on_delete=models.SET_NULL, null=True, blank=True)
+    user_role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='reporting_to.user_role+')
+    user_detail = models.ForeignKey('UserDetail', on_delete=models.CASCADE,related_name='reporting_to.user_detail+')
     is_active = models.BooleanField(default=False)
+    objects  = ReportingToManager
 
     class Meta:
         verbose_name = 'ReportingTo'
@@ -90,3 +106,22 @@ class ReportingTo(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ReportingTo_detail', kwargs={"pk":self.pk})
+
+
+
+class UserRole(TimestampAwareModel):
+    user = models.ForeignKey('UserDetail', on_delete=models.CASCADE,related_name='user')
+    role = models.ForeignKey('Role', on_delete=models.CASCADE)
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    is_active = models.BooleanField(default=False)
+    objects  = UserRoleManager
+
+    class Meta:
+        verbose_name = 'UserRole'
+        verbose_name_plural =  'UserRoles'
+    
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('UserRole_detail', kwargs={"pk":self.pk})
