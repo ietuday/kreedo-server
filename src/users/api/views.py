@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from kreedo.conf.logger import CustomFormatter
 from kreedo.conf.logger_test import*
+from rest_framework.response import Response
 """
     REST LIBRARY IMPORT
 """
@@ -103,8 +104,7 @@ class UserRegister(CreateAPIView):
                 "reason_for_discontinution": request.data.get('reason_for_discontinution', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
                 "role": request.data.get('role', None),
-                "own_schools": request.data.get('own_schools', None),
-                "school": request.data.get('school', None)
+                "type": request.data.get('type', None),
 
             }
 
@@ -124,15 +124,41 @@ class UserRegister(CreateAPIView):
             # print("context",context)
             """  Pass dictionary through Context """
 
-            user_data_serializer = UserRegisterSerializer(
-                data=dict(user_data), context=context)
+            user_data_serializer = UserRegisterSerializer(data=dict(user_data), context=context)
             if user_data_serializer.is_valid():
-                print("user", user_data_serializer.data)
+                context = {"user_data": user_data_serializer.data}
+                return Response(context)
             else:
-                print("else", user_data_serializer.errors)
-                print("trac", traceback.print_exc())
+                context = {"user_error": user_data_serializer.errors}
+                return Response(context)
 
         except Exception as ex:
             logger.debug("Entering index method")
             # print("Exception",ex)
             # print("traceback",traceback.print_exc())
+
+
+""" Email Confirm Verification while Register"""
+class EmailConfirmVerify(GeneralClass,Mixins,CreateAPIView):
+    model = User
+    def get(self,request,uidb64,token):
+        try:
+            print("Email Confirm---->",uidb64, token)
+            user_token_detail = {
+                "uidb64":uidb64,
+                "token":token
+            }
+            context = super().get_serializer_context()
+            context.update({"user_token_detail": user_token_detail})
+
+            user_data_serializer =UserEmailVerifySerializer(data=request.data,context=context)
+            if user_data_serializer.is_valid():
+                context = {"mail_t": user_data_serializer.data,'message': 'Email Verified'}
+                return Response(context)
+            else:
+                context={"error":user_data_serializer.data}
+                return Response(context)
+                
+        except Exception as ex:
+            context={"error":ex}
+            return Response(context)

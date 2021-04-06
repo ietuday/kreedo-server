@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, re_path
 from .views import*
 
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('reporting_to_retrive_update_delete/<int:pk>', ReportingToRetriveUpdateDestroy.as_view(), 
         name='ReportingToRetriveUpdateDestroy'),
     path('user_register', UserRegister.as_view(), name='UserRegister'),
+    re_path('email_confirm_verify/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)',EmailConfirmVerify.as_view(),
+            name='EmailConfirmVerify'),
 ]
