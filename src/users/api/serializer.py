@@ -11,6 +11,18 @@ class RoleSerializer(serializers.ModelSerializer):
         model = Role
         fields = '__all__'
 
+
+""" User Type Serializer """
+class UserTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserType
+        fields = '__all__'
+        
+
+
+
+
+
 """ Auth User Serializer """
 
 # class UserSerializer(serializers.ModelSerializer):
