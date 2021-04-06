@@ -5,6 +5,11 @@ class RoleFilter(filters.FilterSet):
     class Meta:
         model = Role
         fields = '__all__'
+    
+class UserTypeFilter(filters.FilterSet):
+    class Meta:
+        model = UserType
+        fields = '__all__'
 
 class UserDetailFilter(filters.FilterSet):
     school_name = filters.CharFilter(field_name='school__name',lookup_expr='icontains')

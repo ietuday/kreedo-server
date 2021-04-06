@@ -30,16 +30,12 @@ handler.setLevel(logging.DEBUG)
 handler.setFormatter(CustomFormatter())
 
 logger.addHandler(handler)
-
-
-# # A string with a variable at the "info" level
+# A string with a variable at the "info" level
 logger.info("VIEW CAlled ")
 
 
 # Create your views here.
 """ Role List and Create API"""
-
-
 class RoleListCreate(Mixins, GeneralClass, ListCreateAPIView):
     model = Role
     serializer_class = RoleSerializer
@@ -53,6 +49,21 @@ class RoleRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestroyAPIVie
     model = Role
     serializer_class = RoleSerializer
     filterset_class = RoleFilter
+
+
+
+""" User Type List and Create """
+
+class UserTypeListCreate(Mixins,GeneralClass, ListCreateAPIView):
+    model = UserType
+    serializer_class = UserTypeSerializer
+    filterset_class = UserTypeFilter
+
+""" Retrive ,Update and Delete User Type """
+class UserTypeRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestroyAPIView):
+    model = UserType
+    serializer_class = UserTypeSerializer
+    filterset_class = UserTypeFilter
 
 
 """ Reporting_to  List and Create API"""

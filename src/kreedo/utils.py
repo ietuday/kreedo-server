@@ -19,13 +19,11 @@ def get_url(request_obj):
 
 """ 
     Generating generic message based on method and url
-"""
+# """
 def get_message(api_name,method):
     try:
         apiname_list = api_name.split('_')
-    
-        model_name = ['role']
-
+        model_name = ['user-type','role']
         for name in model_name:
             if name in apiname_list:
                 if 'retrive' in apiname_list and method == 'GET':
