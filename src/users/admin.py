@@ -10,17 +10,22 @@ from .models import*
 # Register your models here.
 @admin.register(Role)
 class RoleAdmin(ImportExportModelAdmin,admin.ModelAdmin):
-    list_display = ['id','name','web_kreedo','is_superuser','web_school_account_owner',
-                    'web_school_school_admin','mobile_app_accessor','mobile_app_collabrator',
-                    'mobile_app_teacher','assigned_to_id']
+    list_display = ['id','name','type', 'is_active']
 
-    search_fields = ['id','name','web_kreedo','is_superuser','web_school_account_owner',
-                    'web_school_school_admin','mobile_app_accessor','mobile_app_collabrator',
-                    'mobile_app_teacher','assigned_to_id']
+    search_fields = ['id','name','type', 'is_active']
     
-    list_filter = ['id','name','web_kreedo','is_superuser','web_school_account_owner',
-                    'web_school_school_admin','mobile_app_accessor','mobile_app_collabrator',
-                    'mobile_app_teacher','assigned_to_id']
+    list_filter = ['id','name','type', 'is_active']
+
+
+# Register your models here.
+@admin.register(UserType)
+class UserTypeAdmin(ImportExportModelAdmin,admin.ModelAdmin):
+    list_display = ['id','name', 'is_active']
+
+    search_fields = ['id','name', 'is_active']
+    
+    list_filter = ['id','name', 'is_active']
+
 
 class UserResource(resources.ModelResource):
     class Meta:
@@ -43,26 +48,33 @@ class UserDetailResource(resources.ModelResource):
         report_skipped = True
         exclude = ('id')
         import_id_fields = ['user_obj','phone','relationship_with_child','email_verified',
-                    'phone_verified','school']
+                    'phone_verified']
 
 @admin.register(UserDetail)
 class UserDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = UserDetailResource
     list_display = ['user_obj','phone','relationship_with_child','email_verified',
-                    'phone_verified','school']
+                    'phone_verified']
 
     search_fields = ['user_obj','phone','relationship_with_child','email_verified',
-                    'phone_verified','school']
+                    'phone_verified']
 
     list_filter = ['user_obj','phone','relationship_with_child','email_verified',
-                    'phone_verified','school']
+                    'phone_verified']
 
 
 @admin.register(ReportingTo)
 class ReportingToAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id','reporting_to','role','user','is_active']
-    search_fields = ['id','reporting_to','role','user','is_active']
-    list_filter = ['id','reporting_to','role','user','is_active']
+    list_display = ['id','reporting_to','user_role','user_detail','is_active']
+    search_fields = ['id','reporting_to','user_role','user_detail','is_active']
+    list_filter = ['id','reporting_to','user_role','user_detail','is_active']
+
+
+@admin.register(UserRole)
+class UserRoleAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id','school','role','user','is_active']
+    search_fields = ['id','school','role','user','is_active']
+    list_filter = ['id','school','role','user','is_active']
 
 
 
