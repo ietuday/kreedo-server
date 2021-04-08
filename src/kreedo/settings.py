@@ -64,7 +64,9 @@ INSTALLED_APPS = [
     # APPS
     'users',
     'schools',
-    'address'
+    'address',
+    'plan', 
+    'session',
 ]
 
 MIDDLEWARE = [

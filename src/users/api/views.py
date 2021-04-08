@@ -1,30 +1,29 @@
-from kreedo.general_views import Mixins, GeneralClass
-import logging
-import traceback
-from .filters import*
-from ..models import*
-from .serializer import*
+"""
+    DJANGO LIBRARY IMPORT
+"""
 from django.contrib.auth.models import User
-from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
 from django.shortcuts import render
-from kreedo.conf.logger import CustomFormatter
-from kreedo.conf.logger_test import*
-from rest_framework.response import Response
 """
     REST LIBRARY IMPORT
 """
-
+from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
-
+import logging
+import traceback
 """
     IMPORT CORE FILES 
 """
-
+from kreedo.conf.logger import CustomFormatter
+from kreedo.conf.logger_test import*
+from kreedo.general_views import Mixins, GeneralClass
 """
     IMPORT USER APP FILE
 """
-
+from .filters import*
+from ..models import*
+from .serializer import*
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

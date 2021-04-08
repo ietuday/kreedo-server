@@ -11,3 +11,4 @@ class Address(TimestampAwareModel):
     address = models.TextField(max_length=200, null=True, blank=True)
     pincode = models.CharField(max_length=50, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+
