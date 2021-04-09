@@ -32,6 +32,12 @@ class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
     model = SchoolHoliday
     serializer_class = SchoolHolidayCreateSerializer
     filterset_class = SchoolHolidayFilter
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SchoolHolidayListSerializer
+        if self.request.method == 'PUT':
+            return SSchoolHolidayCreateSerializer
 
 
 """ School Weak off List and create """
@@ -61,3 +67,8 @@ class SchoolWeakOffRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateAPIV
             return SchoolWeakOffListSerializer
         if self.request.method == 'PUT':
             return SchoolWeakOffCreateSerializer
+
+""" Create Calendar """
+class Calendar(CreateAPIView):
+    def post(self,request):
+        pass

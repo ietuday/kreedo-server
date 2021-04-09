@@ -70,3 +70,7 @@ class SchoolWeakOff(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('SchoolWeakOff_detail', kwargs={"pk": self.pk})
+
+
+
+
