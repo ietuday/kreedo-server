@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .filters import*
 from .serializer import*
-from schools.models import*
+from plan.models import*
 from kreedo.general_views import *
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
