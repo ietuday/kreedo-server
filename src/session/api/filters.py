@@ -1,6 +1,7 @@
-from ..models import*
 from django_filters import rest_framework as filters
-from django_filters import DateRangeFilter,DateFilter
+from django_filters import DateRangeFilter, DateFilter
+from session.models import*
+
 
 class SchoolSessionFilter(filters.FilterSet):
     # year = DateRangeFilter(field_name='year')
@@ -11,3 +12,8 @@ class SchoolSessionFilter(filters.FilterSet):
         model = SchoolSession
         fields = '__all__'
 
+
+# class AcademicSessionFilter(filters.Filter):
+#     class Meta:
+#         model = AcademicSession
+#         fields = '__all__'

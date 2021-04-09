@@ -3,24 +3,34 @@ from ..models import*
 
 
 """ Grade Serializer """
+
+
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
         fields = '__all__'
 
+
 """Section Serializer """
+
+
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = '__all__'
 
+
 """ Subject Serializer """
+
+
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = '__all__'
 
+
 """ License Serializer"""
+
 
 class LicenseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,6 +39,7 @@ class LicenseSerializer(serializers.ModelSerializer):
 
 
 """ School  List Serializer"""
+
 
 class SchoolListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,10 +50,30 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 """ School create Serializer"""
 
+
 class SchoolCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
-        
+
     def create(self, validated_data):
         return School.objects.create(**validated_data)
+
+
+""" Section Subject Teacher List Serializer """
+
+
+class SectionSubjectTeacherListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionSubjectTeacher
+        fields = '__all__'
+        depth = 1
+
+
+""" Section Subject Teacher Create Serializer """
+
+
+class SectionSubjectTeacherCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionSubjectTeacher
+        fields = '__all__'

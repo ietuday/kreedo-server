@@ -25,29 +25,31 @@ def get_url(request_obj):
 # """
 
 
-def get_message(api_name,method):
+def get_message(api_name, method):
     apiname_list = api_name.split('_')
-    
-    model_name = ['user-type', 'role', 'grade','subject','section',
-                'license','school','school-session']
+
+    model_name = ['user-type', 'role', 'grade', 'subject', 'section',
+                  'license', 'school', 'school-session', 'academic-session',
+                  'section-subject-teacher', 'subject-school-grade-plan']
 
     for name in model_name:
         if name in apiname_list:
             if 'retrive' in apiname_list and method == 'GET':
-                    return f'{name} detail'
+                return f'{name} detail'
 
             switcher = {
-                
-                
-                'GET':f'all {name} details',
-                'POST':f'{name} created',
-                'PUT':f'{name} updated',
-                'DELETE':f'{name} deleted',
-                'PATCH':f'{name} partially updated',
+
+
+                'GET': f'all {name} details',
+                'POST': f'{name} created',
+                'PUT': f'{name} updated',
+                'DELETE': f'{name} deleted',
+                'PATCH': f'{name} partially updated',
 
             }
 
             return switcher[method]
+
 
 """ 
     Pagination Response Method 

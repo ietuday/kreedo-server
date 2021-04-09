@@ -3,33 +3,67 @@ from django.urls import reverse
 from kreedo.core import TimestampAwareModel
 from .managers import*
 from schools.models import*
+from period.models import*
+from users.models import*
 # Create your models here.
+
+"""  Relationship Choice """
+Individual = 'Individual'
+Group = 'Group'
+
+
+Academic_Session_Type_Choice = [
+    (Individual, 'Individual'),
+    (Group, 'Group')
+]
 
 
 class SchoolSession(TimestampAwareModel):
-    school = models.ForeignKey(to='schools.School', on_delete= models.PROTECT)
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     year = models.DateField(blank=True)
     session_from = models.DateField(blank=True)
     session_till = models.DateField(blank=True)
     is_current_session = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = SchoolSessionManager
-    
-
 
     class Meta:
         verbose_name = 'SchoolSession'
         verbose_name_plural = 'SchoolSessions'
         ordering = ['-id']
-    
+
     def __str__(self):
         return str(self.id)
-    
+
     def get_absolute_url(self):
-        return reverse('SchoolSession_detail', kwargs={"pk":self.pk})
+        return reverse('SchoolSession_detail', kwargs={"pk": self.pk})
+
 
 class AcademicSession(TimestampAwareModel):
     name = models.CharField(max_length=50)
-    # session = models.ForeignKey('')
+    session = models.ForeignKey('SchoolSession', on_delete=models.PROTECT)
+    grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
+    section = models.ForeignKey(to='schools.Section', on_delete=models.PROTECT)
+    Subject = models.ManyToManyField(to='schools.Subject')
+    type = models.CharField(
+        max_length=50, choices=Academic_Session_Type_Choice)
+    session_from = models.DateField(blank=True)
+    session_till = models.DateField(blank=True)
+    # period_template = models.ForeignKey(
+    # to = 'period.PeriodTemplate', on_delet = models.PROTECT, null = True, blank = True)
+    class_teacher = models.ForeignKey(
+        to='users.UserDetail', on_delete=models.PROTECT)
+    is_close = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    objects = AcademicSessionManager
 
+    class Meta:
+        verbose_name = 'AcademicSession'
+        verbose_name_plural = 'AcademicSessions'
+        ordering = ['-id']
 
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('AcademicSession_detail', kwargs={"pk": self.pk})
