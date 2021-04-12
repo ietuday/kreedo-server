@@ -1,29 +1,31 @@
 """
     DJANGO LIBRARY IMPORT
 """
+from .serializer import*
+from ..models import*
+from .filters import*
+from kreedo.general_views import Mixins, GeneralClass
+from kreedo.conf.logger_test import*
+from kreedo.conf.logger import CustomFormatter
+import traceback
+import logging
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from django.contrib.auth.models import User
+from rest_framework.decorators import permission_classes
 from django.shortcuts import render
 """
     REST LIBRARY IMPORT
 """
-from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
-from rest_framework.response import Response
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
-import logging
-import traceback
 """
     IMPORT CORE FILES 
 """
-from kreedo.conf.logger import CustomFormatter
-from kreedo.conf.logger_test import*
-from kreedo.general_views import Mixins, GeneralClass
 """
     IMPORT USER APP FILE
 """
-from .filters import*
-from ..models import*
-from .serializer import*
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -137,24 +139,27 @@ class UserRegister(CreateAPIView):
             context = super().get_serializer_context()
             context.update(
                 {"user_data": user_data, "user_detail_data": user_detail_data})
-
-            user_data_serializer = UserRegisterSerializer(
+            try:
+                user_data_serializer = UserRegisterSerializer(
                 data=dict(user_data), context=context)
+            except Exception as ex:
+                context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context)
             if user_data_serializer.is_valid():
                 user_data_serializer.save()
                 context = {"message": "User is created successfully. User will get reset password email within 24 hours.",
-                           "data": user_data_serializer.data}
+                           "data": user_data_serializer.data, "statusCode": status.HTTP_200_OK}
 
                 return Response(context)
             else:
-                print("user_data_serializer.errors",
-                      user_data_serializer.errors)
-                context = {"user_error": user_data_serializer.errors}
+                # logger.debug("user_data_serializer.errors",
+                #       user_data_serializer.errors)
+                context = {"error":user_data_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
-            logger.debug("Entering Register method")
-            context = {"error": ex}
+            # logger.debug("Entering Register method",ex)
+            context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
 
@@ -175,24 +180,28 @@ class EmailConfirmVerify(CreateAPIView):
             context = super().get_serializer_context()
             context.update({"user_token_detail": user_token_detail})
 
-            user_data_serializer = UserEmailVerifySerializer(
+            try:
+                user_serializar = UserEmailVerifySerializer(
                 data=request.data, context=context)
-
-            if user_data_serializer.is_valid():
-                user_data_serializer.save()
-                print("user_data_serializer", user_data_serializer)
-                context = {"mail_t": user_data_serializer.data,
-                           'message': 'Email Verified'}
+            except Exception as ex:
+                print("error",ex)
+                context={"error":ex, "StatusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context)    
+            
+            if user_serializar.is_valid():
+                print("user_serializar----------->", user_serializar)
+                context = {"mail_t": user_serializar.data,"message": 'Email Verified',
+                        "statusCode":status.HTTP_200_OK}
                 return Response(context)
             else:
-                print("error", user_data_serializer.data)
-                context = {"error": user_data_serializer.data}
+                print("error-------------->", user_serializar.errors)
+                context={"error":user_serializar.errors, "StatusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
             print("exception", ex)
             print("Traceback", traceback.print_exc())
-            context = {"error": ex}
+            context={"error":ex, "StatusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
 
@@ -230,25 +239,29 @@ class ForgetPassword(CreateAPIView):
             user_data_serializer = UserForgetSerializer(data=request.data)
 
             if user_data_serializer.is_valid():
-                context = {"message": "Token send to user"}
+                print("User Serializer", user_data_serializer)
+                context = {"message": "Token send to user",
+                "statusCode":status.HTTP_200_OK}
                 return Response(context)
             else:
-                context = {"error": user_data_serializer.errors}
+                context = {"error":user_data_serializer.errors, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
         except Exception as ex:
-            context = {"error": ex}
+            context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
 
 """CHANGE PASSWORD """
 
-
+# @permission_classes((IsAuthenticated,))
 class ChangePassword(CreateAPIView):
     # model = User
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
+            print("change_password",request.data)
+
             password_detail = {
                 "username": request.user.username,
                 "old_password": request.data.get('old_password', None),
@@ -256,7 +269,7 @@ class ChangePassword(CreateAPIView):
             }
             context = super().get_serializer_context()
             context.update({"password_detail": password_detail})
-
+            print("password_detail",password_detail)
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
@@ -264,10 +277,10 @@ class ChangePassword(CreateAPIView):
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
             else:
-                context = {"error": user_data_serializer.errors}
+                context = {"error": user_data_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
         except Exception as ex:
-            context = {"error": e}
+            context = {"error": ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
 
@@ -276,6 +289,7 @@ class ChangePassword(CreateAPIView):
 
 class ResetPasswordConfirm(CreateAPIView):
     # model = User
+    serializer_class = User_Password_Reseted_Mail_Serializer
     def get(self, request, uidb64, token):
         try:
             user_token_detail = {

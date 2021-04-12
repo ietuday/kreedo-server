@@ -76,7 +76,7 @@ class UserDetail(TimestampAwareModel):
     activation_key_expires = models.DateTimeField(blank=True, null=True,
                                                   verbose_name='Activation Key Expiration DateTime')
     address = models.ForeignKey(
-        to='address.Address', on_delete=models.PROTECT, null=True, blank=True)
+        to='address.Address', on_delete=models.CASCADE, null=True, blank=True)
     reason_for_discontinution = models.TextField(blank=True, null=True)
     relationship_with_child = models.CharField(
         max_length=25, choices=Relationship_With_Child_Choice, null=True, blank=True)

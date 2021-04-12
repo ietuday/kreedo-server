@@ -22,4 +22,5 @@ urlpatterns = [
 
     re_path('reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', ResetPasswordConfirm.as_view(),
             name='ResetPasswordConfirm'),
+    path('change_password', ChangePassword.as_view(), name='ChangePassword'),
 ]

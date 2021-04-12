@@ -64,8 +64,13 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 
 class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Subject
-    serializer_class = SubjectSerializer
     filterset_class = SubjectFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SubjectListSerializer
+        if self.request.method == 'POST':
+            return SubjectCreateSerializer
 
 
 """ Subject update Retrive and Delete """
@@ -73,8 +78,14 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SubjectRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Subject
-    serializer_class = SubjectSerializer
+    serializer_class = SubjectListSerializer
     filterset_class = SubjectFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SubjectListSerializer
+        if self.request.method == 'PUT':
+            return SubjectCreateSerializer
 
 
 """ License List and Create """
@@ -82,8 +93,13 @@ class SubjectRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 
 class LicenseListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = License
-    serializer_class = LicenseSerializer
     filterset_class = LicenseFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return LicenseListSerializer
+        if self.request.method == 'POST':
+            return LicenseCreateSerializer
 
 
 """ License update Retrive and Delete """
@@ -91,8 +107,14 @@ class LicenseListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = License
-    serializer_class = LicenseSerializer
+    serializer_class = LicenseCreateSerializer
     filterset_class = LicenseFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return LicenseListSerializer
+        if self.request.method == 'PUT':
+            return LicenseCreateSerializer
 
 
 """ School List and Create """
@@ -170,4 +192,10 @@ class SectionSubjectTeacherListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SectionSubjectTeacherRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = SectionSubjectTeacher
-    serializer_class = SectionSubjectTeacherListSerializer
+    serializer_class = SectionSubjectTeacherCreateSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SectionSubjectTeacherListSerializer
+        if self.request.method == 'PUT':
+            return SectionSubjectTeacherCreateSerializer

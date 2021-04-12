@@ -11,6 +11,7 @@ urlpatterns = [
          SchoolWeakOffListCreate.as_view(), name='SchoolWeakOffListCreate'),
     path('school-weak-off_retrive_update_delete/<int:pk>', SchoolWeakOffRetriveUpdateDestroy.as_view(),
          name='SchoolWeakOffRetriveUpdateDestroy'),
+    path('calendar', Calendar.as_view(), name='Calendar')
 
 
 

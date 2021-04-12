@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'session',
     'period',
     'holiday',
+    'package',
 ]
 
 MIDDLEWARE = [

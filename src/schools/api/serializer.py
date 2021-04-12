@@ -20,19 +20,39 @@ class SectionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-""" Subject Serializer """
+""" Subject List Serializer """
 
 
-class SubjectSerializer(serializers.ModelSerializer):
+class SubjectListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = '__all__'
+        depth = 1
+
+
+""" Subject Create Serializer """
+
+
+class SubjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = '__all__'
 
 
-""" License Serializer"""
+""" License List Serializer"""
 
 
-class LicenseSerializer(serializers.ModelSerializer):
+class LicenseListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = License
+        fields = '__all__'
+        depth = 1
+
+
+""" License Create Serializer"""
+
+
+class LicenseCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = License
         fields = '__all__'

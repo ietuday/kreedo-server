@@ -38,3 +38,16 @@ class SchoolWeakOffCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolWeakOff
         fields = '__all__'
+
+
+""" Calendar serializer """
+
+
+# class CalendarSerializer(serializers.ModelSerializer):
+#     pass
+#     # class Meta:
+#     #     # model = SchoolHoliday
+#     #     fields = '__all__'
+
+#     def create(self, validated_data):
+#         print("Self", self)
