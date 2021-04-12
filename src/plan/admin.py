@@ -3,6 +3,31 @@ from import_export.admin import ImportExportModelAdmin
 from plan.models import*
 # Register your models here.
 
+""" Plan Admin"""
+
+
+@admin.register(Plan)
+class PlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'name', 'type', 'is_group', 'grade',
+                    'range_from', 'range_to', 'previous_kreedo', 'is_active']
+    search_fields = ['id', 'name', 'type', 'is_group', 'grade',
+                     'range_from', 'range_to', 'previous_kreedo', 'is_active']
+    list_filter = ['id', 'name', 'type', 'is_group', 'grade',
+                   'range_from', 'range_to', 'previous_kreedo', 'is_active']
+
+
+""" Child Plan Admin """
+
+
+@admin.register(ChildPlan)
+class ChildPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+                    'current_end_date', 'kreedo_previous', 'published', 'is_active', 'is_close']
+    search_fields = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+                     'current_end_date', 'kreedo_previous', 'published', 'is_active', 'is_close']
+    list_filter = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+                   'current_end_date', 'kreedo_previous', 'published', 'is_active', 'is_close']
+
 
 @admin.register(SubjectSchoolGradePlan)
 class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):

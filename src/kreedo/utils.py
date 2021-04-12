@@ -31,7 +31,8 @@ def get_message(api_name, method):
     model_name = ['user-type', 'role', 'grade', 'subject', 'section',
                   'license', 'school', 'school-session', 'academic-session',
                   'section-subject-teacher', 'subject-school-grade-plan',
-                  'school-holiday', 'school-weak-off', 'calendar']
+                  'school-holiday', 'school-weak-off', 'calendar', 'package',
+                  'school-package', 'plan']
 
     for name in model_name:
         if name in apiname_list:
