@@ -33,7 +33,8 @@ def get_message(api_name, method):
                   'section-subject-teacher', 'subject-school-grade-plan',
                   'school-holiday', 'school-weak-off', 'calendar', 'package',
                   'school-package', 'plan', 'child-plan', 'plan-activity',
-                  'activity', 'activity-asset', 'material']
+                  'activity', 'activity-asset', 'material',
+                  'activity-master-supporting-material']
 
     for name in model_name:
         if name in apiname_list:
