@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'holiday',
     'package',
     'activity',
+    'material'
 ]
 
 MIDDLEWARE = [

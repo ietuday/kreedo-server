@@ -40,6 +40,25 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+""" Plan activity List Serializer """
+
+
+class PlanActivityListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanActivity
+        fields = '__all__'
+        depth = 2
+
+
+""" Plan Activity Create Serilaizer """
+
+
+class PlanActivityCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanActivity
+        fields = '__all__'
+
+
 """ SubjectSchoolGradePlan List Serializer """
 
 

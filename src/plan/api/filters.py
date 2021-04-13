@@ -20,6 +20,15 @@ class ChildPlanFilter(filters.FilterSet):
         fields = '__all__'
 
 
+"""  Plan Activity Filter"""
+
+
+class PlanActivityFilter(filters.FilterSet):
+    class Meta:
+        model = PlanActivity
+        fields = '__all__'
+
+
 """ Subject School Grade  Plan Filter """
 
 

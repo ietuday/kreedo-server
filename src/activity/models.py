@@ -6,7 +6,7 @@ from schools.models import*
 
 # Create your models here.
 
-"""  Relationship Choice """
+"""  Choice """
 Individual = 'Individual'
 Group = 'Group'
 
@@ -14,6 +14,22 @@ Group = 'Group'
 Activity_Type_Choice = [
     (Individual, 'Individual'),
     (Group, 'Group')
+]
+
+
+"""  Activity Choice """
+File = 'File'
+Image = 'Image'
+Video = 'Video'
+Text = 'Text'
+Link = 'Link '
+
+Activity_Choice = [
+    (File, 'File'),
+    (Image, 'Image'),
+    (Video, 'Video'),
+    (Text, 'Text'),
+    (Link, 'Link')
 ]
 
 
@@ -36,3 +52,56 @@ class Activity(TimestampAwareModel):
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activitys'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('Activity_detail', kwargs={"pk": self.pk})
+
+
+""" Activity Asset Model """
+
+
+class ActivityAsset(TimestampAwareModel):
+    activity = models.ForeignKey(
+        'Activity', on_delete=models.PROTECT, null=True, blank=True)
+    type = models.CharField(
+        max_length=50, choices=Activity_Choice)
+    activity_data = models.CharField(max_length=200, null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'ActivityAsset'
+        verbose_name_plural = 'ActivityAssets'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('ActivityAsset_detail', kwargs={"pk": self.pk})
+
+
+""" Group Activity Missed """
+
+
+class GroupActivityMissed(TimestampAwareModel):
+    # child = models.ForeignKey(to='child.Child')
+    # period =  models.ForeignKey(to='period.Period')
+    activity = models.ForeignKey(
+        to='activity.Activity', on_delete=models.PROTECT)
+    is_completed = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'GroupActivityMissed'
+        verbose_name_plural = 'GroupActivityMisseds'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(Self.id)
+
+    def get_absolute_url(self):
+        return reverse('GroupActivityMissed_detail', kwargs={"pk": self.pk})

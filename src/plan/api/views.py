@@ -40,6 +40,63 @@ class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
             return PlanCreateSerailizer
 
 
+""" Child Plan List and create """
+
+
+class ChildPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = ChildPlan
+    filterset_class = ChildPlanFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildPlanListSerializer
+        if self.request.method == 'POST':
+            return ChildPlanCreateSerailizer
+
+
+""" Child Plan Retrive Update and Delete """
+
+
+class ChildPlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = ChildPlan
+    filterset_class = ChildPlanFilter
+    serializer_class = ChildPlanListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildPlanListSerializer
+        if self.request.method == 'PUT':
+            return ChildPlanCreateSerailizer
+
+
+""" Plan Activity List Create """
+
+
+class PlanActivityListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = PlanActivity
+    filterset_class = PlanActivityFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PlanActivityListSerializer
+        if self.request.method == 'POST':
+            return PlanActivityCreateSerializer
+
+
+""" Plan Activity Retrive Update And Delete """
+
+
+class PlanActivityRetriveUpdateDestroy(GeneralClass, Mixins,  RetrieveUpdateDestroyAPIView):
+    model = PlanActivity
+    filterset_class = PlanActivityFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PlanActivityListSerializer
+        if self.request.method == 'PUT':
+            return PlanActivityCreateSerializer
+
+
 """ Subject school Grade Plan Api of List and Create """
 
 

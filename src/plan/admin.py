@@ -29,6 +29,20 @@ class ChildPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                    'current_end_date', 'kreedo_previous', 'published', 'is_active', 'is_close']
 
 
+""" Plan activity Admin"""
+
+
+class PlanActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'plan', 'activity', 'sort_no',
+                    'is_optional', 'dependent_on', 'is_active']
+
+    search_fields = ['id', 'plan', 'activity', 'sort_no',
+                     'is_optional', 'dependent_on', 'is_active']
+
+    list_filter = ['id', 'plan', 'activity', 'sort_no',
+                   'is_optional', 'dependent_on', 'is_active']
+
+
 @admin.register(SubjectSchoolGradePlan)
 class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):
     list_display = ['id', 'school', 'subject',

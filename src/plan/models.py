@@ -57,6 +57,43 @@ class ChildPlan(TimestampAwareModel):
     is_active = models.BooleanField(default=False)
     is_close = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'ChildPlan'
+        verbose_name_plural = 'ChildPlans'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('ChildPlan_detail', kwargs={"pk": self.pk})
+
+
+""" Plan Activity Model """
+
+
+class PlanActivity(TimestampAwareModel):
+    plan = models.ForeignKey(
+        'Plan', on_delete=models.PROTECT, null=True, blank=True)
+    activity = models.ForeignKey(
+        to='activity.Activity', on_delete=models.PROTECT, null=True, blank=True)
+    sort_no = models.IntegerField(null=True, blank=True)
+    is_optional = models.BooleanField(default=False)
+    dependent_on = models.ForeignKey(
+        to='activity.Activity', on_delete=models.PROTECT, related_name='activity_dependent_on', null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'PlanActivity'
+        verbose_name_plural = 'PlanActivitys'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('PlanActivity_detail', kwargs={"pk": self.pk})
+
 
 """ Subject School Grade Plan Model """
 
