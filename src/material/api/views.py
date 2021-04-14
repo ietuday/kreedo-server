@@ -33,7 +33,7 @@ class MaterialRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAP
 
 class ActivityMasterSupportingMaterialListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityMasterSupportingMaterial
-    filterset_class = ActivityMasterSupportingMaterialFilter
+    # filterset_class = ActivityMasterSupportingMaterialFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

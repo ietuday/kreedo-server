@@ -14,14 +14,16 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 
 class ActivityMasterSupportingMaterialListSerializer(serializers.ModelSerializer):
-    model = ActivityMasterSupportingMaterial
-    fields = '__all__'
-    depth = 1
+    class Meta:
+        model = ActivityMasterSupportingMaterial
+        fields = '__all__'
+        depth = 3
 
 
 """ ActivityMasterSupportingMaterial Create Serailizer """
 
 
 class ActivityMasterSupportingMaterialCreateSerializer(serializers.ModelSerializer):
-    model = ActivityMasterSupportingMaterial
-    fields = '__all__'
+    class Meta:
+        model = ActivityMasterSupportingMaterial
+        fields = '__all__'

@@ -28,7 +28,7 @@ class ActivityAssetListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityAsset
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 """ Activity Asset Create Serializer"""

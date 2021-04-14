@@ -22,9 +22,9 @@ File = 'File'
 Image = 'Image'
 Video = 'Video'
 Text = 'Text'
-Link = 'Link '
+Link = 'Link'
 
-Activity_Choice = [
+Activity_Asset_Choice = [
     (File, 'File'),
     (Image, 'Image'),
     (Video, 'Video'),
@@ -44,6 +44,9 @@ class Activity(TimestampAwareModel):
     notes = models.CharField(max_length=200, blank=True, null=True)
     subject = models.ManyToManyField(to='schools.Subject', blank=True)
     # skill = models.ManyToManyField(to='skill', blank=True)
+    master_material = models.ManyToManyField(to='material.Material')
+    supporting_material = models.ManyToManyField(
+        to='material.Material', related_name='activity_supporting_material')
     created_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
@@ -68,8 +71,10 @@ class ActivityAsset(TimestampAwareModel):
     activity = models.ForeignKey(
         'Activity', on_delete=models.PROTECT, null=True, blank=True)
     type = models.CharField(
-        max_length=50, choices=Activity_Choice)
+        max_length=50, choices=Activity_Asset_Choice)
     activity_data = models.CharField(max_length=200, null=True, blank=True)
+    title = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
