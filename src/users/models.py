@@ -16,17 +16,19 @@ Father = 'Father'
 Guardian = 'Guardian'
 
 Relationship_With_Child_Choice = [
-        (Mother, 'Mother'),
-        (Father, 'Father'),
-        (Guardian, 'Guardian')
-    ]
+    (Mother, 'Mother'),
+    (Father, 'Father'),
+    (Guardian, 'Guardian')
+]
 
 
 """ Type Model """
+
+
 class UserType(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
     is_active = models.BooleanField(default=False)
-    objects  = UserTypeManager
+    objects = UserTypeManager
 
     class Meta:
         verbose_name = 'UserType'
@@ -35,93 +37,104 @@ class UserType(TimestampAwareModel):
 
     def __str__(self):
         return str(self.name)
-    
-    def get_absolute_url(self):
-        return reverse('UserType_detail', kwargs={"pk":self.pk})
 
+    def get_absolute_url(self):
+        return reverse('UserType_detail', kwargs={"pk": self.pk})
 
 
 """ Role Model """
+
+
 class Role(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
     type = models.ForeignKey(UserType, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False)
-    objects  = RoleManager
+    objects = RoleManager
 
     class Meta:
         verbose_name = 'Role'
         verbose_name_plural = 'Roles'
         ordering = ['-id']
+        unique_together = ['name', 'type', 'is_active']
 
     def __str__(self):
         return str(self.name)
-    
+
     def get_absolute_url(self):
-        return reverse('Role_detail', kwargs={"pk":self.pk})
-
-
+        return reverse('Role_detail', kwargs={"pk": self.pk})
 
 
 """ User Detail Model """
+
+
 class UserDetail(TimestampAwareModel):
-    user_obj = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, to_field='id', primary_key=True)
+    user_obj = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, to_field='id', primary_key=True)
     phone = models.IntegerField(null=True, blank=True)
-    activation_key = models.TextField(blank=True, null=False, default='', verbose_name='Activation Key')
-    activation_key_expires = models.DateTimeField(blank=True,null=True,
-            verbose_name='Activation Key Expiration DateTime')
-    address = models.ForeignKey(to='address.Address', on_delete=models.PROTECT, null=True, blank=True)
-    reason_for_discontinution = models.TextField(blank=True,null=True)
-    relationship_with_child = models.CharField(max_length=25, choices=Relationship_With_Child_Choice)
+    activation_key = models.TextField(
+        blank=True, null=False, default='', verbose_name='Activation Key')
+    activation_key_expires = models.DateTimeField(blank=True, null=True,
+                                                  verbose_name='Activation Key Expiration DateTime')
+    address = models.ForeignKey(
+        to='address.Address', on_delete=models.CASCADE, null=True, blank=True)
+    reason_for_discontinution = models.TextField(blank=True, null=True)
+    relationship_with_child = models.CharField(
+        max_length=25, choices=Relationship_With_Child_Choice, null=True, blank=True)
     type = models.ForeignKey(UserType, on_delete=models.PROTECT)
-    role = models.ManyToManyField(Role, related_name='user_role', blank=True)
-    email_verified = models.BooleanField(default=False,verbose_name='Email Verified')
-    phone_verified = models.BooleanField(default=False, verbose_name='Phone Verified')
-    objects  = UserDetailManager
+    role = models.ManyToManyField(Role, related_name='user_role')
+    email_verified = models.BooleanField(
+        default=False, verbose_name='Email Verified')
+    phone_verified = models.BooleanField(
+        default=False, verbose_name='Phone Verified')
+    objects = UserDetailManager
 
     class Meta:
         verbose_name = 'UserDetail'
         verbose_name_plural = 'UserDetails'
-        ordering = ['-user_obj' ]
+        ordering = ['-user_obj']
 
     def __str__(self):
         return str(self.user_obj)
 
     def get_absolute_url(self):
-        return reverse('UserDetail_detail', kwargs={"pk":self.pk})
+        return reverse('UserDetail_detail', kwargs={"pk": self.pk})
 
 
 class ReportingTo(TimestampAwareModel):
-    reporting_to = models.ForeignKey('UserDetail', on_delete=models.SET_NULL, null=True, blank=True)
-    user_role = models.ForeignKey('Role', on_delete=models.CASCADE, related_name='reporting_to.user_role+')
-    user_detail = models.ForeignKey('UserDetail', on_delete=models.CASCADE,related_name='reporting_to.user_detail+')
+    reporting_to = models.ForeignKey(
+        'UserDetail', on_delete=models.SET_NULL, null=True, blank=True)
+    user_role = models.ForeignKey(
+        'Role', on_delete=models.CASCADE, related_name='reporting_to.user_role+')
+    user_detail = models.ForeignKey(
+        'UserDetail', on_delete=models.CASCADE, related_name='reporting_to.user_detail+')
     is_active = models.BooleanField(default=False)
-    objects  = ReportingToManager
+    objects = ReportingToManager
 
     class Meta:
         verbose_name = 'ReportingTo'
-        verbose_name_plural =  'ReportingTos'
-    
+        verbose_name_plural = 'ReportingTos'
+
     def __str__(self):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('ReportingTo_detail', kwargs={"pk":self.pk})
-
+        return reverse('ReportingTo_detail', kwargs={"pk": self.pk})
 
 
 class UserRole(TimestampAwareModel):
-    user = models.ForeignKey('UserDetail', on_delete=models.CASCADE,related_name='user')
+    user = models.ForeignKey(
+        'UserDetail', on_delete=models.CASCADE, related_name='user')
     role = models.ForeignKey('Role', on_delete=models.CASCADE)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
-    objects  = UserRoleManager
+    objects = UserRoleManager
 
     class Meta:
         verbose_name = 'UserRole'
-        verbose_name_plural =  'UserRoles'
-    
+        verbose_name_plural = 'UserRoles'
+
     def __str__(self):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('UserRole_detail', kwargs={"pk":self.pk})
+        return reverse('UserRole_detail', kwargs={"pk": self.pk})

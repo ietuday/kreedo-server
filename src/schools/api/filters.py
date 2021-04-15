@@ -1,20 +1,39 @@
 from ..models import*
 from django_filters import rest_framework as filters
-from django_filters import DateRangeFilter,DateFilter
 
-class SchoolTypeFilter(filters.FilterSet):
-    class Meta:
-        model = SchoolType
-        fields = '__all__'
 
-class SchoolLicenseFilter(filters.FilterSet):
-    license_from_range = DateRangeFilter(field_name='license_from')
-    license_till_range = DateRangeFilter(field_name='license_till')
+""" Grade filter """
+class GradeFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name',lookup_expr='icontains')
 
     class Meta:
-        model = SchoolLicense
+        model = Grade
         fields = '__all__'
 
+""" Section Filter """
+class SectionFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name',lookup_expr='icontains')
+
+    class Meta:
+        model = Section
+        fields = '__all__'
+    
+""" Subject filter"""
+class SubjectFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name',lookup_expr='icontains')
+
+    class Meta:
+        model = Subject
+        fields ='__all__'
+
+
+""" License Filter"""
+class LicenseFilter(filters.FilterSet):
+    class Meta:
+        model = License
+        fields = '__all__'
+
+""" School Filter"""
 class SchoolFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name',lookup_expr='icontains')
 

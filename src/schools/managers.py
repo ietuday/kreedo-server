@@ -1,11 +1,12 @@
 from django.db import models
 
-""" Role Queryset """
+
+""" School Queryset """
 class SchoolQueryset(models.QuerySet):
     def name_icontains(self, name):
         return self.filter(name__icontains=name)
 
-""" Role Manager """
+""" School Manager """
 class SchoolManager(models.Manager): 
     def get_queryset(self):
         return SchoolQueryset(self.model, using=self._db)
