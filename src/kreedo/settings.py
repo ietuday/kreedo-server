@@ -10,6 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+from .conf.logger import*
+from .conf.toolbar_conf import*
+from .conf.email_conf import*
+from .conf.rest_conf import*
+from .conf.static_conf import*
 import os
 import environ
 import datetime
@@ -21,8 +26,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 """ Environment import """
 env = environ.Env(
-# set casting, default value
-DEBUG=(bool, False)
+    # set casting, default value
+    DEBUG=(bool, False)
 )
 # read env
 environ.Env.read_env('.env')
@@ -50,12 +55,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    ###### THIRD PARTY
+    # THIRD PARTY
     'rest_framework',
     'debug_toolbar',
+    'import_export',
+    'django_filters',
 
-    ########## APPS
+    # APPS
     'users',
+    'schools',
+    'address',
+    'plan',
+    'session',
+    'period',
+    'holiday',
+    'package',
+    'activity',
+    'material',
+    'area_of_devlopment'
 ]
 
 MIDDLEWARE = [
@@ -147,14 +164,13 @@ USE_L10N = True
 USE_TZ = True
 
 
-######## Import Static Configuration File
-from .conf.static_conf import*
+# Import Static Configuration File
 
-######## Import Rest Configuration File
-from .conf.rest_conf import*
+# Import Rest Configuration File
 
-########## Import Email Configuration File 
-from .conf.email_conf import*
+# Import Email Configuration File
 
-##########  Import Toolbar Configuration File
-from .conf.toolbar_conf import*
+# Import Toolbar Configuration File
+
+
+# Import Logger

@@ -24,10 +24,22 @@ admin.site.index_title = "Welcome to Kreedo Admin Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', include('users.api.urls')),
+    path('school/', include('schools.api.urls')),
+    path('session/', include('session.api.urls')),
+    path('plan/', include('plan.api.urls')),
+    path('holiday/', include('holiday.api.urls')),
+    path('package/', include('package.api.urls')),
+    path('activity/', include('activity.api.urls')),
+    path('material/', include('material.api.urls')),
+    path('area_of_devlopment/', include('area_of_devlopment.api.urls'))
+
+
+
 ]
 
 
-###############Debugger toolbar setting 
+# Debugger toolbar setting
 
 if settings.DEBUG:
     import debug_toolbar

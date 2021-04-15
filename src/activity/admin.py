@@ -1,0 +1,38 @@
+from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
+from activity.models import*
+# Register your models here.
+
+""" Activity Admin"""
+
+
+@admin.register(Activity)
+class ActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_filter = ['id', 'name', 'type', 'objective',
+                   'description', 'notes', 'created_by', 'duration', 'is_active']
+
+    search_fields = ['id', 'name', 'type', 'objective',
+                     'description', 'notes', 'created_by', 'duration', 'is_active']
+
+    list_filter = ['id', 'name', 'type', 'objective',
+                   'description', 'notes', 'created_by', 'duration', 'is_active']
+
+
+""" Activity Asset Admin """
+
+
+@admin.register(ActivityAsset)
+class ActivityAssetAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'activity', 'type', 'activity_data', 'is_active']
+    search_fields = ['id', 'activity', 'type', 'activity_data', 'is_active']
+    list_filter = ['id', 'activity', 'type', 'activity_data', 'is_active']
+
+
+""" Group Activity Missed Admin """
+
+
+@admin.register(GroupActivityMissed)
+class GroupActivityMissedAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'is_completed', 'is_active']
+    search_fields = ['id', 'is_completed', 'is_active']
+    list_filter = ['id', 'is_completed', 'is_active']
