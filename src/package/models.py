@@ -10,7 +10,7 @@ from package.managers import *
 class Package(TimestampAwareModel):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    # materials = models.ManyToManyField(to='material.Material', blank=True)
+    materials = models.ManyToManyField(to='material.Material', blank=True)
     is_active = models.BooleanField(default=False)
     objects = PackageManager
 

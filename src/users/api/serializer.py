@@ -90,14 +90,21 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def to_representation(self, instance):
-        print("instance@@@@@@@@@@@",instance)
-        # instance = super(UserRegisterSerializer,
-        #                  self).to_representation(instance)
-        # print("instance############################", instance)
-        # """ Update details in RESPONSE """
-        
-        # return instance
+        try:
+            instance = super(UserRegisterSerializer,
+                         self).to_representation(instance)
+            """ Update details in RESPONSE """
+            print("self.context['user_detail_serializer_data']",self.context['user_detail_serializer_data'])
+            instance['user_detail'] = self.context['user_detail_serializer_data']
+            # instance['user_detail']['user_role'] = self.context['user_role_data']
 
+            return instance
+        except Exception as ex:
+            print("error", ex)
+            print("traceback",traceback.print_exc())
+            
+
+        
 
     def create(self, validated_data):
         try:
@@ -159,10 +166,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                         user_detail_serializer.save()
 
                         self.context.update(
-                            {"user_detail_serializer": user_detail_serializer.data})
+                            {"user_detail_serializer_data": user_detail_serializer.data})
 
                         """ send User Detail Funation """
                         send_user_details(user, user_detail_serializer.data)
+                        return user
                         school = self.context['user_detail_data']['school']
                        
                         if school is not None:
@@ -183,12 +191,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                                 print("user_role_serializer***********",
                                       user_role_serializer.data)
                                 self.context.update({
-                                    "user_role": user_role_serializer.data
+                                    "user_role_data": user_role_serializer.data
                                 })
                             else:
-                                print("ERRor", user_role_serializer.errors)
+                                print("error", user_role_serializer.errors)
                                 raise serializers.ValidationError("user_role serailizer",
-                                                                  user_role_serializer.errors)
+                                                          user_role_serializer.errors)
+                       
+                            
                     else:
                         raise serializers.ValidationError(
                             "user detail", user_detail_serializer.errors)
@@ -200,6 +210,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
         except Exception as ex:
             print("Exception Last,ex")
+            print("traceback", traceback.print_exc())
             raise serializers.ValidationError("Failed to save User details")
 
 
@@ -293,6 +304,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 email_password = validate_auth_user(email,password)
             except Exception as ex:
                 raise ValidationError("Email and Password is required")
+            print("email_password",email_password)
 
             """ get username"""
             try:
@@ -302,16 +314,18 @@ class UserLoginSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError("Email is required")
             except ValidationError:
                 raise ValidationError("Invalid Credentials, Try Again")
-
+            print("username",username)
             """ authenticate username and password """
             try:
                 if username and password is not None:
-                   auth_user = authenticate_username_password(username,password)
+                    print("username,password)",username,password)
+                    auth_user = authenticate_username_password(username,password)
                 else:
                     raise serializers.ValidationError("Credentials is required")
             except ValidationError:
                 raise ValidationError("Login failed , Invalid Username and Password")
-
+            
+            print("auth User", auth_user)
             try:
                 if auth_user is not None:
                     if auth_user.is_active:
