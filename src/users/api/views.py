@@ -69,7 +69,7 @@ class UserTypeListCreate(Mixins, GeneralClass, ListCreateAPIView):
 """ Retrive ,Update and Delete User Type """
 
 
-class UserTypeRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestroyAPIView):
+class UserTypeRetriveUpdateDelete(Mixins, GeneralClass, RetrieveUpdateDestroyAPIView):
     model = UserType
     serializer_class = UserTypeSerializer
     filterset_class = UserTypeFilter
@@ -140,25 +140,33 @@ class UserRegister(CreateAPIView):
             context.update(
                 {"user_data": user_data, "user_detail_data": user_detail_data})
             try:
-                user_data_serializer = UserRegisterSerializer(
+                user_detail = UserRegisterSerializer(
                 data=dict(user_data), context=context)
             except Exception as ex:
+                print("error", ex)
+                print("traceback",traceback.print_exc())
                 context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
-            if user_data_serializer.is_valid():
-                user_data_serializer.save()
+
+
+            if user_detail.is_valid():
+                user_detail.save()
+                print("user_detail",user_detail.data)
                 context = {"message": "User is created successfully. User will get reset password email within 24 hours.",
-                           "data": user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                           "data": user_detail.data, "statusCode": status.HTTP_200_OK}
 
                 return Response(context)
             else:
-                # logger.debug("user_data_serializer.errors",
-                #       user_data_serializer.errors)
-                context = {"error":user_data_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                print("user_detail", user_detail.errors)
+                # logger.debug("user_detail.errors",
+                #       user_detail.errors)
+                context = {"error":user_detail.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
             # logger.debug("Entering Register method",ex)
+            print("error", ex)
+            print("traceback",traceback.print_exc())
             context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
@@ -208,7 +216,8 @@ class EmailConfirmVerify(CreateAPIView):
 """ Login """
 
 
-class UserLogin(CreateAPIView):
+class UserLogin(GeneralClass,Mixins,CreateAPIView):
+    model = User
 
     def post(self, request):
         try:
@@ -216,11 +225,11 @@ class UserLogin(CreateAPIView):
             user_data_serializer = UserLoginSerializer(data=request.data)
             if user_data_serializer.is_valid():
                 context = {"data": user_data_serializer.data}
-                return Response(context)
+                print("Context",context)
+                return Response(user_data_serializer.data)
             else:
-                context = {"error": user_data_serializer.errors,
-                           }
-                return Response(context)
+                
+                return Response(user_data_serializer.errors)
         except Exception as ex:
 
             context = {"error": ex}

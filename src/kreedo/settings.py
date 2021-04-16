@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'package',
     'activity',
     'material',
-    'area_of_devlopment'
+    'area_of_devlopment',
+    'child'
 ]
 
 MIDDLEWARE = [
