@@ -92,6 +92,7 @@ def get_response(data, response_obj, message):
                         }
                     )
                     return response
+        print("Response", message)
         response = json.dumps(
             {
                 'isSuccess': True,

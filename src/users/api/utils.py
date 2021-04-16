@@ -201,7 +201,9 @@ def verified_user_mail(first_name, email):
 
 def authenticate_username_password(username, password):
     try:
-        return authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
+        print("user", user)
+        return user
 
     except Exception as error:
         raise ValidationError("Login failed , Invalid Username and Password")

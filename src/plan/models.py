@@ -50,6 +50,7 @@ class ChildPlan(TimestampAwareModel):
     # child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
+    subjects = models.ManyToManyField(to='schools.Subject')
     current_start_date = models.DateField(null=True, blank=True)
     current_end_date = models.DateField(null=True, blank=True)
     kreedo_previous = models.BooleanField(default=False)
