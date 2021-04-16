@@ -98,10 +98,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             instance = super(UserRegisterSerializer,
                          self).to_representation(instance)
             """ Update details in RESPONSE """
-            # print("self",self)
-            # if self.context['user_detail_serializer_data'] != None:
+            
             instance['user_detail'] = self.context['user_detail_serializer_data']
-            # if self.context['user_role'] != None:
+            
             instance['user_role'] = self.context['user_role']
 
             return instance
@@ -173,7 +172,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                         send_user_details(user, user_detail_serializer.data)
                         
                         school = self.context['user_detail_data']['school']
-                        print("School",school)
                         if school is not None:
                             print("Succes")
                             role_id = self.context['user_detail_data']['role']
@@ -182,33 +180,34 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                                 "role": role_id[0],
                                 "school": school
                             }
-                            print("USER ROLE", user_role)
                             
                             user_role_serializer = UserRoleSerializer(
                                 data=dict(user_role))
                             if user_role_serializer.is_valid():
                                 user_role_serializer.save()
-                                print("user_role_serializer****************",user_role_serializer.data)
-                                # user_role_serializer.save()
-                                print("user_role_serializer***********",
-                                      user_role_serializer.data)
+                                
                                 self.context.update({
                                     "user_role": user_role_serializer.data
                                 })
                                 return user
                             else:
-                                print("error", user_role_serializer.errors)
                                 raise ValidationError(user_role_serializer.errors)
                         else:
                             return user
                         
                     else:
+                        logger.info(user_detail_serializer.errors)
+                        logger.debug(user_detail_serializer.errors)
                         raise ValidationError(user_detail_serializer.errors)
 
             except Exception as ex:
+                logger.info(ex)
+                logger.debug(ex)
                 raise ValidationError(ex)
 
         except Exception as ex:
+            logger.info(ex)
+            logger.debug(ex)
             raise ValidationError(ex)
 
 

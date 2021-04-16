@@ -29,11 +29,20 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
-# import os , environment
+import logging
+from kreedo.conf.logger import*
 
-# authentictaion package
+""" Create Log for Serializer"""
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
 
-# get template
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
+
 
 
 """ Validate Email and Password """
@@ -67,6 +76,8 @@ def create_unique_username():
             username = generate_username(1)[0]
         return username
     except Exception as ex:
+        logger.info(ex)
+        logger.debug(ex)
         raise ValidationError("Username is not Created")
 
 
@@ -77,8 +88,11 @@ def send_user_details(user_obj, user_detail_obj):
     try:
         generate_user_activation_link_response = generate_user_activation_link(
             user_obj, user_detail_obj, True)
-        print(generate_user_activation_link_response)
+        logger.info(generate_user_activation_link_response)
+        logger.debug(generate_user_activation_link_response)
     except Exception as x:
+        logger.info(ex)
+        logger.debug(ex)
         raise ValidationError("Error in genrate verification link")
 
 
@@ -113,16 +127,17 @@ def generate_user_activation_link(user_obj, user_detail_obj, is_user_created=Fal
             """ Call create mail function """
             user_created_mail(user_obj, link)
         else:
-            print("user instance", user_detail_instance)
 
             link = os.environ.get('KREEDO_URL') + \
                 '/users/reset_password_confirm/' + activation_key
-            print("Link", link)
+
             forgot_password_mail(user_obj, link)
         context = {'isSuccess': True,
                    'message': 'Token Sent to user', 'error': '', "data": user_detail_instance}
         return context
     except Exception as error:
+        logger.debug(error)
+        logger.info(error)
         raise ValidationError("Failed to send Token to user")
 
 
@@ -174,6 +189,8 @@ def authenticate_password(username, old_password):
         user = authenticate(username=username, password=old_password)
         return user
     except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
         raise ValidationError("User not Authorized")
 
 

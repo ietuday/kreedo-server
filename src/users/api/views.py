@@ -5,7 +5,6 @@ from .serializer import*
 from ..models import*
 from .filters import*
 from kreedo.general_views import Mixins, GeneralClass
-from kreedo.conf.logger_test import*
 from kreedo.conf.logger import CustomFormatter
 import traceback
 import logging
