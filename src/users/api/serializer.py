@@ -3,6 +3,9 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 
+from django.core.exceptions import ValidationError
+
+
 from django.contrib.auth.models import User
 from ..models import*
 from address.api.serializer import AddressSerializer
@@ -10,6 +13,7 @@ from .utils import*
 import traceback
 import logging
 from kreedo.conf.logger import*
+
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -75,7 +79,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        print("User Role Called", validated_data)
+        print("User Role Called--------->", validated_data)
         return UserRole.objects.create(**validated_data)
 
 
@@ -94,9 +98,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             instance = super(UserRegisterSerializer,
                          self).to_representation(instance)
             """ Update details in RESPONSE """
-            print("self.context['user_detail_serializer_data']",self.context['user_detail_serializer_data'])
+            # print("self",self)
+            # if self.context['user_detail_serializer_data'] != None:
             instance['user_detail'] = self.context['user_detail_serializer_data']
-            # instance['user_detail']['user_role'] = self.context['user_role_data']
+            # if self.context['user_role'] != None:
+            instance['user_role'] = self.context['user_role']
 
             return instance
         except Exception as ex:
@@ -104,47 +110,42 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             print("traceback",traceback.print_exc())
             
 
-        
-
     def create(self, validated_data):
         try:
             first_name = validated_data['first_name']
             last_name = validated_data['last_name']
             password = validated_data['password']
             email = validated_data['email']
-            print("email", email)
 
             """ Validate Email and Password"""
             try:
                 email_password = validate_auth_user(email, password)
             except ValidationError:
-                raise serializers.ValidationError(
+                raise ValidationError(
                     "Email and Password is required")
 
             """ Validate Email """
             try:
                 if not email:
-                    raise serializers.ValidationError("Email is required")
+                    raise ValidationError("Email is required")
                 else:
                     email = user_validate_email(email)
-                    print("email", email)
                     if email is True:
                         validated_data['email'] = validated_data['email'].lower(
                         ).strip()
                     else:
-                        raise serializers.ValidationError(
+                        raise ValidationError(
                             "Enter a valid email address")
             except ValidationError:
-                raise serializers.ValidationError(
+                raise ValidationError(
                     "Enter a valid email address")
 
             """ Genrate Username """
             try:
                 username = create_unique_username()
-                print("username", username)
                 validated_data['username'] = username
             except ValidationError:
-                raise serializers.ValidationError("Failed to genrate username")
+                raise ValidationError("Failed to genrate username")
 
             """ Creating Auth User and User detail """
             try:
@@ -170,13 +171,12 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
                         """ send User Detail Funation """
                         send_user_details(user, user_detail_serializer.data)
-                        return user
+                        
                         school = self.context['user_detail_data']['school']
-                       
+                        print("School",school)
                         if school is not None:
                             print("Succes")
                             role_id = self.context['user_detail_data']['role']
-                            print("role%%%%%%%%%%%",role_id[0])
                             user_role = {
                                 "user": user_detail_serializer.data['user_obj'],
                                 "role": role_id[0],
@@ -188,30 +188,28 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                                 data=dict(user_role))
                             if user_role_serializer.is_valid():
                                 user_role_serializer.save()
+                                print("user_role_serializer****************",user_role_serializer.data)
+                                # user_role_serializer.save()
                                 print("user_role_serializer***********",
                                       user_role_serializer.data)
                                 self.context.update({
-                                    "user_role_data": user_role_serializer.data
+                                    "user_role": user_role_serializer.data
                                 })
+                                return user
                             else:
                                 print("error", user_role_serializer.errors)
-                                raise serializers.ValidationError("user_role serailizer",
-                                                          user_role_serializer.errors)
-                       
-                            
+                                raise ValidationError(user_role_serializer.errors)
+                        else:
+                            return user
+                        
                     else:
-                        raise serializers.ValidationError(
-                            "user detail", user_detail_serializer.errors)
+                        raise ValidationError(user_detail_serializer.errors)
 
             except Exception as ex:
-                print("Exception Second", ex)
-                raise serializers.ValidationError(
-                    "Failed to save User details")
+                raise ValidationError(ex)
 
         except Exception as ex:
-            print("Exception Last,ex")
-            print("traceback", traceback.print_exc())
-            raise serializers.ValidationError("Failed to save User details")
+            raise ValidationError(ex)
 
 
 """ Email verify Serializer """
