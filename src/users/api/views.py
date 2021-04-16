@@ -9,7 +9,7 @@ from kreedo.conf.logger_test import*
 from kreedo.conf.logger import CustomFormatter
 import traceback
 import logging
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
@@ -174,7 +174,7 @@ class UserRegister(CreateAPIView):
 """ Email Confirm Verification"""
 
 
-class EmailConfirmVerify(CreateAPIView):
+class EmailConfirmVerify(ListAPIView):
     # model = User
     serializer_class = UserEmailVerifySerializer
 
