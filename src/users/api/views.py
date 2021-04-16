@@ -16,6 +16,7 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from django.contrib.auth.models import User
 from rest_framework.decorators import permission_classes
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
 """
     REST LIBRARY IMPORT
@@ -114,6 +115,7 @@ class UserRegister(CreateAPIView):
 
             else:
                 print("address_serializer._errors", address_serializer._errors)
+                raise ValidationError(address_serializer.errors)
 
             user_data = {
                 "username": "test",
@@ -157,7 +159,7 @@ class UserRegister(CreateAPIView):
 
                 return Response(context)
             else:
-                print("user_detail", user_detail.errors)
+                print("user_detail Error", user_detail.errors)
                 # logger.debug("user_detail.errors",
                 #       user_detail.errors)
                 context = {"error":user_detail.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
@@ -256,6 +258,7 @@ class ForgetPassword(CreateAPIView):
                 context = {"error":user_data_serializer.errors, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
         except Exception as ex:
+            
             context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
