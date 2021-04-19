@@ -199,3 +199,34 @@ class SectionSubjectTeacherRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUp
             return SectionSubjectTeacherListSerializer
         if self.request.method == 'PUT':
             return SectionSubjectTeacherCreateSerializer
+
+
+""" Room List and Create """
+
+
+class RoomListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = Room
+    filterset_class = RoomFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RoomListSerializer
+        if self.request.method == 'POST':
+            return RoomCreateSerializer
+
+
+""" Room update and Retrive """
+
+
+class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = Room
+    filterset_class = RoomFilter
+    # serializer_class = RoomListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RoomListSerializer
+        if self.request.method == 'PUT':
+            return RoomCreateSerializer
+        if self.request.method == 'DELETE':
+            return RoomListSerializer

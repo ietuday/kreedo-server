@@ -147,3 +147,24 @@ class SectionSubjectTeacher(TimestampAwareModel):
 
     def get_absolute_url(Self):
         return reverse('SectionSubjectTeacher_detail', kwargs == {"pk": self.pk})
+
+
+""" Room Model """
+
+
+class Room(TimestampAwareModel):
+    name = models.CharField(max_length=100, null=True, blank=True)
+    room_no = models.IntegerField()
+    school = models.ForeignKey('School', on_delete=models.PROTECT)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Room'
+        verbose_name_plural = 'Rooms'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('Room_detail', kwargs={"pk": self.pk})

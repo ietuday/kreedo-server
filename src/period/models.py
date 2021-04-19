@@ -2,8 +2,85 @@ from django.db import models
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
 from schools.models import*
+from users.models import*
+from activity.models import*
 # Create your models here.
 
 
+"""  Relationship Choice """
+Regular_Assessment_Period = 'Regular Assessment Period'
+Regular_Period = 'Regular Period'
+Remedial_Period = 'Remedial Period'
+Remedial_Assessment = 'Remedial Assessment'
+
+
+Period_Type_Choice = [
+    (Regular_Assessment_Period, 'Regular Assessment Period'),
+    (Regular_Period, 'Regular Period'),
+    (Remedial_Period, 'Remedial Period'),
+    (Remedial_Assessment, 'Remedial Assessment')
+]
+
+""" Period Template model """
+
+
 class PeriodTemplate(TimestampAwareModel):
-    pass
+    name = models.CharField(max_length=100)
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    published = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'PeriodTemplate'
+        verbose_name_plural = 'PeriodTemplates'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('PeriodTemplate_detail', kwargs={"pk": self.pk})
+
+
+""" Period Model """
+
+
+class Period(TimestampAwareModel):
+    name = models.CharField(max_length=100)
+    subject = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    room_no = models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT, related_name='room_no')
+    academic_session = models.ManyToManyField(
+        to='session.AcademicSession', blank=True)
+    description = models.TextField(null=True, blank=True)
+    start_time = models.DateField(null=True)
+    end_time = models.DateField(null=True)
+    type = models.CharField(
+        max_length=50, choices=Period_Type_Choice)
+    teacher = models.ManyToManyField(to='users.UserDetail')
+    activity_done = models.ManyToManyField(to='activity.Activity')
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Period'
+        verbose_name_plural = 'Periods'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('Period_detail', kwargs={"pk": self.pk})
+
+
+""" Period Template Detail """
+
+
+class PeriodTemplateDetail(TimestampAwareModel):
+    period_template = models.ForeignKey(
+        'Period', on_delete=models.PROTECT, null=True, blank=True)
+    subject = models.ForeignKey(
+        to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
+    room = models.ForeignKey(
+        to='schools.Room', on_delete=models.PROTECT, null=True, blank=True)
+    

@@ -9,11 +9,13 @@ from schools.models import*
 """  Choice """
 Individual = 'Individual'
 Group = 'Group'
+Remedial = 'Remedial'
 
 
 Activity_Type_Choice = [
     (Individual, 'Individual'),
-    (Group, 'Group')
+    (Group, 'Group'),
+    (Remedial, 'Remedial')
 ]
 
 

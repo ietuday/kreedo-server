@@ -133,13 +133,13 @@ class UserRegister(CreateAPIView):
                 "school": request.data.get('school', None),
                 "address": address_serializer.data['id']
 
-
             }
 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
-                {"user_data": user_data, "user_detail_data": user_detail_data})
+                {"user_data": user_data, "user_detail_data": user_detail_data,
+                "address_detail":address_detail})
             try:
                 user_detail = UserRegisterSerializer(
                 data=dict(user_data), context=context)
@@ -152,22 +152,19 @@ class UserRegister(CreateAPIView):
 
             if user_detail.is_valid():
                 user_detail.save()
-                print("user_detail",user_detail.data)
                 context = {"message": "User is created successfully. User will get reset password email within 24 hours.",
                            "data": user_detail.data, "statusCode": status.HTTP_200_OK}
 
                 return Response(context)
             else:
-                print("user_detail Error", user_detail.errors)
-                # logger.debug("user_detail.errors",
-                #       user_detail.errors)
+                logger.debug("user_detail.errors",
+                      user_detail.errors)
                 context = {"error":user_detail.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
-            # logger.debug("Entering Register method",ex)
-            print("error", ex)
-            print("traceback",traceback.print_exc())
+            logger.debug(ex)
+          
             context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
@@ -217,24 +214,23 @@ class EmailConfirmVerify(ListAPIView):
 """ Login """
 
 
-class UserLogin(GeneralClass,Mixins,CreateAPIView):
+class UserLogin(CreateAPIView):
     model = User
 
     def post(self, request):
         try:
 
             user_data_serializer = UserLoginSerializer(data=request.data)
-            if user_data_serializer.is_valid():
-                context = {"data": user_data_serializer.data}
-                print("Context",context)
-                return Response(user_data_serializer.data)
+            if user_data_serializer.is_valid():             
+                context = {'isSuccess': True, 'message': "Login Successfull",
+                           'data': user_data_serializer.data}
+                return Response(context, status.HTTP_200_OK)          
             else:
-                
-                return Response(user_data_serializer.errors)
+                context = {'isSuccess': False,"error":user_data_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context)
         except Exception as ex:
-
-            context = {"error": ex}
-            return Response(context)
+            context = {'isSuccess': False, 'message': "Something went wrong", 'error': ex}
+            return Response(context, status.HTTP_400_BAD_REQUEST)
 
 
 """ Forget password """
@@ -250,15 +246,15 @@ class ForgetPassword(CreateAPIView):
 
             if user_data_serializer.is_valid():
                 print("User Serializer", user_data_serializer)
-                context = {"message": "Token send to user",
+                context = {"message": "Token send to user", 'isSuccess': True,
                 "statusCode":status.HTTP_200_OK}
                 return Response(context)
             else:
-                context = {"error":user_data_serializer.errors, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                context = {"error":user_data_serializer.errors,'isSuccess': False, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
         except Exception as ex:
             
-            context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+            context = {"error":ex,'isSuccess': False, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
 
@@ -301,25 +297,30 @@ class ChangePassword(CreateAPIView):
 class ResetPasswordConfirm(CreateAPIView):
     # model = User
     serializer_class = User_Password_Reseted_Mail_Serializer
-    def get(self, request, uidb64, token):
+    def post(self, request, uidb64, token):
         try:
             user_token_detail = {
                 "uidb64": uidb64,
                 "token": token
             }
-            print("User Token detail")
+            password_detail = {
+                "password":request.data.get('password',None),
+                "confirm_password":request.data.get("confirm_password",None)
+            }
             context = super().get_serializer_context()
-            context.update({"user_token_detail": user_token_detail})
+            context.update({"user_token_detail": user_token_detail,"password_detail":password_detail})
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
-                data=request.data, context=context)
+                data= request.data , context=context)
             if user_data_serializer.is_valid():
                 context = {"mail_t": user_data_serializer.data,
-                           'message': 'Password has been reset.'}
+                           'message': 'Password has been reset.',
+                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
             else:
-                context = {"error": user_data_serializer.data}
+                context = {"error": user_data_serializer.data,
+                 "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context)
 
         except Exception as ex:
-            context = {"error": ex}
+            context = {"error": ex, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)

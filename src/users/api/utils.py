@@ -1,5 +1,7 @@
 
 # validate email
+from kreedo.conf.logger import*
+import logging
 import traceback
 from django.template.loader import get_template
 from django.contrib.auth import authenticate
@@ -29,9 +31,6 @@ jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 
-import logging
-from kreedo.conf.logger import*
-
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -42,7 +41,6 @@ handler.setFormatter(CustomFormatter())
 logger.addHandler(handler)
 # A string with a variable at the "info" level
 logger.info("UTILS CAlled ")
-
 
 
 """ Validate Email and Password """
@@ -218,10 +216,8 @@ def verified_user_mail(first_name, email):
 
 def authenticate_username_password(username, password):
     try:
-        user = authenticate(username=username, password=password)
-        print("user", user)
-        return user
 
+        return authenticate(username=username, password=password)
     except Exception as error:
         raise ValidationError("Login failed , Invalid Username and Password")
 
@@ -232,12 +228,10 @@ def authenticate_username_password(username, password):
 def genrate_token(user):
     try:
         payload = jwt_payload_handler(user)
-        print(payload)
-        print("payload______", jwt_encode_handler(payload))
 
         return jwt_encode_handler(payload)
     except Exception as error:
-        raise ValidationError("error", error)
+        raise ValidationError(error)
 
 
 def password_reseted_mail(first_name, email):
