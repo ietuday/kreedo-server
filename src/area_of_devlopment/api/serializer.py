@@ -10,10 +10,20 @@ class AreaOfDevlopmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-""" Conept Serializer """
+""" Conept List Serializer """
 
 
-class ConceptSerializer(serializers.ModelSerializer):
+class ConceptListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Concept
+        fields = '__all__'
+        depth = 1
+
+
+""" Conept Create Serializer """
+
+
+class ConceptCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Concept
         fields = '__all__'

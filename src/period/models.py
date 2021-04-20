@@ -78,9 +78,24 @@ class Period(TimestampAwareModel):
 
 class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
-        'Period', on_delete=models.PROTECT, null=True, blank=True)
+        'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
         to='schools.Room', on_delete=models.PROTECT, null=True, blank=True)
-    
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
+    type = models.CharField(
+        max_length=50, choices=Period_Type_Choice)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'PeriodTemplateDetail'
+        verbose_name_plural = 'PeriodTemplateDetails'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('PeriodTemplateDetail_detail', kwargs={"pk": self.pk})
