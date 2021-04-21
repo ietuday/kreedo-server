@@ -125,7 +125,8 @@ class UserRole(TimestampAwareModel):
     user = models.ForeignKey(
         'UserDetail', on_delete=models.CASCADE, related_name='user')
     role = models.ForeignKey('Role', on_delete=models.CASCADE)
-    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    school = models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     objects = UserRoleManager
 

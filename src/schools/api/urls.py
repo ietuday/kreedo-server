@@ -27,6 +27,11 @@ urlpatterns = [
     path('section-subject-teacher_retrive_update_delete/<int:pk>', SectionSubjectTeacherRetriveUpdateDestroy.as_view(),
          name='SectionSubjectTeacherRetriveUpdateDestroy'),
 
+    path('room_list_create', RoomListCreate.as_view(),
+         name='RoomListCreate'),
+
+    path('room_retrive_update_delete/<int:pk>', RoomRetriveUpdateDestroy.as_view(),
+         name='RoomRetriveUpdateDestroy'),
 
 
 

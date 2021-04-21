@@ -38,7 +38,7 @@ class Child(TimestampAwareModel):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField()
-    type = models.CharField(max_length=25, choices=Gender_Choice)
+    gender = models.CharField(max_length=25, choices=Gender_Choice)
     date_of_joining = models.DateField()
     place_of_birth = models.CharField(max_length=100, null=True, blank=True)
     blood_group = models.CharField(max_length=100, null=True, blank=True)
@@ -70,6 +70,7 @@ class Child(TimestampAwareModel):
 
 
 class ChildDetail(TimestampAwareModel):
+    child = models.ForeignKey('Child', on_delete=models.CASCADE)
     medical_details = JSONField(blank=True, null=True)
     recidence_details = JSONField(blank=True, null=True)
     emergency_of_contact_details = JSONField()

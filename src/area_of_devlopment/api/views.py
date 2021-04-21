@@ -38,7 +38,12 @@ class AreaOfDevlopmentRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Concept
     filterset_class = ConceptFilter
-    serializer_class = ConceptSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ConceptListSerializer
+        if self.request.method == 'POST':
+            return ConceptCreateSerializer
 
 
 """ Retrive update and delete Concept """
@@ -47,7 +52,14 @@ class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class ConceptRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Concept
     filterset_class = ConceptFilter
-    serializer_class = ConceptSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ConceptListSerializer
+        if self.request.method == 'PUT':
+            return ConceptCreateSerializer
+        if self.request.method == 'DELETE':
+            return ConceptListSerializer
 
 
 """ Skill List and Create """
@@ -70,10 +82,11 @@ class SkillListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class SkillRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Skill
     filterset_class = SkillFilter
-    serializer_class = SkillListSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SkillListSerializer
         if self.request.method == 'PUT':
             return SkillCreateSerializer
+        if self.request.method == 'DELETE':
+            return SkillListSerializer

@@ -8,8 +8,8 @@ from activity.models import*
 
 @admin.register(Activity)
 class ActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_filter = ['id', 'name', 'type', 'objective',
-                   'description', 'notes', 'created_by', 'duration', 'is_active']
+    list_display = ['id', 'name', 'type', 'objective',
+                    'description', 'notes', 'created_by', 'duration', 'is_active']
 
     search_fields = ['id', 'name', 'type', 'objective',
                      'description', 'notes', 'created_by', 'duration', 'is_active']
