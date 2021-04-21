@@ -99,7 +99,7 @@ class ActivityAsset(TimestampAwareModel):
 
 class GroupActivityMissed(TimestampAwareModel):
     child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
-    period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT)
+    period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT, blank=True, null=True)
     activity = models.ForeignKey(
         to='activity.Activity', on_delete=models.PROTECT)
     is_completed = models.BooleanField(default=False)
