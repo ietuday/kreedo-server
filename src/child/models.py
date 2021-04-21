@@ -5,7 +5,7 @@ from users.models import UserDetail
 from schools.models import Subject
 from session.models import AcademicSession
 from django.contrib.postgres.fields import JSONField
-
+from .managers import*
 
 # Create your models here.
 
@@ -53,6 +53,7 @@ class Child(TimestampAwareModel):
     reason_for_discontinue = models.TextField(null=True, blank=True)
 
     is_active = models.BooleanField(default=False)
+    # objects = ChildManager
 
     class Meta:
         verbose_name = 'Child'
@@ -66,7 +67,7 @@ class Child(TimestampAwareModel):
         return reverse('Child_detail', {"pk": self.pk})
 
 
-""" child detail """
+""" child detail Model """
 
 
 class ChildDetail(TimestampAwareModel):
@@ -88,3 +89,26 @@ class ChildDetail(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ChildDetail_detail', kwargs={"pk": self.pk})
+
+
+""" Attendance Model """
+
+
+class Attendance(TimestampAwareModel):
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT)
+    marked_status = models.BooleanField(default=False)
+    childs = JSONField(blank=True, null=True)
+    attendance_date = models.DateField(null=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Attendance'
+        verbose_name_plural = 'Attendances'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('Attendance_detail', kwargs={"pk": self.pk})

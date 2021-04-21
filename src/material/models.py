@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
 from activity.models import*
+from .managers import*
 # Create your models here.
 """ Material Model """
 
@@ -12,6 +13,7 @@ class Material(TimestampAwareModel):
     photo = models.CharField(max_length=100, null=True, blank=True)
     code = models.CharField(max_length=200, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    objects = MaterialManager
 
     class Meta:
         verbose_name = 'Material'

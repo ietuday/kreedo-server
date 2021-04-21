@@ -21,6 +21,9 @@ class ChildAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                    'academic_session', 'reason_for_discontinue', 'is_active']
 
 
+""" Child Detail Admin """
+
+
 @admin.register(ChildDetail)
 class ChildDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'child', 'medical_details', 'recidence_details', 'emergency_of_contact_details',
@@ -29,3 +32,16 @@ class ChildDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                      'siblings_details', 'document_checklist', 'is_active']
     list_filter = ['id',  'child', 'medical_details', 'recidence_details', 'emergency_of_contact_details',
                    'siblings_details', 'document_checklist', 'is_active']
+
+
+""" Attendance Admin """
+
+
+@admin.register(Attendance)
+class AttendanceAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'academic_session', 'marked_status',
+                    'attendance_date', 'is_active']
+    search_fields = ['id', 'academic_session', 'marked_status',
+                     'attendance_date', 'is_active']
+    list_filter = ['id', 'academic_session', 'marked_status',
+                   'attendance_date', 'is_active']

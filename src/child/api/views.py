@@ -1,3 +1,4 @@
+import traceback
 from django.shortcuts import render
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
@@ -11,6 +12,23 @@ from .serializer import*
 # Create your views here.
 
 """ create and List Child """
+
+
 class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
-    filterset_class = ChildFilter
+    # filterset_class = ChildFilter
+
+
+""" Attendance List and Create """
+
+
+class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = Attendance
+    # filterset_class = AttendanceFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AttendanceListSerializer
+
+        if self.request.method == 'POST':
+            return AttendanceCreateSerializer

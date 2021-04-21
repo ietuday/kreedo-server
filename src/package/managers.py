@@ -16,7 +16,7 @@ class PackageManager(models.Manager):
     def get_queryset(self):
         return PackageQueryset(self.model, using=self._db)
 
-    def name_icontains(self, state):
+    def name_icontains(self, name):
         return self.get_queryset().name_icontains(name)
 
 

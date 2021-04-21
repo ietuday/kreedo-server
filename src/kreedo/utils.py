@@ -52,7 +52,7 @@ def get_message(api_name, method):
                   'activity', 'activity-asset', 'material',
                   'activity-master-supporting-material', 'area-of-devlopment',
                   'concept', 'skill', 'room', 'period-template',
-                  'period-template-detail']
+                  'period-template-detail', 'attendance']
 
     for name in model_name:
         if name in apiname_list:
