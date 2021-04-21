@@ -107,10 +107,11 @@ class UserRegister(CreateAPIView):
                 "address": request.data.get('address', None),
                 "pincode": request.data.get('pincode', None)
             }
-
+            address_created = False
             address_serializer = AddressSerializer(data=address_detail)
             if address_serializer.is_valid():
                 address_serializer.save()
+                address_created = True
 
             else:
                 print("address_serializer._errors", address_serializer._errors)
@@ -138,8 +139,7 @@ class UserRegister(CreateAPIView):
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
-                {"user_data": user_data, "user_detail_data": user_detail_data,
-                "address_detail":address_detail})
+                {"user_data": user_data, "user_detail_data": user_detail_data})
             try:
                 user_detail = UserRegisterSerializer(
                 data=dict(user_data), context=context)
@@ -163,8 +163,11 @@ class UserRegister(CreateAPIView):
                 return Response(context)
 
         except Exception as ex:
+
+            address_id = address_serializer.data['id']
+            address_obj = Address.objects.get(pk=address_id)
+            address_obj.delete()
             logger.debug(ex)
-          
             context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 

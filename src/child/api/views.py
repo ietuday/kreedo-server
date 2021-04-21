@@ -11,8 +11,6 @@ from .serializer import*
 # Create your views here.
 
 """ create and List Child """
-
-
 class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
