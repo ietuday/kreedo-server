@@ -11,4 +11,9 @@ urlpatterns = [
 
     path('attendance_list_create',
          AttendanceListCreate.as_view(), name='AttendanceListCreate'),
+
+     path('attendance_retrive_update_delete/<int:pk>', AttendanceRetriveUpdateDestroy.as_view(),
+         name='AttendanceRetriveUpdateDestroy'),
+         
+
 ]

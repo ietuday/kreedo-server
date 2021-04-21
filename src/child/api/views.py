@@ -32,3 +32,21 @@ class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
         if self.request.method == 'POST':
             return AttendanceCreateSerializer
+
+
+
+""" Attendance Retrive Update and Delete """
+
+class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = Attendance
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AttendanceListSerializer
+
+        if self.request.method == 'PUT':
+            return AttendanceCreateSerializer
+
+        if self.request.method == 'DELETE':
+            return AttendanceListSerializer
+
