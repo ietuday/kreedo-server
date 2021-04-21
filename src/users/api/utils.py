@@ -88,7 +88,7 @@ def send_user_details(user_obj, user_detail_obj):
             user_obj, user_detail_obj, True)
         logger.info(generate_user_activation_link_response)
         logger.debug(generate_user_activation_link_response)
-    except Exception as x:
+    except Exception as ex:
         logger.info(ex)
         logger.debug(ex)
         raise ValidationError("Error in genrate verification link")
