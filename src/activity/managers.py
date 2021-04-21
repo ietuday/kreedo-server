@@ -2,20 +2,20 @@ from django.db import models
 
 
 
-""" Plan Queryset """
+""" Activity Queryset """
 
 
-class PlanQueryset(models.QuerySet):
+class ActivityQueryset(models.QuerySet):
     def name_icontains(self, name):
         return self.filter(name__icontains=name)
 
 
-""" Plan Manager """
+""" Activity Manager """
 
 
-class PlanManager(models.Manager):
+class ActivityManager(models.Manager):
     def get_queryset(self):
-        return PlanQueryset(self.model, using=self._db)
+        return ActivityQueryset(self.model, using=self._db)
 
     def name_icontains(self, name):
         return self.get_queryset().name_icontains(name)

@@ -4,6 +4,7 @@ from kreedo.core import TimestampAwareModel
 from schools.models import*
 from session.models import AcademicSession
 from activity.models import*
+from .managers import*
 # Create your models here.
 
 
@@ -28,6 +29,7 @@ class Plan(TimestampAwareModel):
     range_to = models.IntegerField(null=True, blank=True)
     previous_kreedo = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    objects = PlanManager
 
     class Meta:
         verbose_name = 'Plan'
@@ -57,6 +59,7 @@ class ChildPlan(TimestampAwareModel):
     published = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_close = models.BooleanField(default=False)
+    objects = ChildPlanManager
 
     class Meta:
         verbose_name = 'ChildPlan'
