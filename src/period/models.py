@@ -4,6 +4,7 @@ from kreedo.core import TimestampAwareModel
 from schools.models import*
 from users.models import*
 from activity.models import*
+from .managers import*
 # Create your models here.
 
 
@@ -29,6 +30,7 @@ class PeriodTemplate(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     published = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    objects = PeriodTemplateManager
 
     class Meta:
         verbose_name = 'PeriodTemplate'

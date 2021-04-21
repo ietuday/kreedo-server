@@ -3,6 +3,8 @@ from django.urls import reverse
 from kreedo.core import TimestampAwareModel
 from users.models import*
 from schools.models import*
+from area_of_devlopment.models import*
+from .managers import*
 
 # Create your models here.
 
@@ -45,7 +47,7 @@ class Activity(TimestampAwareModel):
     description = models.TextField(blank=True, null=True)
     notes = models.CharField(max_length=200, blank=True, null=True)
     subject = models.ManyToManyField(to='schools.Subject', blank=True)
-    # skill = models.ManyToManyField(to='skill', blank=True)
+    # skill = models.ManyToManyField(to='area_of_devlopment.Skill', relatedblank=True)
     master_material = models.ManyToManyField(to='material.Material')
     supporting_material = models.ManyToManyField(
         to='material.Material', related_name='activity_supporting_material')
@@ -53,6 +55,7 @@ class Activity(TimestampAwareModel):
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    objects = ActivityManager
 
     class Meta:
         verbose_name = 'Activity'
@@ -95,8 +98,8 @@ class ActivityAsset(TimestampAwareModel):
 
 
 class GroupActivityMissed(TimestampAwareModel):
-    # child = models.ForeignKey(to='child.Child')
-    # period =  models.ForeignKey(to='period.Period')
+    child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
+    period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT)
     activity = models.ForeignKey(
         to='activity.Activity', on_delete=models.PROTECT)
     is_completed = models.BooleanField(default=False)

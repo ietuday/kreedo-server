@@ -8,4 +8,7 @@ urlpatterns = [
 
     # path('area-of-devlopment_retrive_update_delete/<int:pk>', AreaOfDevlopmentRetriveUpdateDestroy.as_view(),
     #      name='AreaOfDevlopmentRetriveUpdateDestroy'),
+
+    path('attendance_list_create',
+         AttendanceListCreate.as_view(), name='AttendanceListCreate'),
 ]

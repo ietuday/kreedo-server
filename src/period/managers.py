@@ -2,20 +2,20 @@ from django.db import models
 
 
 
-""" Material Queryset """
+""" PeriodTemplate Queryset """
 
 
-class MaterialQueryset(models.QuerySet):
+class PeriodTemplateQueryset(models.QuerySet):
     def name_icontains(self, name):
         return self.filter(name__icontains=name)
 
 
-""" Material Manager """
+""" PeriodTemplate Manager """
 
 
-class MaterialManager(models.Manager):
+class PeriodTemplateManager(models.Manager):
     def get_queryset(self):
-        return MaterialQueryset(self.model, using=self._db)
+        return PeriodTemplateQueryset(self.model, using=self._db)
 
     def name_icontains(self, name):
         return self.get_queryset().name_icontains(name)
