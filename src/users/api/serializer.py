@@ -207,10 +207,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
             except Exception as ex:
                 user_id = user.id
-                print('user id------->', user_id)
+                
                 user_obj = User.objects.get(pk=user_id)
                 user_obj.delete()
-                print("user delet")
+              
                 logger.info(ex)
                 logger.debug(ex)
                 raise ValidationError(ex)
