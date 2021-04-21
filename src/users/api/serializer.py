@@ -260,7 +260,7 @@ class UserEmailVerifySerializer(serializers.ModelSerializer):
                     mail_t = verified_user_mail(
                         user_obj.first_name, user_obj.email)
                    
-                    mail="Password Has Been Reset"
+                    mail="Your email has been verified"
                     
                     self.context.update({"mail_t": mail})
                     return mail
