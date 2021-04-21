@@ -13,3 +13,9 @@ class ChildFilter(filters.FilterSet):
     class Meta:
         model = 'Child'
         fields = '__all__'
+
+
+class ChildDetailFilter(filters.FilterSet):
+    class Meta:
+        model = 'ChildDetail'
+        fields = '__all__'

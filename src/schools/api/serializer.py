@@ -97,3 +97,22 @@ class SectionSubjectTeacherCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionSubjectTeacher
         fields = '__all__'
+
+
+""" Room List Serializer """
+
+
+class RoomListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'
+        depth = 1
+
+
+""" Room create Serializer """
+
+
+class RoomCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'

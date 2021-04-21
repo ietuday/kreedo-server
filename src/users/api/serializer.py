@@ -98,10 +98,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             instance = super(UserRegisterSerializer,
                          self).to_representation(instance)
             """ Update details in RESPONSE """
-            # print("self",self)
-            # if self.context['user_detail_serializer_data'] != None:
+            
             instance['user_detail'] = self.context['user_detail_serializer_data']
-            # if self.context['user_role'] != None:
+            
             instance['user_role'] = self.context['user_role']
 
             return instance
@@ -116,6 +115,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             last_name = validated_data['last_name']
             password = validated_data['password']
             email = validated_data['email']
+            auth_user_created = False
+            address_created = False
+            user_role_created = False
 
             """ Validate Email and Password"""
             try:
@@ -157,6 +159,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                                                     last_name=last_name, is_active=False)
                     user.set_password(password)
                     user.save()
+                    auth_user_created = True
                     self.context['user_detail_data']['user_obj'] = user.id
 
                     """ Pass request data of User detail"""
@@ -172,43 +175,49 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                         """ send User Detail Funation """
                         send_user_details(user, user_detail_serializer.data)
                         
-                        school = self.context['user_detail_data']['school']
-                        print("School",school)
-                        if school is not None:
-                            print("Succes")
+                        school_id = self.context['user_detail_data']['school']
+                        print("School--->", school_id)
+                        if school_id is not None:
+                            print("Succes", school_id)
                             role_id = self.context['user_detail_data']['role']
                             user_role = {
                                 "user": user_detail_serializer.data['user_obj'],
                                 "role": role_id[0],
-                                "school": school
+                                "school": school_id
                             }
-                            print("USER ROLE", user_role)
                             
                             user_role_serializer = UserRoleSerializer(
                                 data=dict(user_role))
                             if user_role_serializer.is_valid():
                                 user_role_serializer.save()
-                                print("user_role_serializer****************",user_role_serializer.data)
-                                # user_role_serializer.save()
-                                print("user_role_serializer***********",
-                                      user_role_serializer.data)
+                                
                                 self.context.update({
                                     "user_role": user_role_serializer.data
                                 })
                                 return user
                             else:
-                                print("error", user_role_serializer.errors)
                                 raise ValidationError(user_role_serializer.errors)
                         else:
                             return user
                         
                     else:
+                        logger.info(user_detail_serializer.errors)
+                        logger.debug(user_detail_serializer.errors)
                         raise ValidationError(user_detail_serializer.errors)
 
             except Exception as ex:
+                user_id = user.id
+                
+                user_obj = User.objects.get(pk=user_id)
+                user_obj.delete()
+              
+                logger.info(ex)
+                logger.debug(ex)
                 raise ValidationError(ex)
 
         except Exception as ex:
+            logger.info(ex)
+            logger.debug(ex)
             raise ValidationError(ex)
 
 
@@ -221,8 +230,7 @@ class UserEmailVerifySerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', 'last_name', 'is_active']
 
     def to_representation(self, instance):
-        print("SElf##################################333",self)
-        print("INSTANCE", instance)
+     
         instance = super(UserEmailVerifySerializer, self).to_representation(instance)
         
         instance['mail_t'] = self.context['mail_t']
@@ -231,22 +239,19 @@ class UserEmailVerifySerializer(serializers.ModelSerializer):
         
 
     def validate(self, validated_data):
-        print("Called")
         try:
             uidb64 = self.context['user_token_detail']['uidb64']
             token = self.context['user_token_detail']['token']
 
-            print("uidb 64, token*************", uidb64, token)
             assert uidb64 is not None and token is not None  # checked by URLconf
             try:
                 uid = urlsafe_base64_decode(uidb64)
                 user = User._default_manager.get(pk=uid)
             except (TypeError, ValueError, OverflowError, User.DoesNotExist):
                 user = None
-            print("user", user)
             try:
                 if user is not None and default_token_generator.check_token(user, token):
-                    print("True")
+                    
                     user.is_active = True
                     user.userdetail.email_verified = True
                     user.save()
@@ -254,21 +259,19 @@ class UserEmailVerifySerializer(serializers.ModelSerializer):
                     user_obj = User.objects.get(pk=uid)
                     mail_t = verified_user_mail(
                         user_obj.first_name, user_obj.email)
-                    print("mail_t",mail_t)
+                   
                     mail="Password Has Been Reset"
-                    print("mail",mail)
+                    
                     self.context.update({"mail_t": mail})
                     return mail
                 else:
-                    raise serializers.ValidationError(
+                    raise ValidationError(
                         "The reset password link is no longer valid.")
             except Exception as ex:
-                print("error!!!!!!!!!!!!!!!!!!!!!!!!!",ex)
-                raise serializers.ValidationError("Unable to confirm password")
+                raise ValidationError("Unable to confirm password")
         except Exception as ex:
-            print("error in serializer", ex)
-            print("TRACEBACK",traceback.print_exc())
-            raise serializers.ValidationError("Unable to confirm password")
+            
+            raise ValidationError("Unable to confirm password")
 
 
 
@@ -302,28 +305,33 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 email_password = validate_auth_user(email,password)
             except Exception as ex:
                 raise ValidationError("Email and Password is required")
-            print("email_password",email_password)
+            
 
             """ get username"""
             try:
+                print("email",email)
                 if email is not None:
-                    username = User.objects.filter(email = email, is_active=True).first().username
+                    print("email--->", email)
+                    username = User.objects.get(email = email, is_active=True).username
+                    print("username", username)
                 else:
-                    raise serializers.ValidationError("Email is required")
-            except ValidationError:
+                    raise ValidationError("Email is required")
+            except Exception as ex:
+                
                 raise ValidationError("Invalid Credentials, Try Again")
-            print("username",username)
+
+           
             """ authenticate username and password """
             try:
                 if username and password is not None:
-                    print("username,password)",username,password)
+                   
                     auth_user = authenticate_username_password(username,password)
                 else:
-                    raise serializers.ValidationError("Credentials is required")
-            except ValidationError:
-                raise ValidationError("Login failed , Invalid Username and Password")
+                    raise ValidationError("Credentials is required")
+            except Exception as ex:
+                raise ValidationError("Credentials is required")
             
-            print("auth User", auth_user)
+            
             try:
                 if auth_user is not None:
                     if auth_user.is_active:
@@ -336,22 +344,26 @@ class UserLoginSerializer(serializers.ModelSerializer):
                             self.context.update({"token": token})
                             self.context.update({"user_detail":user_detail_serializer.data})
                             data="Login Successful"
-                            print("Data", data)
+                            
                             return data
                         except Exception as ex:
-                            raise serializers.ValidationError('Some issue in user detail.Please Check')
+                            raise ValidationError('Some issue in user detail.Please Check')
                         
                     else:
-                        raise serializers.ValidationError("Sorry, this account is deactivated")
+                        raise ValidationError("Sorry, this account is deactivated")
                 else:
-                    raise serializers.ValidationError("Login failed ,Invalid Username and Password")
+                    raise ValidationError("Login failed ,Invalid Username and Password")
                 
                 
             except Exception as ex:
-                raise serializers.ValidationError("Login failed ,Invalid Username and Password")
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError(ex)
      
         except Exception as ex:
-            raise ValidationError("Something went wrong")
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
 
 
 """ FORGET PASSWORD"""
@@ -362,14 +374,12 @@ class UserForgetSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         try:
-            print("instance--------->",instance)
             instance = super(UserForgetSerializer, self).to_representation(instance)
 
             instance['t'] = self.context['t']
             return instance
 
         except Exception as ex:
-            print("error----->",ex)
             raise ValidationError(ex)
         
 
@@ -381,33 +391,34 @@ class UserForgetSerializer(serializers.ModelSerializer):
                 user_obj = User._default_manager.filter(email = email_id, is_active=True).first()   
                         
             except Exception as ex:
-                raise serializers.ValidationError("This email ID is not linked to any account. Please check again.")
+                raise ValidationError("This email ID is not linked to any account. Please check again.")
 
             try:
                 user_detail_obj = UserDetail.objects.get(user_obj=user_obj)
                 
             except Exception as ex:
-                raise serializers.ValidationError("This email ID is not linked to any account. Please check again.")
+                raise ValidationError("This email ID is not linked to any account. Please check again.")
 
             try:                
                 # Generate password reset token link and send  email
                 generate_user_activation_link_response = generate_user_activation_link(user_obj, user_detail_obj,False)
-                print("generate_user_activation_link_response@@@@@@@@@@",generate_user_activation_link_response)
                 
                 if generate_user_activation_link_response["isSuccess"] is True:
-                    print("True")
+                    
                     self.context.update({"t":generate_user_activation_link_response})
                     data = 'Token Sent to user'
-                    print("Data", data)
                     return data
                 else:
-                    raise serializers.ValidationError("Failed to send Token to user")
+                    raise ValidationError("Failed to send Token to user")
             except Exception as ex:
-                raise serializers.ValidationError("This email ID is not linked to any account. Please check again.")
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError("This email ID is not linked to any account. Please check again.")
         
         except Exception as ex:
-            print("erro Main exception block", ex)
-            raise serializers.ValidationError("Failed to send Token to user")
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
 
 """ CHANGE PASSWORD """
 class UserChangePasswordSerializer(serializers.ModelSerializer):
@@ -421,7 +432,6 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, validated_data):
-        print("change_password",validated_data)
         username=self.context['password_detail']['username']
         old_password=self.context['password_detail']['old_password']
         new_password=self.context['password_detail']['new_password']
@@ -466,25 +476,31 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
 
     def validate(self,validated_data):
         try:
+            
             uidb64 = self.context['user_token_detail']['uidb64']
             token = self.context['user_token_detail']['token']
-            password1 = validated_data.pop('password1')
-            password2 = validated_data.pop('password2')
+            password = self.context['password_detail']['password']
+            confirm_password = self.context['password_detail']['confirm_password']
+            
+            
+            # password = validated_data.pop('password')
+            # confirm_password = validated_data.pop('confirm_password')
 
             
             assert uidb64 is not None and token is not None  # checked by URLconf
             try:
                 uid = urlsafe_base64_decode(uidb64)
                 user = User._default_manager.get(pk=uid)
-                print("userrrrrrr " , user)
+              
             except (TypeError, ValueError, OverflowError, User.DoesNotExist):
                 user = None
 
             try:
-                if user is not None and default_token_generator.check_token(user, token):
-                   
-                    if  password1==password2:
-                        new_password = password2
+                
+                if user is not None and default_token_generator.check_token(user,token):
+                    
+                    if  password==confirm_password:
+                        new_password = confirm_password
                         user.set_password(new_password)
                         user.is_active = True
                         user.userdetail.email_verified = True
@@ -493,14 +509,17 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
                         user_obj = User.objects.get(pk=uid)
                         mail_t = password_reseted_mail(user_obj.first_name, user_obj.email)
                         self.context.update({"mail_t":'mail_t'})
+                        data = "Password has been reset."
+                       
+                        return data
                     else:
-                        raise serializers.ValidationError("Confirm Password Does not match")
+                        raise ValidationError("Confirm Password Does not match")
                 else:
-                    raise serializers.ValidationError("The reset password link is no longer valid.")
+                    raise ValidationError("The reset password link is no longer valid.")
             except Exception as ex:
-                raise serializers.ValidationError("Unable to confirm password")
+                raise ValidationError(ex)
 
         except Exception as ex:
-            raise serializers.ValidationError("Unable to confirm password")  
+            raise ValidationError(ex)  
 
 

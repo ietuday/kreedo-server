@@ -1,5 +1,19 @@
 import json
 import rest_framework.status
+import logging
+from kreedo.conf.logger import*
+
+
+""" Create Log for Utils"""
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
 
 """ 
     Extracting url and method name from request
@@ -17,6 +31,8 @@ def get_url(request_obj):
 
         return url, method
     except Exception as ex:
+        logger.info(ex)
+        logger.debug(ex)
         raise Exception(ex)
 
 
@@ -35,7 +51,8 @@ def get_message(api_name, method):
                   'school-package', 'plan', 'child-plan', 'plan-activity',
                   'activity', 'activity-asset', 'material',
                   'activity-master-supporting-material', 'area-of-devlopment',
-                  'concept', 'skill']
+                  'concept', 'skill', 'room', 'period-template',
+                  'period-template-detail']
 
     for name in model_name:
         if name in apiname_list:
@@ -92,7 +109,6 @@ def get_response(data, response_obj, message):
                         }
                     )
                     return response
-        print("Response", message)
         response = json.dumps(
             {
                 'isSuccess': True,
@@ -103,4 +119,6 @@ def get_response(data, response_obj, message):
         )
         return response
     except Exception as ex:
+        logger.info(ex)
+        logger.debug(ex)
         raise Exception(ex)

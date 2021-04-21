@@ -59,3 +59,13 @@ class SectionSubjectTeacherAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     search_fields = ['id', 'subject',
                      'academic_session', 'is_active']
     list_filter = ['id', 'subject',  'academic_session', 'is_active']
+
+
+""" Room Admin"""
+
+
+@admin.register(Room)
+class RoomAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'name', 'room_no', 'school', 'is_active']
+    search_fields = ['id', 'name', 'room_no', 'school', 'is_active']
+    list_filter = ['id', 'name', 'room_no', 'school', 'is_active']
