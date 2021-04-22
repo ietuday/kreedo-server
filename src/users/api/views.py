@@ -226,14 +226,14 @@ class UserLogin(CreateAPIView):
             user_data_serializer = UserLoginSerializer(data=request.data)
             if user_data_serializer.is_valid():             
                 context = {'isSuccess': True, 'message': "Login Successfull",
-                           'data': user_data_serializer.data}
-                return Response(context, status.HTTP_200_OK)          
+                           'data': user_data_serializer.data,"statusCode":status.HTTP_200_OK}
+                return Response(context)          
             else:
                 context = {'isSuccess': False,"error":user_data_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
         except Exception as ex:
-            context = {'isSuccess': False, 'message': "Something went wrong", 'error': ex}
-            return Response(context, status.HTTP_400_BAD_REQUEST)
+            context = {'isSuccess': False, 'message': "Something went wrong", 'error': ex,"statusCode":status.HTTP_400_BAD_REQUEST}
+            return Response(context)
 
 
 """ Forget password """
@@ -315,15 +315,111 @@ class ResetPasswordConfirm(CreateAPIView):
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
                 data= request.data , context=context)
             if user_data_serializer.is_valid():
-                context = {"mail_t": user_data_serializer.data,
+                context = {'isSuccess': True,
                            'message': 'Password has been reset.',
                             "statusCode": status.HTTP_200_OK}
                 return Response(context)
             else:
                 context = {"error": user_data_serializer.data,
-                 "statusCode": status.HTTP_404_NOT_FOUND}
+                 "statusCode": status.HTTP_404_NOT_FOUND,'isSuccess': False}
                 return Response(context)
 
         except Exception as ex:
-            context = {"error": ex, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            context = {"error": ex,'isSuccess': False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
+
+
+
+
+""" logged in """
+@permission_classes((IsAuthenticated,))
+class LoggedIn(GeneralClass, ListAPIView):
+
+    def get(self,request):
+        logged_user = request.user
+        user_obj_detail = UserDetail.objects.get(pk= logged_user.id)
+        user_data = LoggedInUserSerializer(user_obj_detail)
+        return Response(user_data.data)
+
+
+
+
+""" Add User """
+class AddUser(ListCreateAPIView):
+    def post(self, request):
+        try:
+            address_detail = {
+                    "address":request.data.get('address', None),
+                    "city":request.data.get('city', None),
+                    "state":request.data.get('state', None),
+                    "country":request.data.get('country', None),
+                    "pincode":request.data.get('pincode', None),
+                   
+            }
+            address_created = False
+            address_serializer = AddressSerializer(data=dict(address_detail))
+            if address_serializer.is_valid():
+                address_serializer.save()  
+                address_created = True
+            else:
+                print("address_serializer._errors", address_serializer._errors)
+                raise ValidationError(address_serializer.errors)
+
+            """ Auth user Data """
+
+            user_data = {
+                "first_name":request.data.get('first_name', None),
+                "last_name":request.data.get('last_name', None),
+                "email":request.data.get('email',None)
+                
+            }   
+            
+            user_details_data = {
+                "user_obj":1,
+                "phone":request.data.get('phone', None),
+                "joining_date":request.data.get('joining_date', None),
+                "address":address_serializer.data['id']
+            }
+            reporting_to = {
+                "user_detail":1,
+                "user_role":request.data.get('user_role', None),
+                "reporting_to":request.data.get('reporting_to', None)
+            }
+          
+
+
+            """  Pass dictionary through Context """
+            context = super().get_serializer_context()
+            context.update({"user_data": user_data,"reporting_to":reporting_to,
+            "user_details_data":user_details_data})
+            try:
+                user_detail = AddUserSerializer(data=dict(user_data), context=context)
+            except Exception as ex:
+                print("error", ex)
+                print("traceback",traceback.print_exc())
+                context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context)
+
+
+                
+
+            """  Pass dictionary through Context """
+            context = super().get_serializer_context()
+            context.update({"user_detail":user_detail,"reporting_to":reporting_to})
+            user_serializer = AddUserSerializer(data= request.data, context=context)
+            if user_serializer.is_valid():
+                user_serializer.save()
+                return Response(user_serializer.data)
+            else:
+                return Response(user_serializer.errors)
+            
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            address_id = address_serializer.data['id']
+            address_obj = Address.objects.get(pk=address_id)
+            address_obj.delete()
+            logger.debug(ex)
+            return Response(ex)
+

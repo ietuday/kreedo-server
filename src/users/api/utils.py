@@ -24,6 +24,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
 from users.models import UserDetail
 from kreedo.settings import EMAIL_HOST_USER
+import random
+import string
 
 """ Token genrate package """
 from rest_framework_jwt.settings import api_settings
@@ -247,3 +249,14 @@ def password_reseted_mail(first_name, email):
         msg.send()
     except Exception as error:
         raise serializers.ValidationError("Failed to send Email")
+
+
+""" Genrate password """
+
+
+def get_random_string(length):
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    password = ''.join(random.choice(letters) for i in range(length))
+    print("Random string of length", password)
+    return password

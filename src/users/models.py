@@ -86,6 +86,7 @@ class UserDetail(TimestampAwareModel):
         default=False, verbose_name='Email Verified')
     phone_verified = models.BooleanField(
         default=False, verbose_name='Phone Verified')
+    joining_date = models.DateField(null=True)
     objects = UserDetailManager
 
     class Meta:

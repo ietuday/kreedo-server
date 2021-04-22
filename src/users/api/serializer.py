@@ -46,11 +46,11 @@ class UserTypeSerializer(serializers.ModelSerializer):
 
 """ Auth User Serializer """
 
-# class UserSerializer(serializers.ModelSerializer):
+class AuthUserSerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = User
-#         fields = ['id','username','first_name','last_name','email','is_active']
+    class Meta:
+        model = User
+        fields = ['id','username','first_name','last_name','email','is_active']
 
 """ UserDetail Serializer """
 
@@ -288,7 +288,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
             instance = super(UserLoginSerializer,
                          self).to_representation(instance)
             instance['token'] = self.context['token']
-            instance['user_detail'] = self.context['user_detail']
 
             return instance
         except Exception as ex:
@@ -342,7 +341,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
                             token = genrate_token(auth_user)
                             
                             self.context.update({"token": token})
-                            self.context.update({"user_detail":user_detail_serializer.data})
                             data="Login Successful"
                             
                             return data
@@ -508,9 +506,9 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
                         user.userdetail.save()
                         user_obj = User.objects.get(pk=uid)
                         mail_t = password_reseted_mail(user_obj.first_name, user_obj.email)
-                        self.context.update({"mail_t":'mail_t'})
+                        
                         data = "Password has been reset."
-                       
+                        self.context.update({"mail_t":data})
                         return data
                     else:
                         raise ValidationError("Confirm Password Does not match")
@@ -521,5 +519,122 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
 
         except Exception as ex:
             raise ValidationError(ex)  
+
+
+
+""" Logged In User Serializer """
+
+class LoggedInUserSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+    
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 1
+
+
+
+
+""" Add user Serializer """
+class AddUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  User
+        fields =['email', 'first_name', 'last_name']
+
+    
+    def create(self, validated_data):
+       
+        try:
+
+            first_name = validated_data['first_name']
+            last_name = validated_data['last_name']
+            email = validated_data['email']
+            auth_user_created = False
+            user_role_created = False
+
+
+
+            """ Validate Email """
+            try:
+                if not email:
+                    raise ValidationError("Email is required")
+                else:
+                    email = user_validate_email(email)
+                    if email is True:
+                        validated_data['email'] = validated_data['email'].lower(
+                        ).strip()
+                    else:
+                        raise ValidationError(
+                            "Enter a valid email address")
+            except ValidationError:
+                raise ValidationError(
+                    "Enter a valid email address")
+
+            """ Genrate Username """
+            try:
+                username = create_unique_username()
+                print("username---->", username)
+                validated_data['username'] = username
+
+            except ValidationError:
+                raise ValidationError("Failed to genrate username")
+
+            """ Genrate Password """
+            try:
+                genrated_password = get_random_string(8)
+                print("password--------->",genrated_password)
+            except Exception as ex:
+                raise ValidationError("Failed to Genrate Password")
+
+            try:
+                if User.objects.filter(email=validated_data['email']).exists():
+                    raise ValidationError("Email is already Exists")
+                else:
+                    """ Create User """
+                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=first_name,
+                                                    last_name=last_name, is_active=False)
+                    user.set_password(genrated_password)
+                    user.save()
+                    auth_user_created = True
+                    print("!!!------>", self.context.user_details_data)
+                    self.context['user_details_data']['user_obj'] = user.id
+                  
+
+                    """ Pass request data of User detail"""
+
+                    user_detail_serializer = UserDetailSerializer(
+                        data=self.context['user_details_data'])
+                    if user_detail_serializer.is_valid():
+                        user_detail_serializer.save()
+
+                        self.context.update(
+                            {"user_detail_serializer_data": user_detail_serializer.data})
+                    
+                    else:
+                        print("error", user_detail_serializer.errors)
+                        raise ValidationError(user_detail_serializer.errors)
+
+
+                    
+                    
+                 
+
+            except Exception as ex:
+                print("@ errror", ex)
+                print("tyraceback", traceback.print_exc())
+               
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError(ex)
+
+        except Exception as ex:
+            print("errror", ex)
+            print("tyraceback", traceback.print_exc())
+               
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
 
 
