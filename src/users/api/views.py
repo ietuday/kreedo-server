@@ -346,6 +346,7 @@ class LoggedIn(GeneralClass, ListAPIView):
 
 """ Add User """
 class AddUser(ListCreateAPIView):
+   
     def post(self, request):
         try:
             address_detail = {
@@ -378,12 +379,13 @@ class AddUser(ListCreateAPIView):
                 "user_obj":1,
                 "phone":request.data.get('phone', None),
                 "joining_date":request.data.get('joining_date', None),
-                "address":address_serializer.data['id']
+                "address":address_serializer.data['id'],
             }
             reporting_to = {
                 "user_detail":1,
-                "user_role":request.data.get('user_role', None),
-                "reporting_to":request.data.get('reporting_to', None)
+                "user_role":request.data.get('role', None),
+                "reporting_to":request.data.get('reporting_to', None),
+                "is_active":"true"
             }
           
 
@@ -393,33 +395,32 @@ class AddUser(ListCreateAPIView):
             context.update({"user_data": user_data,"reporting_to":reporting_to,
             "user_details_data":user_details_data})
             try:
-                user_detail = AddUserSerializer(data=dict(user_data), context=context)
+               
+                user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                if user_detail_serializer.is_valid():
+                    return Response(user_detail_serializer.data)
+                else:
+                    return Response(user_detail_serializer.errors)
+            
             except Exception as ex:
                 print("error", ex)
-                print("traceback",traceback.print_exc())
-                context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                print("traceback", traceback.print_exc())
+                logger.debug(ex)
+                return Response(ex)
 
-
-                
-
-            """  Pass dictionary through Context """
-            context = super().get_serializer_context()
-            context.update({"user_detail":user_detail,"reporting_to":reporting_to})
-            user_serializer = AddUserSerializer(data= request.data, context=context)
-            if user_serializer.is_valid():
-                user_serializer.save()
-                return Response(user_serializer.data)
-            else:
-                return Response(user_serializer.errors)
             
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
-            address_id = address_serializer.data['id']
-            address_obj = Address.objects.get(pk=address_id)
-            address_obj.delete()
+            # address_id = address_serializer.data['id']
+            # address_obj = Address.objects.get(pk=address_id)
+            # address_obj.delete()
             logger.debug(ex)
             return Response(ex)
+
+
+
+
 

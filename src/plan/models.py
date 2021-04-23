@@ -5,6 +5,8 @@ from schools.models import*
 from session.models import AcademicSession
 from activity.models import*
 from .managers import*
+from child.models import*
+
 # Create your models here.
 
 
@@ -16,6 +18,15 @@ Group = 'Group'
 Plan_Type_Choice = [
     (Individual, 'Individual'),
     (Group, 'Group')
+]
+
+Yes = 'Yes'
+No = 'No'
+
+
+Previous_Session_Choice = [
+    (Yes, 'Yes'),
+    (No, 'No')
 ]
 
 
@@ -41,36 +52,6 @@ class Plan(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('Plan_detail', kwargs={"pk": self.pk})
-
-
-""" Child Plan Model """
-
-
-class ChildPlan(TimestampAwareModel):
-    name = models.CharField(max_length=100)
-    range_of_working_days = models.IntegerField(null=True, blank=True)
-    # child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
-    academic_session = models.ForeignKey(
-        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
-    subjects = models.ManyToManyField(to='schools.Subject')
-    current_start_date = models.DateField(null=True, blank=True)
-    current_end_date = models.DateField(null=True, blank=True)
-    kreedo_previous = models.BooleanField(default=False)
-    published = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
-    is_close = models.BooleanField(default=False)
-    objects = ChildPlanManager
-
-    class Meta:
-        verbose_name = 'ChildPlan'
-        verbose_name_plural = 'ChildPlans'
-        ordering = ['-id']
-
-    def __str__(self):
-        return str(self.name)
-
-    def get_absolute_url(self):
-        return reverse('ChildPlan_detail', kwargs={"pk": self.pk})
 
 
 """ Plan Activity Model """
@@ -121,3 +102,40 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('SubjectSchoolGradePlan_detail', kwargs={"pk": self.pk})
+
+
+""" Child Plan Model """
+
+
+class ChildPlan(TimestampAwareModel):
+    name = models.CharField(max_length=100)
+    range_of_working_days = models.IntegerField(null=True, blank=True)
+    child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT)
+    subject_school_grade_plan = models.ForeignKey(
+        'SubjectSchoolGradePlan', on_delete=models.PROTECT, null=True, blank=True)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
+    subjects = models.ManyToManyField(to='schools.Subject')
+    current_start_date = models.DateField(null=True, blank=True)
+    current_end_date = models.DateField(null=True, blank=True)
+    class_teacher = models.ForeignKey(
+        to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
+    kreedo_previous_session = models.CharField(
+        max_length=50,  choices=Previous_Session_Choice)
+    curriculum_start_date = models.DateField(null=True, blank=True)
+
+    published = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    is_close = models.BooleanField(default=False)
+    objects = ChildPlanManager
+
+    class Meta:
+        verbose_name = 'ChildPlan'
+        verbose_name_plural = 'ChildPlans'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('ChildPlan_detail', kwargs={"pk": self.pk})

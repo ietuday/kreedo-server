@@ -80,8 +80,8 @@ class UserDetail(TimestampAwareModel):
     reason_for_discontinution = models.TextField(blank=True, null=True)
     relationship_with_child = models.CharField(
         max_length=25, choices=Relationship_With_Child_Choice, null=True, blank=True)
-    type = models.ForeignKey(UserType, on_delete=models.PROTECT)
-    role = models.ManyToManyField(Role, related_name='user_role')
+    type = models.ForeignKey(UserType, on_delete=models.PROTECT,null=True, blank=True)
+    role = models.ManyToManyField(Role, related_name='user_role', blank=True)
     email_verified = models.BooleanField(
         default=False, verbose_name='Email Verified')
     phone_verified = models.BooleanField(
