@@ -51,6 +51,15 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PeriodListSerializer
+        if self.request.method == 'PUT':
+            return PeriodCreateSerializer
+        if self.request.method == 'DELETE':
+            return PeriodListSerializer
+
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PeriodListSerializer
         if self.request.method == 'POST':
             return PeriodCreateSerializer
         if self.request.method == 'DELETE':

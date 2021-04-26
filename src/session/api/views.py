@@ -12,13 +12,6 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 
 from rest_framework.response import Response
 
-"""
-    IMPORT CORE FILES 
-"""
-
-"""
-    IMPORT USER APP FILE
-"""
 # Create your views here.
 
 """ School Session Create  and list """
@@ -60,3 +53,8 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
     model = AcademicSession
     serializer_class = AcademicSessionListSerializer
     # filterset_class = AcademicSessionFilter
+
+
+
+
+""" Get Classes accorting to teacher id """
