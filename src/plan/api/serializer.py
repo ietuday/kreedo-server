@@ -37,7 +37,8 @@ class ChildPlanListSerializer(serializers.ModelSerializer):
 class ChildPlanCreateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
-        fields = '__all__'
+        fields = ['child', 'academic_session',
+                  'subjects', 'curriculum_start_date']
 
 
 """ Plan activity List Serializer """

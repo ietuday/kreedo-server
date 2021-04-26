@@ -18,7 +18,7 @@ from .filters import*
 """ create and List Child """
 
 
-class ChildListCreate(CreateAPIView):
+class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
     serializer_class = ChildCreateSerializer
@@ -62,8 +62,10 @@ class ChildListCreate(CreateAPIView):
                 if child_detail_serializer.is_valid():
                     child_detail_serializer.save()
                     print("child", child_detail_serializer.data)
+                    return Response(child_detail_serializer.data)
                 else:
                     print("child error",  child_detail_serializer.errors)
+                    return Response(child_detail_serializer.errors)
 
             except Exception as ex:
                 print("error", ex)
@@ -73,6 +75,42 @@ class ChildListCreate(CreateAPIView):
         except Exception as ex:
             print("ex", ex)
             return Response(ex)
+
+
+""" Child list  """
+
+
+class ChildList(GeneralClass, Mixins, ListAPIView):
+    model = Child
+    serializer_class = ChildListSerializer
+
+
+""" Update Child """
+
+
+class ChildListCreate(GeneralClass, Mixins, CreateAPIView):
+    model = ChildDetail
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildDetailListSerializer
+
+        if self.request.method == 'POST':
+            return ChildDetailCreateSerializer
+
+
+class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = ChildDetail
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildDetailListSerializer
+
+        if self.request.method == 'PUT':
+            return ChildDetailCreateSerializer
+
+        if self.request.method == 'DELETE':
+            return ChildDetailListSerializer
 
 
 """ Attendance List and Create """

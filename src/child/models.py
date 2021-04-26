@@ -71,9 +71,9 @@ class ChildDetail(TimestampAwareModel):
     child = models.ForeignKey('Child', on_delete=models.CASCADE)
     medical_details = JSONField(blank=True, null=True)
     recidence_details = JSONField(blank=True, null=True)
-    emergency_of_contact_details = JSONField()
+    emergency_of_contact_details = JSONField(null=True, blank=True)
     siblings_details = JSONField(null=True, blank=True)
-    document_checklist = JSONField()
+    document_checklist = JSONField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
