@@ -6,7 +6,7 @@ from kreedo.general_views import*
 from period.models import *
 from .filters import*
 from .serializer import *
-
+from rest_framework.response import Response
 
 # Create your views here.
 """ Period Template List and Create """
@@ -34,11 +34,6 @@ class PeriodListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Period
     filterset_class = PeriodFilter
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return PeriodListSerializer
-        if self.request.method == 'POST':
-            return PeriodCreateSerializer
 
 
 """ Period Retrive and Update"""
@@ -92,3 +87,6 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateDetailCreateSerializer
+
+
+

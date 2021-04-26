@@ -29,6 +29,7 @@ class PeriodTemplate(TimestampAwareModel):
     name = models.CharField(max_length=100)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     published = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = PeriodTemplateManager
 
@@ -55,8 +56,8 @@ class Period(TimestampAwareModel):
     academic_session = models.ManyToManyField(
         to='session.AcademicSession', blank=True)
     description = models.TextField(null=True, blank=True)
-    start_time = models.DateField(null=True)
-    end_time = models.DateField(null=True)
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
     teacher = models.ManyToManyField(to='users.UserDetail')

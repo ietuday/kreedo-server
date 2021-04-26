@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from period.models import*
+from rest_framework.validators import UniqueTogetherValidator
 
 """ Period Template Serializer """
 
@@ -27,6 +28,8 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
+    
+    
 
 
 """ Period Template Detail List Serializer """
@@ -46,3 +49,9 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=PeriodTemplateDetail.objects.all(),
+                fields=['room', 'start_time','end_time']
+            )
+        ]
