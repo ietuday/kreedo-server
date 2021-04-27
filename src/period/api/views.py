@@ -7,7 +7,8 @@ from period.models import *
 from .filters import*
 from .serializer import *
 from rest_framework.response import Response
-
+from holiday.models import*
+from .utils import*
 # Create your views here.
 """ Period Template List and Create """
 
@@ -30,10 +31,39 @@ class PeriodTemplateRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDes
 """ Period List and Create """
 
 
-class PeriodListCreate(GeneralClass, Mixins, ListCreateAPIView):
-    model = Period
-    filterset_class = PeriodFilter
+class PeriodListCreate(ListCreateAPIView):
+    # model = Period
+    # filterset_class = PeriodFilter
 
+    def post(self, request):
+        try:
+
+            grade_list = request.data.get("grade_list")
+
+            for grade in grade_list:
+                acadmic_session = grade['acad_session']
+                """ Get Holidays Function Call """
+                holiday = school_holiday(acadmic_session)
+
+                """ Get Weak-off Function Call """
+
+                weakoff = weakoff_list(acadmic_session)
+                print("Holiday", holiday)
+                print("WAEKOFFFFFF", weakoff)
+
+            # context = super().get_serializer_context()
+            # context.update({"grade_list":grade})
+            # print("Context", context)
+
+            # period_serializer= PeriodCreateSerializer(data=request.data,context=context)
+            # if period_serializer.is_valid():
+            #     print("period------>", period_serializer.data)
+            # else:
+            #     print("Error", period_serializer.errors)
+
+        except Exception as ex:
+            print("ERRROR", ex)
+            return Response(ex)
 
 
 """ Period Retrive and Update"""
@@ -50,7 +80,6 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
             return PeriodCreateSerializer
         if self.request.method == 'DELETE':
             return PeriodListSerializer
-
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -87,6 +116,3 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateDetailCreateSerializer
-
-
-

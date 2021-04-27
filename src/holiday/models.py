@@ -50,14 +50,17 @@ class SchoolHoliday(TimestampAwareModel):
 
 
 class SchoolWeakOff(TimestampAwareModel):
-    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    school = models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     monday = models.BooleanField(default=False)
     tuesday = models.BooleanField(default=False)
     wednesday = models.BooleanField(default=False)
     thursday = models.BooleanField(default=False)
     friday = models.BooleanField(default=False)
     saturday = models.BooleanField(default=False)
-    sunday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -70,7 +73,3 @@ class SchoolWeakOff(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('SchoolWeakOff_detail', kwargs={"pk": self.pk})
-
-
-
-

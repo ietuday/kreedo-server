@@ -1,4 +1,3 @@
-
 # validate email
 from kreedo.conf.logger import*
 import logging
