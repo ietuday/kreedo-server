@@ -1,7 +1,10 @@
+from django.db.models import Q
+
 from holiday.models import*
 from django.core.exceptions import ValidationError
 from kreedo.conf.logger import*
 import logging
+
 
 """ Create Log for Utils"""
 logger = logging.getLogger(__name__)
@@ -16,38 +19,33 @@ logger.info("UTILS Period CAlled ")
 
 
 """ Get All List """
+ 
 
-
-def school_holiday(acadmic_session):
+def school_holiday(grade_dict):
    
     try:
-        if SchoolHoliday.objects.filter(academic_session=acadmic_session).exists():
-            holiday_list = SchoolHoliday.objects.filter(
-                academic_session=acadmic_session)
-            for holiday in holiday_list:
-                
-                holiday_from = holiday.holiday_from
-                holiday_till = holiday.holiday_till
-                print(" holiday from and till", holiday_from ,holiday_till)
-                days = days_caculate(holiday_from, holiday_till)
-                print("DAYS", days)
-            return holiday_list
+        if SchoolHoliday.objects.filter(holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'], academic_session=grade_dict['acad_session'], ).exists():
+            
+            school_holiday_count = SchoolHoliday.objects.filter(
+                holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'],academic_session=grade_dict['acad_session']).count()
+            
+            return school_holiday_count
 
         else:
-            print("NOT Exists")
             raise ValidationError("Holiday List Not Exist")
 
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        print("Utils error", ex)
         raise ValidationError(ex)
 
 
 from datetime import datetime
+import pdb
 
-def days_caculate(holiday_from, holiday_till):
-    print("holiday_till",holiday_till)
+def days_caculate(holiday_list, grade_dict):
+    pass
+    
    
 
 

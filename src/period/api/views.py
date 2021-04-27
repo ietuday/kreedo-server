@@ -43,13 +43,13 @@ class PeriodListCreate(ListCreateAPIView):
             for grade in grade_list:
                 acadmic_session = grade['acad_session']
                 """ Get Holidays Function Call """
-                holiday = school_holiday(acadmic_session)
+                school_holiday_count = school_holiday(grade)
 
                 """ Get Weak-off Function Call """
 
-                weakoff = weakoff_list(acadmic_session)
-                print("Holiday", holiday)
-                print("WAEKOFFFFFF", weakoff)
+                weakoff = weakoff_list(grade)
+                # print("Holiday", holiday)
+                # print("WAEKOFFFFFF", weakoff)
 
             # context = super().get_serializer_context()
             # context.update({"grade_list":grade})

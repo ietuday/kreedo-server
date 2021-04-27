@@ -110,7 +110,7 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
 class ChildPlan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     range_of_working_days = models.IntegerField(null=True, blank=True)
-    child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT)
+    child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT,null=True, blank=True)
     subject_school_grade_plan = models.ForeignKey(
         'SubjectSchoolGradePlan', on_delete=models.PROTECT, null=True, blank=True)
     academic_session = models.ForeignKey(
@@ -121,7 +121,7 @@ class ChildPlan(TimestampAwareModel):
     class_teacher = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     kreedo_previous_session = models.CharField(
-        max_length=50,  choices=Previous_Session_Choice)
+        max_length=50,  choices=Previous_Session_Choice, default="NO")
     curriculum_start_date = models.DateField(null=True, blank=True)
 
     published = models.BooleanField(default=False)
