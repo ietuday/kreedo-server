@@ -15,12 +15,32 @@ Regular_Period = 'Regular Period'
 Remedial_Period = 'Remedial Period'
 Remedial_Assessment = 'Remedial Assessment'
 
+""" Days Choices """
+monday = "MONDAY"
+tuesday = "TUESDAY"
+wednesday = "WEDNESDAY"
+thursday = "THURSDAY"
+friday = "FRIDAY"
+saturday = "SATURDAY"
+sunday = "SUNDAY"
+
+
 
 Period_Type_Choice = [
     (Regular_Assessment_Period, 'Regular Assessment Period'),
     (Regular_Period, 'Regular Period'),
     (Remedial_Period, 'Remedial Period'),
     (Remedial_Assessment, 'Remedial Assessment')
+]
+
+Days_Choice  = [
+    (monday, 'MONDAY'),
+    (tuesday, 'TUESDAY'),
+    (wednesday, 'WEDNESDAY'),
+    (thursday, 'THURSDAY'),
+    (friday, 'FRIDAY'),
+    (saturday, 'SATURDAY'),
+    (sunday, 'SUNDAY'),
 ]
 
 """ Period Template model """
@@ -91,6 +111,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
     end_time = models.TimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
+    days = models.CharField(
+        max_length=50, choices=Days_Choice)
     is_active = models.BooleanField(default=False)
 
     class Meta:

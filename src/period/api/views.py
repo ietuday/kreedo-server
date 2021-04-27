@@ -47,6 +47,9 @@ class PeriodListCreate(ListCreateAPIView):
                 """ Get Weak-off Function Call """
                 week_off = weakoff_list(grade)
                 count_weekday = weekday_count(grade, week_off)
+                working_days = total_working_days(grade,count_weekday)
+                return Response(working_days)
+
         except Exception as ex:
             print("ERRROR", ex)
             return Response(ex)

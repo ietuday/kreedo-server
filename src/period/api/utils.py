@@ -61,14 +61,45 @@ def weekday_count(grade, week_off):
             week[day] = week[day] + 1 if day in week else 1
         print("WEEK", week)
         print("WEEK", week_off)
-        for week in week_off:
-            print("####################",week['monday'])
+        return calculate_total_week_off_days(week, week_off)
 
     except Exception as ex:
         print("Error", ex)
         logger.debug(ex)
         logger.info(ex)
         raise ValidationError(ex)
+
+
+def calculate_total_week_off_days(week, week_off):
+    total_weekoff_days = 0
+    print("calculate_total_week_off_days Called")
+
+    for wee in week_off:
+        print("####################",wee['monday'])
+        if wee['monday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Monday']
+
+        if wee['tuesday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Tuesday']
+
+        if wee['wednesday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Wednesday']
+
+        if wee['thursday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Thursday']
+
+        if wee['friday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Friday']
+
+        if wee['saturday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Saturday']
+
+        if wee['sunday'] == True:
+            total_weekoff_days = total_weekoff_days + week['Sunday']
+    
+    print("total_weekoff_days",total_weekoff_days)
+    
+    return total_weekoff_days
 
 
 """ Get Weak-off List """
@@ -99,3 +130,21 @@ def weakoff_list(grade_dict):
         logger.info(ex)
         print("ex", ex)
         raise ValidationError(ex)
+
+
+
+def total_working_days(grade_dict, count_weekday):
+    print("total_working_days")
+    try:
+        from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
+        to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
+        result = to_date - from_date
+        resultant_data = (result.days + 1) - count_weekday
+        return resultant_data
+
+    except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
+        print("ex", ex)
+        raise ValidationError(ex)
+
