@@ -19,13 +19,18 @@ logger.info("UTILS Period CAlled ")
 
 
 def school_holiday(acadmic_session):
-    print("Called", acadmic_session)
+   
     try:
         if SchoolHoliday.objects.filter(academic_session=acadmic_session).exists():
             holiday_list = SchoolHoliday.objects.filter(
                 academic_session=acadmic_session)
             for holiday in holiday_list:
-                print("HOLIDAY", holiday)
+                
+                holiday_from = holiday.holiday_from
+                holiday_till = holiday.holiday_till
+                print(" holiday from and till", holiday_from ,holiday_till)
+                days = days_caculate(holiday_from, holiday_till)
+                print("DAYS", days)
             return holiday_list
 
         else:
@@ -37,6 +42,13 @@ def school_holiday(acadmic_session):
         logger.info(ex)
         print("Utils error", ex)
         raise ValidationError(ex)
+
+
+from datetime import datetime
+
+def days_caculate(holiday_from, holiday_till):
+    print("holiday_till",holiday_till)
+   
 
 
 """ Get Weak-off List """
