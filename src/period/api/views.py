@@ -41,29 +41,12 @@ class PeriodListCreate(ListCreateAPIView):
             grade_list = request.data.get("grade_list")
 
             for grade in grade_list:
-                acadmic_session = grade['acad_session']
                 """ Get Holidays Function Call """
                 school_holiday_count = school_holiday(grade)
 
                 """ Get Weak-off Function Call """
-
-                weakoff = weakoff_list(grade)
-                count_weekday = weekday_count(grade)
-
-
-                # print("Holiday", holiday)
-                # print("WAEKOFFFFFF", weakoff)
-
-            # context = super().get_serializer_context()
-            # context.update({"grade_list":grade})
-            # print("Context", context)
-
-            # period_serializer= PeriodCreateSerializer(data=request.data,context=context)
-            # if period_serializer.is_valid():
-            #     print("period------>", period_serializer.data)
-            # else:
-            #     print("Error", period_serializer.errors)
-
+                week_off = weakoff_list(grade)
+                count_weekday = weekday_count(grade, week_off)
         except Exception as ex:
             print("ERRROR", ex)
             return Response(ex)

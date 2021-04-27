@@ -1,14 +1,18 @@
-from django.db.models import Q
-from django.core.exceptions import ValidationError
 
+from django.core.serializers import serialize
+
+from django.core.exceptions import ValidationError
+import json
 
 import pdb
-import datetime
+from datetime import datetime, timedelta
 import calendar
 import logging
 
 from holiday.models import*
 from kreedo.conf.logger import*
+
+# from holiday.api.serializer import *
 
 
 """ Create Log for Utils"""
@@ -27,20 +31,16 @@ logger.info("UTILS Period CAlled ")
  
 
 def school_holiday(grade_dict):
+    print(grade_dict)
    
     try:
         if SchoolHoliday.objects.filter(holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'], academic_session=grade_dict['acad_session'], ).exists():
-            
             school_holiday_count = SchoolHoliday.objects.filter(
                 holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'],academic_session=grade_dict['acad_session']).count()
-            
+
             return school_holiday_count
 
         else:
-            school_holiday_count = SchoolHoliday.objects.filter(
-                holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'],academic_session=grade_dict['acad_session'])
-            
-            print("Holiday count----->",school_holiday_count)
             raise ValidationError("Holiday List Not Exist")
 
     except Exception as ex:
@@ -49,18 +49,20 @@ def school_holiday(grade_dict):
         raise ValidationError(ex)
 
 
-
-def weekday_count(grade):
+def weekday_count(grade, week_off):
     try:
         print("GRADE", grade)
-        start_date  = datetime.datetime.strptime(start, '%Y-%m-%d')
-        end_date    = datetime.datetime.strptime(end, '%Y-%m-%d')
-        week        = {}
+        start_date = datetime.strptime(grade['start_date'], '%Y-%m-%d')
+        end_date = datetime.strptime(grade['end_date'], '%Y-%m-%d')
+        print(start_date, end_date)
+        week = {}
         for i in range((end_date - start_date).days):
-            day       = calendar.day_name[(start_date + datetime.timedelta(days=i+1)).weekday()]
+            day = calendar.day_name[(start_date + timedelta(days=i+1)).weekday()]
             week[day] = week[day] + 1 if day in week else 1
         print("WEEK", week)
-        return week
+        print("WEEK", week_off)
+        for week in week_off:
+            print("####################",week['monday'])
 
     except Exception as ex:
         print("Error", ex)
@@ -69,27 +71,25 @@ def weekday_count(grade):
         raise ValidationError(ex)
 
 
-
-    
-
-
-
-
-
 """ Get Weak-off List """
 
 
-def weakoff_list(acadmic_session):
+def weakoff_list(grade_dict):
     try:
-        print("Called", acadmic_session)
-        if SchoolWeakOff.objects.filter(academic_session=acadmic_session).exists():
+        print("Called", grade_dict)
+        if SchoolWeakOff.objects.filter(academic_session=grade_dict['acad_session']).exists():
             print("WEAKOFF CALLED")
-            weakoff_list = SchoolWeakOff.objects.filter(
-                academic_session=acadmic_session)
+            week_off_list = SchoolWeakOff.objects.filter(
+                academic_session=grade_dict['acad_session'])
 
-            for weak_off in weakoff_list:
-                print("Weak off", weak_off)
-            return weakoff_list
+            qs_json = json.loads(serialize('json', week_off_list))
+            print(qs_json)
+            response_data = []
+            for qs in qs_json:
+                print("$$$$$$$$$$$$$$$$$",qs['fields'])
+                response_data.append(qs['fields'])
+            # print("response_data@@@@@@@@@@@@@@@@", response_data)
+            return response_data
         else:
             print("Not Exists")
             raise ValidationError("Weak-Off List Not Exist")
