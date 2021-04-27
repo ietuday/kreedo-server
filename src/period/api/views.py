@@ -48,6 +48,9 @@ class PeriodListCreate(ListCreateAPIView):
                 """ Get Weak-off Function Call """
 
                 weakoff = weakoff_list(grade)
+                count_weekday = weekday_count(grade)
+
+
                 # print("Holiday", holiday)
                 # print("WAEKOFFFFFF", weakoff)
 
