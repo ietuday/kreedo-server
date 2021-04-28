@@ -152,9 +152,10 @@ def total_working_days(grade_dict, count_weekday):
 def create_period(grade_dict):
     print("create_period",grade_dict)
     try:
-        check_date_day(grade_dict['start_date'])
+        day_according_to_date = check_date_day(grade_dict['start_date'])
         week_off = weakoff_list(grade_dict)[0]
-        return ""
+        print("week off------->", week_off,day_according_to_date)
+        
         # for 
         
     except Exception as ex:
@@ -168,4 +169,5 @@ def check_date_day(date):
     day_name= ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     day = datetime.strptime(date, '%Y-%m-%d').weekday()
     print("@@@@@@@@@@@@@@@@@@@@@@@@@",day_name[day])
+    return day_name[day]
 
