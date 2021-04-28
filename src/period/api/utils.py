@@ -147,16 +147,37 @@ def total_working_days(grade_dict, count_weekday):
         logger.info(ex)
         print("ex", ex)
         raise ValidationError(ex)
-
+ 
 
 def create_period(grade_dict):
     print("create_period",grade_dict)
     try:
-        day_according_to_date = check_date_day(grade_dict['start_date'])
-        week_off = weakoff_list(grade_dict)[0]
-        print("week off------->", week_off,day_according_to_date)
-        
-        # for 
+            from datetime import date, timedelta
+
+            from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
+            to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
+            delta = to_date - from_date # as timedelta
+            for i in range(delta.days + 1):
+                day = from_date + timedelta(days=i)
+                print("!!!!!!!!!!!!!!!!!!",day.date())
+                day_according_to_date = check_date_day(str(day.date()))
+                week_off = weakoff_list(grade_dict)[0]
+                print("week off------->", week_off,day_according_to_date)
+                day_according_to_date = day_according_to_date.lower()
+                for key,value in week_off.items():
+                    print("KEY",key)
+                    print("VALUE",value)
+                    print("$$$$$$$$$$$$$$$$",day_according_to_date)
+                    if key == day_according_to_date and value == False:
+                        print("Create Period", key, value)
+                        """Get Holiday List based on Acad session ----DB Query"""
+                        """ Check day.date() is available on Holiday List--- """
+                        """ If day.date() is not available on Holiday List then Create Period"""
+                    else:
+                        print("Not created", key, value)
+
+                
+
         
     except Exception as ex:
         logger.debug(ex)
