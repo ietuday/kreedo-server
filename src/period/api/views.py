@@ -48,6 +48,7 @@ class PeriodListCreate(ListCreateAPIView):
                 week_off = weakoff_list(grade)
                 count_weekday = weekday_count(grade, week_off)
                 working_days = total_working_days(grade,count_weekday)
+                create_period(grade)
                 return Response(working_days)
 
         except Exception as ex:
