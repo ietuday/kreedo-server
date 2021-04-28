@@ -20,5 +20,9 @@ urlpatterns = [
 
     path('period_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
+
+
+     path('classes_by_teacher_list',
+         ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),
      
 ]

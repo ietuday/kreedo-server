@@ -1,3 +1,4 @@
+import traceback
 from rest_framework import serializers
 from period.models import*
 from rest_framework.validators import UniqueTogetherValidator
@@ -21,7 +22,25 @@ class PeriodListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+""" getting classes according to teacher """
+
+
+class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Period
+        fields = ['teacher', 'start_date']
+
+    def create(self, validated_data):
+        try:
+            print("SELF-------->", self)
+            print("Data----->", validated_data)
+
+        except Exception as Ex:
+            print("ERROR", ex)
+
+
 """ Period Create Serializer """
+
 
 class PeriodCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,16 +48,14 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        p_qs = Period.objects.filter(start_date= validated_data['start_date'], end_date= validated_data['end_date'], start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+        p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
+                                     start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
         if p_qs == 0:
-            data =  super(PeriodCreateSerializer, self).create(validated_data)
+            data = super(PeriodCreateSerializer, self).create(validated_data)
             return data
         else:
-            print("ALready Created")    
+            print("ALready Created")
             return validated_data
-    
-    
-    
 
 
 """ Period Template Detail List Serializer """
@@ -61,6 +78,6 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=PeriodTemplateDetail.objects.all(),
-                fields=['room', 'start_time','end_time']
+                fields=['room', 'start_time', 'end_time']
             )
         ]

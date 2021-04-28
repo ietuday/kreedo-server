@@ -47,7 +47,7 @@ class PeriodListCreate(ListCreateAPIView):
                 """ Get Weak-off Function Call """
                 week_off = weakoff_list(grade)
                 count_weekday = weekday_count(grade, week_off)
-                working_days = total_working_days(grade,count_weekday)
+                working_days = total_working_days(grade, count_weekday)
                 create_period(grade)
                 return Response(working_days)
 
@@ -106,3 +106,49 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateDetailCreateSerializer
+
+
+""" List of classes acording to teacher id , date, and day """
+
+
+class ClassAccordingToTeacher(GeneralClass, ListCreateAPIView):
+    serializer_class = ClassAccordingToTeacherSerializer
+
+    def post(self, request):
+
+        try:
+            teacher = request.data['teacher']
+            print("@@@@@@@@@@2", teacher[0])
+            period_list = Period.objects.filter(
+                teacher=teacher[0], start_date=request.data['start_date'])
+            print("LIST", period_list)
+            list = []
+            dict = {}
+            for class_period in period_list:
+                dict['id'] = class_period.id
+                dict['room_no'] = class_period.room_no
+                dict['start_time'] = class_period.start_time
+                dict['end_time'] = class_period.end_time
+                # dict['grade'] = class_period.academic_session.grade
+                activity_missed = GroupActivityMissed.objects.filter(
+                    period=class_period.id).count()
+                print("ACRIVITY MISSEd", activity_missed)
+                dict['activity_behind'] = activity_missed
+                print("DICT", dict)
+                list.append(dict)
+                data = list
+            context = {"data": data}
+            return Response(context)
+            # class_teacher_serializer = ClassAccordingToTeacherSerializer(
+            #     context={'request': request}, data=request.data)
+            # if class_teacher_serializer.is_valid():
+
+            #     print("@@@@@@",class_teacher_serializer.data)
+            #     return Response(class_teacher_serializer.data)
+            # else:
+            #     print(class_teacher_serializer.errors)
+            #     return Response(class_teacher_serializer.errors)
+
+        except Exception as ex:
+            print("ERror", ex)
+            return Response(ex)

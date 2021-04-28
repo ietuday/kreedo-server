@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 import json
 
 import pdb
-from datetime import datetime, timedelta , date, time
+from datetime import datetime, timedelta, date, time
 import calendar
 import logging
 
@@ -31,14 +31,14 @@ logger.info("UTILS Period CAlled ")
 
 
 """ Get All List """
- 
+
 
 def school_holiday(grade_dict):
-   
+
     try:
         if SchoolHoliday.objects.filter(holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'], academic_session=grade_dict['acad_session'], ).exists():
             school_holiday_count = SchoolHoliday.objects.filter(
-                holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'],academic_session=grade_dict['acad_session']).count()
+                holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'], academic_session=grade_dict['acad_session']).count()
 
             return school_holiday_count
 
@@ -57,7 +57,8 @@ def weekday_count(grade, week_off):
         end_date = datetime.strptime(grade['end_date'], '%Y-%m-%d')
         week = {}
         for i in range((end_date - start_date).days):
-            day = calendar.day_name[(start_date + timedelta(days=i+1)).weekday()]
+            day = calendar.day_name[(
+                start_date + timedelta(days=i+1)).weekday()]
             week[day] = week[day] + 1 if day in week else 1
         return calculate_total_week_off_days(week, week_off)
 
@@ -91,8 +92,7 @@ def calculate_total_week_off_days(week, week_off):
 
         if wee['sunday'] == True:
             total_weekoff_days = total_weekoff_days + week['Sunday']
-    
-    
+
     return total_weekoff_days
 
 
@@ -119,7 +119,6 @@ def weakoff_list(grade_dict):
         raise ValidationError(ex)
 
 
-
 def total_working_days(grade_dict, count_weekday):
     try:
         from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
@@ -132,62 +131,67 @@ def total_working_days(grade_dict, count_weekday):
         logger.debug(ex)
         logger.info(ex)
         raise ValidationError(ex)
- 
+
 
 def create_period(grade_dict):
     try:
-            from datetime import date, timedelta
+        from datetime import date, timedelta
 
-            from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
-            to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
-            delta = to_date - from_date # as timedelta
-            for i in range(delta.days + 1):
-                day = from_date + timedelta(days=i)
-                day_according_to_date = check_date_day(str(day.date()))
-                week_off = weakoff_list(grade_dict)[0]
-                day_according_to_date = day_according_to_date.lower()
-                for key,value in week_off.items():
-                    if key == day_according_to_date and value == False:
-                        schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
-                        if schoolHoliday_count == 0:
-                            period_list = PeriodTemplateDetail.objects.filter(academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
-                        
-                            period_dict = {}
-                        
-                            for period in period_list:
-                            
-                                period_dict['academic_session'] = [period.academic_session.id]
-                                period_dict['subject'] = period.subject.id
-                                period_dict['room'] = period.room.id
-                                period_date = day.date()
-                                period_time =  period.start_time
-                                period_dict['start_date'] = period_date
-                                period_dict['end_date'] = period_date
-                                period_dict['start_time'] = period.start_time
-                                period_dict['end_time'] = period.end_time
-                                period_dict['type'] = period.type
-                                period_dict['is_active'] = "True"
- 
-                                p_qs = Period.objects.filter(start_date= period_dict['start_date'], end_date= period_dict['end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
-                                if p_qs == 0:
-                                    period_serializer = PeriodCreateSerializer(data=period_dict)
-                                    if period_serializer.is_valid():
-                                        period_serializer.save()
-                                    else:
-                                        raise ValidationError(period_serializer.errors)
+        from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
+        to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
+        delta = to_date - from_date  # as timedelta
+        for i in range(delta.days + 1):
+            day = from_date + timedelta(days=i)
+            day_according_to_date = check_date_day(str(day.date()))
+            week_off = weakoff_list(grade_dict)[0]
+            day_according_to_date = day_according_to_date.lower()
+            for key, value in week_off.items():
+                if key == day_according_to_date and value == False:
+                    schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
+                        holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
+                    if schoolHoliday_count == 0:
+                        period_list = PeriodTemplateDetail.objects.filter(
+                            academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
+
+                        period_dict = {}
+
+                        for period in period_list:
+
+                            period_dict['academic_session'] = [
+                                period.academic_session.id]
+                            period_dict['subject'] = period.subject.id
+                            period_dict['room_no'] = period.room.id
+                            period_date = day.date()
+                            period_time = period.start_time
+                            period_dict['start_date'] = period_date
+                            period_dict['end_date'] = period_date
+                            period_dict['start_time'] = period.start_time
+                            period_dict['end_time'] = period.end_time
+                            period_dict['type'] = period.type
+                            period_dict['is_active'] = "True"
+
+                            p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
+                                                         'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
+                            if p_qs == 0:
+                                period_serializer = PeriodCreateSerializer(
+                                    data=period_dict)
+                                if period_serializer.is_valid():
+                                    period_serializer.save()
                                 else:
-                                    print("EXITS")
-
+                                    raise ValidationError(
+                                        period_serializer.errors)
+                            else:
+                                print("EXITS")
 
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        
+
         raise ValidationError(ex)
 
 
 def check_date_day(date):
-    day_name= ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
+    day_name = ['Monday', 'Tuesday', 'Wednesday',
+                'Thursday', 'Friday', 'Saturday', 'Sunday']
     day = datetime.strptime(date, '%Y-%m-%d').weekday()
     return day_name[day]
-
