@@ -7,13 +7,13 @@ from django.core.exceptions import ValidationError
 import json
 
 import pdb
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta , date, time
 import calendar
 import logging
 
 from holiday.models import*
 from kreedo.conf.logger import*
-
+from .serializer import*
 # from holiday.api.serializer import *
 
 
@@ -178,7 +178,48 @@ def create_period(grade_dict):
                         schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
                         if schoolHoliday_count == 0:
                             period_list = PeriodTemplateDetail.objects.filter(academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
-                            print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",period_list)
+                        
+                            period_dict = {}
+                        
+                            for period in period_list:
+                            
+                                period_dict['academic_session'] = [period.academic_session.id]
+                                period_dict['subject'] = period.subject.id
+                                period_dict['room'] = period.room.id
+                                period_date = day.date()
+                                period_time = period.start_time
+                                
+                                
+                                print("@@@@@@@@@@@@@@@@@@@@@@@@@",datetime.strptime('2016/01/01', '%Y/%m/%d').date())
+
+
+                                # dt = period_date
+                                # tm = time(period_time)
+
+                                # combined = period_date.combine(period_date, period_time)
+
+                                # print(combined)
+
+                                # combined = period_date.combine(period_date, period_time)
+
+                                # print("@@@@@@@@@@@@@Combined Date time",combined)
+                                pdb.set_trace()
+                                period_dict['start_time'] = period_date, period_time
+                                period_dict['end_time'] = period_date, period_time
+                                period_dict['type'] = period.type
+                                period_dict['is_active'] = "True"
+
+                                print(" PERIOD dictionary------>", period_dict)
+                            
+                                # """ Create priod Serializer """  
+                                # period_serializer = PeriodCreateSerializer(data=period_dict)
+                                # if period_serializer.is_valid():
+                                #     period_serializer.save()
+                                #     print("Perod Dict Create", period_serializer.data)
+                                # else:
+                                #     print(period_serializer.errors)
+                             
+                           
 
 
                     else:

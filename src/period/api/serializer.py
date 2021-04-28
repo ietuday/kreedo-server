@@ -23,21 +23,12 @@ class PeriodListSerializer(serializers.ModelSerializer):
 
 """ Period Create Serializer """
 
-import traceback
 class PeriodCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = ['name']
+        fields = '__all__'
     
-    def create(self,validated_data):
-        print("Self------------------->", self)
-        print("DAtaa", validated_data)
-        try:
-            print("DAtaa", validated_data)
-
-        except Exception as ex:
-            print("Error", ex)
-            print("traceback", traceback.print_exc())
+    
     
     
 
