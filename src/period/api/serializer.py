@@ -27,7 +27,15 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
-    
+
+    def create(self, validated_data):
+        p_qs = Period.objects.filter(start_date= validated_data['start_date'], end_date= validated_data['end_date'], start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+        if p_qs == 0:
+            data =  super(PeriodCreateSerializer, self).create(validated_data)
+            return data
+        else:
+            print("ALready Created")    
+            return validated_data
     
     
     

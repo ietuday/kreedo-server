@@ -14,6 +14,7 @@ import logging
 from holiday.models import*
 from kreedo.conf.logger import*
 from .serializer import*
+from ..models import *
 # from holiday.api.serializer import *
 
 
@@ -33,7 +34,6 @@ logger.info("UTILS Period CAlled ")
  
 
 def school_holiday(grade_dict):
-    print(grade_dict)
    
     try:
         if SchoolHoliday.objects.filter(holiday_from__gte=grade_dict['start_date'], holiday_till__lte=grade_dict['end_date'], academic_session=grade_dict['acad_session'], ).exists():
@@ -53,20 +53,15 @@ def school_holiday(grade_dict):
 
 def weekday_count(grade, week_off):
     try:
-        print("GRADE", grade)
         start_date = datetime.strptime(grade['start_date'], '%Y-%m-%d')
         end_date = datetime.strptime(grade['end_date'], '%Y-%m-%d')
-        print(start_date, end_date)
         week = {}
         for i in range((end_date - start_date).days):
             day = calendar.day_name[(start_date + timedelta(days=i+1)).weekday()]
             week[day] = week[day] + 1 if day in week else 1
-        print("WEEK", week)
-        print("WEEK", week_off)
         return calculate_total_week_off_days(week, week_off)
 
     except Exception as ex:
-        print("Error", ex)
         logger.debug(ex)
         logger.info(ex)
         raise ValidationError(ex)
@@ -74,10 +69,8 @@ def weekday_count(grade, week_off):
 
 def calculate_total_week_off_days(week, week_off):
     total_weekoff_days = 0
-    print("calculate_total_week_off_days Called")
 
     for wee in week_off:
-        print("####################",wee['monday'])
         if wee['monday'] == True:
             total_weekoff_days = total_weekoff_days + week['Monday']
 
@@ -99,7 +92,6 @@ def calculate_total_week_off_days(week, week_off):
         if wee['sunday'] == True:
             total_weekoff_days = total_weekoff_days + week['Sunday']
     
-    print("total_weekoff_days",total_weekoff_days)
     
     return total_weekoff_days
 
@@ -109,34 +101,26 @@ def calculate_total_week_off_days(week, week_off):
 
 def weakoff_list(grade_dict):
     try:
-        print("Called", grade_dict)
         if SchoolWeakOff.objects.filter(academic_session=grade_dict['acad_session']).exists():
-            print("WEAKOFF CALLED")
             week_off_list = SchoolWeakOff.objects.filter(
                 academic_session=grade_dict['acad_session'])
 
             qs_json = json.loads(serialize('json', week_off_list))
-            print(qs_json)
             response_data = []
             for qs in qs_json:
-                print("$$$$$$$$$$$$$$$$$",qs['fields'])
                 response_data.append(qs['fields'])
-            # print("response_data@@@@@@@@@@@@@@@@", response_data)
             return response_data
         else:
-            print("Not Exists")
             raise ValidationError("Weak-Off List Not Exist")
 
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        print("ex", ex)
         raise ValidationError(ex)
 
 
 
 def total_working_days(grade_dict, count_weekday):
-    print("total_working_days")
     try:
         from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
         to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
@@ -147,12 +131,10 @@ def total_working_days(grade_dict, count_weekday):
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        print("ex", ex)
         raise ValidationError(ex)
  
 
 def create_period(grade_dict):
-    print("create_period",grade_dict)
     try:
             from datetime import date, timedelta
 
@@ -161,20 +143,11 @@ def create_period(grade_dict):
             delta = to_date - from_date # as timedelta
             for i in range(delta.days + 1):
                 day = from_date + timedelta(days=i)
-                print("!!!!!!!!!!!!!!!!!!",day.date())
                 day_according_to_date = check_date_day(str(day.date()))
                 week_off = weakoff_list(grade_dict)[0]
-                print("week off------->", week_off,day_according_to_date)
                 day_according_to_date = day_according_to_date.lower()
                 for key,value in week_off.items():
-                    print("KEY",key)
-                    print("VALUE",value)
-                    print("$$$$$$$$$$$$$$$$",day_according_to_date)
                     if key == day_according_to_date and value == False:
-                        print("Create Period", key, value)
-                        """Get Holiday List based on Acad session ----DB Query"""
-                        """ Check day.date() is available on Holiday List--- """
-                        """ If day.date() is not available on Holiday List then Create Period"""
                         schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
                         if schoolHoliday_count == 0:
                             period_list = PeriodTemplateDetail.objects.filter(academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
@@ -187,57 +160,34 @@ def create_period(grade_dict):
                                 period_dict['subject'] = period.subject.id
                                 period_dict['room'] = period.room.id
                                 period_date = day.date()
-                                period_time = period.start_time
-                                
-                                
-                                print("@@@@@@@@@@@@@@@@@@@@@@@@@",datetime.strptime('2016/01/01', '%Y/%m/%d').date())
-
-
-                                # dt = period_date
-                                # tm = time(period_time)
-
-                                # combined = period_date.combine(period_date, period_time)
-
-                                # print(combined)
-
-                                # combined = period_date.combine(period_date, period_time)
-
-                                # print("@@@@@@@@@@@@@Combined Date time",combined)
-                                pdb.set_trace()
-                                period_dict['start_time'] = period_date, period_time
-                                period_dict['end_time'] = period_date, period_time
+                                period_time =  period.start_time
+                                period_dict['start_date'] = period_date
+                                period_dict['end_date'] = period_date
+                                period_dict['start_time'] = period.start_time
+                                period_dict['end_time'] = period.end_time
                                 period_dict['type'] = period.type
                                 period_dict['is_active'] = "True"
-
-                                print(" PERIOD dictionary------>", period_dict)
-                            
-                                # """ Create priod Serializer """  
-                                # period_serializer = PeriodCreateSerializer(data=period_dict)
-                                # if period_serializer.is_valid():
-                                #     period_serializer.save()
-                                #     print("Perod Dict Create", period_serializer.data)
-                                # else:
-                                #     print(period_serializer.errors)
-                             
-                           
+ 
+                                p_qs = Period.objects.filter(start_date= period_dict['start_date'], end_date= period_dict['end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
+                                if p_qs == 0:
+                                    period_serializer = PeriodCreateSerializer(data=period_dict)
+                                    if period_serializer.is_valid():
+                                        period_serializer.save()
+                                    else:
+                                        raise ValidationError(period_serializer.errors)
+                                else:
+                                    print("EXITS")
 
 
-                    else:
-                        print("Not created", key, value)
-
-                
-
-        
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        print("ex", ex)
+        
         raise ValidationError(ex)
 
 
 def check_date_day(date):
     day_name= ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday']
     day = datetime.strptime(date, '%Y-%m-%d').weekday()
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@",day_name[day])
     return day_name[day]
 

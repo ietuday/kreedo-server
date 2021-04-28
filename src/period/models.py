@@ -77,8 +77,10 @@ class Period(TimestampAwareModel):
     academic_session = models.ManyToManyField(
         to='session.AcademicSession', blank=True)
     description = models.TextField(null=True, blank=True)
-    start_time = models.DateTimeField(null=True)
-    end_time = models.DateTimeField(null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice, blank=True)
     teacher = models.ManyToManyField(to='users.UserDetail', blank=True)
