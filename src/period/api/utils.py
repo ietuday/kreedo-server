@@ -177,8 +177,9 @@ def create_period(grade_dict):
                         """ If day.date() is not available on Holiday List then Create Period"""
                         schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
                         if schoolHoliday_count == 0:
-                            print("Creation")
-                            
+                            period_list = PeriodTemplateDetail.objects.filter(academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
+                            print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<",period_list)
+
 
                     else:
                         print("Not created", key, value)
