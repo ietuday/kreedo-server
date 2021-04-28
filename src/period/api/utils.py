@@ -1,5 +1,7 @@
 
 from django.core.serializers import serialize
+from django.db.models import Q
+
 
 from django.core.exceptions import ValidationError
 import json
@@ -173,6 +175,11 @@ def create_period(grade_dict):
                         """Get Holiday List based on Acad session ----DB Query"""
                         """ Check day.date() is available on Holiday List--- """
                         """ If day.date() is not available on Holiday List then Create Period"""
+                        schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
+                        if schoolHoliday_count == 0:
+                            print("Creation")
+                            
+
                     else:
                         print("Not created", key, value)
 

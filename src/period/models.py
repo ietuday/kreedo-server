@@ -113,6 +113,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
         max_length=50, choices=Period_Type_Choice)
     days = models.CharField(
         max_length=50, choices=Days_Choice)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
 
     class Meta:
