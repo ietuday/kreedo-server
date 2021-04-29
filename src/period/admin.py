@@ -9,9 +9,9 @@ from import_export.admin import ImportExportModelAdmin
 
 @admin.register(PeriodTemplate)
 class PeriodTemplateAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'school', 'published', 'is_active']
-    search_fields = ['id', 'name', 'school', 'published', 'is_active']
-    list_filter = ['id', 'name', 'school', 'published', 'is_active']
+    list_display = ['id', 'name', 'school', 'published','is_draft', 'is_active']
+    search_fields = ['id', 'name', 'school', 'published','is_draft', 'is_active']
+    list_filter = ['id', 'name', 'school', 'published', 'is_draft','is_active']
 
 
 """ Period Admin """

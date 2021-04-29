@@ -1,9 +1,9 @@
 from django.db import models
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
-from users.models import UserDetail
-from schools.models import Subject
-from session.models import AcademicSession
+from users.models import *
+from schools.models import *
+from session.models import *
 from django.contrib.postgres.fields import JSONField
 from .managers import*
 
@@ -43,17 +43,14 @@ class Child(TimestampAwareModel):
     place_of_birth = models.CharField(max_length=100, null=True, blank=True)
     blood_group = models.CharField(max_length=100, null=True, blank=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
-    parent = models.ManyToManyField(to='users.UserDetail')
+    parent = models.ManyToManyField(to='users.UserDetail', blank=True)
     registered_by = models.ForeignKey(
-        to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by')
-
-    academic_session = models.ForeignKey(
-        to='session.AcademicSession', on_delete=models.PROTECT)
+        to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by', null=True, blank=True)
 
     reason_for_discontinue = models.TextField(null=True, blank=True)
 
     is_active = models.BooleanField(default=False)
-    # objects = ChildManager
+    objects = ChildManager
 
     class Meta:
         verbose_name = 'Child'
@@ -74,9 +71,9 @@ class ChildDetail(TimestampAwareModel):
     child = models.ForeignKey('Child', on_delete=models.CASCADE)
     medical_details = JSONField(blank=True, null=True)
     recidence_details = JSONField(blank=True, null=True)
-    emergency_of_contact_details = JSONField()
+    emergency_of_contact_details = JSONField(null=True, blank=True)
     siblings_details = JSONField(null=True, blank=True)
-    document_checklist = JSONField()
+    document_checklist = JSONField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:

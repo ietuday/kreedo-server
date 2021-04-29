@@ -5,6 +5,7 @@ from schools.models import*
 from users.models import*
 from activity.models import*
 from .managers import*
+from session.models import*
 # Create your models here.
 
 
@@ -14,12 +15,32 @@ Regular_Period = 'Regular Period'
 Remedial_Period = 'Remedial Period'
 Remedial_Assessment = 'Remedial Assessment'
 
+""" Days Choices """
+monday = "MONDAY"
+tuesday = "TUESDAY"
+wednesday = "WEDNESDAY"
+thursday = "THURSDAY"
+friday = "FRIDAY"
+saturday = "SATURDAY"
+sunday = "SUNDAY"
+
+
 
 Period_Type_Choice = [
     (Regular_Assessment_Period, 'Regular Assessment Period'),
     (Regular_Period, 'Regular Period'),
     (Remedial_Period, 'Remedial Period'),
     (Remedial_Assessment, 'Remedial Assessment')
+]
+
+Days_Choice  = [
+    (monday, 'MONDAY'),
+    (tuesday, 'TUESDAY'),
+    (wednesday, 'WEDNESDAY'),
+    (thursday, 'THURSDAY'),
+    (friday, 'FRIDAY'),
+    (saturday, 'SATURDAY'),
+    (sunday, 'SUNDAY'),
 ]
 
 """ Period Template model """
@@ -29,6 +50,7 @@ class PeriodTemplate(TimestampAwareModel):
     name = models.CharField(max_length=100)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     published = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = PeriodTemplateManager
 
@@ -48,19 +70,21 @@ class PeriodTemplate(TimestampAwareModel):
 
 
 class Period(TimestampAwareModel):
-    name = models.CharField(max_length=100)
-    subject = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    name = models.CharField(max_length=100, blank=True)
+    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,related_name = 'period_subject',null=True, blank=True)
     room_no = models.ForeignKey(
-        to='schools.School', on_delete=models.PROTECT, related_name='room_no')
+        to='schools.Room', on_delete=models.PROTECT, related_name='period_room_no', null=True, blank=True)
     academic_session = models.ManyToManyField(
         to='session.AcademicSession', blank=True)
     description = models.TextField(null=True, blank=True)
-    start_time = models.DateField(null=True)
-    end_time = models.DateField(null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     type = models.CharField(
-        max_length=50, choices=Period_Type_Choice)
-    teacher = models.ManyToManyField(to='users.UserDetail')
-    activity_done = models.ManyToManyField(to='activity.Activity')
+        max_length=50, choices=Period_Type_Choice, blank=True)
+    teacher = models.ManyToManyField(to='users.UserDetail', blank=True)
+    activity_done = models.ManyToManyField(to='activity.Activity', blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -89,6 +113,10 @@ class PeriodTemplateDetail(TimestampAwareModel):
     end_time = models.TimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
+    days = models.CharField(
+        max_length=50, choices=Days_Choice)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
 
     class Meta:

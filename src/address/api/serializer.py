@@ -9,7 +9,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("Called", validated_data)
+
             return Address.objects.create(**validated_data)
 
         except Exception as ex:
