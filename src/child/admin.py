@@ -12,13 +12,13 @@ from import_export.admin import ImportExportModelAdmin
 class ChildAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'date_of_joining', 'place_of_birth',
                     'blood_group', 'photo', 'registered_by',
-                    'academic_session', 'reason_for_discontinue', 'is_active']
+                    'reason_for_discontinue', 'is_active']
     search_fields = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'date_of_joining', 'place_of_birth',
                      'blood_group', 'photo', 'registered_by',
-                     'academic_session', 'reason_for_discontinue', 'is_active']
+                     'reason_for_discontinue', 'is_active']
     list_filter = ['id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'date_of_joining', 'place_of_birth',
                    'blood_group', 'photo', 'registered_by',
-                   'academic_session', 'reason_for_discontinue', 'is_active']
+                   'reason_for_discontinue', 'is_active']
 
 
 """ Child Detail Admin """
