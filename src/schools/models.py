@@ -42,6 +42,7 @@ class Grade(TimestampAwareModel):
 
 
 class Section(TimestampAwareModel):
+    grade = models.ForeignKey('Grade', on_delete=models.PROTECT,null=True,blank=True)
     name = models.CharField(max_length=50, unique=True)
     is_active = models.BooleanField(default=False)
 

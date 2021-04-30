@@ -9,6 +9,7 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 
 from rest_framework.response import Response
 from .filters import*
+from rest_framework import status
 # Create your views here.
 
 """ School Holiday List and create """
@@ -37,7 +38,7 @@ class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
         if self.request.method == 'GET':
             return SchoolHolidayListSerializer
         if self.request.method == 'PUT':
-            return SSchoolHolidayCreateSerializer
+            return SchoolHolidayCreateSerializer
 
 
 """ School Weak off List and create """
@@ -111,12 +112,33 @@ class Calendar(ListCreateAPIView):
 
 
 """ School Calender according to start date and type """
+import traceback
+class HolidayListByType(ListCreateAPIView):
 
-# class HolidayListByType(ListCreateAPIView):
-#     def post(self, request):
-#         try:
-#             start_date = request.data.get('start_date', None)
-            
-#         except Exception as ex:
-#             print(ex)
+    def post(self, request):
+        try:
+            start_date = request.data.get('start_date', None)
+            end_date = request.data.get('end_date', None)
+            type = request.data.get('type', None)
+  
+            if type:
+                querset = SchoolHoliday.objects.filter(school_session=type,holiday_from__gte=start_date, holiday_till__lte=end_date)
+            elif type:
+                querset = SchoolHoliday.objects.filter(academic_calender=type,holiday_from__gte=start_date, holiday_till__lte=end_date)
+            elif type:
+                querset = SchoolHoliday.objects.filter(academic_session=type,holiday_from__gte=start_date,holiday_till__lte=end_date)
+
+            holiday_serializer = SchoolHolidayListSerializer(querset,many=True)
+            context = {"message": "Holiday List according to Type.",
+                           "data": holiday_serializer.data, "statusCode": status.HTTP_200_OK}
+
+            return Response(context)
+
+         
+
+
+        except Exception as ex:
+            print("ERROR",ex)
+            print("TRACEBACK", traceback.print_exc())
+            return Response(ex)
         

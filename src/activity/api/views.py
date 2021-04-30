@@ -95,3 +95,4 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
             return GroupActivityMissedListSerilaizer
         if self.request.method == 'PUT':
             return GroupActivityMissedCreateSerilaizer
+        

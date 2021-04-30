@@ -53,7 +53,7 @@ def get_message(api_name, method):
                   'activity-master-supporting-material', 'area-of-devlopment',
                   'concept', 'skill', 'room', 'period-template',
                   'period-template-detail', 'attendance',
-                  'logged-in-user-detail',
+                  'logged-in-user-detail','holiday-list',
                   'user', 'child', 'child-detail', 'period', 'academic-calender']
 
     for name in model_name:
