@@ -37,12 +37,14 @@ class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
 
 class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = AcademicSession
-    # filterset_class = AcademicSessionFilter
+    filterset_class = AcademicSessionFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicSessionListSerializer
         if self.request.method == 'POST':
+            return AcademicSessionCreateSerializer
+        if self.request.method == 'DELETE':
             return AcademicSessionCreateSerializer
 
 
@@ -52,9 +54,34 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = AcademicSession
     serializer_class = AcademicSessionListSerializer
-    # filterset_class = AcademicSessionFilter
+    filterset_class = AcademicSessionFilter
 
 
+""" Create and List of Academic Calender """
 
 
-""" Get Classes accorting to teacher id """
+class AcademicCalenderListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = AcademicCalender
+    filterset_class = AcademicCalenderFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AcademicCalenderListSerializer
+        if self.request.method == 'POST':
+            return AcademicCalenderCreateSerializer
+
+
+""" Retrive Update and Delete Academic Calender """
+
+
+class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = AcademicCalender
+    filterset_class = AcademicCalenderFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AcademicCalenderListSerializer
+        if self.request.method == 'PUT':
+            return AcademicCalenderCreateSerializer
+        if self.request.method == 'DELETE':
+            return AcademicCalenderListSerializer
