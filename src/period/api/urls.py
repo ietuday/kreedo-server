@@ -18,8 +18,8 @@ urlpatterns = [
          PeriodListCreate.as_view(), name='PeriodListCreate'),
      
 
-    path('period_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
-         name='PeriodTemplateDetailRetriveUpdateDestroy'),
+    path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
+         name='PeriodRetriveUpdateDestroy'),
 
 
      path('classes_by_teacher_list',
