@@ -107,3 +107,16 @@ class Calendar(ListCreateAPIView):
         #     print("Calendar", calendar_serializer.data)
         # else:
         #     print("Error", calendar_serializer.errors)
+
+
+
+""" School Calender according to start date and type """
+
+# class HolidayListByType(ListCreateAPIView):
+#     def post(self, request):
+#         try:
+#             start_date = request.data.get('start_date', None)
+            
+#         except Exception as ex:
+#             print(ex)
+        
