@@ -5,6 +5,7 @@ from users.models import*
 from schools.models import*
 from area_of_devlopment.models import*
 from .managers import*
+from period.models import*
 
 # Create your models here.
 
@@ -111,7 +112,7 @@ class GroupActivityMissed(TimestampAwareModel):
         ordering = ['-id']
 
     def __str__(self):
-        return str(Self.id)
+        return str(self.id)
 
     def get_absolute_url(self):
         return reverse('GroupActivityMissed_detail', kwargs={"pk": self.pk})

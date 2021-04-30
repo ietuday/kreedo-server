@@ -12,6 +12,7 @@ from .utils import*
 from session.models import*
 from session.api.serializer import*
 from rest_framework import status
+from material.models import*
 # Create your views here.
 """ Period Template List and Create """
 
@@ -135,8 +136,57 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 dict['grade'] = acad_session.grade.name
                 dict['section'] = acad_session.section.name
                 activity_missed = GroupActivityMissed.objects.filter(
-                    period=class_period.id).count()
-                dict['activity_behind'] = activity_missed
+                    period=class_period.id,is_completed=False)
+                dict['activity_behind_count'] = activity_missed.count()
+                missed_activity_list = []
+                missed_activity_dict = {}
+                for miss_activity in activity_missed:
+                    missed_activity_dict['id'] = miss_activity.activity.id
+                    missed_activity_dict['name'] = miss_activity.activity.name
+                    missed_activity_dict['objective'] = miss_activity.activity.objective
+                    missed_activity_dict['description'] = miss_activity.activity.description
+                    activity_asset = ActivityAsset.objects.filter(activity=miss_activity.activity.id)
+                    activity_asset_list = []
+                    activity_asset_dict = {}
+                    for asset in activity_asset:
+                        activity_asset_dict['activity_id'] = asset.activity.id
+                        activity_asset_dict['type'] = asset.type
+                        activity_asset_dict['activity_data'] = asset.activity_data
+                        activity_asset_dict['title'] = asset.title
+                        activity_asset_dict['description'] = asset.description
+                        activity_asset_list.append(activity_asset_dict)
+
+
+                    master_material = miss_activity.activity.master_material.all()
+                    master_material_list = []
+                    master_material_dict= {}
+                    for material in master_material: 
+                        material_id = Material.objects.filter(id = material.id)
+                        for m in material_id:
+                            master_material_dict['name'] = m.name
+                            master_material_dict['decription'] = m.decription
+                            master_material_dict['photo'] = m.photo
+                            master_material_list.append(master_material_dict)
+                            master_material_dict ={}
+
+                    missed_activity_dict['master_material'] = master_material_list
+                    supporting_material = miss_activity.activity.supporting_material.all()
+                    supporting_master_material_list = []
+                    supporting_master_material_dict= {}
+                    for material in supporting_material:
+                        material_id = Material.objects.filter(id = material.id)
+                        for m in material_id:
+                            supporting_master_material_dict['name'] = m.name
+                            supporting_master_material_dict['decription'] = m.decription
+                            supporting_master_material_dict['photo'] = m.photo
+                            supporting_master_material_list.append(supporting_master_material_dict)
+                            supporting_master_material_dict ={}
+                    missed_activity_dict['supporting_material'] = supporting_master_material_list
+                    missed_activity_dict['activity_asset'] = activity_asset_list
+                    missed_activity_list.append(missed_activity_dict)
+                    missed_activity_dict = {}
+                dict['missed_activity'] = missed_activity_list
+
                 periods_lists.append(dict)
                 dict = {}
             context = {"message": "Class List",
