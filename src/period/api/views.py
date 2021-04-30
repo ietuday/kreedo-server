@@ -74,14 +74,6 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
         if self.request.method == 'DELETE':
             return PeriodListSerializer
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return PeriodListSerializer
-        if self.request.method == 'POST':
-            return PeriodCreateSerializer
-        if self.request.method == 'DELETE':
-            return PeriodListSerializer
-
 
 """PeriodTemplateDetail List and Create """
 
@@ -133,7 +125,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
             periods_lists = []
             dict = {}
             for class_period in period_list_qs:
-                dict['id'] = class_period.id
+                dict['period_id'] = class_period.id
                 dict['room_no'] = class_period.room_no.room_no
                 dict['start_time'] = class_period.start_time
                 dict['end_time'] = class_period.end_time

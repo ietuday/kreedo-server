@@ -28,7 +28,7 @@ class SchoolHoliday(TimestampAwareModel):
     description = models.TextField(blank=True, null=True)
     school_session = models.ForeignKey(to='session.SchoolSession', on_delete=models.PROTECT, null=True,blank=True)
     academic_calender = models.ForeignKey(to='session.AcademicCalender', on_delete = models.PROTECT, null=True,blank=True)
-    academic_session = models.ManyToManyField(to='session.AcademicSession')
+    academic_session = models.ManyToManyField(to='session.AcademicSession', blank=True)
     
     holiday_from = models.DateField(blank=True)
     holiday_till = models.DateField(blank=True)
