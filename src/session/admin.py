@@ -23,3 +23,16 @@ class AcademicSessionAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                      'session_from', 'session_till', 'class_teacher', 'is_close', 'is_active', ]
     list_filter = ['id', 'name', 'session', 'grade', 'section', 'type',
                    'session_from', 'session_till', 'class_teacher', 'is_close', 'is_active', ]
+
+
+@admin.register(AcademicCalender)
+class AcademicCalenderAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id','school_session','start_date','end_date','is_active']
+    search_fields =  ['id','school_session','start_date','end_date','is_active']
+    list_filter =  ['id','school_session','start_date','end_date','is_active']
+
+
+
+
+
+

@@ -20,6 +20,40 @@ class SchoolSessionManager(models.Manager):
         return self.get_queryset().is_current_session()
 
 
+
+
+""" Academic  Calender  Manager Queryset """
+
+
+class AcademicCalenderQueryset(models.QuerySet):
+    def is_active(self):
+        return self.filter(is_active=True)
+
+
+""" Academic  Calender   Manager """
+
+
+class AcademicCalenderManager(models.Manager):
+    def get_queryset(self):
+        return AcademicCalenderQueryset(self.model, using=self._db)
+
+    def is_active(self):
+        return self.get_queryset().is_active()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """ Academic  Session Queryset """
 
 

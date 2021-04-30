@@ -3,17 +3,29 @@ from django_filters import DateRangeFilter, DateFilter
 from session.models import*
 
 
+""" SchoolSession Filter """
+
+
 class SchoolSessionFilter(filters.FilterSet):
-    # year = DateRangeFilter(field_name='year')
-    # session_from = DateRangeFilter(field_name='session_from')
-    # session_till = DateRangeFilter(field_name='session_till')
 
     class Meta:
         model = SchoolSession
         fields = '__all__'
 
 
-# class AcademicSessionFilter(filters.Filter):
-#     class Meta:
-#         model = AcademicSession
-#         fields = '__all__'
+""" AcademicSession Filter """
+
+
+class AcademicSessionFilter(filters.FilterSet):
+    class Meta:
+        model = AcademicSession
+        fields = '__all__'
+
+
+""" AcademicCalender Filter """
+
+
+class AcademicCalenderFilter(filters.FilterSet):
+    class Meta:
+        model = AcademicCalender
+        fields = '__all__'

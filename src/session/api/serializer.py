@@ -19,3 +19,22 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = '__all__'
         depth = 1
+
+
+""" AcademicCalender List Seriliazer """
+
+
+class AcademicCalenderListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicCalender
+        fields = '__all__'
+        depth = 1
+
+
+""" AcademicCalender Create Serializer """
+
+
+class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicCalender
+        fields = '__all__'
