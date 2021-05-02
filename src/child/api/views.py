@@ -20,8 +20,7 @@ from .filters import*
 
 class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
-    filterset_class = ChildFilter
-    serializer_class = ChildCreateSerializer
+    serializer_class = ChildListSerializer
 
     def post(self, request):
         try:
@@ -56,7 +55,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 {"child_detail": child_detail, "parent_detail": parent_detail,
                  "academic_session_detail": academic_session_detail})
             try:
-                # print("Context", context)
+
                 child_detail_serializer = ChildCreateSerializer(
                     data=dict(child_detail), context=context)
                 if child_detail_serializer.is_valid():
@@ -88,7 +87,7 @@ class ChildList(GeneralClass, Mixins, ListAPIView):
 """ Update Child """
 
 
-class ChildListCreate(GeneralClass, Mixins, CreateAPIView):
+class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
     model = ChildDetail
 
     def get_serializer_class(self):
