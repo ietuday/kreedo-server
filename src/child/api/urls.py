@@ -23,5 +23,7 @@ urlpatterns = [
     path('attendance_retrive_update_delete/<int:pk>', AttendanceRetriveUpdateDestroy.as_view(),
          name='AttendanceRetriveUpdateDestroy'),
 
+    path('child_list_according_grade', childListAccordingToClass.as_view(),
+         name='childListAccordingToClass'),
 
 ]

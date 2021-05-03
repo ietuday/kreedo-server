@@ -8,11 +8,11 @@ from plan.models import*
 
 @admin.register(Plan)
 class PlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'type', 'is_group', 'grade',
+    list_display = ['id', 'name',  'is_group', 'grade',
                     'range_from', 'range_to', 'previous_kreedo', 'is_active']
-    search_fields = ['id', 'name', 'type', 'is_group', 'grade',
+    search_fields = ['id', 'name',  'is_group', 'grade',
                      'range_from', 'range_to', 'previous_kreedo', 'is_active']
-    list_filter = ['id', 'name', 'type', 'is_group', 'grade',
+    list_filter = ['id', 'name',  'is_group', 'grade',
                    'range_from', 'range_to', 'previous_kreedo', 'is_active']
 
 

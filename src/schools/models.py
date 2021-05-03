@@ -6,7 +6,18 @@ from users.models import*
 from address.models import*
 from plan.models import ChildPlan
 from session.models import *
+from activity.models import*
 # Create your models here.
+
+"""  Relationship Choice """
+Individual = 'Individual'
+Group = 'Group'
+
+
+Subject_Type_Choice = [
+    (Individual, 'Individual'),
+    (Group, 'Group')
+]
 
 
 """  Relationship Choice """
@@ -60,7 +71,9 @@ class Section(TimestampAwareModel):
 
 
 class Subject(TimestampAwareModel):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, null=True, blank=True,unique=True)
+    type = models.CharField(max_length=50, choices=Subject_Type_Choice, null=True, blank=True)
+    activity = models.ManyToManyField(to='activity.Activity', related_name ='subject_activity' ,blank=True)
     is_active = models.BooleanField(default=False)
     plan = models.ManyToManyField(ChildPlan, blank=True)
     is_kreedo = models.BooleanField(default=False)

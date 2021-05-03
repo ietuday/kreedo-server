@@ -12,7 +12,9 @@ from kreedo.general_views import*
 from child.models import*
 from .serializer import*
 from .filters import*
-
+from session.models import*
+from schools.models import*
+from rest_framework import status
 # Create your views here.
 
 """ create and List Child """
@@ -141,3 +143,31 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
         if self.request.method == 'DELETE':
             return AttendanceListSerializer
+
+
+""" child List of class, section and subject """
+
+
+class childListAccordingToClass(ListCreateAPIView):
+    def post(self, request):
+        try:
+            grade = request.data.get('grade', None)
+            section = request.data.get('section', None)
+            subject = request.data.get('subject', None)
+            academic_id = AcademicSession.objects.get(
+                grade__name=grade, section__name=section).id
+            subject = Subject.objects.get(name=subject).name
+
+            child_query = ChildPlan.objects.filter(
+                academic_session=academic_id, subjects__name=subject)
+            child_serailizer = ChildPlanListSerializer(child_query, many=True)
+
+            context = {"message": "Child List According to grade",
+                       "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+
+        except Exception as ex:
+            print("Eror", ex)
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex)
