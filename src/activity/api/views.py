@@ -107,7 +107,9 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
     def put(self, request, *args, **kwargs):
         data = request.data
         print("data", data)
-        ids = [i['id'] for i in data]
+        group_ids = [i['id'] for i in data]
+        print("###", group_ids)
+        self.validate_ids(group_ids)
         
         instances = []
         for temp_dict in data:
@@ -118,6 +120,7 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
             is_completed = temp_dict['is_completed']
             is_active = temp_dict['is_active']
             obj = GroupActivityMissed.objects.get(pk=id)
+            print("%%%%%%%", obj)
             obj.child = child
             obj.period = period
             obj.activity = activity
