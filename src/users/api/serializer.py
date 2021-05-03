@@ -557,8 +557,7 @@ class AddUserSerializer(serializers.ModelSerializer):
 
             return instance
         except Exception as ex:
-            print("error", ex)
-            print("traceback",traceback.print_exc())
+            raise ValidationError(ex)
 
 
         
@@ -591,7 +590,6 @@ class AddUserSerializer(serializers.ModelSerializer):
             """ Genrate Username """
             try:
                 username = create_unique_username()
-                print("username---->", username)
                 validated_data['username'] = username
 
             except ValidationError:
@@ -600,7 +598,6 @@ class AddUserSerializer(serializers.ModelSerializer):
             """ Genrate Password """
             try:
                 genrated_password = get_random_string(8)
-                print("password--------->",genrated_password)
             except Exception as ex:
                 raise ValidationError("Failed to Genrate Password")
 
@@ -624,11 +621,13 @@ class AddUserSerializer(serializers.ModelSerializer):
                         data=self.context['user_details_data'])
                     if user_detail_serializer.is_valid():
                         user_detail_serializer.save()
-                        print("cretaed")
+                        
                         self.context.update({"user_detail":user_detail_serializer.data})
+                        """ send temprorary password mail """
+                        send_temprorary_password_mail(user, user_detail_serializer.data, genrated_password)
+
                         
                     else:
-                        print("userrrr    error", user_detail_serializer.errors)
                         raise ValidationError(user_detail_serializer.errors)
                     
                     self.context['reporting_to']['user_detail'] = user_detail_serializer.data['user_obj']
@@ -637,20 +636,14 @@ class AddUserSerializer(serializers.ModelSerializer):
                     reporting_to_serializers = ReportingToSerializer(data = self.context['reporting_to'])
                     if reporting_to_serializers.is_valid():
                         reporting_to_serializers.save()
-                        print("created11111---->")
                         self.context.update({"reporting_to":reporting_to_serializers.data})
+                        
                     else:
-                        print("reporting to error", reporting_to_serializers.errors)
-
-                        raise ValidationError(reporting_to_serializers.errors)
+                        raise ValidationError(reporting_to_serializers.errors)          
+                    return user
                     
-                   
-                    """ send temprorary password mail """
-                    send_temprorary_password_mail(user, user_detail_serializer.data, genrated_password)
 
             except Exception as ex:
-                print("@ errror", ex)
-               
                 logger.info(ex)
                 logger.debug(ex)
                 raise ValidationError(ex)
@@ -672,8 +665,6 @@ class ParentSerializer(serializers.ModelSerializer):
         fields = ['id','email', 'first_name', 'last_name']
 
     def create(self, validated_data):
-        print("Caleed&&&&&", self)
-        print("Validated----> data --->", validated_data)
         """ Genrate Username """
         try:
             username = create_unique_username()

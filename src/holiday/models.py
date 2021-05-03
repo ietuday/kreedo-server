@@ -19,6 +19,25 @@ Holidaye_Type_Choice = [
     (No_activity_day, 'No activity day')
 ]
 
+""" Holiday Type Model """
+class HolidayType(TimestampAwareModel):
+    holiday_type = models.CharField(max_length = 50)
+    color_code = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'HolidayType'
+        verbose_name_plural = 'HolidayTypes'
+        ordering=['-id']
+    
+    def __str__(self):
+        return str(self.holiday_type)
+    
+    def get_absolute_url(self):
+        return reverse('HolidayType_detail', kwargs={"pk":self.pk})
+
+
+
 
 """ School Holiday Model """
 

@@ -33,6 +33,6 @@ class ActivityAssetAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(GroupActivityMissed)
 class GroupActivityMissedAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'is_completed', 'is_active']
-    search_fields = ['id', 'is_completed', 'is_active']
-    list_filter = ['id', 'is_completed', 'is_active']
+    list_display = ['id', 'child','is_completed', 'is_active']
+    search_fields = ['id','child', 'is_completed', 'is_active']
+    list_filter = ['id','child', 'is_completed', 'is_active']

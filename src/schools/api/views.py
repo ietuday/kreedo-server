@@ -46,8 +46,13 @@ class GradeRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Section
-    serializer_class = SectionSerializer
     filterset_class = SectionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SectionListSerializer
+        if self.request.method == 'POST':
+            return SectionListSerializer
 
 
 """ Section Retrive Update delete """
@@ -55,8 +60,15 @@ class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Section
-    serializer_class = SectionSerializer
     filterset_class = SectionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SectionListSerializer
+        if self.request.method == 'PUT':
+            return SectionListSerializer
+        if self.request.method == 'DELETE':
+            return SectionListSerializer
 
 
 """ Subject List and Create """
