@@ -13,7 +13,21 @@ from session.models import*
 from session.api.serializer import*
 from rest_framework import status
 from material.models import*
+from kreedo.conf.logger import CustomFormatter
+import logging
 # Create your views here.
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("VIEW CAlled ")
+
 """ Period Template List and Create """
 
 
@@ -116,27 +130,28 @@ class ClassAccordingToTeacher(ListCreateAPIView):
         try:
 
             teacher = request.data.get('teacher', None)
-            print("TEACHER----->", teacher)
 
             period_list_qs = Period.objects.filter(
                 teacher=teacher[0], start_date=request.data.get('start_date'))
-
-            print("##################", period_list_qs)
 
             periods_lists = []
             dict = {}
             for class_period in period_list_qs:
                 dict['period_id'] = class_period.id
+                dict['name'] = class_period.name
+                dict['description'] = class_period.description
                 dict['room_no'] = class_period.room_no.room_no
                 dict['start_time'] = class_period.start_time
                 dict['end_time'] = class_period.end_time
+                dict['type'] = class_period.type
                 academic_session = class_period.academic_session.all()
                 acad_session = AcademicSession.objects.get(
                     id=academic_session[0].id)
                 dict['grade'] = acad_session.grade.name
                 dict['section'] = acad_session.section.name
+                dict['subject'] = class_period.subject.name
                 activity_missed = GroupActivityMissed.objects.filter(
-                    period=class_period.id,is_completed=False)
+                    period=class_period.id, is_completed=False)
                 dict['activity_behind_count'] = activity_missed.count()
                 missed_activity_list = []
                 missed_activity_dict = {}
@@ -145,7 +160,8 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                     missed_activity_dict['name'] = miss_activity.activity.name
                     missed_activity_dict['objective'] = miss_activity.activity.objective
                     missed_activity_dict['description'] = miss_activity.activity.description
-                    activity_asset = ActivityAsset.objects.filter(activity=miss_activity.activity.id)
+                    activity_asset = ActivityAsset.objects.filter(
+                        activity=miss_activity.activity.id)
                     activity_asset_list = []
                     activity_asset_dict = {}
                     for asset in activity_asset:
@@ -156,31 +172,31 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                         activity_asset_dict['description'] = asset.description
                         activity_asset_list.append(activity_asset_dict)
 
-
                     master_material = miss_activity.activity.master_material.all()
                     master_material_list = []
-                    master_material_dict= {}
-                    for material in master_material: 
-                        material_id = Material.objects.filter(id = material.id)
+                    master_material_dict = {}
+                    for material in master_material:
+                        material_id = Material.objects.filter(id=material.id)
                         for m in material_id:
                             master_material_dict['name'] = m.name
                             master_material_dict['decription'] = m.decription
                             master_material_dict['photo'] = m.photo
                             master_material_list.append(master_material_dict)
-                            master_material_dict ={}
+                            master_material_dict = {}
 
                     missed_activity_dict['master_material'] = master_material_list
                     supporting_material = miss_activity.activity.supporting_material.all()
                     supporting_master_material_list = []
-                    supporting_master_material_dict= {}
+                    supporting_master_material_dict = {}
                     for material in supporting_material:
-                        material_id = Material.objects.filter(id = material.id)
+                        material_id = Material.objects.filter(id=material.id)
                         for m in material_id:
                             supporting_master_material_dict['name'] = m.name
                             supporting_master_material_dict['decription'] = m.decription
                             supporting_master_material_dict['photo'] = m.photo
-                            supporting_master_material_list.append(supporting_master_material_dict)
-                            supporting_master_material_dict ={}
+                            supporting_master_material_list.append(
+                                supporting_master_material_dict)
+                            supporting_master_material_dict = {}
                     missed_activity_dict['supporting_material'] = supporting_master_material_list
                     missed_activity_dict['activity_asset'] = activity_asset_list
                     missed_activity_list.append(missed_activity_dict)
@@ -193,22 +209,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                        "data": periods_lists, "statusCode": status.HTTP_200_OK}
             return Response(context)
 
-            # data_dict = {
-            #     "teacher": request.data.get('teacher', None)
-            # }
-            # context = super().get_serializer_context()
-            # context.update({"data_dict": data_dict})
-            # class_teacher_serializer = ClassAccordingToTeacherSerializer(
-            #     data=request.data, context=context,)
-            # if class_teacher_serializer.is_valid():
-            #     class_teacher_serializer.save()
-            #     print("@@@@@@@", class_teacher_serializer.data)
-            #     return Response(class_teacher_serializer.data)
-            # else:
-            #     print(class_teacher_serializer.errors)
-            #     return Response(class_teacher_serializer.errors)
-
         except Exception as ex:
-            print("Error view", ex)
-            print("Traceback", traceback.print_exc())
+            logger.debug(ex)
+            logger.info(ex)
             return Response(ex)

@@ -11,10 +11,20 @@ class GradeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-"""Section Serializer """
+"""Section List Serializer """
 
 
-class SectionSerializer(serializers.ModelSerializer):
+class SectionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = '__all__'
+        depth = 1
+
+
+"""Section Create Serializer """
+
+
+class SectionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = '__all__'

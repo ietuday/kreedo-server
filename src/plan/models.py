@@ -29,13 +29,16 @@ Previous_Session_Choice = [
     (No, 'No')
 ]
 
+        
+""" Plan Model """
 
 class Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
-    type = models.CharField(max_length=50, choices=Plan_Type_Choice)
+    type = models.CharField(max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
     is_group = models.BooleanField(default=False)
     activity = models.ManyToManyField(to='activity.Activity', blank=True)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
+    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,related_name = 'plan_subject',null=True,blank=True)
     range_from = models.IntegerField(null=True, blank=True)
     range_to = models.IntegerField(null=True, blank=True)
     previous_kreedo = models.BooleanField(default=False)

@@ -5,14 +5,28 @@ from users.api.serializer import*
 from session.api.serializer import*
 from plan.api.serializer import*
 from session.models import*
+
+import logging
+from kreedo.conf.logger import*
+
+""" Create Log for Serializer"""
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("Serailizer CAlled ")
+
+
 """ Child Create Serializer """
 
 
 class ChildCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        # fields = ['photo', 'first_name', 'last_name', 'date_of_birth',
-        #           'gender', 'date_of_joining', 'place_of_birth', 'blood_group']
         exclude = ['parent']
 
     # def to_representation(self, instance):
@@ -20,12 +34,15 @@ class ChildCreateSerializer(serializers.ModelSerializer):
     #         instance = super(ChildCreateSerializer,
     #                          self).to_representation(instance)
     #         """ Update details in RESPONSE """
+    #         instance['parent_data'] = self.context['parent_detail_serializer_data']
     #         instance['child_plan_data'] = self.context['child_plan_serializer']
 
     #         return instance
     #     except Exception as ex:
     #         print("error", ex)
     #         print("traceback", traceback.print_exc())
+    #         logger.debug(ex)
+    #         raise ValidationError(ex)
 
     def create(self, validated_data):
         try:
@@ -44,36 +61,34 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                     parent_serializer = ParentSerializer(data=dict(parent))
                     if parent_serializer.is_valid():
                         parent_serializer.save()
+                        parent_data = {
+                            "user_obj": parent_serializer.data['id'],
+                            "relationship_with_child": parent['relationship_with_child'],
+                            "phone": parent['phone']
+
+                        }
+                        parent_detail_serializer = ParentDetailSerializer(
+                            data=dict(parent_data))
+
+                        if parent_detail_serializer.is_valid():
+
+                            parent_detail_serializer.save()
+
+                            parent_id = parent_detail_serializer.data['user_obj']
+                            parent_list.append(parent_id)
+                            # self.context['parent_detail_serializer_data'] = parent_detail_serializer.data
+                        else:
+                            raise ValidationError(
+                                parent_detail_serializer.errors)
 
                     else:
                         raise ValidationError(parent_serializer.errors)
 
                 except Exception as ex:
+                    logger.debug(ex)
+                    logger.info(ex)
 
                     raise ValidationError(ex)
-
-                parent_data = {
-                    "user_obj": parent_serializer.data['id'],
-                    "relationship_with_child": parent['relationship_with_child'],
-                    "phone": parent['phone']
-
-                }
-            try:
-                parent_detail_serializer = ParentDetailSerializer(
-                    data=dict(parent_data))
-
-                if parent_detail_serializer.is_valid():
-
-                    parent_detail_serializer.save()
-                    parent_id = parent_detail_serializer.data['user_obj']
-                    parent_list.append(parent_id)
-
-                else:
-                    print(parent_detail_serializer.errors)
-                    raise ValidationError(parent_detail_serializer.errors)
-            except Exception as ex:
-                print(ex)
-                raise ValidationError(ex)
 
             validated_data['parent'] = parent_list
 
@@ -102,18 +117,19 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                     data=dict(academic_session_detail))
                 if child_plan_serializer.is_valid():
                     child_plan_serializer.save()
-                    print("Child plan---->", child_plan_serializer.data)
-                    # self.context.update(
-                    #     {"child_plan_serializer": child_plan_serializer.data})
+                    # self.context['child_plan_serializer_data'] = child_plan_serializer.data
+
                 else:
-                    print("Errors", child_plan_serializer.errors)
                     raise ValidationError(child_plan_serializer.errors)
             except Exception as ex:
-                print("Child plan ", ex)
+
+                logger.debug(ex)
+                logger.info(ex)
                 raise ValidationError(ex)
 
         except Exception as ex:
-            print("ex", ex)
+            logger.info(ex)
+            logger.debug(ex)
             raise ValidationError(ex)
 
 
@@ -134,7 +150,7 @@ class ChildDetailListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildDetail
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 """ Child Create Serializer """

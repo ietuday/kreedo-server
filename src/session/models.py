@@ -40,13 +40,15 @@ class SchoolSession(TimestampAwareModel):
 
 
 """ academic calender model """
+
+
 class AcademicCalender(TimestampAwareModel):
-    school_session = models.ForeignKey('SchoolSession', on_delete=models.PROTECT)
+    school_session = models.ForeignKey(
+        'SchoolSession', on_delete=models.PROTECT)
     start_date = models.DateField(blank=True)
     end_date = models.DateField(blank=True)
     is_active = models.BooleanField(default=False)
     objects = AcademicCalenderManager
-    
 
     class Meta:
         verbose_name = 'AcademicCalender'
@@ -55,15 +57,16 @@ class AcademicCalender(TimestampAwareModel):
 
     def __str__(self):
         return str(self.id)
-    
-    def get_absolute_url(self):
-        return reverse('AcademicCalender_detail',kwargs = {"pk":self.pk})
 
+    def get_absolute_url(self):
+        return reverse('AcademicCalender_detail', kwargs={"pk": self.pk})
 
 
 """  Academic Session Model """
+
+
 class AcademicSession(TimestampAwareModel):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True, blank=True)
     session = models.ForeignKey('SchoolSession', on_delete=models.PROTECT)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
     section = models.ForeignKey(to='schools.Section', on_delete=models.PROTECT)
@@ -73,10 +76,11 @@ class AcademicSession(TimestampAwareModel):
     session_from = models.DateField(blank=True)
     session_till = models.DateField(blank=True)
     period_template = models.ForeignKey(
-    to = 'period.PeriodTemplate', on_delete = models.PROTECT, null = True, blank = True)
+        to='period.PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     class_teacher = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT)
-    academic_calender = models.ForeignKey('AcademicCalender', on_delete=models.PROTECT, null=True, blank=True)
+    academic_calender = models.ForeignKey(
+        'AcademicCalender', on_delete=models.PROTECT, null=True, blank=True)
     is_close = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = AcademicSessionManager
@@ -91,5 +95,3 @@ class AcademicSession(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('AcademicSession_detail', kwargs={"pk": self.pk})
-
-

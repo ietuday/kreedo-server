@@ -16,4 +16,6 @@ urlpatterns = [
          GroupActivityMissedListCreate.as_view(), name='GroupActivityMissedListCreate'),
     path('group-activity-missed_retrive_update_delete/<int:pk>', GroupActivityMissedRetriveUpdateDestroy.as_view(),
          name='GroupActivityMissedRetriveUpdateDestroy'),
+     path('group-activity-missed_retrive_update_delete', GroupActivityMissedRetriveUpdateDestroy.as_view(),
+         name='GroupActivityMissedRetriveUpdateDestroy'),
 ]

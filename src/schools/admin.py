@@ -14,9 +14,9 @@ class GradeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(Section)
 class SectionAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'is_active']
-    search_fields = ['id', 'name', 'is_active']
-    list_filter = ['id', 'name', 'is_active']
+    list_display = ['id', 'grade', 'name', 'is_active']
+    search_fields = ['id', 'grade', 'name', 'is_active']
+    list_filter = ['id', 'grade', 'name', 'is_active']
 
 
 @admin.register(Subject)
