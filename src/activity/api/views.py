@@ -74,6 +74,7 @@ class ActivityAssetRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
 class GroupActivityMissedListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = GroupActivityMissed
     filterset_class = GroupActivityMissedFilter
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GroupActivityMissedListSerilaizer
@@ -81,7 +82,7 @@ class GroupActivityMissedListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             group_activity_serializer = GroupActivityMissedCreateSerilaizer(data=request.data,
-                            many=True)
+                                                                            many=True)
             if group_activity_serializer.is_valid():
                 group_activity_serializer.save()
                 return Response(group_activity_serializer.data)
@@ -102,31 +103,34 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GroupActivityMissedListSerilaizer
-       
-    
+
     def put(self, request, *args, **kwargs):
-        data = request.data
-        print("data", data)
-        group_ids = [i['id'] for i in data]
-        print("###", group_ids)
-        self.validate_ids(group_ids)
-        
-        instances = []
-        for temp_dict in data:
-            id = temp_dict['id']
-            child = temp_dict['child']
-            period = temp_dict['period']
-            activity = temp_dict['activity']
-            is_completed = temp_dict['is_completed']
-            is_active = temp_dict['is_active']
-            obj = GroupActivityMissed.objects.get(pk=id)
-            print("%%%%%%%", obj)
-            obj.child = child
-            obj.period = period
-            obj.activity = activity
-            obj.is_active = is_active
-            obj.save()
-            instances.append(obj)
-        serializer = GroupActivityMissedCreateSerilaizer(instances, many=True)
-        return Response(serializer.data)
-            
+        try:
+            data = request.data
+
+            group_ids = [i['id'] for i in data]
+
+            for i in group_ids:
+                instances = []
+                for temp_dict in data:
+                    id = temp_dict['id']
+                    child = temp_dict['child']
+                    period = temp_dict['period']
+                    activity = temp_dict['activity']
+                    is_completed = temp_dict['is_completed']
+                    is_active = temp_dict['is_active']
+
+                    obj = GroupActivityMissed.objects.get(pk=i)
+                    print("%%%%%%%", obj)
+                    obj.child.id = child
+                    obj.period.id = period
+                    obj.activity.id = activity
+                    obj.is_active = is_active
+                    obj.save()
+                    instances.append(obj)
+                serializer = GroupActivityMissedCreateSerilaizer(
+                    instances, many=True)
+                return Response(serializer.data)
+
+        except Exception as ex:
+            return Response(ex)
