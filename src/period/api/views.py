@@ -158,6 +158,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 for miss_activity in activity_missed:
                     missed_activity_dict['id'] = miss_activity.activity.id
                     missed_activity_dict['name'] = miss_activity.activity.name
+                    missed_activity_dict['type'] = miss_activity.activity.type
                     missed_activity_dict['objective'] = miss_activity.activity.objective
                     missed_activity_dict['description'] = miss_activity.activity.description
                     activity_asset = ActivityAsset.objects.filter(
