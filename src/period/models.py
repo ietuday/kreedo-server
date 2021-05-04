@@ -85,6 +85,7 @@ class Period(TimestampAwareModel):
         max_length=50, choices=Period_Type_Choice, blank=True)
     teacher = models.ManyToManyField(to='users.UserDetail', blank=True)
     activity_done = models.ManyToManyField(to='activity.Activity', blank=True)
+    is_complete = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
     class Meta:
