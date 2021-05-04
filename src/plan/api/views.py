@@ -42,13 +42,10 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-            plan_activity_dict = {
-
-                "plan_activity": request.data.get('plan_activity', None)
-            }
+           
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
-            context.update({"plan_activity_dict": plan_activity_dict})
+            context.update({"plan_activity_dict": request.data.get('plan_activity', None)})
             plan_serializer = PlanCreateSerailizer(
                 data=request.data, context=context)
             if plan_serializer.is_valid():
@@ -59,6 +56,7 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 return Response(plan_serializer.errors)
         except Exception as ex:
             print("error", ex)
+            return Response(ex)
 
 
 """ Plan Retrive Update Delet """

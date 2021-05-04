@@ -21,6 +21,17 @@ class PlanListSerailizer(serializers.ModelSerializer):
         depth = 1
 
 
+    def to_representation(self, obj):
+            serialized_data = super(PlanListSerailizer, self).to_representation(obj) # original serialized data
+            print("$$$$$$$$$",serialized_data )
+            plan_id = serialized_data.get('id') # get job category id from original serialized data
+            plan_activity = PlanActivity.objects.filter(plan__id=plan_id) # get the object from db
+            plan_activity_serializer = PlanActivityListSerializer(plan_activity,many=True)
+            serialized_data['plan_activity_data'] = plan_activity_serializer.data # replace id with category name
+            return serialized_data 
+
+
+
 """ Plan Create Serializer """
 
 
@@ -29,38 +40,36 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
         model = Plan
         fields = '__all__'
 
-    # def to_representation(self, instance):
-    #     try:
-    #         instance = super(PlanCreateSerailizer,
-    #                          self).to_representation(instance)
-    #         instance['plan_activity'] = self.context['plan_activity_data']
-    #         return instance
-    #     except Exception as ex:
-    #         print("error")
+    def to_representation(self, instance):
+        try:
+            instance = super(PlanCreateSerailizer,
+                             self).to_representation(instance)
+            instance['plan_activity'] = self.context['plan_activity_serializer_data']
+            return instance
+        except Exception as ex:
+            print("error", ex)
+            raise ValidationError(ex)
 
     def create(self, validated_data):
         try:
-            print("@@@", self.context['plan_activity_dict'])
             plan_activity = self.context.pop('plan_activity_dict')
             plan = super(PlanCreateSerailizer, self).create(validated_data)
-            print("#############", plan)
 
-            for plan_obj in plan_activity:
-                print("%%%%%%%%%%%%", plan_obj)
-                plan_obj['plan'] = plan.id
+            for plan_activity_obj in plan_activity:
+                plan_activity_obj['plan'] = plan.id
+           
+            """ calling PlanActivityCreate Serializer with order_items data. """
 
-            # """ calling PlanActivityCreate Serializer with order_items data. """
+            plan_activity_serializer = PlanActivityCreateSerializer(
+                data=list(plan_activity), many=True)
 
-            # plan_activity_serializer = PlanActivityCreateSerializer(
-            #     data=list(plan_activity), many=True)
-
-            # if plan_activity_serializer.is_valid(raise_exception=True):
-            #     plan_activity_serializer.save()
-            #     self.context['plan_activity_data'] = plan_activity_serializer.data
-            # else:
-            #     print("plan Activity Error", plan_activity_serializer.errors)
-            #     raise ValidationError(plan_activity_serializer.errors)
-
+            if plan_activity_serializer.is_valid(raise_exception=True):
+                plan_activity_serializer.save()
+                self.context.update({"plan_activity_serializer_data":plan_activity_serializer.data})
+            else:
+                print("plan Activity Error", plan_activity_serializer.errors)
+                raise ValidationError(plan_activity_serializer.errors)
+            return plan
         except Exception as ex:
             print("Error", ex)
             return ValidationError(ex)
@@ -93,7 +102,7 @@ class PlanActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanActivity
         fields = '__all__'
-        depth = 2
+        
 
 
 """ Plan Activity Create Serilaizer """
