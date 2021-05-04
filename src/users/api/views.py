@@ -8,6 +8,8 @@ from kreedo.general_views import Mixins, GeneralClass
 from kreedo.conf.logger import CustomFormatter
 import traceback
 import logging
+import pandas as pd
+
 from rest_framework .generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -349,65 +351,65 @@ class AddUser(ListCreateAPIView):
    
     def post(self, request):
         try:
-            address_detail = {
-                    "address":request.data.get('address', None),
-                    "city":request.data.get('city', None),
-                    "state":request.data.get('state', None),
-                    "country":request.data.get('country', None),
-                    "pincode":request.data.get('pincode', None),
-                   
-            }
-            address_created = False
-            address_serializer = AddressSerializer(data=dict(address_detail))
-            if address_serializer.is_valid():
-                address_serializer.save()  
-                address_created = True
-            else:
-                print("address_serializer._errors", address_serializer._errors)
-                raise ValidationError(address_serializer.errors)
-
-            """ Auth user Data """
-
-            user_data = {
-                "first_name":request.data.get('first_name', None),
-                "last_name":request.data.get('last_name', None),
-                "email":request.data.get('email',None)
-                
-            }   
-            
-            user_details_data = {
-                "user_obj":1,
-                "phone":request.data.get('phone', None),
-                "joining_date":request.data.get('joining_date', None),
-                "address":address_serializer.data['id'],
-            }
-            reporting_to = {
-                "user_detail":1,
-                "user_role":request.data.get('role', None),
-                "reporting_to":request.data.get('reporting_to', None),
-                "is_active":"true"
-            }
-          
-
-
-            """  Pass dictionary through Context """
-            context = super().get_serializer_context()
-            context.update({"user_data": user_data,"reporting_to":reporting_to,
-            "user_details_data":user_details_data})
-            try:
-               
-                user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
-
-                if user_detail_serializer.is_valid():
-                    return Response(user_detail_serializer.data)
+                address_detail = {
+                        "address":request.data.get('address', None),
+                        "city":request.data.get('city', None),
+                        "state":request.data.get('state', None),
+                        "country":request.data.get('country', None),
+                        "pincode":request.data.get('pincode', None),
+                    
+                }
+                address_created = False
+                address_serializer = AddressSerializer(data=dict(address_detail))
+                if address_serializer.is_valid():
+                    address_serializer.save()  
+                    address_created = True
                 else:
-                    return Response(user_detail_serializer.errors)
+                    print("address_serializer._errors", address_serializer._errors)
+                    raise ValidationError(address_serializer.errors)
+
+                """ Auth user Data """
+
+                user_data = {
+                    "first_name":request.data.get('first_name', None),
+                    "last_name":request.data.get('last_name', None),
+                    "email":request.data.get('email',None)
+                    
+                }   
+                
+                user_details_data = {
+                    "user_obj":1,
+                    "phone":request.data.get('phone', None),
+                    "joining_date":request.data.get('joining_date', None),
+                    "address":address_serializer.data['id'],
+                }
+                reporting_to = {
+                    "user_detail":1,
+                    "user_role":request.data.get('role', None),
+                    "reporting_to":request.data.get('reporting_to', None),
+                    "is_active":"true"
+                }
             
-            except Exception as ex:
-                print("error", ex)
-                print("traceback", traceback.print_exc())
-                logger.debug(ex)
-                return Response(ex)
+
+
+                """  Pass dictionary through Context """
+                context = super().get_serializer_context()
+                context.update({"user_data": user_data,"reporting_to":reporting_to,
+                "user_details_data":user_details_data})
+                try:
+                
+                    user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                    if user_detail_serializer.is_valid():
+                        return Response(user_detail_serializer.data)
+                    else:
+                        return Response(user_detail_serializer.errors)
+            
+                except Exception as ex:
+                    print("error", ex)
+                    print("traceback", traceback.print_exc())
+                    logger.debug(ex)
+                    return Response(ex)
 
             
 
@@ -417,6 +419,84 @@ class AddUser(ListCreateAPIView):
             # address_id = address_serializer.data['id']
             # address_obj = Address.objects.get(pk=address_id)
             # address_obj.delete()
+            logger.debug(ex)
+            return Response(ex)
+
+
+
+from pandas import DataFrame
+
+import csv
+class AddAccount(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+           file_in_memory = request.FILES['file']
+           df = pd.read_csv(file_in_memory).to_dict(orient='records')
+           for i,f in enumerate(df, start=1):
+                address_detail = {
+                        "address":f.get('address', None),
+                        "city":f.get('city', None),
+                        "state":f.get('state', None),
+                        "country":f.get('country', None),
+                        "pincode":f.get('pin', None),
+                    
+                }
+                print(address_detail)
+                address_serializer = AddressSerializer(data=dict(address_detail))
+                if address_serializer.is_valid():
+                    address_serializer.save()  
+                    print(address_serializer.data)
+                else:
+                    print("address_serializer._errors", address_serializer._errors)
+                    raise ValidationError(address_serializer.errors)
+
+                """ Auth user Data """
+
+                user_data = {
+                    "first_name":f.get('first_name', None),
+                    "last_name":f.get('last_name', None),
+                    "email":f.get('email',None)
+                    
+                }   
+                
+                user_details_data = {
+                    "user_obj":1,
+                    "phone":f.get('phone', None),
+                    "joining_date":f.get('joining_date', None),
+                    "address":address_serializer.data['id'],
+                }
+
+                """  Pass dictionary through Context """
+                context = super().get_serializer_context()
+                context.update({"user_data": user_data,
+                "user_details_data":user_details_data})
+                try:
+                
+                    user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                    if user_detail_serializer.is_valid():
+                        return Response(user_detail_serializer.data)
+                    else:
+                        return Response(user_detail_serializer.errors)
+            
+                except Exception as ex:
+                    print("error", ex)
+                    print("traceback", traceback.print_exc())
+                    logger.debug(ex)
+                    return Response(ex)
+
+        #    toCSV = [{'name':'bob','age':25,'weight':200},
+        #             {'name':'jim','age':31,'weight':180}]
+        #    keys = toCSV[0].keys()
+        #    with open('output.csv', 'w', newline='')  as output_file:
+        #        dict_writer = csv.DictWriter(output_file, keys)
+        #        dict_writer.writeheader()
+        #        dict_writer.writerows(toCSV)
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
             return Response(ex)
 

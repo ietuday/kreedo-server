@@ -552,8 +552,10 @@ class AddUserSerializer(serializers.ModelSerializer):
             instance = super(AddUserSerializer,
                          self).to_representation(instance)
             """ Update details in RESPONSE """
-            instance['user_detail_data'] = self.context['user_detail']
-            instance['reporting_to'] = self.context['reporting_to']
+            # print("self.context['user_detail']", self.context)
+            # instance['user_detail_data'] = self.context['user_detail']
+            # if self.context['reporting_to'] :
+            #     instance['reporting_to'] = self.context['reporting_to']
 
             return instance
         except Exception as ex:
@@ -630,23 +632,24 @@ class AddUserSerializer(serializers.ModelSerializer):
                     else:
                         print("userrrr    error", user_detail_serializer.errors)
                         raise ValidationError(user_detail_serializer.errors)
-                    
-                    self.context['reporting_to']['user_detail'] = user_detail_serializer.data['user_obj']
+                    if self.context['reporting_to'] :
+                        self.context['reporting_to']['user_detail'] = user_detail_serializer.data['user_obj']
 
-                    """ pass request data of Reporting to serializer"""
-                    reporting_to_serializers = ReportingToSerializer(data = self.context['reporting_to'])
-                    if reporting_to_serializers.is_valid():
-                        reporting_to_serializers.save()
-                        print("created11111---->")
-                        self.context.update({"reporting_to":reporting_to_serializers.data})
-                    else:
-                        print("reporting to error", reporting_to_serializers.errors)
+                        """ pass request data of Reporting to serializer"""
+                        reporting_to_serializers = ReportingToSerializer(data = self.context['reporting_to'])
+                        if reporting_to_serializers.is_valid():
+                            reporting_to_serializers.save()
+                            print("created11111---->")
+                            self.context.update({"reporting_to":reporting_to_serializers.data})
+                        else:
+                            print("reporting to error", reporting_to_serializers.errors)
 
-                        raise ValidationError(reporting_to_serializers.errors)
+                            raise ValidationError(reporting_to_serializers.errors)
                     
                    
                     """ send temprorary password mail """
                     send_temprorary_password_mail(user, user_detail_serializer.data, genrated_password)
+                    return 
 
             except Exception as ex:
                 print("@ errror", ex)
