@@ -153,10 +153,10 @@ class UserRegister(CreateAPIView):
                 return Response(context)
 
         except Exception as ex:
-
-            address_id = address_serializer.data['id']
-            address_obj = Address.objects.get(pk=address_id)
-            address_obj.delete()
+            if address_created == True:
+                address_id = address_serializer.data['id']
+                address_obj = Address.objects.get(pk=address_id)
+                address_obj.delete()
             logger.debug(ex)
             context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)

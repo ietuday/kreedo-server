@@ -3,6 +3,16 @@ from import_export.admin import ImportExportModelAdmin
 from plan.models import*
 # Register your models here.
 
+""" plan Type Admin """
+
+
+@admin.register(PlanType)
+class PlanTypeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'name', 'sub_type', 'is_active']
+    search_fields = ['id', 'name', 'sub_type', 'is_active']
+    list_filter = ['id', 'name', 'sub_type', 'is_active']
+
+
 """ Plan Admin"""
 
 
@@ -32,6 +42,7 @@ class ChildPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 """ Plan activity Admin"""
 
 
+@admin.register(PlanActivity)
 class PlanActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'plan', 'activity', 'sort_no',
                     'is_optional', 'dependent_on', 'is_active']
