@@ -19,15 +19,6 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import permission_classes
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
-"""
-    REST LIBRARY IMPORT
-"""
-"""
-    IMPORT CORE FILES 
-"""
-"""
-    IMPORT USER APP FILE
-"""
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -146,8 +137,7 @@ class UserRegister(CreateAPIView):
                 user_detail = UserRegisterSerializer(
                 data=dict(user_data), context=context)
             except Exception as ex:
-                print("error", ex)
-                print("traceback",traceback.print_exc())
+               
                 context = {"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
@@ -159,16 +149,16 @@ class UserRegister(CreateAPIView):
 
                 return Response(context)
             else:
-                logger.debug("user_detail.errors",
+                logger.debug(
                       user_detail.errors)
                 context = {"error":user_detail.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
-
-            address_id = address_serializer.data['id']
-            address_obj = Address.objects.get(pk=address_id)
-            address_obj.delete()
+            if address_created == True:
+                address_id = address_serializer.data['id']
+                address_obj = Address.objects.get(pk=address_id)
+                address_obj.delete()
             logger.debug(ex)
             context={"error":ex, "statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
@@ -401,26 +391,31 @@ class AddUser(ListCreateAPIView):
                     user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
 
                     if user_detail_serializer.is_valid():
-                        return Response(user_detail_serializer.data)
+                        user_detail_serializer.save()
+                        context = {"message": "User is created successfully.",
+                            "data": user_detail_serializer.data, "statusCode": status.HTTP_200_OK}
+                        return Response(context)
                     else:
-                        return Response(user_detail_serializer.errors)
-            
-                except Exception as ex:
-                    print("error", ex)
-                    print("traceback", traceback.print_exc())
-                    logger.debug(ex)
-                    return Response(ex)
+                        context = {"error":user_detail_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
 
-            
+                        return Response(context)
+                except Exception as ex:
+                    
+                    logger.debug(ex)
+                    context = {"error":ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+
+                    return Response(context)
 
         except Exception as ex:
-            print("error", ex)
-            print("traceback", traceback.print_exc())
-            # address_id = address_serializer.data['id']
-            # address_obj = Address.objects.get(pk=address_id)
-            # address_obj.delete()
+            
+            if address_created == True:
+                address_id = address_serializer.data['id']
+                address_obj = Address.objects.get(pk=address_id)
+                address_obj.delete()
             logger.debug(ex)
-            return Response(ex)
+            context = {"error":ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+
+            return Response(context)
 
 
 

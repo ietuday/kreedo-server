@@ -47,7 +47,7 @@ class Activity(TimestampAwareModel):
     objective = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     notes = models.CharField(max_length=200, blank=True, null=True)
-    subject = models.ManyToManyField(to='schools.Subject', blank=True)
+    subject = models.ManyToManyField(to='schools.Subject',related_name='activity_subject', blank=True)
     # skill = models.ManyToManyField(to='area_of_devlopment.Skill', relatedblank=True)
     master_material = models.ManyToManyField(to='material.Material')
     supporting_material = models.ManyToManyField(

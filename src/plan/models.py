@@ -11,13 +11,13 @@ from child.models import*
 
 
 """  Relationship Choice """
-Individual = 'Individual'
-Group = 'Group'
+Sequential = 'Sequential'
+Randomized = 'Randomized'
 
 
 Plan_Type_Choice = [
-    (Individual, 'Individual'),
-    (Group, 'Group')
+    (Sequential, 'Sequential'),
+    (Randomized, 'Randomized')
 ]
 
 Yes = 'Yes'
@@ -29,13 +29,39 @@ Previous_Session_Choice = [
     (No, 'No')
 ]
 
+""" Plan Type Model """
+
+
+class PlanType(TimestampAwareModel):
+    name = models.CharField(max_length=50)
+    sub_type = models.CharField(
+        max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'PlanType'
+        verbose_name_plural = 'PlanTypes'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('PlanType_detail', kwargs={"pk": self.pk})
+
+
+""" Plan Model """
+
 
 class Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
-    type = models.CharField(max_length=50, choices=Plan_Type_Choice)
+    plan_type = models.ForeignKey(
+        'PlanType', on_delete=models.PROTECT, null=True, blank=True)
     is_group = models.BooleanField(default=False)
     activity = models.ManyToManyField(to='activity.Activity', blank=True)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
+    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
+                                related_name='plan_subject', null=True, blank=True)
     range_from = models.IntegerField(null=True, blank=True)
     range_to = models.IntegerField(null=True, blank=True)
     previous_kreedo = models.BooleanField(default=False)
@@ -89,7 +115,8 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
     subject_label = models.CharField(max_length=100, blank=True, null=True)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
     grade_label = models.CharField(max_length=100, blank=True, null=True)
-    # plan = models.ForeignKey('Plan', on_delete=models.PROTECT)
+    plan = models.ForeignKey(
+        'Plan', on_delete=models.PROTECT, blank=True, null=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -110,7 +137,8 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
 class ChildPlan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     range_of_working_days = models.IntegerField(null=True, blank=True)
-    child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT,null=True, blank=True)
+    child = models.ForeignKey(
+        to='child.Child', on_delete=models.PROTECT, null=True, blank=True)
     subject_school_grade_plan = models.ForeignKey(
         'SubjectSchoolGradePlan', on_delete=models.PROTECT, null=True, blank=True)
     academic_session = models.ForeignKey(

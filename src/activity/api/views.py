@@ -7,7 +7,7 @@ from activity.models import*
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-
+from rest_framework.response import Response
 # Create your views here.
 
 """ Activity List And create """
@@ -78,8 +78,18 @@ class GroupActivityMissedListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GroupActivityMissedListSerilaizer
-        if self.request.method == 'POST':
-            return GroupActivityMissedCreateSerilaizer
+
+    def post(self, request):
+        try:
+            group_activity_serializer = GroupActivityMissedCreateSerilaizer(data=request.data,
+                                                                            many=True)
+            if group_activity_serializer.is_valid():
+                group_activity_serializer.save()
+                return Response(group_activity_serializer.data)
+            else:
+                return Response(group_activity_serializer.errors)
+        except Exception as ex:
+            return Response(ex)
 
 
 """ GroupActivityMissed Retrive update Delete """
@@ -93,6 +103,34 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return GroupActivityMissedListSerilaizer
-        if self.request.method == 'PUT':
-            return GroupActivityMissedCreateSerilaizer
-        
+
+    def put(self, request, *args, **kwargs):
+        try:
+            data = request.data
+
+            group_ids = [i['id'] for i in data]
+
+            for i in group_ids:
+                instances = []
+                for temp_dict in data:
+                    id = temp_dict['id']
+                    child = temp_dict['child']
+                    period = temp_dict['period']
+                    activity = temp_dict['activity']
+                    is_completed = temp_dict['is_completed']
+                    is_active = temp_dict['is_active']
+
+                    obj = GroupActivityMissed.objects.get(pk=i)
+                    print("%%%%%%%", obj)
+                    obj.child.id = child
+                    obj.period.id = period
+                    obj.activity.id = activity
+                    obj.is_active = is_active
+                    obj.save()
+                    instances.append(obj)
+                serializer = GroupActivityMissedCreateSerilaizer(
+                    instances, many=True)
+                return Response(serializer.data)
+
+        except Exception as ex:
+            return Response(ex)

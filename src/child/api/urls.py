@@ -8,7 +8,7 @@ urlpatterns = [
     path('child_list', ChildList.as_view(), name='ChildList'),
 
     path('child-detail_list_create',
-         ChildListCreate.as_view(), name='ChildListCreate'),
+         ChildDetailListCreate.as_view(), name='ChildDetailListCreate'),
     path('child-detail_retrive_update_delete/<int:pk>', ChildRetriveUpdateDestroy.as_view(),
          name='ChildRetriveUpdateDestroy'),
 
@@ -23,5 +23,7 @@ urlpatterns = [
     path('attendance_retrive_update_delete/<int:pk>', AttendanceRetriveUpdateDestroy.as_view(),
          name='AttendanceRetriveUpdateDestroy'),
 
+    path('child_list_according_grade', childListAccordingToClass.as_view(),
+         name='childListAccordingToClass'),
 
 ]
