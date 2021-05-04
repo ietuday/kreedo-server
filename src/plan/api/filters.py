@@ -1,6 +1,14 @@
 from django_filters import rest_framework as filters
 from plan.models import*
 
+""" Plan Type Filter """
+
+
+class PlanTypeFilter(filters.FilterSet):
+    class Meta:
+        model = PlanType
+        fields = '__all__'
+
 
 """ Plan Filter """
 

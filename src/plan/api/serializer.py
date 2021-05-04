@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from ..models import*
 
+""" Plan Type Serializer """
+
+
+class PlanTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanType
+        fields = '__all__'
+
 
 """ Plan List Serilaizer """
 

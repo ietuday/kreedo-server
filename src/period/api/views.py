@@ -150,6 +150,15 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 dict['grade'] = acad_session.grade.name
                 dict['section'] = acad_session.section.name
                 dict['subject'] = class_period.subject.name
+                activity_list= class_period.subject.activity.all()
+                activitys_list = []
+                activitys_dict = {}
+                for activity_obj in activity_list:
+                    activity_obj_id = Activity.objects.filter(id=activity_obj.id)
+                    for active in activity_obj_id:
+                        activitys_dict['type'] = active.type
+                        activitys_list.append(activitys_dict)
+                dict['activity_type'] = activitys_list
                 activity_missed = GroupActivityMissed.objects.filter(
                     period=class_period.id, is_completed=False)
                 dict['activity_behind_count'] = activity_missed.count()
@@ -214,3 +223,6 @@ class ClassAccordingToTeacher(ListCreateAPIView):
             logger.debug(ex)
             logger.info(ex)
             return Response(ex)
+
+
+

@@ -57,11 +57,3 @@ class GroupActivityMissedCreateSerilaizer(serializers.ModelSerializer):
     class Meta:
         model = GroupActivityMissed
         fields = '__all__'
-
-    # def create(self, validated_data):
-    #     try:
-    #         print(",Validated_data",self.context)
-    #         for i in self.context['childs']:
-                
-    #     except Exception as ex:
-    #         print("@@@@@@@@@@@2", ex)

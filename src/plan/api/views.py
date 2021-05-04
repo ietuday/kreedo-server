@@ -11,6 +11,24 @@ from .filters import*
 
 # Create your views here.
 
+""" Plan Type List and Create """
+
+
+class PlanTypeListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = PlanType
+    filterset_class = PlanTypeFilter
+    serializer_class = PlanTypeSerializer
+
+
+""" Plan Type Retrive Update Delete """
+
+
+class PlanTypeRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = PlanType
+    filterset_class = PlanTypeFilter
+    serializer_class = PlanTypeSerializer
+
+
 """ plan Create and List """
 
 

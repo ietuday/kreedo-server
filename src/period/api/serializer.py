@@ -25,6 +25,17 @@ class PeriodListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+
+""" Period  Serializer """
+
+
+class PeriodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Period
+        fields = '__all__'
+        
+
+
 """ getting classes according to teacher """
 
 

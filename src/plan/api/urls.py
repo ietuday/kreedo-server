@@ -3,6 +3,10 @@ from .views import*
 
 
 urlpatterns = [
+    path('plan-type_list_create', PlanTypeListCreate.as_view(),
+         name='PlanTypeListCreate'),
+    path('plan-type_retrive_update_delete/<int:pk>', PlanTypeRetriveUpdateDelete.as_view(),
+         name='PlanTypeRetriveUpdateDelete'),
     path('plan_list_create',
          PlanListCreate.as_view(), name='PlanListCreate'),
     path('plan_retrive_update_delete/<int:pk>', PlanRetriveUpdateDelete.as_view(),
