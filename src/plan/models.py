@@ -51,6 +51,7 @@ class PlanType(TimestampAwareModel):
 
 
 """ Plan Model """
+""" add type and subtype choice"""
 
 
 class Plan(TimestampAwareModel):
@@ -58,7 +59,6 @@ class Plan(TimestampAwareModel):
     plan_type = models.ForeignKey(
         'PlanType', on_delete=models.PROTECT, null=True, blank=True)
     is_group = models.BooleanField(default=False)
-    activity = models.ManyToManyField(to='activity.Activity', blank=True)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
                                 related_name='plan_subject', null=True, blank=True)
