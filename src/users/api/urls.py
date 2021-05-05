@@ -27,7 +27,8 @@ urlpatterns = [
     path('change_password', ChangePassword.as_view(), name='ChangePassword'),
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
     path('add-user', AddUser.as_view(), name='AddUser'),
-    path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account')
+    path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
+    path('bulk-upload/add-school', AddSchool.as_view(), name='Add School')
 
 
 

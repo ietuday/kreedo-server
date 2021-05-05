@@ -16,6 +16,7 @@ from .conf.email_conf import*
 from .conf.rest_conf import*
 from .conf.static_conf import*
 import os
+import boto3
 import environ
 import datetime
 
@@ -175,3 +176,39 @@ USE_TZ = True
 
 
 # Import Logger
+
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')  # e.g. us-east-2
+AWS_DEFAULT_ACL = None
+
+# Tell django-storages the domain to use to refer to static files.
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+
+# AWS SNS client
+AWS_SNS_CLIENT = boto3.client(
+    "sns",
+    aws_access_key_id=env('AWS_SNS_ACCESS_KEY_ID'),
+    aws_secret_access_key=env('AWS_SNS_SECRET_ACCESS_KEY'),
+    region_name="ap-southeast-1"
+)
+
+# if bool(env('dev')) == False:
+#     AWS_SNS_CLIENT.set_sms_attributes(
+#         attributes={
+#             'DefaultSMSType': 'Transactional'
+#         }
+#     )
+
+# AWS_LOCATION = 'static'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+
+DEFAULT_FILE_STORAGE = 'kreedo.custom_storage.MediaStorage'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+

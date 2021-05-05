@@ -183,3 +183,21 @@ class Room(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('Room_detail', kwargs={"pk": self.pk})
+
+
+class SchoolGradeSubject(TimestampAwareModel):
+    school = models.ForeignKey('School', on_delete=models.PROTECT)
+    grade = models.ForeignKey('Grade', on_delete=models.PROTECT)
+    subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'SchoolGradeSubject'
+        verbose_name_plural = 'SchoolGradeSubjects'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.name)
+
+    def get_absolute_url(self):
+        return reverse('SchoolGradeSubject_detail', kwargs={"pk": self.pk})

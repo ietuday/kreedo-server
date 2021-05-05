@@ -70,7 +70,7 @@ class Role(TimestampAwareModel):
 class UserDetail(TimestampAwareModel):
     user_obj = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, to_field='id', primary_key=True)
-    phone = models.IntegerField(null=True, blank=True)
+    phone = models.CharField(max_length=25, null=True, blank=True)
     activation_key = models.TextField(
         blank=True, null=False, default='', verbose_name='Activation Key')
     activation_key_expires = models.DateTimeField(blank=True, null=True,

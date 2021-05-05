@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import permission_classes
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
+from users.api.custum_storage import FileStorage
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -419,15 +420,21 @@ class AddUser(ListCreateAPIView):
 
 
 
+            # fs = FileStorage()
+            # fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            # path_to_file =  str(fs.custom_domain) + 'files/output.csv'
+            # print(path_to_file) 
 from pandas import DataFrame
 
 import csv
+import pdb
 class AddAccount(ListCreateAPIView):
    
     def post(self, request):
         try:
            file_in_memory = request.FILES['file']
            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+           added_user=[]
            for i,f in enumerate(df, start=1):
                 address_detail = {
                         "address":f.get('address', None),
@@ -471,9 +478,19 @@ class AddAccount(ListCreateAPIView):
                     user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
 
                     if user_detail_serializer.is_valid():
-                        return Response(user_detail_serializer.data)
+                        user_detail_serializer.save()
+                        added_user.append(
+                            {
+                                "id": user_detail_serializer.data['user_detail_data']['user_obj'],
+                                "email": user_detail_serializer.data['email'],
+                                "first_name": user_detail_serializer.data['first_name'],
+                                "last_name": user_detail_serializer.data['last_name'],
+                                "phone": user_detail_serializer.data['user_detail_data']['phone'],
+                                "address": user_detail_serializer.data['user_detail_data']['address']
+                            }
+                            )
                     else:
-                        return Response(user_detail_serializer.errors)
+                        print(user_detail_serializer.errors)
             
                 except Exception as ex:
                     print("error", ex)
@@ -481,13 +498,32 @@ class AddAccount(ListCreateAPIView):
                     logger.debug(ex)
                     return Response(ex)
 
-        #    toCSV = [{'name':'bob','age':25,'weight':200},
-        #             {'name':'jim','age':31,'weight':180}]
-        #    keys = toCSV[0].keys()
-        #    with open('output.csv', 'w', newline='')  as output_file:
-        #        dict_writer = csv.DictWriter(output_file, keys)
-        #        dict_writer.writeheader()
-        #        dict_writer.writerows(toCSV)
+           keys = added_user[0].keys()
+           with open('output.csv', 'w', newline='')  as output_file:
+               dict_writer = csv.DictWriter(output_file, keys)
+               dict_writer.writeheader()
+               dict_writer.writerows(added_user)
+
+       
+           
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
+
+
+
+class AddSchool(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+           file_in_memory = request.FILES['file']
+           df = pd.read_csv(file_in_memory).to_dict(orient='records')
+           added_school=[]
+           
+           
 
         except Exception as ex:
             print("error", ex)
