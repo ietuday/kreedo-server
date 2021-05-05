@@ -2,14 +2,19 @@ from rest_framework import serializers
 from ..models import*
 from django.core.exceptions import ValidationError
 
-""" Plan Type Serializer """
+from kreedo.conf.logger import CustomFormatter
+import logging
 
 
-class PlanTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PlanType
-        fields = '__all__'
+""" Logging """
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
 
 """ Plan List Serilaizer """
 
@@ -20,16 +25,16 @@ class PlanListSerailizer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
-
     def to_representation(self, obj):
-            serialized_data = super(PlanListSerailizer, self).to_representation(obj) # original serialized data
-            print("$$$$$$$$$",serialized_data )
-            plan_id = serialized_data.get('id') # get job category id from original serialized data
-            plan_activity = PlanActivity.objects.filter(plan__id=plan_id) # get the object from db
-            plan_activity_serializer = PlanActivityListSerializer(plan_activity,many=True)
-            serialized_data['plan_activity_data'] = plan_activity_serializer.data # replace id with category name
-            return serialized_data 
+        serialized_data = super(
+            PlanListSerailizer, self).to_representation(obj)
 
+        plan_id = serialized_data.get('id')
+        plan_activity = PlanActivity.objects.filter(plan__id=plan_id)
+        plan_activity_serializer = PlanActivityListSerializer(
+            plan_activity, many=True)
+        serialized_data['plan_activity_data'] = plan_activity_serializer.data
+        return serialized_data
 
 
 """ Plan Create Serializer """
@@ -47,7 +52,8 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
             instance['plan_activity'] = self.context['plan_activity_serializer_data']
             return instance
         except Exception as ex:
-            print("error", ex)
+            logger.info(ex)
+            logger.debug(ex)
             raise ValidationError(ex)
 
     def create(self, validated_data):
@@ -57,7 +63,7 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
 
             for plan_activity_obj in plan_activity:
                 plan_activity_obj['plan'] = plan.id
-           
+
             """ calling PlanActivityCreate Serializer with order_items data. """
 
             plan_activity_serializer = PlanActivityCreateSerializer(
@@ -65,13 +71,14 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
 
             if plan_activity_serializer.is_valid(raise_exception=True):
                 plan_activity_serializer.save()
-                self.context.update({"plan_activity_serializer_data":plan_activity_serializer.data})
+                self.context.update(
+                    {"plan_activity_serializer_data": plan_activity_serializer.data})
             else:
-                print("plan Activity Error", plan_activity_serializer.errors)
                 raise ValidationError(plan_activity_serializer.errors)
             return plan
         except Exception as ex:
-            print("Error", ex)
+            logger.debug(ex)
+            logger.info(ex)
             return ValidationError(ex)
 
 
@@ -102,7 +109,6 @@ class PlanActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanActivity
         fields = '__all__'
-        
 
 
 """ Plan Activity Create Serilaizer """

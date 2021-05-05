@@ -8,26 +8,20 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 
 from rest_framework.response import Response
 from .filters import*
-
+from kreedo.conf.logger import CustomFormatter
+import logging
 # Create your views here.
 
-""" Plan Type List and Create """
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
 
-class PlanTypeListCreate(GeneralClass, Mixins, ListCreateAPIView):
-    model = PlanType
-    filterset_class = PlanTypeFilter
-    serializer_class = PlanTypeSerializer
-
-
-""" Plan Type Retrive Update Delete """
-
-
-class PlanTypeRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
-    model = PlanType
-    filterset_class = PlanTypeFilter
-    serializer_class = PlanTypeSerializer
-
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("VIEW CAlled ")
 
 """ plan Create and List """
 
@@ -42,20 +36,22 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-           
+
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
-            context.update({"plan_activity_dict": request.data.get('plan_activity', None)})
+            context.update(
+                {"plan_activity_dict": request.data.get('plan_activity', None)})
             plan_serializer = PlanCreateSerailizer(
                 data=request.data, context=context)
             if plan_serializer.is_valid():
                 plan_serializer.save()
                 return Response(plan_serializer.data)
             else:
-                print("@@@@@@", plan_serializer.errors)
                 return Response(plan_serializer.errors)
         except Exception as ex:
-            print("error", ex)
+            logger.debug(ex)
+            logger.info(ex)
+            
             return Response(ex)
 
 
