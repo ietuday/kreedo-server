@@ -39,6 +39,8 @@ class SchoolSession(TimestampAwareModel):
         return reverse('SchoolSession_detail', kwargs={"pk": self.pk})
 
 
+
+
 """ academic calender model """
 
 

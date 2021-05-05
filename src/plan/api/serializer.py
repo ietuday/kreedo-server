@@ -69,7 +69,7 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
             plan_activity_serializer = PlanActivityCreateSerializer(
                 data=list(plan_activity), many=True)
 
-            if plan_activity_serializer.is_valid(raise_exception=True):
+            if plan_activity_serializer.is_valid():
                 plan_activity_serializer.save()
                 self.context.update(
                     {"plan_activity_serializer_data": plan_activity_serializer.data})
