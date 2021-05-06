@@ -26,4 +26,7 @@ urlpatterns = [
     path('child_list_according_grade', childListAccordingToClass.as_view(),
          name='childListAccordingToClass'),
 
+    path('attendence_by_academic_session', AttendenceByAcademicSession.as_view(),
+         name='Attendence By Academic Session'),
+
 ]
