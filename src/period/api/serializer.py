@@ -34,8 +34,7 @@ class PeriodSerializer(serializers.ModelSerializer):
         model = Period
         fields = '__all__'
         
-
-
+        
 """ getting classes according to teacher """
 
 
