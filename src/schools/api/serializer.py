@@ -126,3 +126,10 @@ class RoomCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
+
+
+
+class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = '__all__'

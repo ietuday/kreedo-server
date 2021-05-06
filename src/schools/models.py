@@ -188,7 +188,7 @@ class Room(TimestampAwareModel):
 class SchoolGradeSubject(TimestampAwareModel):
     school = models.ForeignKey('School', on_delete=models.PROTECT)
     grade = models.ForeignKey('Grade', on_delete=models.PROTECT)
-    subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
+    subject = models.ManyToManyField('Subject', related_name ='school_grade_subject')
     is_active = models.BooleanField(default=False)
 
     class Meta:

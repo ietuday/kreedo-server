@@ -1,6 +1,7 @@
 """
     DJANGO LIBRARY IMPORT
 """
+import json
 from .serializer import*
 from ..models import*
 from .filters import*
@@ -20,6 +21,8 @@ from rest_framework.decorators import permission_classes
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from users.api.custum_storage import FileStorage
+from schools.models import*
+from schools.api.serializer import*
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -420,10 +423,7 @@ class AddUser(ListCreateAPIView):
 
 
 
-            # fs = FileStorage()
-            # fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            # path_to_file =  str(fs.custom_domain) + 'files/output.csv'
-            # print(path_to_file) 
+ 
 from pandas import DataFrame
 
 import csv
@@ -503,6 +503,12 @@ class AddAccount(ListCreateAPIView):
                dict_writer = csv.DictWriter(output_file, keys)
                dict_writer.writeheader()
                dict_writer.writerows(added_user)
+           
+           fs = FileStorage()
+           fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+           path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+           print(path_to_file)
+           return Response(path_to_file) 
 
        
            
@@ -520,10 +526,46 @@ class AddSchool(ListCreateAPIView):
     def post(self, request):
         try:
            file_in_memory = request.FILES['file']
-           df = pd.read_csv(file_in_memory).to_dict(orient='records')
+           df = pd.read_csv(file_in_memory).to_dict(orient='records')       
+           print(df)
            added_school=[]
+        #    for i,f in enumerate(df, start=1):
+
            
-           
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
+
+
+class AddSchoolGradeSubject(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_school_grade_subject=[]
+
+            for i,f in enumerate(df, start=1):
+                # f['subject'] = list(f['subject'])
+                f['subject'] = json.loads(f['subject'])
+                print(f)
+                schoolGradeSubject_serializer = SchoolGradeSubjectSerializer(data=dict(f))
+                if schoolGradeSubject_serializer.is_valid():
+                    schoolGradeSubject_serializer.save()  
+                    added_school_grade_subject.append(schoolGradeSubject_serializer.data)
+                    print(schoolGradeSubject_serializer.data)
+                else:
+                    print("schoolGradeSubject_serializer._errors", schoolGradeSubject_serializer._errors)
+                    raise ValidationError(schoolGradeSubject_serializer.errors)
+
+            keys = added_school_grade_subject[0].keys()
+            with open('output.csv', 'w', newline='')  as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_school_grade_subject)
 
         except Exception as ex:
             print("error", ex)
