@@ -15,6 +15,7 @@ from .filters import*
 from session.models import*
 from schools.models import*
 from rest_framework import status
+from datetime import date
 # Create your views here.
 
 """ create and List Child """
@@ -72,7 +73,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 return Response(ex)
 
         except Exception as ex:
-            print("ex", ex)
+            logger.info(ex)
+            logger.debug(ex)
             return Response(ex)
 
 
@@ -145,7 +147,6 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
 """ child List of class, section and subject """
 
-
 class childListAccordingToClass(ListCreateAPIView):
     def post(self, request):
         try:
@@ -157,7 +158,8 @@ class childListAccordingToClass(ListCreateAPIView):
             subject = Subject.objects.get(name=subject).name
 
             child_query = ChildPlan.objects.filter(
-                academic_session=academic_id, subjects__name=subject)
+                academic_session=academic_id, subjects__name=subject,curriculum_start_date__lte=date.today())
+            
             child_serailizer = ChildPlanListSerializer(child_query, many=True)
 
             context = {"message": "Child List According to grade",
@@ -165,7 +167,6 @@ class childListAccordingToClass(ListCreateAPIView):
             return Response(context)
 
         except Exception as ex:
-            
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)
@@ -187,7 +188,6 @@ class AttendenceByAcademicSession(ListCreateAPIView):
             return Response(context)
 
         except Exception as ex:
-            print("Eror", ex)
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)

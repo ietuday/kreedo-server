@@ -225,3 +225,40 @@ class ClassAccordingToTeacher(ListCreateAPIView):
             logger.debug(ex)
             logger.info(ex)
             return Response(ex)
+
+
+
+""" Activity according to child """
+class ActivityByChild(ListCreateAPIView):
+    def post(self, request):
+        try:
+            print("@@@@@@@@@@@@", request.data)
+            child = request.data.get('child', None)
+            period = request.data.get('period', None)
+            grade = request.data.get('grade', None)
+            section = request.data.get('section', None)
+            academic_id = AcademicSession.objects.get(
+                grade__name=grade, section__name=section).id
+            
+         
+            activity_missed = ActivityComplete.objects.filter(
+                    period=period, is_completed=False)
+            activity_lists = []
+            activity_dict = {}
+            for activity in activity_missed:
+                activity_dict['id'] = activity.activity.id
+                activity_dict['name'] = activity.activity.name
+                activity_dict['type'] = activity.activity.type
+                activity_dict['objective'] = activity.activity.objective
+                activity_dict['description'] = activity.activity.description
+
+                activity_lists.append(activity_dict)
+                
+            context = {"message": "Activity List",
+                        "data": activity_lists, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+            
+
+        except Exception as ex:
+            
+            return Response(ex)
