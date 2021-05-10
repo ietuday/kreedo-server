@@ -1,6 +1,7 @@
 """
     DJANGO LIBRARY IMPORT
 """
+import json
 from .serializer import*
 from ..models import*
 from .filters import*
@@ -8,6 +9,8 @@ from kreedo.general_views import Mixins, GeneralClass
 from kreedo.conf.logger import CustomFormatter
 import traceback
 import logging
+import pandas as pd
+
 from rest_framework .generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -17,6 +20,9 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import permission_classes
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
+from users.api.custum_storage import FileStorage
+from schools.models import*
+from schools.api.serializer import*
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -339,71 +345,70 @@ class AddUser(ListCreateAPIView):
    
     def post(self, request):
         try:
-            address_detail = {
-                    "address":request.data.get('address', None),
-                    "city":request.data.get('city', None),
-                    "state":request.data.get('state', None),
-                    "country":request.data.get('country', None),
-                    "pincode":request.data.get('pincode', None),
-                   
-            }
-            address_created = False
-            address_serializer = AddressSerializer(data=dict(address_detail))
-            if address_serializer.is_valid():
-                address_serializer.save()  
-                address_created = True
-            else:
-                print("address_serializer._errors", address_serializer._errors)
-                raise ValidationError(address_serializer.errors)
-
-            """ Auth user Data """
-
-            user_data = {
-                "first_name":request.data.get('first_name', None),
-                "last_name":request.data.get('last_name', None),
-                "email":request.data.get('email',None)
-                
-            }   
-            
-            user_details_data = {
-                "user_obj":1,
-                "phone":request.data.get('phone', None),
-                "joining_date":request.data.get('joining_date', None),
-                "address":address_serializer.data['id'],
-            }
-            reporting_to = {
-                "user_detail":1,
-                "user_role":request.data.get('role', None),
-                "reporting_to":request.data.get('reporting_to', None),
-                "is_active":"true"
-            }
-          
-
-
-            """  Pass dictionary through Context """
-            context = super().get_serializer_context()
-            context.update({"user_data": user_data,"reporting_to":reporting_to,
-            "user_details_data":user_details_data})
-            try:
-               
-                user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
-
-                if user_detail_serializer.is_valid():
-                    user_detail_serializer.save()
-                    context = {"message": "User is created successfully.",
-                           "data": user_detail_serializer.data, "statusCode": status.HTTP_200_OK}
-                    return Response(context)
+                address_detail = {
+                        "address":request.data.get('address', None),
+                        "city":request.data.get('city', None),
+                        "state":request.data.get('state', None),
+                        "country":request.data.get('country', None),
+                        "pincode":request.data.get('pincode', None),
+                    
+                }
+                address_created = False
+                address_serializer = AddressSerializer(data=dict(address_detail))
+                if address_serializer.is_valid():
+                    address_serializer.save()  
+                    address_created = True
                 else:
-                    context = {"error":user_detail_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+                    print("address_serializer._errors", address_serializer._errors)
+                    raise ValidationError(address_serializer.errors)
+
+                """ Auth user Data """
+
+                user_data = {
+                    "first_name":request.data.get('first_name', None),
+                    "last_name":request.data.get('last_name', None),
+                    "email":request.data.get('email',None)
+                    
+                }   
+                
+                user_details_data = {
+                    "user_obj":1,
+                    "phone":request.data.get('phone', None),
+                    "joining_date":request.data.get('joining_date', None),
+                    "address":address_serializer.data['id'],
+                }
+                reporting_to = {
+                    "user_detail":1,
+                    "user_role":request.data.get('role', None),
+                    "reporting_to":request.data.get('reporting_to', None),
+                    "is_active":"true"
+                }
+            
+
+
+                """  Pass dictionary through Context """
+                context = super().get_serializer_context()
+                context.update({"user_data": user_data,"reporting_to":reporting_to,
+                "user_details_data":user_details_data})
+                try:
+                
+                    user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                    if user_detail_serializer.is_valid():
+                        user_detail_serializer.save()
+                        context = {"message": "User is created successfully.",
+                            "data": user_detail_serializer.data, "statusCode": status.HTTP_200_OK}
+                        return Response(context)
+                    else:
+                        context = {"error":user_detail_serializer.errors,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
+
+                        return Response(context)
+                except Exception as ex:
+                    
+                    logger.debug(ex)
+                    context = {"error":ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
 
                     return Response(context)
-            
-            except Exception as ex:
-                
-                logger.debug(ex)
-                context = {"error":ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
-
-                return Response(context)
 
         except Exception as ex:
             
@@ -415,6 +420,158 @@ class AddUser(ListCreateAPIView):
             context = {"error":ex,"statusCode":status.HTTP_500_INTERNAL_SERVER_ERROR}
 
             return Response(context)
+
+
+
+ 
+from pandas import DataFrame
+
+import csv
+import pdb
+class AddAccount(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+           file_in_memory = request.FILES['file']
+           df = pd.read_csv(file_in_memory).to_dict(orient='records')
+           added_user=[]
+           for i,f in enumerate(df, start=1):
+                address_detail = {
+                        "address":f.get('address', None),
+                        "city":f.get('city', None),
+                        "state":f.get('state', None),
+                        "country":f.get('country', None),
+                        "pincode":f.get('pin', None),
+                    
+                }
+                print(address_detail)
+                address_serializer = AddressSerializer(data=dict(address_detail))
+                if address_serializer.is_valid():
+                    address_serializer.save()  
+                    print(address_serializer.data)
+                else:
+                    print("address_serializer._errors", address_serializer._errors)
+                    raise ValidationError(address_serializer.errors)
+
+                """ Auth user Data """
+
+                user_data = {
+                    "first_name":f.get('first_name', None),
+                    "last_name":f.get('last_name', None),
+                    "email":f.get('email',None)
+                    
+                }   
+                
+                user_details_data = {
+                    "user_obj":1,
+                    "phone":f.get('phone', None),
+                    "joining_date":f.get('joining_date', None),
+                    "address":address_serializer.data['id'],
+                }
+
+                """  Pass dictionary through Context """
+                context = super().get_serializer_context()
+                context.update({"user_data": user_data,
+                "user_details_data":user_details_data})
+                try:
+                
+                    user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                    if user_detail_serializer.is_valid():
+                        user_detail_serializer.save()
+                        added_user.append(
+                            {
+                                "id": user_detail_serializer.data['user_detail_data']['user_obj'],
+                                "email": user_detail_serializer.data['email'],
+                                "first_name": user_detail_serializer.data['first_name'],
+                                "last_name": user_detail_serializer.data['last_name'],
+                                "phone": user_detail_serializer.data['user_detail_data']['phone'],
+                                "address": user_detail_serializer.data['user_detail_data']['address']
+                            }
+                            )
+                    else:
+                        print(user_detail_serializer.errors)
+            
+                except Exception as ex:
+                    print("error", ex)
+                    print("traceback", traceback.print_exc())
+                    logger.debug(ex)
+                    return Response(ex)
+
+           keys = added_user[0].keys()
+           with open('output.csv', 'w', newline='')  as output_file:
+               dict_writer = csv.DictWriter(output_file, keys)
+               dict_writer.writeheader()
+               dict_writer.writerows(added_user)
+           
+           fs = FileStorage()
+           fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+           path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+           print(path_to_file)
+           return Response(path_to_file) 
+
+       
+           
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
+
+
+
+class AddSchool(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+           file_in_memory = request.FILES['file']
+           df = pd.read_csv(file_in_memory).to_dict(orient='records')       
+           print(df)
+           added_school=[]
+        #    for i,f in enumerate(df, start=1):
+
+           
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
+
+
+class AddSchoolGradeSubject(ListCreateAPIView):
+   
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_school_grade_subject=[]
+
+            for i,f in enumerate(df, start=1):
+                # f['subject'] = list(f['subject'])
+                f['subject'] = json.loads(f['subject'])
+                print(f)
+                schoolGradeSubject_serializer = SchoolGradeSubjectSerializer(data=dict(f))
+                if schoolGradeSubject_serializer.is_valid():
+                    schoolGradeSubject_serializer.save()  
+                    added_school_grade_subject.append(schoolGradeSubject_serializer.data)
+                    print(schoolGradeSubject_serializer.data)
+                else:
+                    print("schoolGradeSubject_serializer._errors", schoolGradeSubject_serializer._errors)
+                    raise ValidationError(schoolGradeSubject_serializer.errors)
+
+            keys = added_school_grade_subject[0].keys()
+            with open('output.csv', 'w', newline='')  as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_school_grade_subject)
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
 
 
 

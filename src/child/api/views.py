@@ -169,3 +169,25 @@ class childListAccordingToClass(ListCreateAPIView):
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)
+
+
+class AttendenceByAcademicSession(ListCreateAPIView):
+    def post(self, request):
+        try:
+            grade = request.data.get('grade', None)
+            section = request.data.get('section', None)
+            attendance_date = request.data.get('attendance_date', None)
+            academic_id = AcademicSession.objects.get(
+                grade=grade, section=section).id
+
+            attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
+            attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
+            context = {"message": "Attendence By Academic Session",
+                       "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+
+        except Exception as ex:
+            print("Eror", ex)
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex)

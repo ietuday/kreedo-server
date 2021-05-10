@@ -39,6 +39,23 @@ class SchoolSession(TimestampAwareModel):
         return reverse('SchoolSession_detail', kwargs={"pk": self.pk})
 
 
+class SchoolCalendar(TimestampAwareModel):
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    session_from = models.DateField(blank=True)
+    session_till = models.DateField(blank=True)
+    is_active = models.BooleanField(default=False)
+    
+
+    class Meta:
+        verbose_name = 'SchoolCalendar'
+        verbose_name_plural = 'SchoolCalendars'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('SchoolCalendar_detail', kwargs={"pk": self.pk})
 
 
 """ academic calender model """
