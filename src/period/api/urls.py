@@ -25,4 +25,6 @@ urlpatterns = [
      path('classes_by_teacher_list',
          ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),
      
+     path('activity_by_child', ActivityByChild.as_view(), name='ActivityByChild'),
+     
 ]

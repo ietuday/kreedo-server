@@ -116,3 +116,6 @@ class ActivityComplete(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ActivityComplete_detail', kwargs={"pk": self.pk})
+
+
+
