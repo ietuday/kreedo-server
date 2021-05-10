@@ -44,8 +44,8 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AcademicSessionListSerializer
         if self.request.method == 'POST':
             return AcademicSessionCreateSerializer
-        if self.request.method == 'DELETE':
-            return AcademicSessionCreateSerializer
+    
+          
 
 
 """ AcademicSession Retrive Update Delete """
