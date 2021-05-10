@@ -10,14 +10,24 @@ from child.models import*
 # Create your models here.
 
 
-"""  Relationship Choice """
+""" Plan Sub-Type Relationship Choice """
 Sequential = 'Sequential'
 Randomized = 'Randomized'
 
 
-Plan_Type_Choice = [
+Plan_Sub_Type_Choice = [
     (Sequential, 'Sequential'),
     (Randomized, 'Randomized')
+]
+
+"""  Plan Type Relationship Choice """
+Individual = 'Individual'
+Group = 'Group'
+
+
+Plan_Type_Choice = [
+    (Individual, 'Individual'),
+    (Group, 'Group')
 ]
 
 Yes = 'Yes'
@@ -29,35 +39,16 @@ Previous_Session_Choice = [
     (No, 'No')
 ]
 
-""" Plan Type Model """
-
-
-class PlanType(TimestampAwareModel):
-    name = models.CharField(max_length=50)
-    sub_type = models.CharField(
-        max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
-    is_active = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'PlanType'
-        verbose_name_plural = 'PlanTypes'
-        ordering = ['-id']
-
-    def __str__(self):
-        return str(self.name)
-
-    def get_absolute_url(self):
-        return reverse('PlanType_detail', kwargs={"pk": self.pk})
-
 
 """ Plan Model """
-""" add type and subtype choice"""
 
 
 class Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
-    plan_type = models.ForeignKey(
-        'PlanType', on_delete=models.PROTECT, null=True, blank=True)
+    type = models.CharField(
+        max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
+    sub_type = models.CharField(
+        max_length=50, choices=Plan_Sub_Type_Choice, null=True, blank=True)
     is_group = models.BooleanField(default=False)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,

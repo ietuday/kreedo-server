@@ -161,7 +161,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                         activitys_list.append(activitys_dict)
 
                 dict['activity_type'] = activitys_dict.get('type')
-                activity_missed = GroupActivityMissed.objects.filter(
+                activity_missed = ActivityComplete.objects.filter(
                     period=class_period.id, is_completed=False)
                 dict['activity_behind_count'] = activity_missed.count()
                 missed_activity_list = []

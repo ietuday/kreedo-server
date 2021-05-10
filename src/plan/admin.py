@@ -3,15 +3,6 @@ from import_export.admin import ImportExportModelAdmin
 from plan.models import*
 # Register your models here.
 
-""" plan Type Admin """
-
-
-@admin.register(PlanType)
-class PlanTypeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'sub_type', 'is_active']
-    search_fields = ['id', 'name', 'sub_type', 'is_active']
-    list_filter = ['id', 'name', 'sub_type', 'is_active']
-
 
 """ Plan Admin"""
 

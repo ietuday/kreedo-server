@@ -62,15 +62,13 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                     data=dict(child_detail), context=context)
                 if child_detail_serializer.is_valid():
                     child_detail_serializer.save()
-                    print("child", child_detail_serializer.data)
                     return Response(child_detail_serializer.data)
                 else:
-                    print("child error",  child_detail_serializer.errors)
                     return Response(child_detail_serializer.errors)
 
             except Exception as ex:
-                print("error", ex)
-                print("traceback", traceback.print_exc())
+                logger.info(ex)
+                logger.debug(ex)
                 return Response(ex)
 
         except Exception as ex:
@@ -167,7 +165,7 @@ class childListAccordingToClass(ListCreateAPIView):
             return Response(context)
 
         except Exception as ex:
-            print("Eror", ex)
+            
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)
