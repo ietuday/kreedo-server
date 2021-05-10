@@ -40,20 +40,20 @@ class ActivityAssetCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-""" Group Activity Missed List Serializer"""
+""" Activity  Complete List Serializer"""
 
 
-class GroupActivityMissedListSerilaizer(serializers.ModelSerializer):
+class ActivityCompleteListSerilaizer(serializers.ModelSerializer):
     class Meta:
-        model = GroupActivityMissed
+        model = ActivityComplete
         fields = '__all__'
-        depth = 1
+        depth = 3
 
 
-""" Group Activity Missed Create Serializer"""
+""" Activity  Complete Create Serializer"""
 
 
-class GroupActivityMissedCreateSerilaizer(serializers.ModelSerializer):
+class ActivityCompleteCreateSerilaizer(serializers.ModelSerializer):
     class Meta:
-        model = GroupActivityMissed
+        model = ActivityComplete
         fields = '__all__'

@@ -68,49 +68,48 @@ class ActivityAssetRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return ActivityAssetCreateSerializer
 
 
-""" GroupActivityMissed List and Create """
+""" Activity  CompleteList and Create """
 
 
-class GroupActivityMissedListCreate(GeneralClass, Mixins, ListCreateAPIView):
-    model = GroupActivityMissed
-    filterset_class = GroupActivityMissedFilter
+class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = ActivityComplete
+    filterset_class = ActivityCompleteFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return GroupActivityMissedListSerilaizer
+            return ActivityCompleteListSerilaizer
 
     def post(self, request):
         try:
-            group_activity_serializer = GroupActivityMissedCreateSerilaizer(data=request.data,
-                                                                            many=True)
-            if group_activity_serializer.is_valid():
-                group_activity_serializer.save()
-                return Response(group_activity_serializer.data)
+            activity_complete_serializer = ActivityCompleteCreateSerilaizer(data=request.data,many=True)
+            if activity_complete_serializer.is_valid():
+                activity_complete_serializer.save()
+                return Response(activity_complete_serializer.data)
             else:
-                return Response(group_activity_serializer.errors)
+                return Response(activity_complete_serializer.errors)
         except Exception as ex:
             return Response(ex)
 
 
-""" GroupActivityMissed Retrive update Delete """
+""" ActivityComplete Retrive update Delete """
 
 
-class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
-    model = GroupActivityMissed
-    filterset_class = GroupActivityMissedFilter
-    serializer_class = GroupActivityMissedListSerilaizer
+class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = ActivityComplete
+    filterset_class = ActivityCompleteFilter
+    serializer_class = ActivityCompleteListSerilaizer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return GroupActivityMissedListSerilaizer
+            return ActivityCompleteListSerilaizer
 
     def put(self, request, *args, **kwargs):
         try:
             data = request.data
 
-            group_ids = [i['id'] for i in data]
+            child_data_ids = [i['id'] for i in data]
 
-            for i in group_ids:
+            for i in child_data_ids:
                 instances = []
                 for temp_dict in data:
                     id = temp_dict['id']
@@ -120,17 +119,15 @@ class GroupActivityMissedRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpda
                     is_completed = temp_dict['is_completed']
                     is_active = temp_dict['is_active']
 
-                    obj = GroupActivityMissed.objects.get(pk=i)
-                    print("%%%%%%%", obj)
+                    obj = ActivityComplete.objects.get(pk=i)
                     obj.child.id = child
                     obj.period.id = period
                     obj.activity.id = activity
                     obj.is_active = is_active
                     obj.save()
                     instances.append(obj)
-                serializer = GroupActivityMissedCreateSerilaizer(
+                serializer = ActivityCompleteCreateSerilaizer(
                     instances, many=True)
                 return Response(serializer.data)
-
         except Exception as ex:
             return Response(ex)
