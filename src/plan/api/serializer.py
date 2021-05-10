@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 from kreedo.conf.logger import CustomFormatter
 import logging
-
+from activity.models import*
 
 """ Logging """
 
@@ -90,6 +90,16 @@ class ChildPlanListSerializer(serializers.ModelSerializer):
         model = ChildPlan
         fields = '__all__'
         depth = 1
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildPlanListSerializer, self).to_representation(obj)
+            
+        child_data = serialized_data.get('child')
+        child_id = child_data.get('id')
+        child_activity_count = ActivityComplete.objects.filter(child__id=child_id, is_completed=False).count() 
+        serialized_data['activity_behind'] = child_activity_count
+        return serialized_data
 
 
 """ child Plan create Serailizer """

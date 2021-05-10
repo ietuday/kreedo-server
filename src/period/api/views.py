@@ -252,6 +252,50 @@ class ActivityByChild(ListCreateAPIView):
                 activity_dict['objective'] = activity.activity.objective
                 activity_dict['description'] = activity.activity.description
 
+                activity_asset = ActivityAsset.objects.filter(
+                        activity=activity.activity.id)
+                print("###############", activity_asset)
+                activity_asset_list = []
+                activity_asset_dict = {}
+                for asset in activity_asset:
+                    activity_asset_dict['activity_id'] = asset.activity.id
+                    activity_asset_dict['type'] = asset.type
+                    activity_asset_dict['activity_data'] = asset.activity_data
+                    activity_asset_dict['title'] = asset.title
+                    activity_asset_dict['description'] = asset.description
+                    activity_asset_list.append(activity_asset_dict)
+                    print("@@@@@",activity_asset_list)
+                    activity_dict['activity_asset'] = activity_asset_list
+                
+                master_material = activity.activity.master_material.all()
+                master_material_list = []
+                master_material_dict = {}
+                for material in master_material:
+                    material_id = Material.objects.filter(id=material.id)
+                    for m in material_id:
+                        master_material_dict['name'] = m.name
+                        master_material_dict['decription'] = m.decription
+                        master_material_dict['photo'] = m.photo
+                        master_material_list.append(master_material_dict)
+                        master_material_dict = {}
+
+                activity_dict['master_material'] = master_material_list
+                supporting_material = activity.activity.supporting_material.all()
+                supporting_master_material_list = []
+                supporting_master_material_dict = {}
+                for material in supporting_material:
+                    material_id = Material.objects.filter(id=material.id)
+                    for m in material_id:
+                        supporting_master_material_dict['name'] = m.name
+                        supporting_master_material_dict['decription'] = m.decription
+                        supporting_master_material_dict['photo'] = m.photo
+                        supporting_master_material_list.append(
+                            supporting_master_material_dict)
+                        supporting_master_material_dict = {}
+                activity_dict['supporting_material'] = supporting_master_material_list
+
+
+
                 activity_lists.append(activity_dict)
                 
             context = {"message": "Activity List",
