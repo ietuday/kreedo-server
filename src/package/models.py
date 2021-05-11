@@ -32,8 +32,8 @@ class SchoolPackage(TimestampAwareModel):
     from_date = models.DateField(blank=True)
     to_date = models.DateField(blank=True)
     is_active = models.BooleanField(default=False)
-    # custom_materials = models.ManyToManyField(
-    #     to='material.Material', blank=True)
+    custom_materials = models.ManyToManyField(
+        to='material.Material', blank=True)
     objects = SchoolPackageManager
 
     class Meta:
