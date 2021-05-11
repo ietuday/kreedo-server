@@ -242,7 +242,6 @@ class ActivityByChild(ListCreateAPIView):
 
             activity_missed = ActivityComplete.objects.filter(child__id= child,
                 period=period)
-            print("!!!!!!!!!!!", activity_missed)
 
             activity_lists = []
             activity_dict = {}
@@ -253,6 +252,7 @@ class ActivityByChild(ListCreateAPIView):
                 activity_dict['objective'] = activity.activity.objective
                 activity_dict['description'] = activity.activity.description
                 activity_dict['is_completed'] = activity.is_completed
+                activity_dict['child_id'] = activity.child.id
                 period_obj = Period.objects.get(id=period)
                 activity_dict['period_id'] = period_obj.id
                 activity_dict['period_name'] = period_obj.name
