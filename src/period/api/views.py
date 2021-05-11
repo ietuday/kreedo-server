@@ -227,8 +227,9 @@ class ClassAccordingToTeacher(ListCreateAPIView):
             return Response(ex)
 
 
-
 """ Activity according to child """
+
+
 class ActivityByChild(ListCreateAPIView):
     def post(self, request):
         try:
@@ -239,10 +240,9 @@ class ActivityByChild(ListCreateAPIView):
             section = request.data.get('section', None)
             academic_id = AcademicSession.objects.get(
                 grade__name=grade, section__name=section).id
-            
-         
+
             activity_missed = ActivityComplete.objects.filter(
-                    period=period, is_completed=False)
+                period=period, is_completed=False)
             activity_lists = []
             activity_dict = {}
             for activity in activity_missed:
@@ -251,10 +251,16 @@ class ActivityByChild(ListCreateAPIView):
                 activity_dict['type'] = activity.activity.type
                 activity_dict['objective'] = activity.activity.objective
                 activity_dict['description'] = activity.activity.description
+                period_obj = Period.objects.get(id=period)
+                activity_dict['period_id'] = period_obj.id
+                activity_dict['period_name'] = period_obj.name
+                activity_dict['room'] = period_obj.room_no.name
+                activity_dict['date'] = period_obj.start_date
+                activity_dict['start_time'] = period_obj.start_time
+                activity_dict['end_time'] = period_obj.end_time
 
                 activity_asset = ActivityAsset.objects.filter(
-                        activity=activity.activity.id)
-                print("###############", activity_asset)
+                    activity=activity.activity.id)
                 activity_asset_list = []
                 activity_asset_dict = {}
                 for asset in activity_asset:
@@ -264,9 +270,8 @@ class ActivityByChild(ListCreateAPIView):
                     activity_asset_dict['title'] = asset.title
                     activity_asset_dict['description'] = asset.description
                     activity_asset_list.append(activity_asset_dict)
-                    print("@@@@@",activity_asset_list)
                     activity_dict['activity_asset'] = activity_asset_list
-                
+
                 master_material = activity.activity.master_material.all()
                 master_material_list = []
                 master_material_dict = {}
@@ -294,15 +299,12 @@ class ActivityByChild(ListCreateAPIView):
                         supporting_master_material_dict = {}
                 activity_dict['supporting_material'] = supporting_master_material_list
 
-
-
                 activity_lists.append(activity_dict)
-                
-            context = {"message": "Activity List",
-                        "data": activity_lists, "statusCode": status.HTTP_200_OK}
+
+            context = {"message": "Activity List by Child",
+                       "data": activity_lists, "statusCode": status.HTTP_200_OK}
             return Response(context)
-            
 
         except Exception as ex:
-            
+
             return Response(ex)
