@@ -38,3 +38,23 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicCalender
         fields = '__all__'
+
+
+""" SchoolCalendar List Seriliazer """
+
+
+class SchoolCalendarListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolCalendar
+        fields = '__all__'
+        depth = 1
+
+
+""" SchoolCalendar Create Serializer """
+
+
+class SchoolCalendarCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolCalendar
+        fields = '__all__'
+

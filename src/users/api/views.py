@@ -12,6 +12,7 @@ from .filters import*
 from kreedo.general_views import Mixins, GeneralClass
 from kreedo.conf.logger import CustomFormatter
 import traceback
+import datetime
 import logging
 import pandas as pd
 
@@ -27,6 +28,10 @@ from django.shortcuts import render
 from users.api.custum_storage import FileStorage
 from schools.models import*
 from schools.api.serializer import*
+from package.models import*
+from package.api.serializer import*
+from session.models import*
+from session.api.serializer import*
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -591,47 +596,181 @@ class AddSchool(ListCreateAPIView):
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
             print(df)
-            added_school = []
+            added_school = [] 
             for i, f in enumerate(df, start=1):
-                address_detail = {
-                    "address": f.get('address', None),
-                    "city": f.get('city', None),
-                    "state": f.get('state', None),
-                    "country": f.get('country', None),
-                }
+                if not math.isnan(f['id']) and f['isDeleted'] == False:
+                    school_qs = School.objects.filter(id=f['id'])[0]
+                    address_qs = Address.objects.filter(id=school_qs['address'])[0]
+                    address_qs.address = f.get('address', None)
+                    address_qs.city = f.get('city', None)
+                    address_qs.state = f.get('state', None)
+                    address_qs.country = f.get('country', None)
+                    address_qs.save()
+                    license_qs = License.objects.filter(id=school_qs['license'])[0]
+                    license_qs.total_no_of_user = f.get('no._of_users', None)
+                    license_qs.total_no_of_children = f.get('no_of_children', None)
+                    license_qs.licence_from = f.get('licence_start', None)
+                    license_qs.licence_till = add_months(f.get('licence_start', None), f.get('no_of_month', None))
+                    license_qs.save()
+                    school_qs.name = f.get('name', None)
+                    school_qs.type = f.get('type', None)
+                    school_qs.logo = f.get('logo', None)
+                    schhool_qs.save()
 
-                licence_detail = {
-                    "total_no_of_user": f.get('no._of_users', None),
-                    "total_no_of_children": f.get('no_of_children', None),
-                    "licence_from": f.get('licence_start', None),
-                    # Need calculate from no. of month and licence start
-                    "licence_till": f.get('no_of_month', None),
-                }
+                    package_data = f.get('package', None)
+                    print(package_data)
+                    for i, da in enumerate(json.loads(package_data), start=1):
+                        schoolPackage_qs = SchoolPackage.objects.filter(school=school_qs['id'])[0]
+                        schoolPackage_qs.package = da['pakage']
+                        schoolPackage_qs.custom_materials = da['customized_material']
+                        schoolPackage_qs.save()
 
-                school_detail = {
-                    "name": f.get('name', None),
-                    "type": f.get('type', None),
-                    "logo": f.get('logo', None),
-                    "address": f.get('address', None),
-                    "license": f.get('name', None)
-                }
+                    schoolCalender_qs = SchoolCalender.objects.filter(school=school_qs['id'])
+                    schoolCalender_qs.session_till = addYears(schoolCalender_qs.session_from,f.get('school_calender_for_no_of_year', None))
+                    schoolCalender_qs.save()
+                    added_school.append(
+                        {
+                            "address": school_qs.data['address'],
+                            "license": school_qs.data['license'],
+                            "school": school_qs.data['id']
+                        }
+                    )
+                elif not math.isnan(f['id']) and f['isDeleted'] == True:
+                    school_qs = School.objects.filter(id=f['id']).delete()
+                    SchoolCalender.objects.filter(school=school_qs['id']).delete()
+                    UserRole.objects.filter(school=school_qs['id']).delete()
+                    SchoolPackage.objects.filter(school=school_qs['id']).delete()
+                    added_school.append(
+                        {
+                            "address": school_qs.data['address'],
+                            "license": school_qs.data['license'],
+                            "school": school_qs.data['id']
+                        }
+                    )
+                    
+                    
+                else:
+                    print("CREATING")
+                    address_detail = {
+                        "address": f.get('address', None),
+                        "city": f.get('city', None),
+                        "state": f.get('state', None),
+                        "country": f.get('country', None),
+                    }
 
-                school_package_detail = {
-                    "school": f.get('school', None),
-                    "package": f.get('package', None),
-                    "from_date": f.get('from_date', None),
-                    "to_date": f.get('to_date', None),
-                    "custom_materials": f.get('custom_materials', None),
+                    address_serializer = AddressSerializer(
+                        data=dict(address_detail))
+                    if address_serializer.is_valid():
+                            address_serializer.save()
+                            print(address_serializer.data)
+                    else:
+                        print("address_serializer._errors", address_serializer._errors)
+                        raise ValidationError(address_serializer.errors)
 
-                }
 
-                school_calender_detail = {
-                    "school": f.get('school', None),
-                    # Created AT ),
-                    "session_from": f.get('session_from', None),
-                    # calculate ),
-                    "session_till": f.get('session_from', None),
-                }
+                    licence_detail = {
+                        "total_no_of_user": f.get('no._of_users', None),
+                        "total_no_of_children": f.get('no_of_children', None),
+                        "licence_from": f.get('licence_start', None),
+                        "licence_till": add_months(f.get('licence_start', None), f.get('no_of_month', None)),
+                    }
+
+                    licenseCreateSerializer = LicenseCreateSerializer(data=dict(licence_detail))
+
+                    if licenseCreateSerializer.is_valid():
+                        licenseCreateSerializer.save()
+                    else:
+                        raise ValidationError(licenseCreateSerializer.errors)
+
+                    school_detail = {
+                        "name": f.get('name', None),
+                        "type": f.get('type', None),
+                        "logo": f.get('logo', None),
+                        "address": address_serializer.data['id'],
+                        "license": licenseCreateSerializer.data['id']
+                    }
+
+                    schoolCreateSerializer = SchoolCreateSerializer(data=dict(school_detail))
+                    if schoolCreateSerializer.is_valid():
+                        schoolCreateSerializer.save()
+                    else:
+                        raise ValidationError(schoolCreateSerializer.errors)
+                
+                    package_data = f.get('package', None)
+                    print(package_data)
+                    for i, da in enumerate(json.loads(package_data), start=1):
+                        print("da",da)
+                        school_package_detail = {
+                            "school": schoolCreateSerializer.data['id'],
+                            "package": da['pakage'],
+                            "from_date": f.get('from_date', None),
+                            "to_date": f.get('to_date', None),
+                            "custom_materials": da['customized_material'],
+                        }
+
+                        schoolPackageCreateSerializer = SchoolPackageCreateSerializer(data=dict(school_package_detail))
+                        if schoolPackageCreateSerializer.is_valid():
+                            schoolPackageCreateSerializer.save()
+                        else:
+                            raise ValidationError(schoolPackageCreateSerializer.errors)
+
+                    school_calender_detail = {
+                        "school": schoolCreateSerializer.data['id']   ,
+                        "session_from": datetime.date.today(),
+                        "session_till": addYears(datetime.date.today(),f.get('school_calender_for_no_of_year', None)),
+                    }
+
+                
+                    schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(data=dict(school_package_detail))
+
+                    if schoolCalendarCreateSerializer.is_valid():
+                        schoolCalendarCreateSerializer.save()
+                    else:
+                        raise ValidationError(schoolCalendarCreateSerializer.errors)
+                    user_role_detail = {
+                        "user": f.get('account_id', None),
+                        "role": Role.objects.filter(name="SCHOOL_OWNER")[0].id,
+                        "school": schoolCreateSerializer.data['id']
+                    }
+
+                    userRoleSerializer = UserRoleSerializer(data=dict(user_role_detail))
+                    if userRoleSerializer.is_valid():
+                        userRoleSerializer.save()
+                    else:
+                        raise ValidationError(userRoleSerializer.errors)
+
+                    added_school.append(
+                        {
+                            "address": address_serializer.data['id'],
+                            "license": licenseCreateSerializer.data['id'],
+                            "school": schoolCreateSerializer.data['id']
+
+
+                        }
+                    )
+                
+
+            print("ADDED School",added_school)
+            
+            keys = added_school[0].keys()
+            with open('output.csv', 'w', newline='')  as output_file:
+               dict_writer = csv.DictWriter(output_file, keys)
+               dict_writer.writeheader()
+               dict_writer.writerows(added_school)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+
+                
+
+
+
+
+                    
 
         except Exception as ex:
             print("error", ex)
@@ -649,26 +788,39 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             added_school_grade_subject = []
 
             for i, f in enumerate(df, start=1):
-                # f['subject'] = list(f['subject'])
-                f['subject'] = json.loads(f['subject'])
-                print(f)
-                schoolGradeSubject_serializer = SchoolGradeSubjectSerializer(
-                    data=dict(f))
-                if schoolGradeSubject_serializer.is_valid():
-                    schoolGradeSubject_serializer.save()
-                    added_school_grade_subject.append(
-                        schoolGradeSubject_serializer.data)
-                    print(schoolGradeSubject_serializer.data)
+                if not math.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    schoolGradeSubject_qs = SchoolGradeSubject.objects.filter(id=f['id'])[0]
+                    schoolGradeSubject_qs.school = f['school']
+                    schoolGradeSubject_qs.grade = f['grade']
+                    schoolGradeSubject_qs.subject = json.loads(f['subject'])
+                    schoolGradeSubject_qs.save()
+                    added_school_grade_subject.append(schoolGradeSubject_qs)
+                elif not math.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    schoolGradeSubject_qs = SchoolGradeSubject.objects.filter(id=f['id'])[0]
+                    added_school_grade_subject.append(schoolGradeSubject_qs)
+                    schoolGradeSubject_qs.delete()
                 else:
-                    print("schoolGradeSubject_serializer._errors",
-                          schoolGradeSubject_serializer._errors)
-                    raise ValidationError(schoolGradeSubject_serializer.errors)
+                    print("Create")
+                    f['subject'] = json.loads(f['subject'])
+                    schoolGradeSubject_serializer = SchoolGradeSubjectSerializer(
+                        data=dict(f))
+                    if schoolGradeSubject_serializer.is_valid():
+                        schoolGradeSubject_serializer.save()
+                        added_school_grade_subject.append(
+                            schoolGradeSubject_serializer.data)
+                        print(schoolGradeSubject_serializer.data)
+                    else:
+                        print("schoolGradeSubject_serializer._errors",
+                            schoolGradeSubject_serializer._errors)
+                        raise ValidationError(schoolGradeSubject_serializer.errors)
 
-            keys = added_school_grade_subject[0].keys()
-            with open('output.csv', 'w', newline='') as output_file:
-                dict_writer = csv.DictWriter(output_file, keys)
-                dict_writer.writeheader()
-                dict_writer.writerows(added_school_grade_subject)
+            # keys = added_school_grade_subject[0].keys()
+            # with open('output.csv', 'w', newline='') as output_file:
+            #     dict_writer = csv.DictWriter(output_file, keys)
+            #     dict_writer.writeheader()
+            #     dict_writer.writerows(added_school_grade_subject)
 
         except Exception as ex:
             print("error", ex)

@@ -5,6 +5,7 @@ import traceback
 from django.template.loader import get_template
 from django.contrib.auth import authenticate
 import datetime
+import calendar
 import os
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -25,6 +26,8 @@ from users.models import UserDetail
 from kreedo.settings import EMAIL_HOST_USER
 import random
 import string
+
+
 
 """ Token genrate package """
 from rest_framework_jwt.settings import api_settings
@@ -327,3 +330,29 @@ def user_created_password_mail(user_obj, genrated_password):
         msg.send()
     except Exception as error:
         raise ValidationError("Failed to send Email")
+
+
+
+
+
+def add_months(sourcedate, months):
+    print("##############",sourcedate,months)
+    # print(mont
+    sourcedate = datetime.datetime.strptime(str(sourcedate), '%d/%m/%Y').date()
+    # print(datetime.datetime.strptime(sourcedate , '%d/%m/%Y').date())
+    months = int(months)
+    print("##############",sourcedate,months)
+    month = sourcedate.month - 1 + months
+    year = sourcedate.year + month // 12
+    month = month % 12 + 1
+    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    return datetime.date(year, month, day)
+
+
+def addYears(d, years):
+    try:
+#Return same day of the current year        
+        return d.replace(year = d.year + years)
+    except ValueError:
+#If not same day, it will return other, i.e.  February 29 to March 1 etc.        
+        return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))
