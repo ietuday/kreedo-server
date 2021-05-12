@@ -81,7 +81,8 @@ class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-            activity_complete_serializer = ActivityCompleteCreateSerilaizer(data=request.data,many=True)
+            print(request.data.get('activity_complete', None))
+            activity_complete_serializer = ActivityCompleteCreateSerilaizer(data=request.data.get('activity_complete', None),many=True)
             if activity_complete_serializer.is_valid():
                 activity_complete_serializer.save()
                 return Response(activity_complete_serializer.data)
