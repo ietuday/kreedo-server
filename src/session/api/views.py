@@ -99,24 +99,18 @@ class AcademicSessionByTeacher(ListCreateAPIView):
             class_teacher = request.data.get('class_teacher', None)
             if class_teacher is not None:
                 academicSession_qs = AcademicSession.objects.filter(class_teacher=class_teacher)
-                print(academicSession_qs)
                 aca_session_qs = AcademicSessionListSerializer(academicSession_qs, many=True)
-                print("#############",aca_session_qs.data)
                 context = {"message": "Academic Session By Teacher",
                        "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
                 return Response(context)
-               
             else: 
                 context = {"error": "Teacher Not Found",
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                    
                 return Response(context)
 
-
         except Exception as ex:
-            print("ex",ex)
             logger.debug(ex)
-            context = {"error": ex,
+            context = {"error": ex,"isSucess": False,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
             return Response(context)
