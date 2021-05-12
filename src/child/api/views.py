@@ -182,6 +182,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 grade=grade, section=section).id
 
             attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
+            print("attendence_qs",attendence_qs)
             attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
             context = {"message": "Attendence By Academic Session",
                        "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
