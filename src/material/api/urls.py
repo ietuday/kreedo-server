@@ -11,6 +11,8 @@ urlpatterns = [
     path('activity-master-supporting-material_list_create',
          ActivityMasterSupportingMaterialListCreate.as_view(), name='ActivityMasterSupportingMaterialListCreate'),
 
+    path('bulk-upload/add-material',
+         AddMaterial.as_view(), name='Add Material'),
 
 
 
