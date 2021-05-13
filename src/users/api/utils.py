@@ -26,7 +26,7 @@ from users.models import UserDetail
 from kreedo.settings import EMAIL_HOST_USER
 import random
 import string
-
+from kreedo.conf.logger import CustomFormatter
 
 
 """ Token genrate package """

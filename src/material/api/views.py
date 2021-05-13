@@ -16,7 +16,23 @@ import traceback
 from kreedo.conf import logger
 from rest_framework.response import Response
 from users.api.custum_storage import FileStorage
+from kreedo.conf.logger import CustomFormatter
+import logging
 # Create your views here.
+
+""" Logger Function """
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
+
 
 """ List and Create of Material """
 
@@ -77,7 +93,7 @@ class AddMaterial(ListCreateAPIView):
                     material_qs.delete()
                 else:
                     print("Create")
-                    f['subject'] = json.loads(f['subject'])
+                    
                     material_serializer = MaterialSerializer(
                         data=dict(f))
                     if material_serializer.is_valid():
