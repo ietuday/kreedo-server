@@ -134,78 +134,64 @@ class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 
     def put(self, request, *args, **kwargs):
         try:
-            print("",request.data.get('activity_complete', None))
-            activity_complete = request.data.get('activity_complete', None)
-            print("##############",activity_complete)
-            data = activity_complete
-            print("@@@", data)
-
-            child_data_ids = [i['id'] for i in data]
-
-            for i in child_data_ids:
-                instances = []
-                for temp_dict in data:
-                    id = temp_dict['id']
-                    child = temp_dict['child']
-                    period = temp_dict['period']
-                    activity = temp_dict['activity']
-                    is_completed = temp_dict['is_completed']
-                    is_active = temp_dict['is_active']
-
-                    obj = ActivityComplete.objects.get(pk=i)
-                    obj.child.id = child
-                    obj.period.id = period
-                    obj.activity.id = activity
-                    obj.is_active = is_active
-                    obj.save()
-                    instances.append(obj)
-                serializer = ActivityCompleteCreateSerilaizer(
-                    instances, many=True)
+           
+            serializer = ActivityCompleteCreateSerilaizer(
+                data=request.data.get('activity_complete', None), many=True)
+            if serializer.is_valid():
+                serializer.save()
                 return Response(serializer.data)
+            else:
+                return Response(serializer.errors)
+            return Response(serializer.data)
         except Exception as ex:
-            print("&&&&&&&&&&&&",ex)
             return Response(ex)
 
 
 """ Upload Activity """
 
 
-class AddPackage(ListCreateAPIView):
+
+class AddActivity(ListCreateAPIView):
     def post(self, request):
         try:
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
-            added_material = []
+            added_activity = []
 
             for i, f in enumerate(df, start=1):
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
-                    package_qs = Package.objects.filter(id=f['id'])[0]
-                    package_qs.name = f['name']
-                    package_qs.materials = f['materials']
-                    package_qs.is_active = f['is_active']
-                    package_qs.save()
-                    added_package.append(package_qs)
+                    activity_qs = Activity.objects.filter(id=f['id'])[0]
+                    activity_qs.name = f['name']
+                    activity_qs.type = f['type']
+                    activity_qs.objective = f['objective']
+                    activity_qs.description = f['description']
+                    activity_qs.master_material = f['master_material']
+                    activity_qs.subject = f['subject']
+                    activity_qs.supporting_material = f['supporting_material']
+                    activity_qs.is_active = f['is_active']
+                    activity_qs.save()
+                    added_activity.append(activity_qs)
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
-                    package_qs = Package.objects.filter(id=f['id'])[0]
-                    added_package.append(package_qs)
-                    package_qs.delete()
+                    activity_qs = Activity.objects.filter(id=f['id'])[0]
+                    added_activity.append(activity_qs)
+                    activity_qs.delete()
                 else:
                     print("Create")
                     
-                    package_serializer = PackageCreateSerializer(
+                    activity_serializer = ActivityCreateSerializer(
                         data=dict(f))
-                    if package_serializer.is_valid():
-                        package_serializer.save()
-                        added_package.append(
-                            package_serializer.data)
-                        print(package_serializer.data)
+                    if activity_serializer.is_valid():
+                        activity_serializer.save()
+                        added_activity.append(
+                            activity_serializer.data)
+                        print(activity_serializer.data)
                     else:
                         
-                        raise ValidationError(package_serializer.errors)
+                        raise ValidationError(activity_serializer.errors)
 
-            keys = added_package[0].keys()
+            keys = added_activity[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
