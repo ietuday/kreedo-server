@@ -17,4 +17,7 @@ urlpatterns = [
          name='ActivityCompleteRetriveUpdateDestroy'),
      path('activity-complete_retrive_update_delete', ActivityCompleteRetriveUpdateDestroy.as_view(),
          name='ActivityCompleteRetriveUpdateDestroy'),
+       path('bulk-upload/add-activity',
+         AddActivity.as_view(), name='AddActivity'),
+
 ]
