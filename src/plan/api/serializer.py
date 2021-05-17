@@ -36,7 +36,11 @@ class PlanListSerailizer(serializers.ModelSerializer):
         serialized_data['plan_activity_data'] = plan_activity_serializer.data
         return serialized_data
 
-
+class PlanSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = '__all__'
+        
 """ Plan Create Serializer """
 
 

@@ -22,5 +22,7 @@ urlpatterns = [
          SubjectSchoolGradePlanListCreate.as_view(), name='SubjectSchoolGradePlanListCreate'),
     path('subject-school-grade-plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
          name='SubjectSchoolGradePlanRetriveUpdateDestroy'),
+     path('bulk-upload/add-plan',
+         AddPlan.as_view(), name='AddPlan'),
 
 ]
