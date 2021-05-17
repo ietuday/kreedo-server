@@ -200,25 +200,24 @@ class EmailConfirmVerify(ListAPIView):
                 user_serializar = UserEmailVerifySerializer(
                     data=request.data, context=context)
             except Exception as ex:
-                print("error", ex)
+               
                 context = {"error": ex,
                            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
             if user_serializar.is_valid():
-                print("user_serializar----------->", user_serializar)
+                
                 context = {"mail_t": user_serializar.data, "message": 'Email Verified',
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
             else:
-                print("error-------------->", user_serializar.errors)
+               
                 context = {"error": user_serializar.errors,
                            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
-            print("exception", ex)
-            print("Traceback", traceback.print_exc())
+           
             context = {"error": ex,
                        "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
@@ -260,7 +259,7 @@ class ForgetPassword(CreateAPIView):
             user_data_serializer = UserForgetSerializer(data=request.data)
 
             if user_data_serializer.is_valid():
-                print("User Serializer", user_data_serializer)
+                
                 context = {"message": "Token send to user", 'isSuccess': True,
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
@@ -295,7 +294,7 @@ class ChangePassword(CreateAPIView):
             }
             context = super().get_serializer_context()
             context.update({"password_detail": password_detail})
-            print("password_detail", password_detail)
+           
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
@@ -385,8 +384,6 @@ class AddUser(ListCreateAPIView):
                 address_serializer.save()
                 address_created = True
             else:
-                print("address_serializer._errors",
-                      address_serializer._errors)
                 raise ValidationError(address_serializer.errors)
 
             """ Auth user Data """
@@ -402,6 +399,7 @@ class AddUser(ListCreateAPIView):
                 "user_obj": 1,
                 "phone": request.data.get('phone', None),
                 "joining_date": request.data.get('joining_date', None),
+                "role": request.data.get('role', None),
                 "address": address_serializer.data['id'],
             }
             reporting_to = {
@@ -763,14 +761,7 @@ class AddSchool(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
-
-
-                
-
-
-
-
-                    
+        
 
         except Exception as ex:
             print("error", ex)
@@ -839,27 +830,81 @@ class AddUserData(ListCreateAPIView):
         try:
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
-            added_subject = []
+            added_user = []
 
             for i, f in enumerate(df, start=1):
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
-                    subject_qs = Subject.objects.filter(id=f['id'])[0]
-                    subject_qs.name = f['name']
-                    subject_qs.type = f['type']
-                    subject_qs.activity = f['activity']
-                    subject_qs.is_active = f['is_active']
-                    subject_qs.save()
-                    added_subject.append(subject_qs)
+                    auth_user = User.objects.filter(user_obj=id)[0]
+                    auth_user.first_name = f.get('first_name', None)
+                    auth_user.last_name = f.get('last_name', None)
+                    auth_user.email = f.get('email', None)
+                    auth_user.save()
+                    user_detail_qs = UserDetail.objects.filter(user_obj=id)[0]
+                    user_detail_qs.phone = f.get('phone', None)
+                    user_detail_qs.joining_date = f.get('joining_date', None)
+                    user_detail_qs.save()
+                    address_qs = Address.objects.filter(
+                        id=user_detail_qs.address)[0]
+                    address_qs.address = f.get('address', None)
+                    address_qs.city = f.get('city', None)
+                    address_qs.state = f.get('state', None)
+                    address_qs.country = f.get('country', None)
+                    address_qs.address = f.get('address', None)
+                    address_qs.save()
+
+
+
+                    role = f.get('role', None)
+                    print(role)
+                    for i, da in enumerate(json.loads(role), start=1):
+                        user_role_qs = UserRole.objects.filter(user=id)[0]
+                        user_role_qs.user = da['user']
+                        user_role_qs.role = da['role']
+                        user_role_qs.save()
+
+                        reporting_to_qs = ReportingTo.objects.filter(user_detail=id)
+                        reporting_to_qs.user_detail = id
+                        reporting_to_qs.user_role = da['role']
+                        reporting_to_qs.reporting_to = f.get('reporting_to', None)
+                        reporting_to_qs.save()
+                      
+                   
+                    added_user.append(
+                        {
+                            "id": user_detail_qs.user_obj,
+                            "email": auth_user.first_name,
+                            "first_name": auth_user.first_name,
+                            "last_name": auth_user.last_name,
+                            "phone": user_detail_qs.phone,
+                            "address": address_qs.id
+                        }
+                    )
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
-                    print("DELETION")
-                    subject_qs = Subject.objects.filter(id=f['id'])[0]
-                    added_subject.append(subject_qs)
-                    subject_qs.delete()
+                    print("Deletion", f)
+                    auth_user = User.objects.filter(user_obj=id)[0]
+                    user_detail_qs = UserDetail.objects.filter(user_obj=id)[0]
+                    address_qs = Address.objects.filter(id=user_detail_qs.address)[0]
+                    user_role_qs= UserRole.objects.filter(user=id)[0]
+                    user_reporting_qs = ReportingTo.objects.filter(user_detail=id)[0]
+                    user_reporting_qs.delete()
+                    user_role_qs.delete()
+                    address_qs.delete()
+                    user_detail_qs.delete()
+                    added_user.append(
+                        {
+                            "id": user_detail_qs.user_obj,
+                            "email": auth_user.first_name,
+                            "first_name": auth_user.first_name,
+                            "last_name": auth_user.last_name,
+                            "phone": user_detail_qs.phone,
+                            "address": address_qs.id
+                        }
+                    )
+
                 else:
                     print("Create")
                     
-                 
                     address_detail = {
                                 "address": f.get('address', None),
                                 "city": f.get('city', None),
@@ -889,7 +934,7 @@ class AddUserData(ListCreateAPIView):
                     user_details_data = {
                             "user_obj":1,
                             "phone":f.get('phone', None),
-                           
+                            "role":f.get('role', None),
                             "address":address_serializer.data['id'],
                     }
 
@@ -919,6 +964,31 @@ class AddUserData(ListCreateAPIView):
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
                         return Response(ex)
+                    """ Creation of UserRole"""
+                    try:
+                        role_data = f.get('role', None)
+                        print(role_data)
+                        for i, da in enumerate(json.loads(role_data), start=1):
+                            print("da",da)
+                            role_detail = {
+                                "user":user_detail_serializer.data['id'],
+                                "role":da['role'],
+                            }
+
+                            UserRoleSerializer = UserRoleSerializer(data=dict(role_detail))
+                            if UserRoleSerializer.is_valid():
+                                UserRoleSerializer.save()
+                            else:
+                                raise ValidationError(UserRoleSerializer.errors)
+
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+
+                    """ Creation of Reporting to """
+
                     try:
                         user_reporting_data = {
                         "user_detail":user_detail_serializer.data['id'],
@@ -937,10 +1007,9 @@ class AddUserData(ListCreateAPIView):
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
                         return Response(ex)
-                
+            
 
-
-            keys = added_subject[0].keys()
+            keys = added_user[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
