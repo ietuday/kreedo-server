@@ -11,7 +11,33 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 from rest_framework.response import Response
 from .filters import*
 
+""" 
+    Packages for uploading csv
+"""
+import pandas as pd
+import math as m
+import json
+import csv
+import traceback
+from kreedo.conf import logger
+from users.api.custum_storage import FileStorage
+from kreedo.conf.logger import CustomFormatter
+import logging
+
 # Create your views here.
+
+
+""" Logger Function """
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
 
 
 """ Area of Devlopment List and Create """
@@ -134,18 +160,25 @@ class AddConceptSkill(ListCreateAPIView):
                         "aod":f.get('aod',None),
                         "is_active":"TRUE"
                     }
+                    try:
                     
-                    conept_serializer = ConceptCreateSerializer(
-                        data=dict(concept_data))
-                    if conept_serializer.is_valid():
-                        conept_serializer.save()
-                        added_conept_skill.append(
-                            conept_serializer.data)
-                        print(conept_serializer.data)
-                    else:
-                        
-                        raise ValidationError(conept_serializer.errors)
-                    
+                        conept_serializer = ConceptCreateSerializer(
+                            data=dict(concept_data))
+                        if conept_serializer.is_valid():
+                            conept_serializer.save()
+                            added_conept_skill.append(
+                                conept_serializer.data)
+                            print(conept_serializer.data)
+                        else:
+                            
+                            raise ValidationError(conept_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+                
+
                     skill_data = {
 
                         "name":f.get('skill_name', None),
@@ -156,19 +189,23 @@ class AddConceptSkill(ListCreateAPIView):
                         "activity":f.get('activity', None),
                         "remed_activity":f.get('remed_activity', None),
                     }
-                    skill_serializer = SkillCreateSerializer(
-                        data=dict(skill_data))
-                    if skill_serializer.is_valid():
-                        skill_serializer.save()
-                        added_conept_skill.append(
-                            skill_serializer.data)
-                        print(skill_serializer.data)
-                    else:
-                        
-                        raise ValidationError(skill_serializer.errors)
-                    
-                    
-
+                    try:
+                        skill_serializer = SkillCreateSerializer(
+                            data=dict(skill_data))
+                        if skill_serializer.is_valid():
+                            skill_serializer.save()
+                            added_conept_skill.append(
+                                skill_serializer.data)
+                            print(skill_serializer.data)
+                        else:
+                            
+                            raise ValidationError(skill_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+                
 
             keys = added_conept_skill[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
