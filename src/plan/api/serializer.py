@@ -110,7 +110,7 @@ class ChildPlanActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth=2
+        depth=3
       
 
 
