@@ -196,9 +196,8 @@ class AddConceptSkill(ListCreateAPIView):
                             skill_serializer.save()
                             added_conept_skill.append(
                                 skill_serializer.data)
-                            print(skill_serializer.data)
+                           
                         else:
-                            
                             raise ValidationError(skill_serializer.errors)
                     except Exception as ex:
                         print("error", ex)
