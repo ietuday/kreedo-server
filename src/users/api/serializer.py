@@ -660,7 +660,7 @@ class AddUserSerializer(serializers.ModelSerializer):
 
 
 
-""" Create parentv serializer """
+""" Create parent serializer """
 class ParentSerializer(serializers.ModelSerializer):
     
     class Meta:

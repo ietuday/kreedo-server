@@ -36,7 +36,11 @@ class PlanListSerailizer(serializers.ModelSerializer):
         serialized_data['plan_activity_data'] = plan_activity_serializer.data
         return serialized_data
 
-
+class PlanSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = '__all__'
+        
 """ Plan Create Serializer """
 
 
@@ -100,6 +104,15 @@ class ChildPlanListSerializer(serializers.ModelSerializer):
         child_activity_count = ActivityComplete.objects.filter(child__id=child_id, is_completed=False).count() 
         serialized_data['activity_behind'] = child_activity_count
         return serialized_data
+
+""" child plan activity Serializer """
+class ChildPlanActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+        depth=3
+      
+
 
 
 """ child Plan create Serailizer """

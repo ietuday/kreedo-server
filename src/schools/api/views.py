@@ -269,10 +269,6 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
             return RoomListSerializer
 
 
-
-
-
-
 """ Upload Subjects """
 class AddSubject(ListCreateAPIView):
     def post(self, request):
@@ -327,4 +323,58 @@ class AddSubject(ListCreateAPIView):
             logger.debug(ex)
             return Response(ex)
 
+
+""" upload GRADE """
+class AddGrade(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_grade = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    grade_qs = Grade.objects.filter(id=f['id'])[0]
+                    grade_qs.name = f['name']
+                    grade_qs.type = f['type']
+                    grade_qs.activity = f['activity']
+                    grade_qs.is_active = f['is_active']
+                    grade_qs.save()
+                    added_grade.append(grade_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    grade_qs = Grade.objects.filter(id=f['id'])[0]
+                    added_grade.append(grade_qs)
+                    grade_qs.delete()
+                else:
+                    print("Create")
+                    
+                    grade_serializer = GradeSerializer(
+                        data=dict(f))
+                    if grade_serializer.is_valid():
+                        grade_serializer.save()
+                        added_grade.append(
+                            grade_serializer.data)
+                        print(grade_serializer.data)
+                    else:
+                        
+                        raise ValidationError(grade_serializer.errors)
+
+            keys = added_grade[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
+           
+            logger.debug(ex)
+            return Response(ex)
 

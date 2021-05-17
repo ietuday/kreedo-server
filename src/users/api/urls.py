@@ -29,7 +29,9 @@ urlpatterns = [
     path('add-user', AddUser.as_view(), name='AddUser'),
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
-    path('bulk-upload/add-school-grade-subject', AddSchoolGradeSubject.as_view(), name='Add School Grade Subject')
+    path('bulk-upload/add-school-grade-subject',
+         AddSchoolGradeSubject.as_view(), name='Add School Grade Subject'),
+    path('bulk-upload/add-user', AddUserData.as_view(), name='AddUserData'),
 
 
 
