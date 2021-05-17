@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from .filters import*
 from kreedo.conf.logger import CustomFormatter
 import logging
-
+from rest_framework import status
 
 """ 
     Packages for uploading csv
@@ -159,6 +159,30 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = SubjectSchoolGradePlan
     serializer_class = SubjectSchoolGradePlanListSerializer
+
+
+""" Child related Activity """
+class ChildActivity(ListCreateAPIView):
+    def post(self, request):
+        try:
+            child_plan = ChildPlan.objects.filter(child=request.data.get('child', None))
+            child_plan_qs = ChildPlanActivitySerializer(child_plan, many=True)
+            context = {"message": "Activity List by Child","isSuccess": True,
+                       "data": child_plan_qs.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+         
+        except Exception as ex:
+           
+            logger.debug(ex)
+            context = {"error": ex,
+                       "isSuccess": False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
+            
+
+           
+
+
 
 
 
