@@ -110,7 +110,8 @@ class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             print(request.data.get('activity_complete', None))
-            activity_complete_serializer = ActivityCompleteCreateSerilaizer(data=request.data.get('activity_complete', None),many=True)
+            activity_complete_serializer = ActivityCompleteCreateSerilaizer(
+                data=request.data.get('activity_complete', None), many=True)
             if activity_complete_serializer.is_valid():
                 activity_complete_serializer.save()
                 return Response(activity_complete_serializer.data)
@@ -134,7 +135,7 @@ class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 
     def put(self, request, *args, **kwargs):
         try:
-           
+
             serializer = ActivityCompleteCreateSerilaizer(
                 data=request.data.get('activity_complete', None), many=True)
             if serializer.is_valid():
@@ -148,7 +149,6 @@ class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 
 
 """ Upload Activity """
-
 
 
 class AddActivity(ListCreateAPIView):
@@ -179,16 +179,24 @@ class AddActivity(ListCreateAPIView):
                     activity_qs.delete()
                 else:
                     print("Create")
-                    
+                    activity_detail = {
+                        "name": f.get('name', None),
+                        "type": f.get('type', None),
+                        "objective": f.get('objective', None),
+                        "description": f.get('description', None),
+                        "master_material": f.get('master_material', None),
+                        "supporting_material": f.get('supporting_material', None),
+                        "is_active": f.get('is_active', None)
+                    }
+
                     activity_serializer = ActivityCreateSerializer(
-                        data=dict(f))
+                        data=dict(activity_detail))
                     if activity_serializer.is_valid():
                         activity_serializer.save()
                         added_activity.append(
                             activity_serializer.data)
                         print(activity_serializer.data)
                     else:
-                        
                         raise ValidationError(activity_serializer.errors)
 
             keys = added_activity[0].keys()
@@ -198,14 +206,14 @@ class AddActivity(ListCreateAPIView):
                 dict_writer.writerows(added_material)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
 
         except Exception as ex:
-           
+
             logger.debug(ex)
             return Response(ex)
-
-
