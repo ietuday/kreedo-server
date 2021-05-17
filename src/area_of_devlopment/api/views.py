@@ -90,3 +90,100 @@ class SkillRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             return SkillCreateSerializer
         if self.request.method == 'DELETE':
             return SkillListSerializer
+
+
+""" Cocept and Skill Bulk Upload """
+class AddConceptSkill(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_conept_skill = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    concept_qs = Concept.objects.filter(id=f['id'])[0]
+                    concept_qs.name = f['concept_name']
+                    concept_qs.description = f['concept_description']
+                    concept_qs.aod = f['aod']
+                    concept_qs.is_active = f['is_active']
+                    concept_qs.save()
+                    skill_qs = Skill.objects.filter(id=f['skill_id'],concept=f['id'])
+                    skill_qs.name= f['skill_name']
+                    skill_qs.description=f['skill_description']
+                    skill_qs.threshold_percentage=f['threshold_percentage']
+                    skill_qs.activity = f['activity']
+                    skill_qs.remed_activity=f['remed_activity']
+                    skill_qs.save()
+                    added_conept_skill.append(concept_qs)
+                    added_conept_skill.append(skill_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    concept_qs = Concept.objects.filter(id=f['id'])[0]
+                    skill_qs = Skill.objects.filter(concept=f['id'], id=f['skill_id'])
+                    added_conept_skill.append(concept_qs)
+                    added_conept_skill.append(skill_qs)
+                    concept_qs.delete()
+                    skill_qs.delete()
+                else:
+                    print("Create")
+                    concept_data = {
+                        "name":f.get('concept_name',None),
+                        "description":f.get('concept_description',None),
+                        "aod":f.get('aod',None),
+                        "is_active":"TRUE"
+                    }
+                    
+                    conept_serializer = ConceptCreateSerializer(
+                        data=dict(concept_data))
+                    if conept_serializer.is_valid():
+                        conept_serializer.save()
+                        added_conept_skill.append(
+                            conept_serializer.data)
+                        print(conept_serializer.data)
+                    else:
+                        
+                        raise ValidationError(conept_serializer.errors)
+                    
+                    skill_data = {
+
+                        "name":f.get('skill_name', None),
+                        "description":f.get('skill_description', None),
+                        "concept":conept_serializer.data['id'],
+                        "is_active":"TRUE",
+                        "threshold_percentage":f.get('threshold_percentage', None),
+                        "activity":f.get('activity', None),
+                        "remed_activity":f.get('remed_activity', None),
+                    }
+                    skill_serializer = SkillCreateSerializer(
+                        data=dict(skill_data))
+                    if skill_serializer.is_valid():
+                        skill_serializer.save()
+                        added_conept_skill.append(
+                            skill_serializer.data)
+                        print(skill_serializer.data)
+                    else:
+                        
+                        raise ValidationError(skill_serializer.errors)
+                    
+                    
+
+
+            keys = added_conept_skill[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
+           
+            logger.debug(ex)
+            return Response(ex)
+
