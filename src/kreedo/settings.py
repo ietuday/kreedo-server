@@ -33,7 +33,6 @@ env = environ.Env(
 # read env
 environ.Env.read_env('.env')
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -198,12 +197,12 @@ AWS_SNS_CLIENT = boto3.client(
     region_name="ap-southeast-1"
 )
 
-# if bool(env('dev')) == False:
-#     AWS_SNS_CLIENT.set_sms_attributes(
-#         attributes={
-#             'DefaultSMSType': 'Transactional'
-#         }
-#     )
+if bool(env('DEV')) == False:
+    AWS_SNS_CLIENT.set_sms_attributes(
+        attributes={
+            'DefaultSMSType': 'Transactional'
+        }
+    )
 
 # AWS_LOCATION = 'static'
 # STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -211,4 +210,3 @@ AWS_SNS_CLIENT = boto3.client(
 
 DEFAULT_FILE_STORAGE = 'kreedo.custom_storage.MediaStorage'
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-

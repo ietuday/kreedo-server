@@ -16,6 +16,10 @@ import datetime
 import logging
 import pandas as pd
 
+import random
+from kreedo.settings import AWS_SNS_CLIENT, EMAIL_HOST_USER
+from passlib.hash import pbkdf2_sha256
+
 from rest_framework .generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -360,6 +364,118 @@ class LoggedIn(GeneralClass, ListAPIView):
         user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
         user_data = LoggedInUserSerializer(user_obj_detail)
         return Response(user_data.data)
+
+""" Genrate OTP """
+class GenerateOTP(ListAPIView):
+
+    def post(self, request):
+        try:
+            user_obj = UserDetail.objects.filter(
+            phone=request.data['phone']).first()
+
+            if user_obj == None:
+                context = {'error': "This phone number is not linked to any account. Please check again.",
+            'success': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # random_number = secrets.choice(range(100000,999999))
+            random_number = random.randint(100000, 999999)
+
+            response = AWS_SNS_CLIENT.publish(
+                PhoneNumber=request.data['country_code']+request.data['phone'],
+                Message='OTP to set your password for your Kreedo account is ' +
+                str(random_number) + " .This OTP will expire after 2 minutes",
+                Subject='Reset Password',
+                MessageAttributes={
+                    'AWS.SNS.SMS.SenderID': {
+                        'DataType': 'String',
+                        'StringValue': 'Kreedo'
+                        }
+                    }
+                )
+
+            if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+                context = {"success": False, "message": "Unable to send OTP",
+                "error": " AWS SNS is Unable to send OTP"}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
+            date_time = datetime.datetime.now()
+
+            hashed_otp_combo = pbkdf2_sha256.hash(
+            str(random_number) + str(date_time) + str(user_obj.id))
+
+            data = {
+            "otp": hashed_otp_combo[14:],
+            "phone": request.data['phone'],
+            "datetime": str(date_time)
+            }
+
+            context = {"success": True, "message": response,
+            "error": "", "data": data}
+            return Response(context, status=status.HTTP_200_OK)
+        except Exception as error:
+            context = {'error': str(error), 'success': "false",
+            'message': 'Unable to generate OTP'}
+        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+""" OTP VERIFICATION  """
+class OTPVerification(ListAPIView):
+
+    def post(self, request):
+        try:
+            user_obj = UserDetail.objects.filter(
+            phone=request.data['phone']).first()
+
+            if user_obj == None:
+                context = {'error': "User with this phone number does not exist",
+                'success': "false", 'message': 'User with this phone number does not exist'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
+            date_time = datetime.datetime.strptime(
+            request.data['datetime'], "%Y-%m-%d %H:%M:%S.%f")
+
+            if datetime.datetime.now() - date_time >= datetime.timedelta(seconds=140):
+                context = {'error': "OTP expired",
+                'success': "false", 'message': 'OTP expired'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
+            pbkdf2_sha256.hash(
+            str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
+
+            if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id), "$pbkdf2-sha256" + request.data['otp']):
+                activation_key = urlsafe_base64_encode(force_bytes(user_obj.user_obj.pk)).decode(
+                'utf8') + '-' + default_token_generator.make_token(user_obj.user_obj)
+                link = os.environ.get(
+                'kreedo_url') + '/users/reset_password_confirm/' + activation_key
+
+                # Add activation key and expiration date to user profile
+                user_obj.activation_key = activation_key
+                user_obj.key_expires = datetime.datetime.strftime(
+                datetime.datetime.now() + datetime.timedelta(minutes=1), "%Y-%m-%d %H:%M:%S")
+                user_obj.save()
+
+                data = {
+                "link": link,
+                }
+
+                context = {
+                "success": True, "message": "OTP successfully validated", "error": "", "data": data}
+                return Response(context, status=status.HTTP_200_OK)
+            context = {'error': "Validation failed",
+            'success': "false", 'message': 'Failed to validate OTP'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            context = {'error': str(error), 'success': "false",
+            'message': 'Unable to validate OTP'}
+        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
 
 
 """ Add User """
