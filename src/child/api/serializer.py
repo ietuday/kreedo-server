@@ -190,6 +190,13 @@ class ChildListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class ChildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+       
+
+
 """ Child Detail list """
 
 

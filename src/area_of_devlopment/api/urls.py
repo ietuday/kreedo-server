@@ -20,7 +20,8 @@ urlpatterns = [
 
     path('skill_retrive_update_delete/<int:pk>', SkillRetriveUpdateDestroy.as_view(),
          name='SkillRetriveUpdateDestroy'),
-
+path('bulk-upload/add-concept-skill',
+         AddConceptSkill.as_view(), name='AddConceptSkill'),
 
 
 

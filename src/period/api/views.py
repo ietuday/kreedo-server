@@ -143,6 +143,8 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 dict['room_no'] = class_period.room_no.room_no
                 dict['start_time'] = class_period.start_time
                 dict['end_time'] = class_period.end_time
+                dict['is_complete'] = class_period.is_complete
+                dict['is_active'] = class_period.is_active
                 dict['type'] = class_period.type
                 academic_session = class_period.academic_session.all()
                 acad_session = AcademicSession.objects.get(
