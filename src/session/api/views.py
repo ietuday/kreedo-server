@@ -46,8 +46,6 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AcademicSessionListSerializer
         if self.request.method == 'POST':
             return AcademicSessionCreateSerializer
-    
-          
 
 
 """ AcademicSession Retrive Update Delete """
@@ -55,8 +53,15 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = AcademicSession
-    serializer_class = AcademicSessionListSerializer
     filterset_class = AcademicSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AcademicSessionListSerializer
+        if self.request.method == 'PUT':
+            return AcademicSessionCreateSerializer
+        if self.request.method == 'DELETE':
+            return AcademicSessionListSerializer
 
 
 """ Create and List of Academic Calender """
@@ -89,28 +94,27 @@ class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
             return AcademicCalenderListSerializer
 
 
-
-
-
 class AcademicSessionByTeacher(ListCreateAPIView):
 
     def post(self, request):
         try:
             class_teacher = request.data.get('class_teacher', None)
             if class_teacher is not None:
-                academicSession_qs = AcademicSession.objects.filter(class_teacher=class_teacher)
-                aca_session_qs = AcademicSessionListSerializer(academicSession_qs, many=True)
+                academicSession_qs = AcademicSession.objects.filter(
+                    class_teacher=class_teacher)
+                aca_session_qs = AcademicSessionListSerializer(
+                    academicSession_qs, many=True)
                 context = {"message": "Academic Session By Teacher",
-                       "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
+                           "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
                 return Response(context)
-            else: 
+            else:
                 context = {"error": "Teacher Not Found",
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
             logger.debug(ex)
-            context = {"error": ex,"isSucess": False,
+            context = {"error": ex, "isSucess": False,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
             return Response(context)

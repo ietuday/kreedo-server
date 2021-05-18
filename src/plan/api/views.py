@@ -64,7 +64,7 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)
-            
+
             return Response(ex)
 
 
@@ -74,13 +74,14 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Plan
     filterset_class = PlanFilter
-    serializer_class = PlanListSerailizer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PlanListSerailizer
         if self.request.method == 'PUT':
             return PlanCreateSerailizer
+        if self.request.method == 'DELETE':
+            return PlanListSerailizer
 
 
 """ Child Plan List and create """
@@ -162,34 +163,30 @@ class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveU
 
 
 """ Child related Activity """
+
+
 class ChildActivity(ListCreateAPIView):
     def post(self, request):
         try:
-            child_plan = ChildPlan.objects.filter(child=request.data.get('child', None))
+            child_plan = ChildPlan.objects.filter(
+                child=request.data.get('child', None))
             child_plan_qs = ChildPlanActivitySerializer(child_plan, many=True)
-            context = {"message": "Activity List by Child","isSuccess": True,
+            context = {"message": "Activity List by Child", "isSuccess": True,
                        "data": child_plan_qs.data, "statusCode": status.HTTP_200_OK}
             return Response(context)
-         
+
         except Exception as ex:
-           
+
             logger.debug(ex)
             context = {"error": ex,
                        "isSuccess": False,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
-            
-
-           
-
-
-
-
-
-
 
 
 """ Upload Plan """
+
+
 class AddPlan(ListCreateAPIView):
     def post(self, request):
         try:
@@ -214,7 +211,7 @@ class AddPlan(ListCreateAPIView):
                     plan_qs.delete()
                 else:
                     print("Create")
-                    
+
                     plan_serializer = PlanSerailizer(
                         data=dict(f))
                     if plan_serializer.is_valid():
@@ -223,14 +220,13 @@ class AddPlan(ListCreateAPIView):
                             plan_serializer.data)
                         print(plan_serializer.data)
                     else:
-                        
+
                         raise ValidationError(plan_serializer.errors)
 
-                        
                     activity_data = f.get('activity', None)
                     print(activity_data)
                     for i, da in enumerate(json.loads(activity_data), start=1):
-                        print("da",da)
+                        print("da", da)
                         activity_detail = {
                             "plan": plan_serializer.data['id'],
                             "activity": da['activity'],
@@ -238,12 +234,13 @@ class AddPlan(ListCreateAPIView):
                             "dependent_on": f.get('dependent_on', None)
                         }
 
-                        plan_activity_Serializer = PlanActivityCreateSerializer(data=dict(activity_detail))
+                        plan_activity_Serializer = PlanActivityCreateSerializer(
+                            data=dict(activity_detail))
                         if plan_activity_Serializer.is_valid():
                             plan_activity_Serializer.save()
                         else:
-                            raise ValidationError(plan_activity_Serializer.errors)
-
+                            raise ValidationError(
+                                plan_activity_Serializer.errors)
 
             keys = added_plan[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
@@ -252,14 +249,14 @@ class AddPlan(ListCreateAPIView):
                 dict_writer.writerows(added_material)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
 
         except Exception as ex:
-           
+
             logger.debug(ex)
             return Response(ex)
-
-

@@ -1,3 +1,12 @@
+import logging
+from kreedo.conf.logger import CustomFormatter
+from users.api.custum_storage import FileStorage
+from kreedo.conf import logger
+import traceback
+import csv
+import json
+import math as m
+import pandas as pd
 from address.api.serializer import AddressSerializer
 from .filters import*
 from .serializer import*
@@ -14,20 +23,9 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 from rest_framework.response import Response
 
 
-
 """ 
     Packages for uploading csv
 """
-import pandas as pd
-import math as m
-import json
-import csv
-import traceback
-from kreedo.conf import logger
-from rest_framework.response import Response
-from users.api.custum_storage import FileStorage
-from kreedo.conf.logger import CustomFormatter
-import logging
 
 # Create your views here.
 
@@ -44,7 +42,6 @@ handler.setFormatter(CustomFormatter())
 logger.addHandler(handler)
 # A string with a variable at the "info" level
 logger.info("UTILS CAlled ")
-
 
 
 """ Grade List and Create """
@@ -77,7 +74,7 @@ class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'GET':
             return SectionListSerializer
         if self.request.method == 'POST':
-            return SectionListSerializer
+            return SectionCreateSerializer
 
 
 """ Section Retrive Update delete """
@@ -91,7 +88,7 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
         if self.request.method == 'GET':
             return SectionListSerializer
         if self.request.method == 'PUT':
-            return SectionListSerializer
+            return SectionCreateSerializer
         if self.request.method == 'DELETE':
             return SectionListSerializer
 
@@ -270,6 +267,8 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
 
 
 """ Upload Subjects """
+
+
 class AddSubject(ListCreateAPIView):
     def post(self, request):
         try:
@@ -294,7 +293,7 @@ class AddSubject(ListCreateAPIView):
                     subject_qs.delete()
                 else:
                     print("Create")
-                    
+
                     subject_serializer = SubjectCreateSerializer(
                         data=dict(f))
                     if subject_serializer.is_valid():
@@ -303,7 +302,7 @@ class AddSubject(ListCreateAPIView):
                             subject_serializer.data)
                         print(subject_serializer.data)
                     else:
-                        
+
                         raise ValidationError(subject_serializer.errors)
 
             keys = added_subject[0].keys()
@@ -313,18 +312,22 @@ class AddSubject(ListCreateAPIView):
                 dict_writer.writerows(added_material)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
 
         except Exception as ex:
-           
+
             logger.debug(ex)
             return Response(ex)
 
 
 """ upload GRADE """
+
+
 class AddGrade(ListCreateAPIView):
     def post(self, request):
         try:
@@ -349,7 +352,7 @@ class AddGrade(ListCreateAPIView):
                     grade_qs.delete()
                 else:
                     print("Create")
-                    
+
                     grade_serializer = GradeSerializer(
                         data=dict(f))
                     if grade_serializer.is_valid():
@@ -358,7 +361,7 @@ class AddGrade(ListCreateAPIView):
                             grade_serializer.data)
                         print(grade_serializer.data)
                     else:
-                        
+
                         raise ValidationError(grade_serializer.errors)
 
             keys = added_grade[0].keys()
@@ -368,13 +371,14 @@ class AddGrade(ListCreateAPIView):
                 dict_writer.writerows(added_material)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
 
         except Exception as ex:
-           
+
             logger.debug(ex)
             return Response(ex)
-
