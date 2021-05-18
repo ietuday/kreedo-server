@@ -14,9 +14,44 @@ from .serializer import*
 from .filters import*
 from session.models import*
 from schools.models import*
+from users.api.serializer import*
 from rest_framework import status
 from datetime import date
+
+from rest_framework.response import Response
+
+
+
+""" 
+    Packages for uploading csv
+"""
+import pandas as pd
+import math as m
+import json
+import csv
+import traceback
+from kreedo.conf import logger
+from rest_framework.response import Response
+from users.api.custum_storage import FileStorage
+from kreedo.conf.logger import CustomFormatter
+import logging
+
 # Create your views here.
+
+
+""" Logger Function """
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
+
 
 """ create and List Child """
 
@@ -192,3 +227,189 @@ class AttendenceByAcademicSession(ListCreateAPIView):
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)
+
+
+""" Child Bulk Upload """
+class AddChild(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_child = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    child_qs = Child.objects.filter(id=f['id'])[0]
+                    child_qs.first_name = f['first_name']
+                    child_qs.last_name = f['last_name']
+                    child_qs.date_of_birth = f['date_of_birth']
+                    child_qs.gender = f['gender']
+                    child_qs.date_of_joining = f['date_of_joining']
+                    child_qs.place_of_birth = f['place_of_birth']
+                    child_qs.blood_group = f['blood_group']
+                    child_qs.photo = f['photo']
+                    child_qs.is_active = f['is_active']
+                    child_qs.save()
+                    child_plan_data = f.get('child_plan', None)
+                    print(child_plan_data)
+                    for i, da in enumerate(json.loads(child_plan_data), start=1):
+                        child_plan_qs = ChildPlan.objects.filter(child=child_qs['id'])[0]
+                        child_plan_qs.academic_session = da['academic_session']
+                        child_plan_qs.subjects = da['subjects']
+                        child_plan_qs.class_teacher = da['class_teacher']
+                        child_plan_qs.curriculum_start_date = da['curriculum_start_date']
+                        child_plan_qs.save()
+                    added_child.append(child_qs)
+                    parents_data = f.get('parents', None)
+                    print(parents_data)
+                    for i in parents_data:
+                        auth_user = User.objects.filter(user_obj=i)[0]
+                        auth_user.first_name = f.get('first_name', None)
+                        auth_user.last_name = f.get('last_name', None)
+                        auth_user.email = f.get('email', None)
+                        auth_user.save()
+                        user_detail_qs = UserDetail.objects.filter(user_obj=i)[0]
+                        user_detail_qs.phone = f.get('phone', None)
+                        user_detail_qs.joining_date = f.get('joining_date', None)
+                        user_detail_qs.save()
+
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    child_qs = Child.objects.filter(id=f['id'])[0]
+                    child_plan_qs = ChildPlan.objects.filter(child = child_qs['id'])[0]
+                    for i in child_qs['parents']:
+                        user_qs = User.objects.filter(id=i)[0]
+                        user_detail_qs = UserDetail.objects.filter(user_obj=user_qs['id'])[0]
+                        user_detail_qs.delete()
+                        user_qs.delete()
+                    added_child.append(child_qs)
+                    child_plan_qs.delete()
+                    child_qs.delete()
+
+
+                else:
+                    print("Create")
+                    parent_detail = f.get('parents',None)
+                    parent_list = []
+                    for i, da in enumerate(json.loads(parent_detail), start=1):
+                        print("da",da)
+
+                        """ Create Auth User"""
+                        user_data = {
+                                "first_name":da['first_name'],
+                                "last_name":da['last_name'],
+                                "email":da['email'],
+                                "is_active":"TRUE"
+
+                        }
+                        user_data_serializer = ParentSerializer(data=dict(user_data))
+                        if user_data_serializer.is_valid():
+                            user_data_serializer.save()
+                        else:
+                            raise ValidationError(user_data_serializer.errors)
+
+                        user_details_data = {
+                                "user_obj":user_data_serializer.data['id'],
+                                "phone":da['phone'],
+                                "gender":da['gender'],
+                                "email":da['email'],
+                                "relationship_with_child":da['relationship_with_child']
+                        } 
+                        try:
+                            user_details_data_serializer = ParentDetailSerializer(
+                                data=dict(user_details_data))
+
+                            if user_details_data_serializer.is_valid():
+
+                                user_details_data_serializer.save()
+                                parent_id = user_details_data_serializer.data['user_obj']
+                                parent_list.append(parent_id)
+                            else:
+                                raise ValidationError(user_details_data_serializer.errors)
+                        except Exception as ex:
+                            print("error", ex)
+                            print("traceback", traceback.print_exc())
+                            logger.debug(ex)
+                            return Response(ex)
+                
+
+
+                    """ Child Creation """
+                    child_data = {
+                        "first_name":f.get('first_name', None),
+                        "last_name":f.get('last_name', None),
+                        "date_of_birth":f.get('date_of_birth', None),
+                        "gender":f.get('gender', None),
+                        "date_of_joining":f.get('date_of_joining', None),
+                        "place_of_birth":f.get('place_of_birth', None),
+                        "blood_group":f.get('blood_group', None),
+                        "photo":f.get('photo', None),
+                        "parent":parent_list
+
+                    }
+                    try:
+                        child_serializer = ChildSerializer(
+                        data=dict(child_data))
+                        if child_serializer.is_valid():
+                            child_serializer.save()
+                            added_child.append(
+                                child_serializer.data)
+                            print(child_serializer.data)
+                        else:
+                            raise ValidationError(child_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+                
+                    
+                    
+                    """ Child Plan Creation """
+                    child_plan_data = f.get('child_plan', None)
+                    print(child_plan_data)
+                    for i, da in enumerate(json.loads(child_plan_data), start=1):
+                        print("da",da)
+                        acadmic_ids = AcademicSession.objects.filter(id=da['acad_session'],
+                                                         grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')[0]['id']
+
+                        child_plan_data = {
+                            "child":child_serializer.data['id'],
+                            "academic_session":acadmic_ids,
+                            "subjects": da['subjects'],
+                            "class_teacher": da['class_teacher'],
+                            "curriculum_start_date": da['curriculum_start_date'],
+                            "is_active":"TRUE"
+                        }
+                        try:
+                            childplan_serializer = ChildPlanCreateSerailizer(data=dict(school_package_detail))
+                            if childplan_serializer.is_valid():
+                                childplan_serializer.save()
+                                added_child.append(
+                                childplan_serializer.data)
+                            else:
+                                raise ValidationError(childplan_serializer.errors)
+                        except Exception as ex:
+                            print("error", ex)
+                            print("traceback", traceback.print_exc())
+                            logger.debug(ex)
+                            return Response(ex)
+
+            keys = added_child[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
+           
+            logger.debug(ex)
+            return Response(ex)
+

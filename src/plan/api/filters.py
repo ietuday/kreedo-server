@@ -5,6 +5,7 @@ from plan.models import*
 
 
 class PlanFilter(filters.FilterSet):
+
     class Meta:
         model = Plan
         fields = '__all__'
