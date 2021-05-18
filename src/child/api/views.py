@@ -240,27 +240,52 @@ class AddChild(ListCreateAPIView):
             for i, f in enumerate(df, start=1):
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
-                    subject_qs = Subject.objects.filter(id=f['id'])[0]
-                    subject_qs.name = f['name']
-                    subject_qs.type = f['type']
-                    subject_qs.activity = f['activity']
-                    subject_qs.is_active = f['is_active']
-                    subject_qs.save()
-                    added_subject.append(subject_qs)
+                    child_qs = Child.objects.filter(id=f['id'])[0]
+                    child_qs.first_name = f['first_name']
+                    child_qs.last_name = f['last_name']
+                    child_qs.date_of_birth = f['date_of_birth']
+                    child_qs.gender = f['gender']
+                    child_qs.date_of_joining = f['date_of_joining']
+                    child_qs.place_of_birth = f['place_of_birth']
+                    child_qs.blood_group = f['blood_group']
+                    child_qs.photo = f['photo']
+                    child_qs.is_active = f['is_active']
+                    child_qs.save()
+                    child_plan_data = f.get('child_plan', None)
+                    print(child_plan_data)
+                    for i, da in enumerate(json.loads(child_plan_data), start=1):
+                        child_plan_qs = ChildPlan.objects.filter(child=child_qs['id'])[0]
+                        child_plan_qs.academic_session = da['academic_session']
+                        child_plan_qs.subjects = da['subjects']
+                        child_plan_qs.class_teacher = da['class_teacher']
+                        child_plan_qs.curriculum_start_date = da['curriculum_start_date']
+                        child_plan_qs.save()
+                    added_child.append(child_qs)
+                    parents_data = f.get('parents', None)
+                    print(parents_data)
+                    for i in parents_data:
+                        auth_user = User.objects.filter(user_obj=i)[0]
+                        auth_user.first_name = f.get('first_name', None)
+                        auth_user.last_name = f.get('last_name', None)
+                        auth_user.email = f.get('email', None)
+                        auth_user.save()
+                        user_detail_qs = UserDetail.objects.filter(user_obj=i)[0]
+                        user_detail_qs.phone = f.get('phone', None)
+                        user_detail_qs.joining_date = f.get('joining_date', None)
+                        user_detail_qs.save()
 
-                    
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
                     child_qs = Child.objects.filter(id=f['id'])[0]
                     child_plan_qs = ChildPlan.objects.filter(child = child_qs['id'])[0]
-                    user_qs = User.objects.filter(id=child_qs['parents'])[0]
-                    user_detail_qs = UserDetail.objects.filter(user_obj=user_qs['id'])[0]
-                    user_detail_qs.delete()
-                    user_qs.delete()
+                    for i in child_qs['parents']:
+                        user_qs = User.objects.filter(id=i)[0]
+                        user_detail_qs = UserDetail.objects.filter(user_obj=user_qs['id'])[0]
+                        user_detail_qs.delete()
+                        user_qs.delete()
                     added_child.append(child_qs)
                     child_plan_qs.delete()
                     child_qs.delete()
-
 
 
                 else:
@@ -283,7 +308,6 @@ class AddChild(ListCreateAPIView):
                             user_data_serializer.save()
                         else:
                             raise ValidationError(user_data_serializer.errors)
-
 
                         user_details_data = {
                                 "user_obj":user_data_serializer.data['id'],
@@ -333,9 +357,7 @@ class AddChild(ListCreateAPIView):
                                 child_serializer.data)
                             print(child_serializer.data)
                         else:
-                            
                             raise ValidationError(child_serializer.errors)
-
                     except Exception as ex:
                         print("error", ex)
                         print("traceback", traceback.print_exc())
@@ -361,7 +383,6 @@ class AddChild(ListCreateAPIView):
                             "is_active":"TRUE"
                         }
                         try:
-
                             childplan_serializer = ChildPlanCreateSerailizer(data=dict(school_package_detail))
                             if childplan_serializer.is_valid():
                                 childplan_serializer.save()

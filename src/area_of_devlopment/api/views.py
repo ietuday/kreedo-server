@@ -147,7 +147,7 @@ class AddConceptSkill(ListCreateAPIView):
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
-                    skill_qs = Skill.objects.filter(concept=f['id'], id=f['skill_id'])
+                    skill_qs = Skill.objects.filter(id=f['skill_id'],concept=concept_qs['id'])
                     added_conept_skill.append(concept_qs)
                     added_conept_skill.append(skill_qs)
                     concept_qs.delete()
