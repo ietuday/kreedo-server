@@ -21,8 +21,13 @@ from rest_framework import status
 
 class SchoolSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = SchoolSession
-    serializer_class = SchoolSessionSerializer
     filterset_class = SchoolSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SchoolSessionListSerializer
+        if self.request.method == 'POST':
+            return SchoolSessionCreateSerializer
 
 
 """ School Session Retrive Update Delete """
@@ -30,8 +35,15 @@ class SchoolSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = SchoolSession
-    serializer_class = SchoolSessionSerializer
     filterset_class = SchoolSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SchoolSessionListSerializer
+        if self.request.method == 'PUT':
+            return SchoolSessionCreateSerializer
+        if self.request.method == 'DELETE':
+            return SchoolSessionCreateSerializer
 
 
 """ AcademicSession Create  and list """
@@ -108,7 +120,7 @@ class AcademicSessionByTeacher(ListCreateAPIView):
                            "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
                 return Response(context)
             else:
-                context = {"error": "Teacher Not Found",
+                context = {"error": "Teacher Not Found",  "isSucess": False,
                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 

@@ -57,7 +57,7 @@ class MaterialRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAP
 
 class ActivityMasterSupportingMaterialListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityMasterSupportingMaterial
-    # filterset_class = ActivityMasterSupportingMaterialFilter
+    filterset_class = ActivityMasterSupportingMaterialFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -66,9 +66,11 @@ class ActivityMasterSupportingMaterialListCreate(GeneralClass, Mixins, ListCreat
             return ActivityMasterSupportingMaterialCreateSerializer
 
 
+""" Bulk Upload of Material """
+
 
 class AddMaterial(ListCreateAPIView):
-    
+
     def post(self, request):
         try:
             file_in_memory = request.FILES['file']
@@ -93,7 +95,7 @@ class AddMaterial(ListCreateAPIView):
                     material_qs.delete()
                 else:
                     print("Create")
-                    
+
                     material_serializer = MaterialSerializer(
                         data=dict(f))
                     if material_serializer.is_valid():
@@ -103,7 +105,7 @@ class AddMaterial(ListCreateAPIView):
                         print(material_serializer.data)
                     else:
                         print("material_serializer._errors",
-                            material_serializer._errors)
+                              material_serializer._errors)
                         raise ValidationError(material_serializer.errors)
 
             keys = added_material[0].keys()
@@ -113,8 +115,10 @@ class AddMaterial(ListCreateAPIView):
                 dict_writer.writerows(added_material)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
 
@@ -123,4 +127,3 @@ class AddMaterial(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             return Response(ex)
-

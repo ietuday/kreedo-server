@@ -87,7 +87,6 @@ class UserTypeRetriveUpdateDelete(Mixins, GeneralClass, RetrieveUpdateDestroyAPI
 
 """ Reporting_to  List and Create API"""
 
-
 class ReportingToListCreate(Mixins, GeneralClass, ListCreateAPIView):
     model = ReportingTo
     serializer_class = ReportingToSerializer
@@ -101,6 +100,16 @@ class ReportingToRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestro
     model = ReportingTo
     serializer_class = ReportingToSerializer
     filterset_class = ReportingToFilter
+
+
+""" User Detail List """
+
+class UserList(Mixins, GeneralClass, ListAPIView):
+    model = UserDetail
+    serializer_class = UserDetailListSerializer
+    filterset_class = UserDetailFilter
+
+
 
 
 """ User Register API """
@@ -192,7 +201,6 @@ class EmailConfirmVerify(ListAPIView):
 
     def get(self, request, uidb64, token):
         try:
-            print("Email Confirm---->", uidb64, token)
             user_token_detail = {
                 "uidb64": uidb64,
                 "token": token

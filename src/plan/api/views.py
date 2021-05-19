@@ -159,7 +159,14 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = SubjectSchoolGradePlan
-    serializer_class = SubjectSchoolGradePlanListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SubjectSchoolGradePlanListSerializer
+        if self.request.method == 'PUT':
+            return SubjectSchoolGradePlanCreateSerializer
+        if self.request.method == 'DELETE':
+            return SubjectSchoolGradePlanCreateSerializer
 
 
 """ Child related Activity """
@@ -184,7 +191,7 @@ class ChildActivity(ListCreateAPIView):
             return Response(context)
 
 
-""" Upload Plan """
+""" Bilk Upload Plan """
 
 
 class AddPlan(ListCreateAPIView):
@@ -207,6 +214,8 @@ class AddPlan(ListCreateAPIView):
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
                     plan_qs = Plan.objects.filter(id=f['id'])[0]
+                    plan_activity_qs = PlanActivity.objects.filter(
+                        plan=plan_qs['id'])
                     added_plan.append(plan_qs)
                     plan_qs.delete()
                 else:
