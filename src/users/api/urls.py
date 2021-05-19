@@ -17,6 +17,9 @@ urlpatterns = [
     path('reporting_to_retrive_update_delete/<int:pk>', ReportingToRetriveUpdateDestroy.as_view(),
          name='ReportingToRetriveUpdateDestroy'),
     path('user_register', UserRegister.as_view(), name='UserRegister'),
+    path('user_list', UserList.as_view(), name='UserList'),
+
+
     re_path('email-confirm-verify/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', EmailConfirmVerify.as_view(),
             name='EmailConfirmVerify'),
     path('login', UserLogin.as_view(), name='UserLogin'),

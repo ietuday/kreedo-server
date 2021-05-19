@@ -156,14 +156,11 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 
 class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = School
-    # serializer_class = SchoolSerializer
     filterset_class = SchoolFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SchoolListSerializer
-        if self.request.method == 'POST':
-            return SchoolCreateSerializer
 
     def post(self, request):
         address_detail = {
@@ -255,7 +252,6 @@ class RoomListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Room
     filterset_class = RoomFilter
-    # serializer_class = RoomListSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -266,7 +262,7 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
             return RoomListSerializer
 
 
-""" Upload Subjects """
+""" Bulk Upload Subjects """
 
 
 class AddSubject(ListCreateAPIView):
@@ -325,7 +321,7 @@ class AddSubject(ListCreateAPIView):
             return Response(ex)
 
 
-""" upload GRADE """
+""" Bulk Upload GRADE """
 
 
 class AddGrade(ListCreateAPIView):

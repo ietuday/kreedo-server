@@ -15,6 +15,9 @@ class PeriodTemplateFilter(filters.FilterSet):
 
 
 class PeriodFilter(filters.FilterSet):
+    subject = filters.CharFilter(
+        field_name='subject__name', lookup_expr='icontains')
+
     class Meta:
         model = Period
         fields = '__all__'
