@@ -5,9 +5,9 @@ from package.models import *
 
 
 class PackageFilter(filters.FilterSet):
-    # name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-    # description = filters.CharFilter(
-    #     field_name='description', lookup_expr='icontains')
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    description = filters.CharFilter(
+        field_name='description', lookup_expr='icontains')
 
     class Meta:
         model = Package
@@ -18,6 +18,11 @@ class PackageFilter(filters.FilterSet):
 
 
 class SchoolPackageFilter(filters.FilterSet):
+    school_name = filters.CharFilter(
+        field_name='school__name', lookup_expr='icontains')
+    package_name = filters.CharFilter(
+        field_name='package__name', lookup_expr='icontains')
+
     class Meta:
         model = SchoolPackage
         fields = '__all__'
