@@ -4,7 +4,6 @@ from activity.models import*
 
 """ Activity List Serializer """
 
-
 class ActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
@@ -13,8 +12,6 @@ class ActivityListSerializer(serializers.ModelSerializer):
 
 
 """ Activity Create Serializer """
-
-
 class ActivityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
@@ -22,7 +19,6 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
 
 
 """ Activity Asset List Serializer"""
-
 
 class ActivityAssetListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,7 +51,7 @@ class ActivityCompleteListSerilaizer(serializers.ModelSerializer):
 
 
 class ActivityCompleteSerilaizer(serializers.ModelSerializer):
-    # activity_asset = ActivityAssetListSerializer(many=True,read_only=True)
+
     class Meta:
         model = ActivityComplete
         fields = ['activity', 'period']

@@ -241,12 +241,9 @@ class ActivityByChild(ListCreateAPIView):
             period = request.data.get('period', None)
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
-            # academic_id = AcademicSession.objects.get(
-            #     grade__name=grade, section__name=section).id
-
+   
             activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
                                                               period=period)
-            print("@@@@@@@@@@@@@@@@@@", activity_missed_qs)
             activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
 
             context = {"message": "Activity List by Child",

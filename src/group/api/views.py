@@ -54,16 +54,12 @@ class PermissionListCreate(ListCreateAPIView):
                     print("@@@@@@@@@@", content_type.upper())
                     print("$$$$$$$$$$$$$$", word.upper())
                     model_name = word
+                    
             print("model_name-----------", model_name)
 
             ct = ContentType.objects.get(model=model_name)
-            ct_class = ct.model_class()
             print("@@@@@@@@@@@@@", ct)
-            print("@@@@@@@@@@@@@", ct_class)
-
-            # ct_instance = ct_class()
-
-            print("Contentv Type", ct.id)
+            print("Content Type", ct.id)
 
             # permission_data = {
             #     "name":request.data.get('name', None),
