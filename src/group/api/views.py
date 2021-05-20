@@ -1,5 +1,7 @@
+import re
+from django.apps import apps
 from django.shortcuts import render
-from django.contrib.auth.models import Group,Permission
+from django.contrib.auth.models import Group, Permission
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -14,48 +16,54 @@ from users.models import *
 # Create your views here.
 
 """ Group List and Create """
+
+
 class GroupListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Group
     serializer_class = GroupSerializer
 
 
-
 """ Group update ,retrive and delete """
+
+
 class GroupRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Group
     serializer_class = GroupSerializer
 
 
 # from django.db.models import get_app, get_models
-from django.apps import apps
 
 
 """ Permission List and Create """
+
+
 class PermissionListCreate(ListCreateAPIView):
     model = Permission
     serializer_class = PermissionSerializer
 
-    def post(self,request):
+    def post(self, request):
 
         try:
-            content_type = request.data.get('content_type',None)
-            print("@@@@@@@@@@@@@@@@",content_type)
+            content_type = request.data.get('content_type', None)
 
-            model_name = [model.__name__ for model in apps.get_models()]
-            print("App", model_name)
-            for name in model_name:
-                if content_type.upper() in name.upper():
-                    print("Model------>", content_type)
+            app_model_name = [model.__name__ for model in apps.get_models()]
+            print("App", app_model_name)
 
+            for word in app_model_name:
+                if content_type.upper() == word.upper():
+                    print("@@@@@@@@@@", content_type.upper())
+                    print("$$$$$$$$$$$$$$", word.upper())
+                    model_name = word
+            print("model_name-----------", model_name)
 
-            # for model in get_models(apps):
-            #     # do something with the model
-            #     print("Modal", Modal)
+            ct = ContentType.objects.get(model=model_name)
+            ct_class = ct.model_class()
+            print("@@@@@@@@@@@@@", ct)
+            print("@@@@@@@@@@@@@", ct_class)
 
-            # ct = ContentType.objects.get_for_model(Role)
-            # print("Contentv Type", ct.id)
+            # ct_instance = ct_class()
 
-
+            print("Contentv Type", ct.id)
 
             # permission_data = {
             #     "name":request.data.get('name', None),
@@ -76,12 +84,9 @@ class PermissionListCreate(ListCreateAPIView):
             return Response(ex)
 
 
-
 """ Permission update ,retrive and delete """
+
+
 class PermissionRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Permission
     serializer_class = PermissionSerializer
-
-
-
-
