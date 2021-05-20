@@ -150,7 +150,9 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 acad_session = AcademicSession.objects.get(
                     id=academic_session[0].id)
                 dict['grade'] = acad_session.grade.name
+                dict['grade_id'] = acad_session.grade.id
                 dict['section'] = acad_session.section.name
+                dict['section_id'] = acad_session.section.id
                 dict['subject'] = class_period.subject.name
                 activity_list = class_period.subject.activity.all()
                 activitys_list = []
@@ -242,8 +244,8 @@ class ActivityByChild(ListCreateAPIView):
             academic_id = AcademicSession.objects.get(
                 grade__name=grade, section__name=section).id
 
-            activity_missed = ActivityComplete.objects.filter(child__id= child,
-                period=period)
+            activity_missed = ActivityComplete.objects.filter(child__id=child,
+                                                              period=period)
 
             activity_lists = []
             activity_dict = {}
@@ -304,7 +306,7 @@ class ActivityByChild(ListCreateAPIView):
                 activity_dict['supporting_material'] = supporting_master_material_list
 
                 activity_lists.append(activity_dict)
-                activity_dict={}
+                activity_dict = {}
 
             context = {"message": "Activity List by Child",
                        "data": activity_lists, "statusCode": status.HTTP_200_OK}

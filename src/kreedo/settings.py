@@ -73,7 +73,8 @@ INSTALLED_APPS = [
     'activity',
     'material',
     'area_of_devlopment',
-    'child'
+    'child',
+    'group'
 ]
 
 MIDDLEWARE = [

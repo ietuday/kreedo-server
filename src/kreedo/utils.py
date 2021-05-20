@@ -54,7 +54,8 @@ def get_message(api_name, method):
                   'concept', 'skill', 'room', 'period-template',
                   'period-template-detail', 'attendance', 'activity-complete',
                   'logged-in-user-detail', 'holiday-list',
-                  'user', 'child', 'child-detail', 'period', 'academic-calender']
+                  'user', 'child', 'child-detail', 'period', 'academic-calender',
+                  'group','permission']
 
     for name in model_name:
         if name in apiname_list:
