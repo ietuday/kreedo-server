@@ -34,7 +34,9 @@ urlpatterns = [
     path('material/', include('material.api.urls')),
     path('area_of_devlopment/', include('area_of_devlopment.api.urls')),
     path('period/', include('period.api.urls')),
-    path('child/', include('child.api.urls'))
+    path('child/', include('child.api.urls')),
+    path('group/', include('group.api.urls')),
+
 
 
 
