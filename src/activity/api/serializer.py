@@ -58,7 +58,7 @@ class ActivityCompleteSerilaizer(serializers.ModelSerializer):
     # activity_asset = ActivityAssetListSerializer(many=True,read_only=True)
     class Meta:
         model = ActivityComplete
-        fields = ['activity']
+        fields = ['activity', 'period']
         depth = 2
 
     def to_representation(self, obj):
@@ -66,7 +66,6 @@ class ActivityCompleteSerilaizer(serializers.ModelSerializer):
             ActivityCompleteSerilaizer, self).to_representation(obj)
         activity_data = serialized_data.get('activity')
         
-        print("Plan_id------------>", activity_data.get('id'))
         activity_id = activity_data.get('id')
         activity_asset_qs = ActivityAsset.objects.filter(activity__id=activity_id)
         activity_asset_serializer = ActivityAssetSerializer(
