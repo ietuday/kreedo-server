@@ -6,10 +6,12 @@ from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPI
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from rest_framework import status
 
 from django.contrib.contenttypes.models import ContentType
 
 from .serializer import*
+from .utils import*
 from kreedo.general_views import*
 from users.models import *
 
@@ -56,24 +58,17 @@ class PermissionListCreate(ListCreateAPIView):
                     model_name = word
                     
             print("model_name-----------", model_name)
+            if "Role" == model_name:
+                from users.models import Role
+                ct = ContentType.objects.get_for_model(Role)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
 
-            ct = ContentType.objects.get(model=model_name)
-            print("@@@@@@@@@@@@@", ct)
-            print("Content Type", ct.id)
+            else:
+                print("RRRRR")
 
-            # permission_data = {
-            #     "name":request.data.get('name', None),
-            #     "content_type":ct.id,
-            #     "codename":request.data.get('codename',None)
-
-            # }
-            # permission_serializer = PermissionSerializer(data=dict(permission_data))
-            # if permission_serializer.is_valid():
-            #     permission_serializer.save()
-            #     return Response(permission_serializer.data)
-            # else:
-            #     print(permission_serializer.errors)
-            #     return Response(permission_serializer.errors)
 
         except Exception as ex:
             print("ERROR", ex)
