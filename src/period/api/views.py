@@ -233,7 +233,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
 
 """ Activity according to child """
 
-
+from activity.api.serializer import ActivityCompleteListSerilaizer,ActivityCompleteSerilaizer
 class ActivityByChild(ListCreateAPIView):
     def post(self, request):
         try:
@@ -241,77 +241,19 @@ class ActivityByChild(ListCreateAPIView):
             period = request.data.get('period', None)
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
-            academic_id = AcademicSession.objects.get(
-                grade__name=grade, section__name=section).id
+            # academic_id = AcademicSession.objects.get(
+            #     grade__name=grade, section__name=section).id
 
-            activity_missed = ActivityComplete.objects.filter(child__id=child,
+            activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
                                                               period=period)
-
-            activity_lists = []
-            activity_dict = {}
-            for activity in activity_missed:
-                activity_dict['id'] = activity.activity.id
-                activity_dict['name'] = activity.activity.name
-                activity_dict['type'] = activity.activity.type
-                activity_dict['objective'] = activity.activity.objective
-                activity_dict['description'] = activity.activity.description
-                activity_dict['is_completed'] = activity.is_completed
-                activity_dict['child_id'] = activity.child.id
-                period_obj = Period.objects.get(id=period)
-                activity_dict['period_id'] = period_obj.id
-                activity_dict['period_name'] = period_obj.name
-                activity_dict['room'] = period_obj.room_no.name
-                activity_dict['date'] = period_obj.start_date
-                activity_dict['start_time'] = period_obj.start_time
-                activity_dict['end_time'] = period_obj.end_time
-
-                activity_asset = ActivityAsset.objects.filter(
-                    activity=activity.activity.id)
-                activity_asset_list = []
-                activity_asset_dict = {}
-                for asset in activity_asset:
-                    activity_asset_dict['activity_id'] = asset.activity.id
-                    activity_asset_dict['type'] = asset.type
-                    activity_asset_dict['activity_data'] = asset.activity_data
-                    activity_asset_dict['title'] = asset.title
-                    activity_asset_dict['description'] = asset.description
-                    activity_asset_list.append(activity_asset_dict)
-                    activity_dict['activity_asset'] = activity_asset_list
-
-                master_material = activity.activity.master_material.all()
-                master_material_list = []
-                master_material_dict = {}
-                for material in master_material:
-                    material_id = Material.objects.filter(id=material.id)
-                    for m in material_id:
-                        master_material_dict['name'] = m.name
-                        master_material_dict['decription'] = m.decription
-                        master_material_dict['photo'] = m.photo
-                        master_material_list.append(master_material_dict)
-                        master_material_dict = {}
-
-                activity_dict['master_material'] = master_material_list
-                supporting_material = activity.activity.supporting_material.all()
-                supporting_master_material_list = []
-                supporting_master_material_dict = {}
-                for material in supporting_material:
-                    material_id = Material.objects.filter(id=material.id)
-                    for m in material_id:
-                        supporting_master_material_dict['name'] = m.name
-                        supporting_master_material_dict['decription'] = m.decription
-                        supporting_master_material_dict['photo'] = m.photo
-                        supporting_master_material_list.append(
-                            supporting_master_material_dict)
-                        supporting_master_material_dict = {}
-                activity_dict['supporting_material'] = supporting_master_material_list
-
-                activity_lists.append(activity_dict)
-                activity_dict = {}
+            print("@@@@@@@@@@@@@@@@@@", activity_missed_qs)
+            activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
 
             context = {"message": "Activity List by Child",
-                       "data": activity_lists, "statusCode": status.HTTP_200_OK}
+                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
             return Response(context)
 
         except Exception as ex:
+            print("error", ex)
 
             return Response(ex)

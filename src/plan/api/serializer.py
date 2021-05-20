@@ -28,7 +28,7 @@ class PlanListSerailizer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             PlanListSerailizer, self).to_representation(obj)
-
+    
         plan_id = serialized_data.get('id')
         plan_activity = PlanActivity.objects.filter(plan__id=plan_id)
         plan_activity_serializer = PlanActivityListSerializer(
