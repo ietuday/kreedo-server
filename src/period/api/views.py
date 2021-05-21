@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,RetrieveAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from kreedo.general_views import*
@@ -15,6 +15,8 @@ from rest_framework import status
 from material.models import*
 from kreedo.conf.logger import CustomFormatter
 import logging
+from activity.api.serializer import*
+
 # Create your views here.
 
 
@@ -61,7 +63,6 @@ class PeriodListCreate(ListCreateAPIView):
             for grade in grade_list:
                 """ Get Holidays Function Call """
                 school_holiday_count = school_holiday(grade)
-
                 """ Get Weak-off Function Call """
                 week_off = weakoff_list(grade)
                 count_weekday = weekday_count(grade, week_off)
@@ -71,7 +72,10 @@ class PeriodListCreate(ListCreateAPIView):
 
         except Exception as ex:
             print("ERRROR", ex)
-            return Response(ex)
+            logger.info(ex)
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
 
 
 """ Period Retrive and Update"""
@@ -88,7 +92,6 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
             return PeriodCreateSerializer
         if self.request.method == 'DELETE':
             return PeriodListSerializer
-
 
 """PeriodTemplateDetail List and Create """
 
@@ -228,12 +231,13 @@ class ClassAccordingToTeacher(ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)
-            return Response(ex)
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
 
 
 """ Activity according to child """
 
-from activity.api.serializer import ActivityCompleteListSerilaizer,ActivityCompleteSerilaizer
 class ActivityByChild(ListCreateAPIView):
     def post(self, request):
         try:
@@ -241,12 +245,9 @@ class ActivityByChild(ListCreateAPIView):
             period = request.data.get('period', None)
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
-            # academic_id = AcademicSession.objects.get(
-            #     grade__name=grade, section__name=section).id
-
+   
             activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
                                                               period=period)
-            print("@@@@@@@@@@@@@@@@@@", activity_missed_qs)
             activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
 
             context = {"message": "Activity List by Child",
@@ -254,6 +255,31 @@ class ActivityByChild(ListCreateAPIView):
             return Response(context)
 
         except Exception as ex:
-            print("error", ex)
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
 
-            return Response(ex)
+
+class ActivityListByChild(ListCreateAPIView):
+    def post(self, request):
+        try:
+            child = request.data.get('child', None)
+            period = request.data.get('period', None)
+
+            activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
+                                                              period=period)
+            activity_missed_serializer  = ActivityCompleteListChildSerilaizer(activity_missed_qs, many=True)
+            context = {"message": "Activity List by Child",
+                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)  
+
+        except Exception as ex:
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
+
+class ActivityDetail(GeneralClass, Mixins,RetrieveAPIView):
+    model = Activity
+    serializer_class = ActivitySerializer
+    
+

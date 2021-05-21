@@ -28,7 +28,8 @@ def get_url(request_obj):
         url1 = url0.strip("'/")
         url2 = url1.split("/")
         url = url2[1]
-
+        print("url, method----->",url, method)
+        print("@@@@@@@@@@@@",data[-1])
         return url, method
     except Exception as ex:
         logger.info(ex)
@@ -42,38 +43,42 @@ def get_url(request_obj):
 
 
 def get_message(api_name, method):
-    apiname_list = api_name.split('_')
-
-    model_name = ['user-type', 'role', 'grade', 'subject', 'section',
-                  'license', 'school', 'school-session', 'academic-session',
-                  'section-subject-teacher', 'subject-school-grade-plan',
-                  'school-holiday', 'school-weak-off', 'calendar', 'package',
-                  'school-package', 'plan', 'child-plan', 'plan-activity',
-                  'activity', 'activity-asset', 'material', 'user'
-                  'activity-master-supporting-material', 'area-of-devlopment',
-                  'concept', 'skill', 'room', 'period-template',
-                  'period-template-detail', 'attendance', 'activity-complete',
-                  'logged-in-user-detail', 'holiday-list',
-                  'user', 'child', 'child-detail', 'period', 'academic-calender',
-                  'group','permission']
-
-    for name in model_name:
-        if name in apiname_list:
-            if 'retrive' in apiname_list and method == 'GET':
-                return f'{name} detail'
-
-            switcher = {
+    apiname_list = api_name.split('?')
+    print("apiname_list--------------->", apiname_list[0])
+    return  apiname_list[0]
 
 
-                'GET': f'all {name} details',
-                'POST': f'{name} created',
-                'PUT': f'{name} updated',
-                'DELETE': f'{name} deleted',
-                'PATCH': f'{name} partially updated',
+    # model_name = ['user-type', 'role', 'grade', 'subject', 'section',
+    #               'license', 'school', 'school-session', 'academic-session',
+    #               'section-subject-teacher', 'subject-school-grade-plan',
+    #               'school-holiday', 'school-weak-off', 'calendar', 'package',
+    #               'school-package', 'plan', 'child-plan', 'plan-activity',
+    #               'activity', 'activity-asset', 'material', 'user'
+    #               'activity-master-supporting-material', 'area-of-devlopment',
+    #               'concept', 'skill', 'room', 'period-template',
+    #               'period-template-detail', 'attendance', 'activity-complete',
+    #               'logged-in-user-detail', 'holiday-list','activity-detail',
+    #               'user', 'child', 'child-detail', 'period', 'academic-calender',
+    #               'group','permission']
 
-            }
 
-            return switcher[method]
+    # for name in model_name:
+    #     if name in apiname_list:
+    #         print("@@@@@@@",name)
+    #         if 'retrive' in apiname_list and method == 'GET':
+    #             return f'{name} detail'
+
+    #         switcher = {
+
+    #             'GET': f'all {name} details',
+    #             'POST': f'{name} created',
+    #             'PUT': f'{name} updated',
+    #             'DELETE': f'{name} deleted',
+    #             'PATCH': f'{name} partially updated',
+
+    #         }
+    #         return switcher[method]
+
 
 
 """ 
@@ -99,6 +104,9 @@ def get_paginated_response(self, data):
 def get_response(data, response_obj, message):
     try:
         if data:
+            print("DATA-------------",data)
+            print("response_obj------",response_obj)
+            print("message--------",message)
             error_msg = ["non_field_errors", "detail"]
             for error_message in error_msg:
                 if error_message in data:
@@ -107,15 +115,17 @@ def get_response(data, response_obj, message):
                         {
                             'isSuccess': False,
                             'statusCode': response_obj.status_code,
-                            'error': data[error_message],
-                            'message': '',
+                            # 'error': data[error_message],
+                            'message': data['non_field_errors'][0],
+                            'data':''
                         }
                     )
                     return response
         response = json.dumps(
             {
-                'isSuccess': True,
+                
                 'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
+                'isSuccess': True,
                 'message': message,
                 'data': data,
             }

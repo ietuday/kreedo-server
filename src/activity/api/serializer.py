@@ -4,7 +4,6 @@ from activity.models import*
 
 """ Activity List Serializer """
 
-
 class ActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
@@ -13,8 +12,6 @@ class ActivityListSerializer(serializers.ModelSerializer):
 
 
 """ Activity Create Serializer """
-
-
 class ActivityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
@@ -22,7 +19,6 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
 
 
 """ Activity Asset List Serializer"""
-
 
 class ActivityAssetListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,7 +51,7 @@ class ActivityCompleteListSerilaizer(serializers.ModelSerializer):
 
 
 class ActivityCompleteSerilaizer(serializers.ModelSerializer):
-    # activity_asset = ActivityAssetListSerializer(many=True,read_only=True)
+
     class Meta:
         model = ActivityComplete
         fields = ['activity', 'period']
@@ -74,6 +70,27 @@ class ActivityCompleteSerilaizer(serializers.ModelSerializer):
         return serialized_data
 
 
+
+class ActivitySerializer(serializers.ModelSerializer):
+    activity_asset = serializers.SerializerMethodField()
+    class Meta:
+        model = Activity
+        fields = ['id','name','type','objective','description',
+                    'master_material','supporting_material','is_active','activity_asset']
+        depth = 1
+
+    def get_activity_asset(self, instance):
+        activity_asset_qs =  ActivityAsset.objects.filter(activity__id=instance.id)
+        return ActivityAssetSerializer(activity_asset_qs, many=True).data
+
+
+
+class ActivityCompleteListChildSerilaizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ActivityComplete
+        fields = ['activity', 'period','is_completed']
+        depth = 1 
 
 """ Activity  Complete Create Serializer"""
 

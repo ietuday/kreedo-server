@@ -282,8 +282,6 @@ class UserEmailVerifySerializer(serializers.ModelSerializer):
             
             raise ValidationError("Unable to confirm password")
 
-
-
 """ User Login Serialzer """
 class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
@@ -317,11 +315,11 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
             """ get username"""
             try:
-                print("email",email)
+            
                 if email is not None:
-                    print("email--->", email)
+                   
                     username = User.objects.get(email = email, is_active=True).username
-                    print("username", username)
+                   
                 else:
                     raise ValidationError("Email is required")
             except Exception as ex:
@@ -346,21 +344,18 @@ class UserLoginSerializer(serializers.ModelSerializer):
                         try:
                             user_detail = UserDetail.objects.get(user_obj=auth_user)
                             user_detail_serializer = UserDetailSerializer(user_detail)
-
-                            token = genrate_token(auth_user)
-                            
+                            token = genrate_token(auth_user) 
                             self.context.update({"token": token})
-                            data="Login Successful"
-                            
+                            data="Login Successful"      
                             return data
                         except Exception as ex:
-                            raise ValidationError('Some issue in user detail.Please Check')
-                        
+                            raise ValidationError('Some issue in user detail.Please Check')  
                     else:
                         raise ValidationError("Sorry, this account is deactivated")
                 else:
                     raise ValidationError("Login failed ,Invalid Username and Password")
-                
+                    
+                    # raise ValidationError({'message':'Login failed ,Invalid Username and Password'})
                 
             except Exception as ex:
                 logger.info(ex)
@@ -383,7 +378,7 @@ class UserForgetSerializer(serializers.ModelSerializer):
         try:
             instance = super(UserForgetSerializer, self).to_representation(instance)
 
-            instance['t'] = self.context['t']
+            instance['data'] = self.context['data']
             return instance
 
         except Exception as ex:
@@ -412,11 +407,13 @@ class UserForgetSerializer(serializers.ModelSerializer):
                 
                 if generate_user_activation_link_response["isSuccess"] is True:
                     
-                    self.context.update({"t":generate_user_activation_link_response})
+                    self.context.update({"data":"Token Sent to user"})
                     data = 'Token Sent to user'
-                    return data
+                    # print("data------------", data)
+                    return validated_data
                 else:
                     raise ValidationError("Failed to send Token to user")
+               
             except Exception as ex:
                 logger.info(ex)
                 logger.debug(ex)
