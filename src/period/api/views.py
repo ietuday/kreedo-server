@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,RetrieveAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from kreedo.general_views import*
@@ -233,7 +233,8 @@ class ClassAccordingToTeacher(ListCreateAPIView):
 
 """ Activity according to child """
 
-from activity.api.serializer import ActivityCompleteListSerilaizer,ActivityCompleteSerilaizer
+from activity.api.serializer import*
+
 class ActivityByChild(ListCreateAPIView):
     def post(self, request):
         try:
@@ -252,5 +253,29 @@ class ActivityByChild(ListCreateAPIView):
 
         except Exception as ex:
             print("error", ex)
-
             return Response(ex)
+
+
+class ActivityListByChild(ListCreateAPIView):
+    def post(self, request):
+        try:
+            child = request.data.get('child', None)
+            period = request.data.get('period', None)
+
+            activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
+                                                              period=period)
+            activity_missed_serializer  = ActivityCompleteListChildSerilaizer(activity_missed_qs, many=True)
+            context = {"message": "Activity List by Child",
+                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
+
+            return Response(context)  
+
+        except Exception as ex:
+            print("error", ex)
+            return Response(ex)
+
+class ActivityDetail(GeneralClass, Mixins,RetrieveAPIView):
+    model = Activity
+    serializer_class = ActivitySerializer
+    
+

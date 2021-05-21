@@ -53,7 +53,7 @@ def get_message(api_name, method):
                   'activity-master-supporting-material', 'area-of-devlopment',
                   'concept', 'skill', 'room', 'period-template',
                   'period-template-detail', 'attendance', 'activity-complete',
-                  'logged-in-user-detail', 'holiday-list',
+                  'logged-in-user-detail', 'holiday-list','activity-detail',
                   'user', 'child', 'child-detail', 'period', 'academic-calender',
                   'group','permission']
 
