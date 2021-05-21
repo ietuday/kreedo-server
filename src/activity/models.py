@@ -95,10 +95,10 @@ class ActivityAsset(TimestampAwareModel):
         return reverse('ActivityAsset_detail', kwargs={"pk": self.pk})
 
 
-""" Group Activity Missed """
+""" Activity Complete """
 
 
-class GroupActivityMissed(TimestampAwareModel):
+class ActivityComplete(TimestampAwareModel):
     child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
     period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT)
     activity = models.ForeignKey(
@@ -107,12 +107,15 @@ class GroupActivityMissed(TimestampAwareModel):
     is_active = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = 'GroupActivityMissed'
-        verbose_name_plural = 'GroupActivityMisseds'
+        verbose_name = 'ActivityComplete'
+        verbose_name_plural = 'ActivityCompletes'
         ordering = ['-id']
 
     def __str__(self):
         return str(self.id)
 
     def get_absolute_url(self):
-        return reverse('GroupActivityMissed_detail', kwargs={"pk": self.pk})
+        return reverse('ActivityComplete_detail', kwargs={"pk": self.pk})
+
+
+

@@ -7,18 +7,23 @@ from session.models import*
 
 
 class SchoolSessionFilter(filters.FilterSet):
+    school_name = filters.CharFilter(
+        field_name='school__name', lookup_expr='icontains')
 
     class Meta:
         model = SchoolSession
         fields = '__all__'
 
 
-""" AcademicSession Filter """
+""" SchoolCalendar Filter """
 
 
-class AcademicSessionFilter(filters.FilterSet):
+class SchoolCalendarFilter(filters.FilterSet):
+    school_name = filters.CharFilter(
+        field_name='school__name', lookup_expr='icontains')
+
     class Meta:
-        model = AcademicSession
+        model = SchoolCalendar
         fields = '__all__'
 
 
@@ -28,4 +33,16 @@ class AcademicSessionFilter(filters.FilterSet):
 class AcademicCalenderFilter(filters.FilterSet):
     class Meta:
         model = AcademicCalender
+        fields = '__all__'
+
+
+""" AcademicSession Filter """
+
+
+class AcademicSessionFilter(filters.FilterSet):
+    school_session = filters.CharFilter(
+        field_name='school__name', lookup_expr='icontains')
+
+    class Meta:
+        model = AcademicSession
         fields = '__all__'

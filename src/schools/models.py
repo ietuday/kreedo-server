@@ -62,6 +62,7 @@ class Section(TimestampAwareModel):
         verbose_name = 'Section'
         verbose_name_plural = 'Sections'
         ordering = ['-id']
+        unique_together = ('grade', 'name')
 
     def __str__(self):
         return str(self.name)
@@ -71,9 +72,11 @@ class Section(TimestampAwareModel):
 
 
 class Subject(TimestampAwareModel):
-    name = models.CharField(max_length=50, null=True, blank=True,unique=True)
-    type = models.CharField(max_length=50, choices=Subject_Type_Choice, null=True, blank=True)
-    activity = models.ManyToManyField(to='activity.Activity', related_name ='subject_activity' ,blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    type = models.CharField(
+        max_length=50, choices=Subject_Type_Choice, null=True, blank=True)
+    activity = models.ManyToManyField(
+        to='activity.Activity', related_name='subject_activity', blank=True)
     is_active = models.BooleanField(default=False)
     plan = models.ManyToManyField(ChildPlan, blank=True)
     is_kreedo = models.BooleanField(default=False)
@@ -188,7 +191,8 @@ class Room(TimestampAwareModel):
 class SchoolGradeSubject(TimestampAwareModel):
     school = models.ForeignKey('School', on_delete=models.PROTECT)
     grade = models.ForeignKey('Grade', on_delete=models.PROTECT)
-    subject = models.ManyToManyField('Subject', related_name ='school_grade_subject')
+    subject = models.ManyToManyField(
+        'Subject', related_name='school_grade_subject')
     is_active = models.BooleanField(default=False)
 
     class Meta:

@@ -28,5 +28,9 @@ urlpatterns = [
 
     path('attendence_by_academic_session', AttendenceByAcademicSession.as_view(),
          name='Attendence By Academic Session'),
+path('bulk-upload/add-child',
+         AddChild.as_view(), name='AddChild'),
+
+
 
 ]

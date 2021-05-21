@@ -20,10 +20,10 @@ class ActivityAssetFilter(filters.FilterSet):
         fields = '__all__'
 
 
-""" Group Activity Missed Filter """
+""" Activity Complete  Filter """
 
 
-class GroupActivityMissedFilter(filters.FilterSet):
+class ActivityCompleteFilter(filters.FilterSet):
     class Meta:
-        model = GroupActivityMissed
+        model = ActivityComplete
         fields = '__all__'

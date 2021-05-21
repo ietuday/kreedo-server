@@ -56,13 +56,18 @@ class AuthUserSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
 
 
-
-
+""" User Detail List Serializer """
+class UserDetailListSerializer(serializers.ModelSerializer):
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
 
 
 """ Reporting To  Serializer """
@@ -660,7 +665,7 @@ class AddUserSerializer(serializers.ModelSerializer):
 
 
 
-""" Create parentv serializer """
+""" Create parent serializer """
 class ParentSerializer(serializers.ModelSerializer):
     
     class Meta:

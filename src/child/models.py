@@ -6,7 +6,7 @@ from schools.models import *
 from session.models import *
 from django.contrib.postgres.fields import JSONField
 from .managers import*
-
+from plan.models import*
 # Create your models here.
 
 """  Choice """
@@ -21,7 +21,7 @@ Gender_Choice = [
     (Other, 'Other')
 ]
 
-
+ 
 """ Session_With_Kreedo_Choice """
 Kreedo = 'Kreedo'
 New = 'New'
@@ -109,3 +109,27 @@ class Attendance(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('Attendance_detail', kwargs={"pk": self.pk})
+
+from activity.models import*
+
+""" Block Model """
+class Block(TimestampAwareModel):
+    block_no = models.CharField(max_length=100,null=True, blank= True)
+    child_plan = models.ForeignKey(to='plan.ChildPlan', on_delete=models.PROTECT, null=True, blank= True)
+    activity = models.ForeignKey(to='activity.Activity', on_delete=models.PROTECT, null=True,blank= True)
+    is_done = models.BooleanField(default=False)
+    period= models.ForeignKey(to='period.Period', on_delete=models.PROTECT, null=True,blank= True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Block'
+        verbose_name_plural = 'Blocks'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('Block_detail', kwargs={"pk": self.pk})
+    
+    

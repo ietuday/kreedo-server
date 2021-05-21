@@ -17,6 +17,9 @@ urlpatterns = [
     path('reporting_to_retrive_update_delete/<int:pk>', ReportingToRetriveUpdateDestroy.as_view(),
          name='ReportingToRetriveUpdateDestroy'),
     path('user_register', UserRegister.as_view(), name='UserRegister'),
+    path('user_list', UserList.as_view(), name='UserList'),
+
+
     re_path('email-confirm-verify/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', EmailConfirmVerify.as_view(),
             name='EmailConfirmVerify'),
     path('login', UserLogin.as_view(), name='UserLogin'),
@@ -27,10 +30,14 @@ urlpatterns = [
     path('change_password', ChangePassword.as_view(), name='ChangePassword'),
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
     path('add-user', AddUser.as_view(), name='AddUser'),
+    path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
+    path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
+
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
-    path('bulk-upload/add-school-grade-subject', AddSchoolGradeSubject.as_view(), name='Add School Grade Subject')
-
+    path('bulk-upload/add-school-grade-subject',
+         AddSchoolGradeSubject.as_view(), name='Add School Grade Subject'),
+    path('bulk-upload/add-user', AddUserData.as_view(), name='AddUserData'),
 
 
 ]

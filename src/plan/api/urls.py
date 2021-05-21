@@ -3,10 +3,7 @@ from .views import*
 
 
 urlpatterns = [
-    path('plan-type_list_create', PlanTypeListCreate.as_view(),
-         name='PlanTypeListCreate'),
-    path('plan-type_retrive_update_delete/<int:pk>', PlanTypeRetriveUpdateDelete.as_view(),
-         name='PlanTypeRetriveUpdateDelete'),
+
     path('plan_list_create',
          PlanListCreate.as_view(), name='PlanListCreate'),
     path('plan_retrive_update_delete/<int:pk>', PlanRetriveUpdateDelete.as_view(),
@@ -25,5 +22,12 @@ urlpatterns = [
          SubjectSchoolGradePlanListCreate.as_view(), name='SubjectSchoolGradePlanListCreate'),
     path('subject-school-grade-plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
          name='SubjectSchoolGradePlanRetriveUpdateDestroy'),
+
+     path('child-activity',
+         ChildActivity.as_view(), name='ChildActivity'),
+
+         
+     path('bulk-upload/add-plan',
+         AddPlan.as_view(), name='AddPlan'),
 
 ]

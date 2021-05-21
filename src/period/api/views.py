@@ -143,12 +143,16 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                 dict['room_no'] = class_period.room_no.room_no
                 dict['start_time'] = class_period.start_time
                 dict['end_time'] = class_period.end_time
+                dict['is_complete'] = class_period.is_complete
+                dict['is_active'] = class_period.is_active
                 dict['type'] = class_period.type
                 academic_session = class_period.academic_session.all()
                 acad_session = AcademicSession.objects.get(
                     id=academic_session[0].id)
                 dict['grade'] = acad_session.grade.name
+                dict['grade_id'] = acad_session.grade.id
                 dict['section'] = acad_session.section.name
+                dict['section_id'] = acad_session.section.id
                 dict['subject'] = class_period.subject.name
                 activity_list = class_period.subject.activity.all()
                 activitys_list = []
@@ -161,7 +165,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
                         activitys_list.append(activitys_dict)
 
                 dict['activity_type'] = activitys_dict.get('type')
-                activity_missed = GroupActivityMissed.objects.filter(
+                activity_missed = ActivityComplete.objects.filter(
                     period=class_period.id, is_completed=False)
                 dict['activity_behind_count'] = activity_missed.count()
                 missed_activity_list = []
@@ -224,4 +228,32 @@ class ClassAccordingToTeacher(ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)
+            return Response(ex)
+
+
+""" Activity according to child """
+
+from activity.api.serializer import ActivityCompleteListSerilaizer,ActivityCompleteSerilaizer
+class ActivityByChild(ListCreateAPIView):
+    def post(self, request):
+        try:
+            child = request.data.get('child', None)
+            period = request.data.get('period', None)
+            grade = request.data.get('grade', None)
+            section = request.data.get('section', None)
+            # academic_id = AcademicSession.objects.get(
+            #     grade__name=grade, section__name=section).id
+
+            activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
+                                                              period=period)
+            print("@@@@@@@@@@@@@@@@@@", activity_missed_qs)
+            activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
+
+            context = {"message": "Activity List by Child",
+                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+
+        except Exception as ex:
+            print("error", ex)
+
             return Response(ex)

@@ -16,5 +16,8 @@ urlpatterns = [
     path('academic-calender_retrive_update_delete/<int:pk>', AcademicCalenderRetriveUpdateDestroy.as_view(),
          name='AcademicCalenderRetriveUpdateDestroy'),
 
+    path('academic-session-by-teacher', AcademicSessionByTeacher.as_view(),
+         name='AcademicSessionByTeacher'),
+
 
 ]

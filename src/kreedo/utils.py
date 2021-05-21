@@ -49,12 +49,13 @@ def get_message(api_name, method):
                   'section-subject-teacher', 'subject-school-grade-plan',
                   'school-holiday', 'school-weak-off', 'calendar', 'package',
                   'school-package', 'plan', 'child-plan', 'plan-activity',
-                  'activity', 'activity-asset', 'material',
+                  'activity', 'activity-asset', 'material', 'user'
                   'activity-master-supporting-material', 'area-of-devlopment',
                   'concept', 'skill', 'room', 'period-template',
-                  'period-template-detail', 'attendance','group-activity-missed',
-                  'logged-in-user-detail','holiday-list',
-                  'user', 'child', 'child-detail', 'period', 'academic-calender']
+                  'period-template-detail', 'attendance', 'activity-complete',
+                  'logged-in-user-detail', 'holiday-list',
+                  'user', 'child', 'child-detail', 'period', 'academic-calender',
+                  'group','permission']
 
     for name in model_name:
         if name in apiname_list:

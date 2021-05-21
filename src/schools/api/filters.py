@@ -18,6 +18,8 @@ class GradeFilter(filters.FilterSet):
 
 class SectionFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    grade = filters.CharFilter(
+        field_name='grade__name', lookup_expr='icontains')
 
     class Meta:
         model = Section

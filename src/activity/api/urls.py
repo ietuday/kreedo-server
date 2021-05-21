@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path
 from .views import*
 
 
@@ -7,15 +7,17 @@ urlpatterns = [
          ActivityListCreate.as_view(), name='ActivityListCreate'),
     path('activity_retrive_update_delete/<int:pk>', ActivityRetriveUpdateDestroy.as_view(),
          name='ActivityRetriveUpdateDestroy'),
-
     path('activity-asset_list_create',
          ActivityAssetListCreate.as_view(), name='ActivityAssetListCreate'),
     path('activity-asset_retrive_update_delete/<int:pk>', ActivityAssetRetriveUpdateDestroy.as_view(),
          name='ActivityAssetRetriveUpdateDestroy'),
-    path('group-activity-missed_list_create',
-         GroupActivityMissedListCreate.as_view(), name='GroupActivityMissedListCreate'),
-    path('group-activity-missed_retrive_update_delete/<int:pk>', GroupActivityMissedRetriveUpdateDestroy.as_view(),
-         name='GroupActivityMissedRetriveUpdateDestroy'),
-     path('group-activity-missed_retrive_update_delete', GroupActivityMissedRetriveUpdateDestroy.as_view(),
-         name='GroupActivityMissedRetriveUpdateDestroy'),
+    path('activity-complete_list_create',
+         ActivityCompleteListCreate.as_view(), name='ActivityCompleteListCreate'),
+    path('activity-complete_retrive_update_delete/<int:pk>', ActivityCompleteRetriveUpdateDestroy.as_view(),
+         name='ActivityCompleteRetriveUpdateDestroy'),
+     path('activity-complete_retrive_update_delete', ActivityCompleteRetriveUpdateDestroy.as_view(),
+         name='ActivityCompleteRetriveUpdateDestroy'),
+       path('bulk-upload/add-activity',
+         AddActivity.as_view(), name='AddActivity'),
+
 ]

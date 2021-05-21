@@ -16,6 +16,10 @@ import datetime
 import logging
 import pandas as pd
 
+import random
+from kreedo.settings import AWS_SNS_CLIENT, EMAIL_HOST_USER
+from passlib.hash import pbkdf2_sha256
+
 from rest_framework .generics import ListCreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -83,7 +87,6 @@ class UserTypeRetriveUpdateDelete(Mixins, GeneralClass, RetrieveUpdateDestroyAPI
 
 """ Reporting_to  List and Create API"""
 
-
 class ReportingToListCreate(Mixins, GeneralClass, ListCreateAPIView):
     model = ReportingTo
     serializer_class = ReportingToSerializer
@@ -97,6 +100,16 @@ class ReportingToRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestro
     model = ReportingTo
     serializer_class = ReportingToSerializer
     filterset_class = ReportingToFilter
+
+
+""" User Detail List """
+
+class UserList(Mixins, GeneralClass, ListAPIView):
+    model = UserDetail
+    serializer_class = UserDetailListSerializer
+    filterset_class = UserDetailFilter
+
+
 
 
 """ User Register API """
@@ -188,7 +201,6 @@ class EmailConfirmVerify(ListAPIView):
 
     def get(self, request, uidb64, token):
         try:
-            print("Email Confirm---->", uidb64, token)
             user_token_detail = {
                 "uidb64": uidb64,
                 "token": token
@@ -200,25 +212,24 @@ class EmailConfirmVerify(ListAPIView):
                 user_serializar = UserEmailVerifySerializer(
                     data=request.data, context=context)
             except Exception as ex:
-                print("error", ex)
+               
                 context = {"error": ex,
                            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
             if user_serializar.is_valid():
-                print("user_serializar----------->", user_serializar)
+                
                 context = {"mail_t": user_serializar.data, "message": 'Email Verified',
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
             else:
-                print("error-------------->", user_serializar.errors)
+               
                 context = {"error": user_serializar.errors,
                            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context)
 
         except Exception as ex:
-            print("exception", ex)
-            print("Traceback", traceback.print_exc())
+           
             context = {"error": ex,
                        "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
@@ -260,7 +271,7 @@ class ForgetPassword(CreateAPIView):
             user_data_serializer = UserForgetSerializer(data=request.data)
 
             if user_data_serializer.is_valid():
-                print("User Serializer", user_data_serializer)
+                
                 context = {"message": "Token send to user", 'isSuccess': True,
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
@@ -295,7 +306,7 @@ class ChangePassword(CreateAPIView):
             }
             context = super().get_serializer_context()
             context.update({"password_detail": password_detail})
-            print("password_detail", password_detail)
+           
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
@@ -362,6 +373,118 @@ class LoggedIn(GeneralClass, ListAPIView):
         user_data = LoggedInUserSerializer(user_obj_detail)
         return Response(user_data.data)
 
+""" Genrate OTP """
+class GenerateOTP(ListAPIView):
+
+    def post(self, request):
+        try:
+            user_obj = UserDetail.objects.filter(
+            phone=request.data['phone']).first()
+
+            if user_obj == None:
+                context = {'error': "This phone number is not linked to any account. Please check again.",
+            'success': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # random_number = secrets.choice(range(100000,999999))
+            random_number = random.randint(100000, 999999)
+
+            response = AWS_SNS_CLIENT.publish(
+                PhoneNumber=request.data['country_code']+request.data['phone'],
+                Message='OTP to set your password for your Kreedo account is ' +
+                str(random_number) + " .This OTP will expire after 2 minutes",
+                Subject='Reset Password',
+                MessageAttributes={
+                    'AWS.SNS.SMS.SenderID': {
+                        'DataType': 'String',
+                        'StringValue': 'Kreedo'
+                        }
+                    }
+                )
+
+            if response['ResponseMetadata']['HTTPStatusCode'] != 200:
+                context = {"success": False, "message": "Unable to send OTP",
+                "error": " AWS SNS is Unable to send OTP"}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
+            date_time = datetime.datetime.now()
+
+            hashed_otp_combo = pbkdf2_sha256.hash(
+            str(random_number) + str(date_time) + str(user_obj.id))
+
+            data = {
+            "otp": hashed_otp_combo[14:],
+            "phone": request.data['phone'],
+            "datetime": str(date_time)
+            }
+
+            context = {"success": True, "message": response,
+            "error": "", "data": data}
+            return Response(context, status=status.HTTP_200_OK)
+        except Exception as error:
+            context = {'error': str(error), 'success': "false",
+            'message': 'Unable to generate OTP'}
+        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+""" OTP VERIFICATION  """
+class OTPVerification(ListAPIView):
+
+    def post(self, request):
+        try:
+            user_obj = UserDetail.objects.filter(
+            phone=request.data['phone']).first()
+
+            if user_obj == None:
+                context = {'error': "User with this phone number does not exist",
+                'success': "false", 'message': 'User with this phone number does not exist'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
+            date_time = datetime.datetime.strptime(
+            request.data['datetime'], "%Y-%m-%d %H:%M:%S.%f")
+
+            if datetime.datetime.now() - date_time >= datetime.timedelta(seconds=140):
+                context = {'error': "OTP expired",
+                'success': "false", 'message': 'OTP expired'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+            # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
+            pbkdf2_sha256.hash(
+            str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
+
+            if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id), "$pbkdf2-sha256" + request.data['otp']):
+                activation_key = urlsafe_base64_encode(force_bytes(user_obj.user_obj.pk)).decode(
+                'utf8') + '-' + default_token_generator.make_token(user_obj.user_obj)
+                link = os.environ.get(
+                'kreedo_url') + '/users/reset_password_confirm/' + activation_key
+
+                # Add activation key and expiration date to user profile
+                user_obj.activation_key = activation_key
+                user_obj.key_expires = datetime.datetime.strftime(
+                datetime.datetime.now() + datetime.timedelta(minutes=1), "%Y-%m-%d %H:%M:%S")
+                user_obj.save()
+
+                data = {
+                "link": link,
+                }
+
+                context = {
+                "success": True, "message": "OTP successfully validated", "error": "", "data": data}
+                return Response(context, status=status.HTTP_200_OK)
+            context = {'error': "Validation failed",
+            'success': "false", 'message': 'Failed to validate OTP'}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            context = {'error': str(error), 'success': "false",
+            'message': 'Unable to validate OTP'}
+        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
 
 """ Add User """
 
@@ -385,8 +508,6 @@ class AddUser(ListCreateAPIView):
                 address_serializer.save()
                 address_created = True
             else:
-                print("address_serializer._errors",
-                      address_serializer._errors)
                 raise ValidationError(address_serializer.errors)
 
             """ Auth user Data """
@@ -402,6 +523,7 @@ class AddUser(ListCreateAPIView):
                 "user_obj": 1,
                 "phone": request.data.get('phone', None),
                 "joining_date": request.data.get('joining_date', None),
+                "role": request.data.get('role', None),
                 "address": address_serializer.data['id'],
             }
             reporting_to = {
@@ -763,14 +885,7 @@ class AddSchool(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             return Response(path_to_file)
-
-
-                
-
-
-
-
-                    
+        
 
         except Exception as ex:
             print("error", ex)
@@ -825,5 +940,211 @@ class AddSchoolGradeSubject(ListCreateAPIView):
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            return Response(ex)
+
+
+
+
+
+
+""" Upload USERS """
+class AddUserData(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_user = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    auth_user = User.objects.filter(user_obj=id)[0]
+                    auth_user.first_name = f.get('first_name', None)
+                    auth_user.last_name = f.get('last_name', None)
+                    auth_user.email = f.get('email', None)
+                    auth_user.save()
+                    user_detail_qs = UserDetail.objects.filter(user_obj=id)[0]
+                    user_detail_qs.phone = f.get('phone', None)
+                    user_detail_qs.joining_date = f.get('joining_date', None)
+                    user_detail_qs.save()
+                    address_qs = Address.objects.filter(
+                        id=user_detail_qs.address)[0]
+                    address_qs.address = f.get('address', None)
+                    address_qs.city = f.get('city', None)
+                    address_qs.state = f.get('state', None)
+                    address_qs.country = f.get('country', None)
+                    address_qs.address = f.get('address', None)
+                    address_qs.save()
+
+
+
+                    role = f.get('role', None)
+                    print(role)
+                    for i, da in enumerate(json.loads(role), start=1):
+                        user_role_qs = UserRole.objects.filter(user=id)[0]
+                        user_role_qs.user = da['user']
+                        user_role_qs.role = da['role']
+                        user_role_qs.save()
+
+                        reporting_to_qs = ReportingTo.objects.filter(user_detail=id)
+                        reporting_to_qs.user_detail = id
+                        reporting_to_qs.user_role = da['role']
+                        reporting_to_qs.reporting_to = f.get('reporting_to', None)
+                        reporting_to_qs.save()
+                      
+                   
+                    added_user.append(
+                        {
+                            "id": user_detail_qs.user_obj,
+                            "email": auth_user.first_name,
+                            "first_name": auth_user.first_name,
+                            "last_name": auth_user.last_name,
+                            "phone": user_detail_qs.phone,
+                            "address": address_qs.id
+                        }
+                    )
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("Deletion", f)
+                    auth_user = User.objects.filter(user_obj=id)[0]
+                    user_detail_qs = UserDetail.objects.filter(user_obj=id)[0]
+                    address_qs = Address.objects.filter(id=user_detail_qs.address)[0]
+                    user_role_qs= UserRole.objects.filter(user=id)[0]
+                    user_reporting_qs = ReportingTo.objects.filter(user_detail=id)[0]
+                    user_reporting_qs.delete()
+                    user_role_qs.delete()
+                    address_qs.delete()
+                    user_detail_qs.delete()
+                    added_user.append(
+                        {
+                            "id": user_detail_qs.user_obj,
+                            "email": auth_user.first_name,
+                            "first_name": auth_user.first_name,
+                            "last_name": auth_user.last_name,
+                            "phone": user_detail_qs.phone,
+                            "address": address_qs.id
+                        }
+                    )
+
+                else:
+                    print("Create")
+                    
+                    address_detail = {
+                                "address": f.get('address', None),
+                                "city": f.get('city', None),
+                                "state": f.get('state', None),
+                                "country": f.get('country', None),
+                                "pincode": f.get('pin', None),
+
+                    }
+                    address_serializer = AddressSerializer(
+                        data=dict(address_detail))
+                    if address_serializer.is_valid():
+                            address_serializer.save()
+                            print(address_serializer.data)
+                    else:
+                        print("address_serializer._errors", address_serializer._errors)
+                        raise ValidationError(address_serializer.errors)
+
+                        """ Auth user Data """
+
+                    user_data = {
+                            "first_name":f.get('first_name', None),
+                            "last_name":f.get('last_name', None),
+                            "email":f.get('email',None)
+
+                    }
+
+                    user_details_data = {
+                            "user_obj":1,
+                            "phone":f.get('phone', None),
+                            "role":f.get('role', None),
+                            "address":address_serializer.data['id'],
+                    }
+
+                    """  Pass dictionary through Context """
+                    context = super().get_serializer_context()
+                    context.update({"user_data": user_data,
+                    "user_details_data":user_details_data})
+                    try:
+                        user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
+
+                        if user_detail_serializer.is_valid():
+                            user_detail_serializer.save()
+                            added_user.append(
+                                    {
+                                        "id": user_detail_serializer.data['user_detail_data']['user_obj'],
+                                        "email": user_detail_serializer.data['email'],
+                                        "first_name": user_detail_serializer.data['first_name'],
+                                        "last_name": user_detail_serializer.data['last_name'],
+                                        "phone": user_detail_serializer.data['user_detail_data']['phone'],
+                                        "address": user_detail_serializer.data['user_detail_data']['address']
+                                    }
+                                    )
+                        else:
+                            print(user_detail_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+                    """ Creation of UserRole"""
+                    try:
+                        role_data = f.get('role', None)
+                        print(role_data)
+                        for i, da in enumerate(json.loads(role_data), start=1):
+                            print("da",da)
+                            role_detail = {
+                                "user":user_detail_serializer.data['id'],
+                                "role":da['role'],
+                            }
+
+                            UserRoleSerializer = UserRoleSerializer(data=dict(role_detail))
+                            if UserRoleSerializer.is_valid():
+                                UserRoleSerializer.save()
+                            else:
+                                raise ValidationError(UserRoleSerializer.errors)
+
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+
+                    """ Creation of Reporting to """
+
+                    try:
+                        user_reporting_data = {
+                        "user_detail":user_detail_serializer.data['id'],
+                        "user_role":f.get('email',None),
+                        "reporting_to":f.get('email',None)
+
+                        }
+
+                        reporting_to_serializer = ReportingToSerializer(data=dict(user_reporting_data))
+                        if reporting_to_serializer.is_valid():
+                            reporting_to_serializer.save()
+                        else:
+                            raise ValidationError(reporting_to_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+            
+
+            keys = added_user[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
             logger.debug(ex)
             return Response(ex)

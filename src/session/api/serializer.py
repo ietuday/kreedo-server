@@ -1,11 +1,42 @@
 from rest_framework import serializers
 from ..models import *
+from schools.api.serializer import*
+from django.core.exceptions import ValidationError
 
 
-class SchoolSessionSerializer(serializers.ModelSerializer):
+from kreedo.conf.logger import CustomFormatter
+import logging
+
+
+""" Logging """
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+
+""" School  Session List Serializer """
+
+
+class SchoolSessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolSession
         fields = '__all__'
+
+
+""" School  Session Create Serializer """
+
+
+class SchoolSessionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolSession
+        fields = '__all__'
+
+
+""" Academic Session serializer """
 
 
 class AcademicSessionCreateSerializer(serializers.ModelSerializer):
@@ -18,6 +49,13 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
         fields = '__all__'
+        depth = 1
+
+
+class AcademicSessionTeacherListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = ['class_teacher']
         depth = 1
 
 
@@ -57,4 +95,3 @@ class SchoolCalendarCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolCalendar
         fields = '__all__'
-

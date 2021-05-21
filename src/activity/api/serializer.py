@@ -30,6 +30,10 @@ class ActivityAssetListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 2
 
+class ActivityAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityAsset
+        fields = '__all__'
 
 """ Activity Asset Create Serializer"""
 
@@ -40,20 +44,41 @@ class ActivityAssetCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-""" Group Activity Missed List Serializer"""
+""" Activity  Complete List Serializer"""
 
 
-class GroupActivityMissedListSerilaizer(serializers.ModelSerializer):
+class ActivityCompleteListSerilaizer(serializers.ModelSerializer):
     class Meta:
-        model = GroupActivityMissed
+        model = ActivityComplete
         fields = '__all__'
-        depth = 1
+        depth = 3
 
 
-""" Group Activity Missed Create Serializer"""
-
-
-class GroupActivityMissedCreateSerilaizer(serializers.ModelSerializer):
+class ActivityCompleteSerilaizer(serializers.ModelSerializer):
+    # activity_asset = ActivityAssetListSerializer(many=True,read_only=True)
     class Meta:
-        model = GroupActivityMissed
+        model = ActivityComplete
+        fields = ['activity', 'period']
+        depth = 2
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ActivityCompleteSerilaizer, self).to_representation(obj)
+        activity_data = serialized_data.get('activity')
+        
+        activity_id = activity_data.get('id')
+        activity_asset_qs = ActivityAsset.objects.filter(activity__id=activity_id)
+        activity_asset_serializer = ActivityAssetSerializer(
+            activity_asset_qs, many=True)
+        serialized_data['activity_asset_data'] = activity_asset_serializer.data
+        return serialized_data
+
+
+
+""" Activity  Complete Create Serializer"""
+
+
+class ActivityCompleteCreateSerilaizer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityComplete
         fields = '__all__'

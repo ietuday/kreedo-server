@@ -1,3 +1,12 @@
+import logging
+from kreedo.conf.logger import CustomFormatter
+from users.api.custum_storage import FileStorage
+from kreedo.conf import logger
+import traceback
+import csv
+import json
+import math as m
+import pandas as pd
 from address.api.serializer import AddressSerializer
 from .filters import*
 from .serializer import*
@@ -13,14 +22,27 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 
 from rest_framework.response import Response
 
-"""
-    IMPORT CORE FILES 
+
+""" 
+    Packages for uploading csv
 """
 
-"""
-    IMPORT USER APP FILE
-"""
 # Create your views here.
+
+
+""" Logger Function """
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('scheduler.log')
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(CustomFormatter())
+
+logger.addHandler(handler)
+# A string with a variable at the "info" level
+logger.info("UTILS CAlled ")
+
 
 """ Grade List and Create """
 # @permission_classes((IsAuthenticatedOrReadOnly,))
@@ -52,7 +74,7 @@ class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'GET':
             return SectionListSerializer
         if self.request.method == 'POST':
-            return SectionListSerializer
+            return SectionCreateSerializer
 
 
 """ Section Retrive Update delete """
@@ -66,7 +88,7 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
         if self.request.method == 'GET':
             return SectionListSerializer
         if self.request.method == 'PUT':
-            return SectionListSerializer
+            return SectionCreateSerializer
         if self.request.method == 'DELETE':
             return SectionListSerializer
 
@@ -134,14 +156,11 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 
 class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = School
-    # serializer_class = SchoolSerializer
     filterset_class = SchoolFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SchoolListSerializer
-        if self.request.method == 'POST':
-            return SchoolCreateSerializer
 
     def post(self, request):
         address_detail = {
@@ -233,7 +252,6 @@ class RoomListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Room
     filterset_class = RoomFilter
-    # serializer_class = RoomListSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -242,3 +260,121 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
             return RoomCreateSerializer
         if self.request.method == 'DELETE':
             return RoomListSerializer
+
+
+""" Bulk Upload Subjects """
+
+
+class AddSubject(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_subject = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    subject_qs = Subject.objects.filter(id=f['id'])[0]
+                    subject_qs.name = f['name']
+                    subject_qs.type = f['type']
+                    subject_qs.activity = f['activity']
+                    subject_qs.is_active = f['is_active']
+                    subject_qs.save()
+                    added_subject.append(subject_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    subject_qs = Subject.objects.filter(id=f['id'])[0]
+                    added_subject.append(subject_qs)
+                    subject_qs.delete()
+                else:
+                    print("Create")
+
+                    subject_serializer = SubjectCreateSerializer(
+                        data=dict(f))
+                    if subject_serializer.is_valid():
+                        subject_serializer.save()
+                        added_subject.append(
+                            subject_serializer.data)
+                        print(subject_serializer.data)
+                    else:
+
+                        raise ValidationError(subject_serializer.errors)
+
+            keys = added_subject[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
+
+            logger.debug(ex)
+            return Response(ex)
+
+
+""" Bulk Upload GRADE """
+
+
+class AddGrade(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_grade = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    grade_qs = Grade.objects.filter(id=f['id'])[0]
+                    grade_qs.name = f['name']
+                    grade_qs.type = f['type']
+                    grade_qs.activity = f['activity']
+                    grade_qs.is_active = f['is_active']
+                    grade_qs.save()
+                    added_grade.append(grade_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    grade_qs = Grade.objects.filter(id=f['id'])[0]
+                    added_grade.append(grade_qs)
+                    grade_qs.delete()
+                else:
+                    print("Create")
+
+                    grade_serializer = GradeSerializer(
+                        data=dict(f))
+                    if grade_serializer.is_valid():
+                        grade_serializer.save()
+                        added_grade.append(
+                            grade_serializer.data)
+                        print(grade_serializer.data)
+                    else:
+
+                        raise ValidationError(grade_serializer.errors)
+
+            keys = added_grade[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_material)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            return Response(path_to_file)
+
+        except Exception as ex:
+
+            logger.debug(ex)
+            return Response(ex)
