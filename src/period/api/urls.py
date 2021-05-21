@@ -21,10 +21,16 @@ urlpatterns = [
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
          name='PeriodRetriveUpdateDestroy'),
 
-
      path('classes_by_teacher_list',
          ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),
      
      path('activity_by_child', ActivityByChild.as_view(), name='ActivityByChild'),
+     path('activity_list_by_child', ActivityListByChild.as_view(), name='ActivityListByChild'),
+
+
+    path('activity-detail_retrive/<int:pk>', ActivityDetail.as_view(),
+         name='ActivityDetail'),
+
+     
      
 ]

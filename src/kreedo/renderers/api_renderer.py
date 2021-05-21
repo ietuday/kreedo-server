@@ -20,6 +20,9 @@ class Renderer(renderers.JSONRenderer,LimitOffsetPagination):
         try:
             context_request = renderer_context['request']
             response_obj = renderer_context['response']
+
+            print("Context ------->",context_request)
+            print("response_obj",response_obj)
             
             """ 
                 Get URL method 
@@ -29,8 +32,8 @@ class Renderer(renderers.JSONRenderer,LimitOffsetPagination):
                 according URL getting Message 
             """
             message = get_message(absolute_url,method)
-            context_request = renderer_context['request']
-            absolute_url,method = get_url(context_request)
+            print("meassage-------->", message )
+            
             limit = absolute_url.find('limit')
             offset = absolute_url.find('offset')
 
