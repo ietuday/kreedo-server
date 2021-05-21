@@ -196,15 +196,88 @@ class PermissionListCreate(ListCreateAPIView):
                 context = {
                 "success": True, "message": "Permission Created", "error": "", "data": resultant}
                 return Response(context, status=status.HTTP_200_OK)
-            
-            
-            
-
-
-
+            elif "Material" == model_name:
+                from material.models import Material
+                ct = ContentType.objects.get_for_model(Material)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "SchoolHoliday" == model_name:
+                from holiday.models import SchoolHoliday
+                ct = ContentType.objects.get_for_model(SchoolHoliday)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "SchoolWeakOff" == model_name:
+                from holiday.models import SchoolWeakOff
+                ct = ContentType.objects.get_for_model(SchoolWeakOff)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Child" == model_name:
+                from child.models import Child
+                ct = ContentType.objects.get_for_model(Child)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Attendance" == model_name:
+                from child.models import Attendance
+                ct = ContentType.objects.get_for_model(Attendance)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Block" == model_name:
+                from child.models import Block
+                ct = ContentType.objects.get_for_model(Block)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif  "AreaOfDevlopment" == model_name:
+                from area_of_devlopment.models import AreaOfDevlopment
+                ct = ContentType.objects.get_for_model(AreaOfDevlopment)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Concept" == model_name:
+                from area_of_devlopment.models import Concept
+                ct = ContentType.objects.get_for_model(Concept)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Skill" == model_name:
+                from area_of_devlopment.models import Skill
+                ct = ContentType.objects.get_for_model(Skill)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "Activity" == model_name:
+                from activity.models import Activity
+                ct = ContentType.objects.get_for_model(Activity)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+            elif "ActivityComplete" == model_name:
+                from activity.models import ActivityComplete
+                ct = ContentType.objects.get_for_model(ActivityComplete)
+                resultant = permission_creation(ct.id, request.data)
+                context = {
+                "success": True, "message": "Permission Created", "error": "", "data": resultant}
+                return Response(context, status=status.HTTP_200_OK)
+                
         except Exception as ex:
-            print("ERROR", ex)
-            return Response(ex)
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
 
 
 """ Permission update ,retrive and delete """
