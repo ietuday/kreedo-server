@@ -238,7 +238,7 @@ class EmailConfirmVerify(ListAPIView):
 """ Login """
 
 
-class UserLogin(CreateAPIView):
+class UserLogin(Mixins, GeneralClass,CreateAPIView):
     model = User
 
     def post(self, request):
@@ -246,23 +246,29 @@ class UserLogin(CreateAPIView):
 
             user_data_serializer = UserLoginSerializer(data=request.data)
             if user_data_serializer.is_valid():
-                context = {'isSuccess': True, 'message': "Login Successfull",
-                           'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
-                return Response(context)
+                # context = {'isSuccess': True, 'message': "Login Successfull",
+                #            'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                # return Response(context, status=status.HTTP_200_OK)
+                return Response(user_data_serializer.data,status=status.HTTP_200_OK)
             else:
-                context = {'isSuccess': False, "error": user_data_serializer.errors,
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                print("Errors---------->",user_data_serializer.errors['non_field_errors'][0])
+
+                # context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+                # return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(user_data_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            context = {'isSuccess': False, 'message': "Something went wrong",
-                       'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
-            return Response(context)
+            # context = {'isSuccess': False, 'message': "Something went wrong",
+            #            'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
+            # return Response(context,status=status.HTTP_400_BAD_REQUEST)
+            return Response(ex,status=status.HTTP_400_BAD_REQUEST)
+
 
 
 """ Forget password """
 
 
-class ForgetPassword(CreateAPIView):
+class ForgetPassword(Mixins, GeneralClass,CreateAPIView):
     # model = User
 
     def post(self, request):
@@ -271,19 +277,24 @@ class ForgetPassword(CreateAPIView):
             user_data_serializer = UserForgetSerializer(data=request.data)
 
             if user_data_serializer.is_valid():
+                print("####################",user_data_serializer.data['data'])
                 
-                context = {"message": "Token send to user", 'isSuccess': True,
-                           "statusCode": status.HTTP_200_OK}
-                return Response(context)
+                # context = {"message": "Token send to user", 'isSuccess': True,
+                #            "statusCode": status.HTTP_200_OK}
+                # return Response(context)
+                return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
-                context = {"error": user_data_serializer.errors, 'isSuccess': False,
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                print("ERROR----------",user_data_serializer.errors)
+                # context = {"error": user_data_serializer.errors, 'isSuccess': False,
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                # return Response(context)
+                return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         except Exception as ex:
 
-            context = {"error": ex, 'isSuccess': False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex, 'isSuccess': False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """CHANGE PASSWORD """
@@ -291,7 +302,7 @@ class ForgetPassword(CreateAPIView):
 # @permission_classes((IsAuthenticated,))
 
 
-class ChangePassword(CreateAPIView):
+class ChangePassword(Mixins, GeneralClass,CreateAPIView):
     # model = User
     permission_classes = [IsAuthenticated]
 
@@ -310,13 +321,14 @@ class ChangePassword(CreateAPIView):
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-                context = {"data": user_data_serializer.data,
-                           "statusCode": status.HTTP_200_OK}
-                return Response(context)
+                # context = {"data": user_data_serializer.data,
+                #            "statusCode": status.HTTP_200_OK}
+                # return Response(context)
+                return Response( user_data_serializer.data, status = status.HTTP_200_OK)
             else:
                 context = {"error": user_data_serializer.errors,
                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             context = {"error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}

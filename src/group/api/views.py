@@ -274,6 +274,7 @@ class PermissionListCreate(ListCreateAPIView):
                 "success": True, "message": "Permission Created", "error": "", "data": resultant}
                 return Response(context, status=status.HTTP_200_OK)
                 
+                
         except Exception as ex:
             context = {"error": ex, 'isSuccess': False,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
