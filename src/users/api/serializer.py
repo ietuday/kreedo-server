@@ -455,7 +455,7 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
                     user.save()
                     data ='Password has been Changed'
                     self.context.update({"message":'Password has been Changed'})
-                    return data
+                    return validated_data
                 else:
                     raise serializers.ValidationError('User Credentials incorrect')
             except Exception as ex:
@@ -474,7 +474,7 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         instance = super(User_Password_Reseted_Mail_Serializer, self).to_representation(instance)
         
-        instance['mail_t'] = self.context['mail_t']
+        instance['data'] = self.context['data']
        
         return instance
 
@@ -514,8 +514,8 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
                         mail_t = password_reseted_mail(user_obj.first_name, user_obj.email)
                         
                         data = "Password has been reset."
-                        self.context.update({"mail_t":data})
-                        return data
+                        self.context.update({"data":data})
+                        return validated_data
                     else:
                         raise ValidationError("Confirm Password Does not match")
                 else:
