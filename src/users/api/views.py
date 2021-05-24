@@ -26,6 +26,7 @@ from rest_framework import status
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from rest_framework.decorators import permission_classes
 from django.core.exceptions import ValidationError
 from django.shortcuts import render
@@ -351,19 +352,15 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-                # context = {'isSuccess': True,
-                #            'message': 'Password has been reset.',
-                #            "statusCode": status.HTTP_200_OK}
-                return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
+
+                return HttpResponseRedirect(user_data_serializer.data['data'])
+                # return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
-                # context = {"error": user_data_serializer.errors,
-                #            "statusCode": status.HTTP_404_NOT_FOUND, 'isSuccess': False}
+                print("Error,",user_data_serializer.errors)
+
                 return Response(user_data_serializer.errors, status=status.HTTP_404_NOT_FOUND)
-
-
         except Exception as ex:
-            # context = {"error": ex, 'isSuccess': False,
-            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -374,13 +371,13 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
 class ResetPassword(Mixins, GeneralClass, CreateAPIView):
     serializer_class = User_Password_Reseted_Mail_Serializer
 
-    def post(self, request):
+    def post(self, request,uidb64,token):
         try:
-            url = request.data.get('url', None)
-            # user_token_detail = {
-            #     "uidb64": uidb64,
-            #     "token": token
-            # }
+            # url = request.data.get('url', None)
+            user_token_detail = {
+                "uidb64": uidb64,
+                "token": token
+            }
             password_detail = {
                 
                 "password": request.data.get('password', None),
@@ -392,23 +389,17 @@ class ResetPassword(Mixins, GeneralClass, CreateAPIView):
             user_data_serializer = Reset_Password(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-                # context = {'isSuccess': True,
-                #            'message': 'Password has been reset.',
-                #            "statusCode": status.HTTP_200_OK}
+                
                 return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
-                # context = {"error": user_data_serializer.errors,
-                #            "statusCode": status.HTTP_404_NOT_FOUND, 'isSuccess': False}
                 return Response(user_data_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
-            # context = {"error": ex, 'isSuccess': False,
-            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ logged in """
-
 
 @permission_classes((IsAuthenticated,))
 class LoggedIn(Mixins, GeneralClass,ListAPIView):

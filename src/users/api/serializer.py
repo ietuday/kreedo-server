@@ -493,32 +493,34 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
                 user = None
             try:       
                 if user is not None and default_token_generator.check_token(user,token):
+
+                    generate_user_activation_link_response = generate_user_activation_link(user_obj)
+                
+                    if generate_user_activation_link_response["isSuccess"] is True:
+
+                        
+                        self.context.update({"data":"Token Sent to user"})
+                        data = 'Token Sent to user'
+                        # print("data------------", data)
+                        return validated_data
+                    else:
+                        raise ValidationError("Failed to send Token to user")
+               
+
+
+
+                    
+
                     data = "User is Verified"
-                    self.context.update({"data":data})
+                    self.context.update({"data":link})
+                    
                     return validated_data            
                 else:
                     raise ValidationError("The reset password link is no longer valid.")
             except Exception as ex:
                 raise ValidationError(ex)
 
-            try:                
-                # Generate password reset token link and send  email
-                generate_reset_password_link = generate_reset_password_link(user_obj, user_detail_obj)
-                
-                if generate_reset_password_link["isSuccess"] is True:
-                    
-                    self.context.update({"data":"Token Sent to user"})
-                    data = 'Token Sent to user'
-                    # print("data------------", data)
-                    return validated_data
-                else:
-                    raise ValidationError("The reset password link is no longer valid.")
-               
-            except Exception as ex:
-                logger.info(ex)
-                logger.debug(ex)
-                raise ValidationError("This email ID is not linked to any account. Please check again.")
-        
+           
 
         except Exception as ex:
             raise ValidationError(ex)  
