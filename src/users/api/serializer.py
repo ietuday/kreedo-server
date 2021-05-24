@@ -483,6 +483,67 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
             
             uidb64 = self.context['user_token_detail']['uidb64']
             token = self.context['user_token_detail']['token']
+            
+            assert uidb64 is not None and token is not None  # checked by URLconf
+            try:
+                uid = urlsafe_base64_decode(uidb64)
+                user = User._default_manager.get(pk=uid)
+              
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+            try:       
+                if user is not None and default_token_generator.check_token(user,token):
+                    data = "User is Verified"
+                    self.context.update({"data":data})
+                    return validated_data            
+                else:
+                    raise ValidationError("The reset password link is no longer valid.")
+            except Exception as ex:
+                raise ValidationError(ex)
+
+            try:                
+                # Generate password reset token link and send  email
+                generate_reset_password_link = generate_reset_password_link(user_obj, user_detail_obj)
+                
+                if generate_reset_password_link["isSuccess"] is True:
+                    
+                    self.context.update({"data":"Token Sent to user"})
+                    data = 'Token Sent to user'
+                    # print("data------------", data)
+                    return validated_data
+                else:
+                    raise ValidationError("The reset password link is no longer valid.")
+               
+            except Exception as ex:
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError("This email ID is not linked to any account. Please check again.")
+        
+
+        except Exception as ex:
+            raise ValidationError(ex)  
+
+
+
+
+""" RESET PASSWORD """
+class Reset_Password(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields =['id','first_name', 'last_name', 'is_active']
+
+    def to_representation(self, instance):
+        instance = super(User_Password_Reseted_Mail_Serializer, self).to_representation(instance)
+        
+        instance['data'] = self.context['data']
+       
+        return instance
+
+    def validate(self,validated_data):
+        try:
+            
+            uidb64 = self.context['user_token_detail']['uidb64']
+            token = self.context['user_token_detail']['token']
             password = self.context['password_detail']['password']
             confirm_password = self.context['password_detail']['confirm_password']
             

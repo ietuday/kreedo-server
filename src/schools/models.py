@@ -62,7 +62,7 @@ class Section(TimestampAwareModel):
         verbose_name = 'Section'
         verbose_name_plural = 'Sections'
         ordering = ['-id']
-        unique_together = ('grade', 'name')
+        # unique_together = ('grade', 'name')
 
     def __str__(self):
         return str(self.name)
