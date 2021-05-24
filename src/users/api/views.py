@@ -115,7 +115,7 @@ class UserList(Mixins, GeneralClass, ListAPIView):
 """ User Register API """
 
 
-class UserRegister(CreateAPIView):
+class UserRegister(Mixins, GeneralClass,CreateAPIView):
     def post(self, request):
         try:
 
@@ -170,16 +170,16 @@ class UserRegister(CreateAPIView):
 
             if user_detail.is_valid():
                 user_detail.save()
-                context = {"message": "User is created successfully. User will get reset password email within 24 hours.",
-                           "data": user_detail.data, "statusCode": status.HTTP_200_OK}
+                # context = {"message": "User is created successfully. User will get reset password email within 24 hours.",
+                #            "data": user_detail.data, "statusCode": status.HTTP_200_OK}
 
-                return Response(context)
+                return Response(user_detail.data,status=status.HTTP_200_OK)
             else:
                 logger.debug(
                     user_detail.errors)
-                context = {"error": user_detail.errors,
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                # context = {"error": user_detail.errors,
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(user_detail.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             if address_created == True:
@@ -187,15 +187,15 @@ class UserRegister(CreateAPIView):
                 address_obj = Address.objects.get(pk=address_id)
                 address_obj.delete()
             logger.debug(ex)
-            context = {"error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Email Confirm Verification"""
 
 
-class EmailConfirmVerify(ListAPIView):
+class EmailConfirmVerify(Mixins, GeneralClass,ListAPIView):
     # model = User
     serializer_class = UserEmailVerifySerializer
 
@@ -213,26 +213,26 @@ class EmailConfirmVerify(ListAPIView):
                     data=request.data, context=context)
             except Exception as ex:
                
-                context = {"error": ex,
-                           "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                # context = {"error": ex,
+                #            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             if user_serializar.is_valid():
                 
-                context = {"mail_t": user_serializar.data, "message": 'Email Verified',
-                           "statusCode": status.HTTP_200_OK}
-                return Response(context)
+                # context = {"mail_t": user_serializar.data, "message": 'Email Verified',
+                #            "statusCode": status.HTTP_200_OK}
+                return Response(user_serializar.data, status=status.HTTP_200_OK)
             else:
                
-                context = {"error": user_serializar.errors,
-                           "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                # context = {"error": user_serializar.errors,
+                #            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(user_serializar.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
            
-            context = {"error": ex,
-                       "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex,
+            #            "StatusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Login """
@@ -251,7 +251,6 @@ class UserLogin(Mixins, GeneralClass,CreateAPIView):
                 # return Response(context, status=status.HTTP_200_OK)
                 return Response(user_data_serializer.data,status=status.HTTP_200_OK)
             else:
-                print("Errors---------->",user_data_serializer.errors['non_field_errors'][0])
 
                 # context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
                 #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
@@ -277,14 +276,12 @@ class ForgetPassword(Mixins, GeneralClass,CreateAPIView):
             user_data_serializer = UserForgetSerializer(data=request.data)
 
             if user_data_serializer.is_valid():
-                print("####################",user_data_serializer.data['data'])
                 
                 # context = {"message": "Token send to user", 'isSuccess': True,
                 #            "statusCode": status.HTTP_200_OK}
                 # return Response(context)
                 return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
-                print("ERROR----------",user_data_serializer.errors)
                 # context = {"error": user_data_serializer.errors, 'isSuccess': False,
                 #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 # return Response(context)
@@ -308,7 +305,6 @@ class ChangePassword(Mixins, GeneralClass,CreateAPIView):
 
     def post(self, request):
         try:
-            print("change_password", request.data)
 
             password_detail = {
                 "username": request.user.username,
@@ -321,14 +317,12 @@ class ChangePassword(Mixins, GeneralClass,CreateAPIView):
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-                print("################",user_data_serializer.data['message'])
 
                 # context = {"data": user_data_serializer.data,
                 #            "statusCode": status.HTTP_200_OK}
                 # return Response(context)
                 return Response( user_data_serializer.data['message'], status = status.HTTP_200_OK)
             else:
-                print('eror',user_data_serializer.errors)
 
                 # context = {"error": user_data_serializer.errors,
                 #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
@@ -342,7 +336,7 @@ class ChangePassword(Mixins, GeneralClass,CreateAPIView):
 """ Rest Email Confirm """
 
 
-class ResetPasswordConfirm(CreateAPIView):
+class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
     # model = User
     serializer_class = User_Password_Reseted_Mail_Serializer
 
@@ -381,7 +375,7 @@ class ResetPasswordConfirm(CreateAPIView):
 
 
 @permission_classes((IsAuthenticated,))
-class LoggedIn(GeneralClass, ListAPIView):
+class LoggedIn(Mixins, GeneralClass,ListAPIView):
     def get(self, request):
         logged_user = request.user
         user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
@@ -493,13 +487,6 @@ class OTPVerification(ListAPIView):
             context = {'error': str(error), 'success': "false",
             'message': 'Unable to validate OTP'}
         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
 
 """ Add User """
 

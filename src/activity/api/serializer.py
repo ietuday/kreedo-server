@@ -90,7 +90,7 @@ class ActivityCompleteListChildSerilaizer(serializers.ModelSerializer):
     class Meta:
         model = ActivityComplete
         fields = ['activity', 'period','is_completed']
-        depth = 1 
+        depth = 2
 
 """ Activity  Complete Create Serializer"""
 
