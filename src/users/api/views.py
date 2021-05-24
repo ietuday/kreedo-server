@@ -321,18 +321,22 @@ class ChangePassword(Mixins, GeneralClass,CreateAPIView):
             user_data_serializer = UserChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
+                print("################",user_data_serializer.data['message'])
+
                 # context = {"data": user_data_serializer.data,
                 #            "statusCode": status.HTTP_200_OK}
                 # return Response(context)
-                return Response( user_data_serializer.data, status = status.HTTP_200_OK)
+                return Response( user_data_serializer.data['message'], status = status.HTTP_200_OK)
             else:
-                context = {"error": user_data_serializer.errors,
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                print('eror',user_data_serializer.errors)
+
+                # context = {"error": user_data_serializer.errors,
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            context = {"error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Rest Email Confirm """
@@ -358,19 +362,19 @@ class ResetPasswordConfirm(CreateAPIView):
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-                context = {'isSuccess': True,
-                           'message': 'Password has been reset.',
-                           "statusCode": status.HTTP_200_OK}
-                return Response(context)
+                # context = {'isSuccess': True,
+                #            'message': 'Password has been reset.',
+                #            "statusCode": status.HTTP_200_OK}
+                return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
-                context = {"error": user_data_serializer.data,
-                           "statusCode": status.HTTP_404_NOT_FOUND, 'isSuccess': False}
-                return Response(context)
+                # context = {"error": user_data_serializer.errors,
+                #            "statusCode": status.HTTP_404_NOT_FOUND, 'isSuccess': False}
+                return Response(user_data_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
-            context = {"error": ex, 'isSuccess': False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex, 'isSuccess': False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ logged in """
@@ -378,7 +382,6 @@ class ResetPasswordConfirm(CreateAPIView):
 
 @permission_classes((IsAuthenticated,))
 class LoggedIn(GeneralClass, ListAPIView):
-
     def get(self, request):
         logged_user = request.user
         user_obj_detail = UserDetail.objects.get(pk=logged_user.id)

@@ -28,7 +28,7 @@ urlpatterns = [
      path('activity_list_by_child', ActivityListByChild.as_view(), name='ActivityListByChild'),
 
 
-    path('activity-detail_retrive/<int:pk>', ActivityDetail.as_view(),
+    path('activity-detail_retrive_by_child/<int:pk>', ActivityDetail.as_view(),
          name='ActivityDetail'),
 
      
