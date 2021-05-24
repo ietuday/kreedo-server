@@ -73,35 +73,38 @@ class SchoolWeakOffRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateAPIV
 """ Create Calendar """
 
 
-class Calendar(ListCreateAPIView):
+class Calendar(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
-        start_date = request.data.get('start_date', None)
-        end_date = request.data.get('end_date', None)
+        try:
+            start_date = request.data.get('start_date', None)
+            end_date = request.data.get('end_date', None)
 
-        calendar_data = SchoolHoliday.objects.filter(
-            holiday_from__gte=start_date, holiday_till__gte=end_date, is_active=True)
-        print("Calendar", calendar_data)
+            calendar_data = SchoolHoliday.objects.filter(
+                holiday_from__gte=start_date, holiday_till__gte=end_date, is_active=True)
+            print("Calendar", calendar_data)
+            calendar_data_qs = SchoolHolidayListSerializer(calendar_data, many=True)
+            return Response(calendar_data_qs.data,status=status.HTTP_200_OK)
 
-        # calendar_data = SchoolHoliday.objects.filter(
-        #     holiday_from__range=[start_date, end_date])
+        except Exception as ex:
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+        # list = []
 
-        # print("Calendar", calendar_data)
-        list = []
+        # for calendar_obj in calendar_data:
+        #     dict = {}
+        #     dict['id'] = calendar_obj.id
+        #     dict['name'] = calendar_obj.name
+        #     dict['description'] = calendar_obj.description
+        #     # dict['academic_session'] = calendar_obj.academic_session
+        #     dict['holiday_from'] = calendar_obj.holiday_from
+        #     dict['holiday_till'] = calendar_obj.holiday_till
+        #     dict['is_active'] = calendar_obj.is_active
+        #     dict['type'] = calendar_obj.type
+        #     list.append(dict)
+        #     print("list", list)
 
-        for calendar_obj in calendar_data:
-            dict = {}
-            dict['id'] = calendar_obj.id
-            dict['name'] = calendar_obj.name
-            dict['description'] = calendar_obj.description
-            # dict['academic_session'] = calendar_obj.academic_session
-            dict['holiday_from'] = calendar_obj.holiday_from
-            dict['holiday_till'] = calendar_obj.holiday_till
-            dict['is_active'] = calendar_obj.is_active
-            dict['type'] = calendar_obj.type
-            list.append(dict)
-            print("list", list)
-
-        return Response(list)
+        # return Response(list,status=status.HTTP_200_OK)
 
         # calendar_serializer = CalendarSerializer(data=request.data)
         # if calendar_serializer.is_valid():
@@ -113,7 +116,7 @@ class Calendar(ListCreateAPIView):
 
 """ School Calender according to start date and type """
 import traceback
-class HolidayListByType(ListCreateAPIView):
+class HolidayListByType(GeneralClass, Mixins,ListCreateAPIView):
 
     def post(self, request):
         try:
@@ -129,16 +132,11 @@ class HolidayListByType(ListCreateAPIView):
                 querset = SchoolHoliday.objects.filter(academic_session=type,holiday_from__gte=start_date,holiday_till__lte=end_date)
 
             holiday_serializer = SchoolHolidayListSerializer(querset,many=True)
-            context = {"message": "Holiday List according to Type.",
-                           "data": holiday_serializer.data, "statusCode": status.HTTP_200_OK}
-
-            return Response(context)
-
-         
-
+            # context = {"message": "Holiday List according to Type.",
+            #                "data": holiday_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(holiday_serializer.data, status= status.HTTP_200_OK)
 
         except Exception as ex:
-            print("ERROR",ex)
-            print("TRACEBACK", traceback.print_exc())
-            return Response(ex)
+            
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         

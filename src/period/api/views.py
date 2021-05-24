@@ -224,7 +224,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
 
                 periods_lists.append(dict)
                 dict = {}
-            context = {"message": "Class List",
+            context = {"message": "Class List",'isSuccess': True,
                        "data": periods_lists, "statusCode": status.HTTP_200_OK}
             return Response(context)
 
@@ -238,7 +238,7 @@ class ClassAccordingToTeacher(ListCreateAPIView):
 
 """ Activity according to child """
 
-class ActivityByChild(ListCreateAPIView):
+class ActivityByChild(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
         try:
             child = request.data.get('child', None)
@@ -250,17 +250,17 @@ class ActivityByChild(ListCreateAPIView):
                                                               period=period)
             activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
 
-            context = {"message": "Activity List by Child",
-                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context)
+            # context = {"message": "Activity List by Child",
+            #            "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(activity_missed_serializer.data,status= status.HTTP_200_OK)
 
         except Exception as ex:
-            context = {"error": ex, 'isSuccess': False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex, 'isSuccess': False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ActivityListByChild(ListCreateAPIView):
+class ActivityListByChild(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
         try:
             child = request.data.get('child', None)
@@ -269,14 +269,14 @@ class ActivityListByChild(ListCreateAPIView):
             activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
                                                               period=period)
             activity_missed_serializer  = ActivityCompleteListChildSerilaizer(activity_missed_qs, many=True)
-            context = {"message": "Activity List by Child",
-                       "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context)  
+            # context = {"message": "Activity List by Child",
+            #            "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(activity_missed_serializer.data,status=status.HTTP_200_OK)  
 
-        except Exception as ex:
-            context = {"error": ex, 'isSuccess': False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+        # except Exception as ex:
+        #     context = {"error": ex, 'isSuccess': False,
+        #                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ActivityDetail(GeneralClass, Mixins,RetrieveAPIView):
     model = Activity
