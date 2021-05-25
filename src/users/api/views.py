@@ -334,7 +334,7 @@ class ChangePassword(Mixins, GeneralClass,CreateAPIView):
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-""" Rest Email Confirm """
+""" Reset Email Confirm """
 
 
 class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
@@ -352,7 +352,6 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-
                 return HttpResponseRedirect(user_data_serializer.data['data'])
                 # return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
@@ -362,7 +361,6 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 """ Rest password """
