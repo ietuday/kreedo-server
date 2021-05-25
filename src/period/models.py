@@ -6,6 +6,7 @@ from users.models import*
 from activity.models import*
 from .managers import*
 from session.models import*
+from schools.models import*
 # Create your models here.
 
 
@@ -130,3 +131,26 @@ class PeriodTemplateDetail(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('PeriodTemplateDetail_detail', kwargs={"pk": self.pk})
+
+
+""" Apply period template to section  and grade """
+class PeriodTemplateToGrade(TimestampAwareModel):
+    grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT, null=True, blank=True)
+    section = models.ForeignKey(to='schools.Section',  on_delete=models.PROTECT, null=True, blank=True)
+    start_date =  models.DateField(null=True)
+    end_date =  models.DateField(null=True)
+    period_template = models.ForeignKey('PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
+    is_applied = models.BooleanField(default=False)
+    is_active =  models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'PeriodTemplateToGrade'
+        verbose_name_plural = 'PeriodTemplateToGrades'
+        ordering = ['-id']
+    
+    def __str__(self):
+        return str(self.id)
+    
+    def get_absolute_url(self):
+        return reverse('PeriodTemplateToGrade_detail', kwargs={"pk":self.pk})
+

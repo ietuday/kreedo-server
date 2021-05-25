@@ -106,7 +106,7 @@ class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
             return AcademicCalenderListSerializer
 
 
-class AcademicSessionByTeacher(ListCreateAPIView):
+class AcademicSessionByTeacher(GeneralClass, Mixins,ListCreateAPIView):
 
     def post(self, request):
         try:
@@ -116,17 +116,17 @@ class AcademicSessionByTeacher(ListCreateAPIView):
                     class_teacher=class_teacher)
                 aca_session_qs = AcademicSessionListSerializer(
                     academicSession_qs, many=True)
-                context = {"message": "Academic Session By Teacher",
-                           "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
-                return Response(context)
+                # context = {"message": "Academic Session By Teacher",
+                #            "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
+                return Response(aca_session_qs.data,status=status.HTTP_200_OK)
             else:
-                context = {"error": "Teacher Not Found",  "isSucess": False,
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context)
+                # context = {"error": "Teacher Not Found",  "isSucess": False,
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(aca_session_qs.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
-            logger.debug(ex)
-            context = {"error": ex, "isSucess": False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            # logger.debug(ex)
+            # context = {"error": ex, "isSucess": False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
-            return Response(context)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)

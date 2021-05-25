@@ -182,7 +182,7 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
 """ child List of class, section and subject """
 
-class childListAccordingToClass(ListCreateAPIView):
+class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             grade = request.data.get('grade', None)
@@ -197,17 +197,17 @@ class childListAccordingToClass(ListCreateAPIView):
             
             child_serailizer = ChildPlanListSerializer(child_query, many=True)
 
-            context = {"message": "Child List According to grade",
-                       "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context)
+            # context = {"message": "Child List According to grade",
+            #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
+            return Response(child_serailizer.data,status=status.HTTP_200_OK)
 
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AttendenceByAcademicSession(ListCreateAPIView):
+class AttendenceByAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
     def post(self, request):
         try:
             grade = request.data.get('grade', None)
@@ -217,16 +217,15 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 grade=grade, section=section).id
 
             attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
-            print("attendence_qs",attendence_qs)
             attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
-            context = {"message": "Attendence By Academic Session",
-                       "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context)
+            # context = {"message": "Attendence By Academic Session",
+            #            "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Child Bulk Upload """
