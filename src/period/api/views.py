@@ -285,6 +285,18 @@ class ActivityDetail(GeneralClass, Mixins,RetrieveAPIView):
     
 
 """ Apply Period template to academic session """
-class PeriodTemplateAppyToGrades(GeneralClass,Mixins,ListCreateAPIView):
+class PeriodTemplateAppyToGradesListCreate(GeneralClass,Mixins,ListCreateAPIView):
     model = PeriodTemplateToGrade
-    
+    filterset_class = PeriodTemplateToGradeFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PeriodTemplateToGradeListSerializer
+        if self.request.method == 'POST':
+            return PeriodTemplateToGradeCreateSerializer
+
+
+
+
+
+

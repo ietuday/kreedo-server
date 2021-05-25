@@ -341,7 +341,7 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
     # model = User
     serializer_class = User_Password_Reseted_Mail_Serializer
 
-    def post(self, request, uidb64, token):
+    def get(self, request, uidb64, token):
         try:
             user_token_detail = {
                 "uidb64": uidb64,

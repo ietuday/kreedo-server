@@ -30,3 +30,12 @@ class PeriodTemplateDetailFilter(filters.FilterSet):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
+
+
+
+
+""" PeriodTemplateToGrade Filter """
+class PeriodTemplateToGradeFilter(filters.FilterSet):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = '__all__'
