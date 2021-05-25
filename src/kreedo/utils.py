@@ -110,13 +110,16 @@ def get_response(data, response_obj, message):
             error_msg = ["non_field_errors", "detail"]
             for error_message in error_msg:
                 if error_message in data:
-
+                    if 'non_field_errors' in data:
+                        message = data['non_field_errors']
+                    else:
+                        message = data['detail']
                     response = json.dumps(
                         {
                             'isSuccess': False,
                             'statusCode': response_obj.status_code,
                             # 'error': data[error_message],
-                            'message': data['non_field_errors'][0],
+                            'message':message,
                             'data':''
                         }
                     )
