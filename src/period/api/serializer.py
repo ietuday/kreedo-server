@@ -129,3 +129,20 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
                 fields=['room', 'start_time', 'end_time']
             )
         ]
+
+
+
+""" PeriodTemplateToGrade List Serializer """
+class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = '__all__'
+        depth = 1
+
+
+
+""" PeriodTemplateToGrade Create Serializer """
+class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = '__all__'

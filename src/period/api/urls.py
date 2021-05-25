@@ -30,6 +30,9 @@ urlpatterns = [
 
     path('activity-detail_retrive_by_child/<int:pk>', ActivityDetail.as_view(),
          name='ActivityDetail'),
+     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
+           name='PeriodTemplateAppyToGradesListCreate'),
+
 
      
      
