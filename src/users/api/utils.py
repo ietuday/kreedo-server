@@ -332,6 +332,63 @@ def user_created_password_mail(user_obj, genrated_password):
         raise ValidationError("Failed to send Email")
 
 
+""" Reset password link """
+def generate_reset_password_link(user_obj):
+    try:
+
+        x = {
+            'email_subject': 'Kreedo Application: Your account is created',
+            'uid': urlsafe_base64_encode(force_bytes(user_obj.pk)),
+            'token': default_token_generator.make_token(user_obj),
+        }
+        """Create Email Verified link"""
+        activation_key = x['uid'] + '-' + x['token']
+
+        """Add activation key and expiration date to user detail"""
+
+        user_detail_instance = UserDetail.objects.filter(
+            user_obj=user_obj).first()
+
+        user_detail_instance.activation_key = activation_key
+        user_detail_instance.activation_key_expires = datetime.datetime.strftime(
+            datetime.datetime.now() + datetime.timedelta(days=60), "%Y-%m-%d %H:%M:%S")
+
+        user_detail_instance.save()
+        user_email = user_obj.email
+        link = os.environ.get('FRONTEND_URL') + \
+                '/auth/reset-password/' +user_email+'/'+ activation_key
+        
+        print("LINK------->", link)
+        return link
+    except Exception as error:
+        logger.debug(error)
+        logger.info(error)
+        raise ValidationError("Failed to Create link")
+
+
+
+def user_reset_password_link(user_obj, link):
+    try:
+        subject = 'Kreedp Application: Reset Your Password'
+        template = 'reset_password.html'
+        from_email = EMAIL_HOST_USER
+        to = user_obj.email
+        html_content = get_template(template)
+        msg = EmailMultiAlternatives(subject, '', from_email, [to])
+        msg.attach_alternative(html_content.render(
+            {'first_name': user_obj.first_name, 'url': link, 'email': user_obj.email}), "text/html")
+        msg.send()
+    except Exception as error:
+        raise ValidationError("Failed to send Email")
+
+
+
+
+
+
+
+
+
 
 
 

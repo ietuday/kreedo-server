@@ -172,23 +172,23 @@ class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveU
 """ Child related Activity """
 
 
-class ChildActivity(ListCreateAPIView):
+class ChildActivity(GeneralClass,Mixins,ListCreateAPIView):
     def post(self, request):
         try:
             child_plan = ChildPlan.objects.filter(
                 child=request.data.get('child', None))
             child_plan_qs = ChildPlanActivitySerializer(child_plan, many=True)
-            context = {"message": "Activity List by Child", "isSuccess": True,
-                       "data": child_plan_qs.data, "statusCode": status.HTTP_200_OK}
-            return Response(context)
+            # context = {"message": "Activity List by Child", "isSuccess": True,
+            #            "data": child_plan_qs.data, "statusCode": status.HTTP_200_OK}
+            return Response(child_plan_qs.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
 
             logger.debug(ex)
-            context = {"error": ex,
-                       "isSuccess": False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            # context = {"error": ex,
+            #            "isSuccess": False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Bilk Upload Plan """

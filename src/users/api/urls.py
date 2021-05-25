@@ -23,11 +23,12 @@ urlpatterns = [
     re_path('email-confirm-verify/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', EmailConfirmVerify.as_view(),
             name='EmailConfirmVerify'),
     path('login', UserLogin.as_view(), name='UserLogin'),
-    path('forget_password', ForgetPassword.as_view(), name='ForgetPassword'),
-
+    path('forget_password', ForgetPassword.as_view(), name='ForgetPassword'),  
+    path('change_password', ChangePassword.as_view(), name='ChangePassword'),
     re_path('reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', ResetPasswordConfirm.as_view(),
             name='ResetPasswordConfirm'),
-    path('change_password', ChangePassword.as_view(), name='ChangePassword'),
+     re_path('reset_password/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', ResetPassword.as_view(), name='ResetPassword'),
+    
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
     path('add-user', AddUser.as_view(), name='AddUser'),
     path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
