@@ -333,7 +333,7 @@ def user_created_password_mail(user_obj, genrated_password):
 
 
 """ Reset password link """
-def generate_reset_password_link(user_obj, user_detail_obj):
+def generate_reset_password_link(user_obj):
     try:
 
         x = {
@@ -355,16 +355,15 @@ def generate_reset_password_link(user_obj, user_detail_obj):
 
         user_detail_instance.save()
         user_email = user_obj.email
-        link = os.environ.get('KREEDO_URL') + \
-                '/auth/reset_password/' +user_email+ activation_key
+        link = os.environ.get('FRONTEND_URL') + \
+                '/auth/reset-password/' +user_email+'/'+ activation_key
         
-        # context = {'isSuccess': True,
-        #            'message': 'Token Sent to user', 'error': '', "data": user_detail_instance}
+        print("LINK------->", link)
         return link
     except Exception as error:
         logger.debug(error)
         logger.info(error)
-        raise ValidationError("Failed to send Token to user")
+        raise ValidationError("Failed to Create link")
 
 
 

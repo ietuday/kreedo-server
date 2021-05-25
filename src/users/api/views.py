@@ -352,6 +352,7 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
             user_data_serializer = User_Password_Reseted_Mail_Serializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
+                print("VIEW----",user_data_serializer.data['data'])
                 return HttpResponseRedirect(user_data_serializer.data['data'])
                 # return Response(user_data_serializer.data['data'], status=status.HTTP_200_OK)
             else:
@@ -367,7 +368,7 @@ class ResetPasswordConfirm(Mixins, GeneralClass, CreateAPIView):
 
 
 class ResetPassword(Mixins, GeneralClass, CreateAPIView):
-    serializer_class = User_Password_Reseted_Mail_Serializer
+    serializer_class = Reset_Password_Serializer
 
     def post(self, request,uidb64,token):
         try:
@@ -384,7 +385,7 @@ class ResetPassword(Mixins, GeneralClass, CreateAPIView):
             context = super().get_serializer_context()
             context.update({"user_token_detail": user_token_detail,
                            "password_detail": password_detail})
-            user_data_serializer = Reset_Password(
+            user_data_serializer = Reset_Password_Serializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
                 

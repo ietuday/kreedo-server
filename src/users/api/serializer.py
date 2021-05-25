@@ -494,25 +494,18 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
             try:       
                 if user is not None and default_token_generator.check_token(user,token):
 
-                    generate_user_activation_link_response = generate_user_activation_link(user_obj)
+                    generate_reset_password_link_response = generate_reset_password_link(user)
+                    print("generate link---",generate_reset_password_link_response)
                 
-                    if generate_user_activation_link_response["isSuccess"] is True:
+                    if generate_reset_password_link_response:
 
                         
-                        self.context.update({"data":"Token Sent to user"})
+                        self.context.update({"data":generate_reset_password_link_response})
                         data = 'Token Sent to user'
                         # print("data------------", data)
                         return validated_data
                     else:
                         raise ValidationError("Failed to send Token to user")
-               
-
-
-
-                    
-
-                    data = "User is Verified"
-                    self.context.update({"data":link})
                     
                     return validated_data            
                 else:
@@ -529,13 +522,13 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
 
 
 """ RESET PASSWORD """
-class Reset_Password(serializers.ModelSerializer):
+class Reset_Password_Serializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields =['id','first_name', 'last_name', 'is_active']
 
     def to_representation(self, instance):
-        instance = super(User_Password_Reseted_Mail_Serializer, self).to_representation(instance)
+        instance = super(Reset_Password_Serializer, self).to_representation(instance)
         
         instance['data'] = self.context['data']
        
