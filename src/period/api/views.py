@@ -144,8 +144,8 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                 dict['name'] = class_period.name
                 dict['description'] = class_period.description
                 dict['room_no'] = class_period.room_no.room_no
-                dict['start_time'] = class_period.start_time
-                dict['end_time'] = class_period.end_time
+                dict['start_time'] = class_period.start_time.strftime("%H:%M:%S") 
+                dict['end_time'] = class_period.end_time.strftime("%H:%M:%S")
                 dict['is_complete'] = class_period.is_complete
                 dict['is_active'] = class_period.is_active
                 dict['type'] = class_period.type
@@ -224,6 +224,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
 
                 periods_lists.append(dict)
                 dict = {}
+
             # context = {"message": "Class List",'isSuccess': True,
             #            "data": periods_lists, "statusCode": status.HTTP_200_OK}
             return Response(periods_lists, status=status.HTTP_200_OK)
