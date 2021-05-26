@@ -25,7 +25,6 @@ class PeriodListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 """ Period  Serializer """
 
 
@@ -33,8 +32,8 @@ class PeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
-        
-        
+
+
 """ getting classes according to teacher """
 
 
@@ -131,8 +130,9 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
         ]
 
 
-
 """ PeriodTemplateToGrade List Serializer """
+
+
 class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
@@ -140,8 +140,9 @@ class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 """ PeriodTemplateToGrade Create Serializer """
+
+
 class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
