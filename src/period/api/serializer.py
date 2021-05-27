@@ -122,12 +122,7 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=PeriodTemplateDetail.objects.all(),
-                fields=['room', 'start_time', 'end_time']
-            )
-        ]
+        
 
 
 """ PeriodTemplateToGrade List Serializer """

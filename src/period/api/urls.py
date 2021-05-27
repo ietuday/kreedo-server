@@ -36,5 +36,13 @@ urlpatterns = [
 
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
+     
+
+    path('period_month_list',
+         PeriodMonthList.as_view(), name='PeriodMonthList'),
+
+    path('period_list_according_to_date',
+         PerioListAccordingDate.as_view(), name='PerioListAccordingDate'),
+     
 
 ]
