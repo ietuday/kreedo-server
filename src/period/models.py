@@ -69,6 +69,7 @@ class PeriodTemplate(TimestampAwareModel):
 
 
 class Period(TimestampAwareModel):
+    period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=100, blank=True)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
                                 related_name='period_subject', null=True, blank=True)
@@ -92,6 +93,7 @@ class Period(TimestampAwareModel):
         verbose_name = 'Period'
         verbose_name_plural = 'Periods'
         ordering = ['-id']
+        # unique_together = ('start_time', 'end_time','room_no')
 
     def __str__(self):
         return str(self.id)
@@ -124,6 +126,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
         ordering = ['-id']
+        unique_together = ('room','start_time','end_time')
 
     def __str__(self):
         return str(self.id)
@@ -136,6 +139,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
 
 
 class PeriodTemplateToGrade(TimestampAwareModel):
+    period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     start_date = models.DateField(null=True)
