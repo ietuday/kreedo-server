@@ -34,13 +34,12 @@ class Renderer(renderers.JSONRenderer, LimitOffsetPagination):
             limit = absolute_url.find('limit')
             offset = absolute_url.find('offset')
 
-            if limit != -1 and offset != -1:
-                print("Data---->", data)
-                print("context_request", context_request)
-                paginated_data = super().paginate_queryset(
-                    queryset=data, request=context_request)
-                print("@@@@@@@@@@@@@", paginated_data)
-                data = self.get_paginated_response(paginated_data)
+            # if limit != -1 and offset != -1:
+            #     print("Data---->", data)
+            #     print("context_request", context_request)
+            #     paginated_data = super().paginate_queryset( queryset=data, request=context_request)
+            #     print("@@@@@@@@@@@@@", paginated_data)
+            #     data = self.get_paginated_response(paginated_data)
             """
                 if data == None or 'detail not in data : 
                 this we use when we have 'detail' in data and for DELETE method. 
