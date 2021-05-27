@@ -21,6 +21,7 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
 from rest_framework.response import Response
+from rest_framework import status
 
 
 """ 
@@ -91,6 +92,17 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
             return SectionCreateSerializer
         if self.request.method == 'DELETE':
             return SectionListSerializer
+
+
+    # def perform_destroy(self, instance, *args, **kwargs):
+    #     serializer = self.get_serializer(self.get_object())
+    #     super().destroy(*args, **kwargs)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Subject List and Create """
@@ -260,6 +272,12 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
             return RoomCreateSerializer
         if self.request.method == 'DELETE':
             return RoomListSerializer
+
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Bulk Upload Subjects """

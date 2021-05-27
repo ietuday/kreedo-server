@@ -26,7 +26,6 @@ saturday = "SATURDAY"
 sunday = "SUNDAY"
 
 
-
 Period_Type_Choice = [
     (Regular_Assessment_Period, 'Regular Assessment Period'),
     (Regular_Period, 'Regular Period'),
@@ -34,7 +33,7 @@ Period_Type_Choice = [
     (Remedial_Assessment, 'Remedial Assessment')
 ]
 
-Days_Choice  = [
+Days_Choice = [
     (monday, 'MONDAY'),
     (tuesday, 'TUESDAY'),
     (wednesday, 'WEDNESDAY'),
@@ -48,9 +47,8 @@ Days_Choice  = [
 
 
 class PeriodTemplate(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
-    
     is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = PeriodTemplateManager
@@ -71,8 +69,10 @@ class PeriodTemplate(TimestampAwareModel):
 
 
 class Period(TimestampAwareModel):
+    period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=100, blank=True)
-    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,related_name = 'period_subject',null=True, blank=True)
+    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
+                                related_name='period_subject', null=True, blank=True)
     room_no = models.ForeignKey(
         to='schools.Room', on_delete=models.PROTECT, related_name='period_room_no', null=True, blank=True)
     academic_session = models.ManyToManyField(
@@ -93,6 +93,7 @@ class Period(TimestampAwareModel):
         verbose_name = 'Period'
         verbose_name_plural = 'Periods'
         ordering = ['-id']
+        # unique_together = ('start_time', 'end_time','room_no')
 
     def __str__(self):
         return str(self.id)
@@ -125,6 +126,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
         ordering = ['-id']
+        unique_together = ('room','start_time','end_time')
 
     def __str__(self):
         return str(self.id)
@@ -134,23 +136,26 @@ class PeriodTemplateDetail(TimestampAwareModel):
 
 
 """ Apply period template to section  and grade """
+
+
 class PeriodTemplateToGrade(TimestampAwareModel):
-    grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT, null=True, blank=True)
-    section = models.ForeignKey(to='schools.Section',  on_delete=models.PROTECT, null=True, blank=True)
-    start_date =  models.DateField(null=True)
-    end_date =  models.DateField(null=True)
-    period_template = models.ForeignKey('PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
+    period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+    period_template = models.ForeignKey(
+        'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     is_applied = models.BooleanField(default=False)
-    is_active =  models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'PeriodTemplateToGrade'
         verbose_name_plural = 'PeriodTemplateToGrades'
         ordering = ['-id']
-    
+
     def __str__(self):
         return str(self.id)
-    
-    def get_absolute_url(self):
-        return reverse('PeriodTemplateToGrade_detail', kwargs={"pk":self.pk})
 
+    def get_absolute_url(self):
+        return reverse('PeriodTemplateToGrade_detail', kwargs={"pk": self.pk})

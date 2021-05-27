@@ -25,7 +25,6 @@ class PeriodListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 """ Period  Serializer """
 
 
@@ -33,8 +32,8 @@ class PeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
-        
-        
+
+
 """ getting classes according to teacher """
 
 
@@ -123,16 +122,12 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=PeriodTemplateDetail.objects.all(),
-                fields=['room', 'start_time', 'end_time']
-            )
-        ]
-
+        
 
 
 """ PeriodTemplateToGrade List Serializer """
+
+
 class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
@@ -140,8 +135,9 @@ class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 """ PeriodTemplateToGrade Create Serializer """
+
+
 class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade

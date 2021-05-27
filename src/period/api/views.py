@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,RetrieveAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from kreedo.general_views import*
@@ -48,36 +48,6 @@ class PeriodTemplateRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDes
     serializer_class = PeriodTemplateSerializer
 
 
-""" Period List and Create """
-
-
-class PeriodListCreate(ListCreateAPIView):
-    # model = Period
-    # filterset_class = PeriodFilter
-
-    def post(self, request):
-        try:
-
-            grade_list = request.data.get("grade_list")
-
-            for grade in grade_list:
-                """ Get Holidays Function Call """
-                school_holiday_count = school_holiday(grade)
-                """ Get Weak-off Function Call """
-                week_off = weakoff_list(grade)
-                count_weekday = weekday_count(grade, week_off)
-                working_days = total_working_days(grade, count_weekday)
-                create_period(grade)
-                return Response(working_days)
-
-        except Exception as ex:
-            print("ERRROR", ex)
-            logger.info(ex)
-            context = {"error": ex, 'isSuccess': False,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
-
-
 """ Period Retrive and Update"""
 
 
@@ -92,6 +62,7 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
             return PeriodCreateSerializer
         if self.request.method == 'DELETE':
             return PeriodListSerializer
+
 
 """PeriodTemplateDetail List and Create """
 
@@ -144,7 +115,8 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                 dict['name'] = class_period.name
                 dict['description'] = class_period.description
                 dict['room_no'] = class_period.room_no.room_no
-                dict['start_time'] = class_period.start_time.strftime("%H:%M:%S") 
+                dict['start_time'] = class_period.start_time.strftime(
+                    "%H:%M:%S")
                 dict['end_time'] = class_period.end_time.strftime("%H:%M:%S")
                 dict['is_complete'] = class_period.is_complete
                 dict['is_active'] = class_period.is_active
@@ -239,21 +211,23 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
 
 """ Activity according to child """
 
-class ActivityByChild(GeneralClass, Mixins,ListCreateAPIView):
+
+class ActivityByChild(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             child = request.data.get('child', None)
             period = request.data.get('period', None)
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
-   
+
             activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
-                                                              period=period)
-            activity_missed_serializer  = ActivityCompleteSerilaizer(activity_missed_qs, many=True)
+                                                                 period=period)
+            activity_missed_serializer = ActivityCompleteSerilaizer(
+                activity_missed_qs, many=True)
 
             # context = {"message": "Activity List by Child",
             #            "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(activity_missed_serializer.data,status= status.HTTP_200_OK)
+            return Response(activity_missed_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             # context = {"error": ex, 'isSuccess': False,
@@ -261,42 +235,196 @@ class ActivityByChild(GeneralClass, Mixins,ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ActivityListByChild(GeneralClass, Mixins,ListCreateAPIView):
+class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             child = request.data.get('child', None)
             period = request.data.get('period', None)
 
             activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
-                                                              period=period)
-            activity_missed_serializer  = ActivityCompleteListChildSerilaizer(activity_missed_qs, many=True)
+                                                                 period=period)
+            activity_missed_serializer = ActivityCompleteListChildSerilaizer(
+                activity_missed_qs, many=True)
             # context = {"message": "Activity List by Child",
             #            "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(activity_missed_serializer.data,status=status.HTTP_200_OK)  
+            return Response(activity_missed_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
-        #     context = {"error": ex, 'isSuccess': False,
-        #                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #     context = {"error": ex, 'isSuccess': False,
+            #                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class ActivityDetail(GeneralClass, Mixins,RetrieveAPIView):
+
+class ActivityDetail(GeneralClass, Mixins, RetrieveAPIView):
     model = Activity
     serializer_class = ActivitySerializer
-    
+
 
 """ Apply Period template to academic session """
-class PeriodTemplateAppyToGradesListCreate(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = PeriodTemplateToGrade
     filterset_class = PeriodTemplateToGradeFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PeriodTemplateToGradeListSerializer
-        if self.request.method == 'POST':
-            return PeriodTemplateToGradeCreateSerializer
+
+    def post(self, request):
+        try:
+
+            period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
+                data=request.data.get('grade_list'), many=True)
+            if period_template_to_grade_serializer.is_valid():
+                period_template_to_grade_serializer.save()
+                return Response(period_template_to_grade_serializer.data,status=status.HTTP_200_OK)
+            else:
+                return Response(period_template_to_grade_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as ex:
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" Period List and Create """
 
 
+class PeriodListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    # model = Period
+    # filterset_class = PeriodFilter
+
+    def post(self, request):
+        try:
+
+            grade_list = request.data.get("grade_list")
+
+            for grade in grade_list:
+                """ Get Holidays Function Call """
+                school_holiday_count = school_holiday(grade)
+                """ Get Weak-off Function Call """
+                week_off = weakoff_list(grade)
+                count_weekday = weekday_count(grade, week_off)
+                working_days = total_working_days(grade, count_weekday)
+                create_period(grade)
+                return Response(working_days,status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("ERRROR", ex)
+            logger.info(ex)
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
 
 
+""" Period Create """
+
+
+class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
+    # model = Period
+    # filterset_class = PeriodFilter
+
+    def post(self, request):
+        try:
+
+            grade_dict = {
+                "grade": request.data.get('grade', None),
+                "section": request.data.get('section', None),
+                "start_date": request.data.get('start_date', None),
+                "end_date": request.data.get('end_date', None),
+                "acad_session": request.data.get('acad_session', None)
+            }
+
+            """ Get Holidays Function Call """
+            school_holiday_count = school_holiday(grade_dict)
+            print("COUNT----------->", school_holiday_count)
+            """ Get Weak-off Function Call """
+            week_off = weakoff_list(grade_dict)
+            print("week_off-------->", week_off)
+            """ Weekday Count """
+            count_weekday = weekday_count(grade_dict, week_off)
+            print("count_weekday----->", count_weekday)
+            """ Count Working Days """
+            working_days = total_working_days(grade_dict, count_weekday)
+            print("working_days---->", working_days)
+            """ Period Creation """
+            period_reponse = create_period(grade_dict)
+            print("period Response------->", period_reponse)
+            return Response(period_reponse,status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("ERRROR", ex)
+            logger.info(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" MONTH LIST """
+class PeriodMonthList(GeneralClass,Mixins,ListCreateAPIView):
+    def post(self, request):
+        try:
+            # print("@@@@@@@@@@@@", request.data)
+
+            academic_id = AcademicSession.objects.get(
+                grade=request.data.get('grade',None), section=request.data.get('section',None)).id
+            period_qs= Period.objects.filter(start_date__year=request.data.get('year',None),
+                           start_date__month=request.data.get('month',None))
+            period_list = []
+            
+            for i in period_qs:
+                period_dict = {}
+                period_count=Period.objects.filter(start_date=i.start_date)
+                for j in period_count:
+                    print("%%%%%%%%%%%%%%%----->", j.start_date)
+                dates =i.start_date
+                period_dict['start_date']  = j.start_date.strftime("%Y/%m/%d")
+                period_dict['period_count'] = period_count.count()
+                if SchoolHoliday.objects.filter(holiday_from=j.start_date,academic_session=academic_id).exists():
+                    is_holiday = "true"
+                else:
+                    is_holiday ="false"
+                day_name = j.start_date.strftime('%A')
+                print("**************8", day_name)
+                # if SchoolWeakOff.objects.filter(academic_session=academic_id).exists():
+                    # weakoff_data = SchoolWeakOff.objects.filter(academic_session=academic_id)
+                
+                
+                    
+                # else:
+                #     is_weakoff = "false"
+                period_dict['is_holiday'] =is_holiday
+                period_list.append(period_dict)
+                period_dict = {}
+
+            return Response(period_list,status=status.HTTP_200_OK)
+        
+        except Exception as ex:
+            print("ERROR------->", ex)
+
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+         
+
+"""  Date according period list """
+from datetime import datetime,date
+class PerioListAccordingDate(GeneralClass,Mixins,ListCreateAPIView):
+    def post(self,request):
+        try:
+            date_period= request.data.get('start_date',None)
+            academic_id = AcademicSession.objects.get(
+                grade=request.data.get('grade',None), section=request.data.get('section',None)).id
+            print("academic_id",academic_id)
+            # period_date = datetime.date(date_period)
+            # print("%%%%%%%%%%%%%%%%%5",period_date)
+            period_qs = Period.objects.filter(start_date__date=request.data.get('start_date',None))
+            print("PERIOD------>",period_qs)
+            period_serializer = PeriodListSerializer(period_qs,many=True)
+            return Response(period_serializer.data)
+
+            
+        except Exception as ex:
+            print("ERROR------->", ex)
+
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+         
