@@ -1,11 +1,8 @@
-
 from django.core.serializers import serialize
 from django.db.models import Q
-
-
 from django.core.exceptions import ValidationError
-import json
 
+import json
 import pdb
 from datetime import datetime, timedelta, date, time
 import calendar
@@ -109,6 +106,7 @@ def weakoff_list(grade_dict):
             response_data = []
             for qs in qs_json:
                 response_data.append(qs['fields'])
+            print("response_data--->2", response_data)
             return response_data
         else:
             raise ValidationError("Weak-Off List Not Exist")
@@ -135,7 +133,6 @@ def total_working_days(grade_dict, count_weekday):
 
 def create_period(grade_dict):
     try:
-        from datetime import date, timedelta
 
         from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
         to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
@@ -177,12 +174,15 @@ def create_period(grade_dict):
                                     data=period_dict)
                                 if period_serializer.is_valid():
                                     period_serializer.save()
+                                    
+
                                 else:
                                     raise ValidationError(
                                         period_serializer.errors)
                             else:
-                                print("EXITS")
-
+                                raise ValidationError("error in period")
+        data = "Period Created"
+        return data
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
