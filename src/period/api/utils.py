@@ -156,6 +156,7 @@ def create_period(grade_dict):
 
                             period_dict['academic_session'] = [
                                 period.academic_session.id]
+                            # period_dict['name'] = period.subject.name
                             period_dict['subject'] = period.subject.id
                             period_dict['room_no'] = period.room.id
                             period_date = day.date()
@@ -174,7 +175,6 @@ def create_period(grade_dict):
                                     data=period_dict)
                                 if period_serializer.is_valid():
                                     period_serializer.save()
-                                    
 
                                 else:
                                     raise ValidationError(

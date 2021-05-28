@@ -409,7 +409,6 @@ class UserForgetSerializer(serializers.ModelSerializer):
                     
                     self.context.update({"data":"Token Sent to user"})
                     data = 'Token Sent to user'
-                    # print("data------------", data)
                     return validated_data
                 else:
                     raise ValidationError("Failed to send Token to user")
@@ -495,14 +494,12 @@ class User_Password_Reseted_Mail_Serializer(serializers.ModelSerializer):
                 if user is not None and default_token_generator.check_token(user,token):
 
                     generate_reset_password_link_response = generate_reset_password_link(user)
-                    print("generate link---",generate_reset_password_link_response)
                 
                     if generate_reset_password_link_response:
 
                         
                         self.context.update({"data":generate_reset_password_link_response})
                         data = 'Token Sent to user'
-                        # print("data------------", data)
                         return validated_data
                     else:
                         raise ValidationError("Failed to send Token to user")
@@ -584,17 +581,35 @@ class Reset_Password_Serializer(serializers.ModelSerializer):
 
 
 
+class UserRoleListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 1
+
 """ Logged In User Serializer """
 
 class LoggedInUserSerializer(serializers.ModelSerializer):
 
     user_obj = AuthUserSerializer()
-    
-
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 1
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            LoggedInUserSerializer, self).to_representation(obj)
+        user_obj_id =serialized_data.get('user_obj')
+        
+        user_id = user_obj_id.get('id')
+        if UserRole.objects.filter(user=user_id).exists():
+            user_role_data = UserRole.objects.filter(user=user_id)
+            user_role_data_serializer = UserRoleListSerializer(
+                user_role_data, many=True)
+            serialized_data['user_role_data'] = user_role_data_serializer.data
+        
+        return serialized_data
 
 
 
