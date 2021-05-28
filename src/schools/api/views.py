@@ -90,6 +90,8 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
             return SectionListSerializer
         if self.request.method == 'PUT':
             return SectionCreateSerializer
+        if self.request.method == 'PATCH':
+            return SectionCreateSerializer
         if self.request.method == 'DELETE':
             return SectionListSerializer
 
