@@ -60,6 +60,8 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
             return PeriodListSerializer
         if self.request.method == 'PUT':
             return PeriodCreateSerializer
+        if self.request.method == 'PATCH':
+            return PeriodCreateSerializer
         if self.request.method == 'DELETE':
             return PeriodListSerializer
 
@@ -90,6 +92,10 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateDetailCreateSerializer
+        if self.request.method == 'PATCH':
+            return PeriodTemplateDetailCreateSerializer
+        
+
 
 
 """ List of classes acording to teacher id , date, and day """
@@ -419,6 +425,7 @@ class PerioListAccordingDate(GeneralClass,Mixins,ListCreateAPIView):
             return Response(period_serializer.data,status=status.HTTP_200_OK)     
         except Exception as ex:
             print("ERROR------->", ex)
+            print("Traceback", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
