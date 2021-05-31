@@ -206,11 +206,39 @@ class ChildListSerializer(serializers.ModelSerializer):
 
 
 
+from django.contrib.auth.models import User
 
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        fields = '__all__'
+        fields='__all__'
+        depth= 3
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildSerializer, self).to_representation(obj)
+    
+        child_id = serialized_data.get('id')
+       
+        parent_list = serialized_data.get('parent')
+        print("#$#################ID---", parent_list)
+        for i in parent_list:
+            print("PARENT------------------->", i.get('user_obj'))
+            
+        child_id_qs = ChildPlan.objects.filter(child__id=child_id)
+        if child_id_qs:
+            child_id_serializer = ChildPlanOfChildSerializer(
+                child_id_qs, many=True)
+            serialized_data['academic_session_data'] = child_id_serializer.data
+        return serialized_data
+
+
+
+
+
+
+
+
        
 
 
