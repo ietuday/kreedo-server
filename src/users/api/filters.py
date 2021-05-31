@@ -22,8 +22,7 @@ class UserDetailFilter(filters.FilterSet):
 
     class Meta:
         model = UserDetail
-        fields = ['user_obj', 'phone', 'address',
-                  'email_verified', 'phone_verified']
+        fields = '_all__'
 
 
 class ReportingToFilter(filters.FilterSet):
