@@ -156,7 +156,8 @@ def create_period(grade_dict):
 
                             period_dict['academic_session'] = [
                                 period.academic_session.id]
-                            # period_dict['name'] = period.subject.name
+                            period_dict['name'] = period.subject.name
+                            period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
                             period_dict['room_no'] = period.room.id
                             period_date = day.date()

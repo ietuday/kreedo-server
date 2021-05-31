@@ -90,6 +90,37 @@ class SchoolCreateSerializer(serializers.ModelSerializer):
         return School.objects.create(**validated_data)
 
 
+class SchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            school_package = self.context.pop('school_package_dict')
+            plan = super(SchoolSerializer, self).create(validated_data)
+
+            for school_package_obj in school_package:
+                school_package_obj['plan'] = plan.id
+
+            """ calling SchoolPackageCreateSerializer  with school_package data. """
+
+            school_package_serializer = SchoolPackageCreateSerializer(
+                data=list(school_package), many=True)
+
+            if school_package_serializer.is_valid():
+                school_package_serializer.save()
+                self.context.update(
+                    {"school_package_serializer_data": school_package_serializer.data})
+            else:
+                raise ValidationError(school_package_serializer.errors)
+            return plan
+        except Exception as ex:
+            logger.debug(ex)
+            logger.info(ex)
+            return ValidationError(ex)
+
+
 """ Section Subject Teacher List Serializer """
 
 

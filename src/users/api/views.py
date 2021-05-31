@@ -871,7 +871,7 @@ class AddSchool(ListCreateAPIView):
                     }
 
                 
-                    schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(data=dict(school_package_detail))
+                    schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(data=dict(school_calender_detail))
 
                     if schoolCalendarCreateSerializer.is_valid():
                         schoolCalendarCreateSerializer.save()

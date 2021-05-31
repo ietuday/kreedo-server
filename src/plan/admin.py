@@ -22,11 +22,11 @@ class PlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(ChildPlan)
 class ChildPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+    list_display = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
                     'current_end_date', 'published', 'is_active', 'is_close']
-    search_fields = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+    search_fields = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
                      'current_end_date', 'published', 'is_active', 'is_close']
-    list_filter = ['id', 'name', 'range_of_working_days', 'academic_session', 'current_start_date',
+    list_filter = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
                    'current_end_date', 'published', 'is_active', 'is_close']
 
 

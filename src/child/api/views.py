@@ -58,7 +58,9 @@ logger.info("UTILS CAlled ")
 
 class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
-    serializer_class = ChildListSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildListSerializer
 
     def post(self, request):
         try:
@@ -121,6 +123,9 @@ class ChildList(GeneralClass, Mixins, ListAPIView):
     serializer_class = ChildListSerializer
 
 
+
+
+
 """ Update Child """
 
 
@@ -135,7 +140,7 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
             return ChildDetailCreateSerializer
 
 
-class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ChildDetail
 
     def get_serializer_class(self):
@@ -144,10 +149,15 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
         if self.request.method == 'PUT':
             return ChildDetailCreateSerializer
+         
+        if self.request.method == 'PATCH':
+            return ChildDetailCreateSerializer
 
-        if self.request.method == 'DELETE':
-            return ChildDetailListSerializer
-
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 """ Attendance List and Create """
 
