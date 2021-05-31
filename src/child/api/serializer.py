@@ -211,11 +211,8 @@ from users.models import*
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        fields=['first_name','last_name','date_of_birth','gender','date_of_joining',
-        'place_of_birth','blood_group','photo','registered_by']
-        depth= 3
-
-
+        fields='__all__'
+        # depth= 3
 
     def to_representation(self, obj):
         serialized_data = super(
@@ -224,18 +221,11 @@ class ChildSerializer(serializers.ModelSerializer):
         child_id = serialized_data.get('id')
        
         parent_list = serialized_data.get('parent')
-        print("#$#################ID---", parent_list)
-        parent_data = []
-        for i in parent_list:
-            user_dict = {}
-            print("PARENT------------------->", i.get('user_obj'))
-            user_qs = UserDetail.objects.filter(user_obj=i.get('user_obj'))
-            user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
-            print("DEATAIL*************", user_qs_serializer.data)
-            user_dict = user_qs_serializer.data
-            parent_data.append(user_dict)
-            
-        serialized_data['parent_data'] = parent_data
+       
+        user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
+        user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
+    
+        serialized_data['parent_data'] = user_qs_serializer.data
             
         child_id_qs = ChildPlan.objects.filter(child__id=child_id)
         if child_id_qs:
