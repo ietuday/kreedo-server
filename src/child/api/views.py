@@ -115,12 +115,13 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
-""" Child list  """
-
-
-class ChildList(GeneralClass, Mixins, ListAPIView):
+""" Child Retrive , Update ,Destroy  """
+class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Child
-    serializer_class = ChildListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildSerializer
 
 
 
