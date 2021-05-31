@@ -127,6 +127,9 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 
 
+
+
+
 """ Update Child """
 
 
@@ -139,6 +142,7 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
 
         if self.request.method == 'POST':
             return ChildDetailCreateSerializer
+
 
 
 class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
