@@ -188,6 +188,23 @@ class ChildListSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
         depth = 1
+    
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildListSerializer, self).to_representation(obj)
+        # print("DATA----", serialized_data)
+        child_id = serialized_data.get('id')
+        print("ID---", child_id)
+        
+        child_id_qs = ChildPlan.objects.filter(child__id=child_id)
+        if child_id_qs:
+            child_id_serializer = ChildPlanSerializer(
+                child_id_qs, many=True)
+            serialized_data['academic_session_data'] = child_id_serializer.data
+        return serialized_data
+
+
 
 
 class ChildSerializer(serializers.ModelSerializer):

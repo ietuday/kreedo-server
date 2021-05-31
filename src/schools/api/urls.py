@@ -32,6 +32,12 @@ urlpatterns = [
 
     path('room_retrive_update_delete/<int:pk>', RoomRetriveUpdateDestroy.as_view(),
          name='RoomRetriveUpdateDestroy'),
+
+
+    path('section_list_by_grade', SectionListByGrade.as_view(),
+         name='SectionListByGrade'),
+
+         
      path('bulk-upload/add-school',
          AddSubject.as_view(), name='AddSubject'),
       path('bulk-upload/add-grade',

@@ -320,6 +320,28 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
         return Response(status=status.HTTP_200_OK)
 
 
+""" Section List according to Grade """
+
+class SectionListByGrade(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            section_qs = Section.objects.filter(grade__id=request.data.get('grade',None))
+            section_serializer = SectionListSerializer(section_qs, many=True)
+            return Response(section_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+
 """ Bulk Upload Subjects """
 
 
