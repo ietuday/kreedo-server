@@ -22,7 +22,7 @@ class UserDetailFilter(filters.FilterSet):
 
     class Meta:
         model = UserDetail
-        fields = '_all__'
+        fields = '__all__'
 
 
 class ReportingToFilter(filters.FilterSet):
