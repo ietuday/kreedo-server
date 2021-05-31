@@ -4,6 +4,11 @@ from .serializer import*
 from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
+
+from .utils import*
+from holiday.models import*
+from holiday.api.serializer import*
+
 """
     REST LIBRARY IMPORT
 """
@@ -106,7 +111,7 @@ class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
             return AcademicCalenderListSerializer
 
 
-class AcademicSessionByTeacher(GeneralClass, Mixins,ListCreateAPIView):
+class AcademicSessionByTeacher(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
@@ -118,15 +123,59 @@ class AcademicSessionByTeacher(GeneralClass, Mixins,ListCreateAPIView):
                     academicSession_qs, many=True)
                 # context = {"message": "Academic Session By Teacher",
                 #            "statusCode": status.HTTP_200_OK, "isSucess": True, "data": aca_session_qs.data}
-                return Response(aca_session_qs.data,status=status.HTTP_200_OK)
+                return Response(aca_session_qs.data, status=status.HTTP_200_OK)
             else:
                 # context = {"error": "Teacher Not Found",  "isSucess": False,
                 #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(aca_session_qs.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(aca_session_qs.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
-            # logger.debug(ex)
+            logger.debug(ex)
             # context = {"error": ex, "isSucess": False,
             #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class GenerateCalenderToPdf(ListCreateAPIView):
+
+    def post(self,request):
+        try:
+
+            """ 
+                Filter School ID From School Model 
+            """
+            school_qs = School.objects.get(id=request.data.get('school_id', None)).id
+
+            """ 
+                Filter School ID From ACADEMIC CALENDER Model for getting no. of years
+            """
+            school_academic_calender_qs = SchoolCalendar.objects.filter(school=school_qs)
+            print("ACADEMIC CALENDER--->",school_academic_calender_qs)
+
+            for school_academic_calender_year in school_academic_calender_qs:
+                """ get date list """ 
+                date_list = Genrate_Date_of_Year(school_academic_calender_year.session_from,school_academic_calender_year.session_till)
+                print("DATE----->",date_list)
+                """ get month list """
+                month_list = Genrate_Month(school_academic_calender_year.session_from,school_academic_calender_year.session_till)
+                print("MONTH------>", month_list)
+
+
+            """ Get Week off list from SchoolWeakOff model """
+            school_week_off = SchoolWeakOff.objects.filter(school=school_qs)
+            school_week_off_serializer = SchoolWeakOffListSerializer(school_week_off,many=True)
+            print("SCHOOL WEEK OFF", school_week_off_serializer.data)
+
+            """ School holiday list from SchoolHoliday model"""
+            school_holiday_qs = SchoolHoliday.objects.filter(school_session__school=school_qs)
+            print("School holiday QS---->", school_holiday_qs)
+            school_holiday_serailizer = SchoolHolidayListSerializer(school_holiday_qs, many=True)
+            print("SCHOOL HOLIDAY ", school_holiday_serailizer.data)
+
+
+
+
+        except Exception as ex:
+            print("ERROR----->", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

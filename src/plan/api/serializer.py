@@ -125,6 +125,17 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
                   'subjects', 'curriculum_start_date']
 
 
+
+
+
+class ChildPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = ['academic_session']
+        depth = 2
+    
+
+
 """ Plan activity List Serializer """
 
 

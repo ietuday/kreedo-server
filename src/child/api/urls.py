@@ -9,8 +9,8 @@ urlpatterns = [
 
     path('child-detail_list_create',
          ChildDetailListCreate.as_view(), name='ChildDetailListCreate'),
-    path('child-detail_retrive_update_delete/<int:pk>', ChildRetriveUpdateDestroy.as_view(),
-         name='ChildRetriveUpdateDestroy'),
+    path('child-detail_retrive_update_delete/<int:pk>', ChildDetailRetriveUpdateDestroy.as_view(),
+         name='ChildDetailRetriveUpdateDestroy'),
 
 
 

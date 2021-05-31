@@ -166,7 +166,7 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 
 
 """ School List and Create """
-
+from .utils import*
 
 class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = School
@@ -177,38 +177,76 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SchoolListSerializer
 
     def post(self, request):
-        address_detail = {
-            "country": request.data.get('country', None),
-            "state": request.data.get('state', None),
-            "city": request.data.get('city', None),
-            "address": request.data.get('address', None),
-            "pincode": request.data.get('pincode', None),
-        }
-        address_serializer = AddressSerializer(data=address_detail)
-        if address_serializer.is_valid():
-            address_serializer.save()
-        else:
-            raise serializers.ValidationError(
-                "address_serializer._errors", address_serializer._errors)
-        school_data = {
-            "name": request.data.get('name', None),
-            "type": request.data.get('type', None),
-            "logo": request.data.get('logo', None),
-            "address": address_serializer.data['id'],
-            "license": request.data.get('license', None),
-            "is_active": request.data.get('is_active', None),
-        }
+        try:
+                    
+            address_detail = {
+                "country": request.data.get('country', None),
+                "state": request.data.get('state', None),
+                "city": request.data.get('city', None),
+                "address": request.data.get('address', None),
+                "pincode": request.data.get('pincode', None),
+            }
+            address_serializer = AddressSerializer(data=address_detail)
+            if address_serializer.is_valid():
+                address_serializer.save()
+            else:
+                raise serializers.ValidationError(
+                    "address_serializer._errors", address_serializer._errors)
+            licence_detail = {
+                "total_no_of_user":request.data.get('total_no_of_user',None),
+                "total_no_of_children":request.data.get('total_no_of_children', None),
+                "licence_from": request.data.get('licence_start_date', None),
+                "licence_till":month_calculation(request.data.get('licence_start_date',None),request.data.get('no_of_months',None)),
+                
+            }
+            print("licence_detail",licence_detail)
+            licenseCreateSerializer = LicenseCreateSerializer(data=dict(licence_detail))
 
-        context = self.get_serializer_context()
-        context.update({"school_data": school_data})
+            if licenseCreateSerializer.is_valid():
+                licenseCreateSerializer.save()
+            else:
+                raise ValidationError(licenseCreateSerializer.errors)
 
-        school_serializer = SchoolCreateSerializer(
-            data=dict(school_data), context=context)
-        if school_serializer.is_valid():
-            school_serializer.save()
-            return Response(school_serializer.data)
-        return Response(school_serializer.errors)
 
+            school_data = {
+                "name": request.data.get('name', None),
+                "type": request.data.get('type', None),
+                "logo":request.data.get('logo',None),
+                "address": address_serializer.data['id'],
+                "license": licenseCreateSerializer.data['id'],
+                "is_active": request.data.get('is_active', None),
+            }
+
+            context = self.get_serializer_context()
+            context.update({"school_data": school_data,
+            "school_package_dict": request.data.get('school_package', None)})
+
+            school_serializer = SchoolSerializer(
+                data=dict(school_data), context=context)
+            if school_serializer.is_valid():
+                school_serializer.save()
+                return Response(school_serializer.data)
+            return Response(school_serializer.errors)
+
+
+            school_calender_detail = {
+                "school": school_serializer.data['id']   ,
+                "session_from": datetime.date.today(),
+                "session_till": addYears(datetime.date.today(),request.data.get('school_calender_for_no_of_yrs', None)),
+            }
+
+        
+            schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(data=dict(school_calender_detail))
+
+            if schoolCalendarCreateSerializer.is_valid():
+                schoolCalendarCreateSerializer.save()
+            else:
+                raise ValidationError(schoolCalendarCreateSerializer.errors)
+
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex)
+        
 
 """ School update Retrive and Delete """
 
@@ -280,6 +318,28 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
+
+
+""" Section List according to Grade """
+
+class SectionListByGrade(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            section_qs = Section.objects.filter(grade__id=request.data.get('grade',None))
+            section_serializer = SectionListSerializer(section_qs, many=True)
+            return Response(section_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
 
 
 """ Bulk Upload Subjects """
