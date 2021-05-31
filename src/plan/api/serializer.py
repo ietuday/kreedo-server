@@ -135,6 +135,12 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         depth = 2
     
 
+class ChildPlanOfChildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+        depth = 1
+    
 
 """ Plan activity List Serializer """
 
