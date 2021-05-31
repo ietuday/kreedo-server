@@ -211,8 +211,11 @@ from users.models import*
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        fields='__all__'
+        fields=['first_name','last_name','date_of_birth','gender','date_of_joining',
+        'place_of_birth','blood_group','photo','registered_by']
         depth= 3
+
+
 
     def to_representation(self, obj):
         serialized_data = super(
