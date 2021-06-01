@@ -9,6 +9,7 @@ from .utils import*
 import logging
 from kreedo.conf.logger import*
 import pdb
+from users.models import*
 
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
@@ -206,7 +207,7 @@ class ChildListSerializer(serializers.ModelSerializer):
 
 
 
-from users.models import*
+
 
 class ChildSerializer(serializers.ModelSerializer):
     class Meta:
