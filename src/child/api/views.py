@@ -134,14 +134,6 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
         return Response(status=status.HTTP_200_OK)
 
 
-
-
-
-
-
-
-
-
 """ Update Child """
 
 
@@ -154,7 +146,7 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
 
         if self.request.method == 'POST':
             return ChildDetailCreateSerializer
-        if self.request.method == 'PATCH'
+        if self.request.method == 'PATCH':
             return ChildDetailCreateSerializer
         
     
