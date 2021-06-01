@@ -20,6 +20,10 @@ urlpatterns = [
     path('user_list', UserList.as_view(), name='UserList'),
 
 
+ path('user_retrive_update_delete/<int:pk>', UserRetriveUpdateDelete.as_view(),
+         name='UserRetriveUpdateDelete'),
+
+
     re_path('email-confirm-verify/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)', EmailConfirmVerify.as_view(),
             name='EmailConfirmVerify'),
     path('login', UserLogin.as_view(), name='UserLogin'),

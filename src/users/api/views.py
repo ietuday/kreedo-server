@@ -112,6 +112,27 @@ class UserList(Mixins, GeneralClass, ListAPIView):
 
 
 
+class UserRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = UserDetail
+    filterset_class = UserDetailFilter
+
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserDetailListSerializer
+
+        if self.request.method == 'POST':
+            return UserDetailSerializer
+        if self.request.method == 'PATCH':
+            return UserDetailSerializer
+        
+    
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 """ User Register API """
 
