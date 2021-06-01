@@ -58,6 +58,8 @@ logger.info("UTILS CAlled ")
 
 class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
+    filterset_class = ChildFilter
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildListSerializer
@@ -118,6 +120,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
 """ Child Retrive , Update ,Destroy  """
 class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Child
+    filterset_class = ChildFilter
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -139,6 +143,8 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
     model = ChildDetail
+    filterset_class = ChildDetailFilter
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -157,11 +163,10 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-
-
-
 class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ChildDetail
+    filterset_class = ChildDetailFilter
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -184,6 +189,8 @@ class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestro
 
 class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Attendance
+    filterset_class = AttendanceFilter
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -198,7 +205,8 @@ class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Attendance
-
+    filterset_class = AttendanceFilter
+    
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AttendanceListSerializer
