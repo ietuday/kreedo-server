@@ -705,6 +705,26 @@ class AddUserSerializer(serializers.ModelSerializer):
                         
                     else:
                         raise ValidationError(user_detail_serializer.errors)
+                    role = self.context['user_details_data']['role'][0]
+                    print("@@@@@@@@@@@@@@@", role)
+                    user_role = {
+                                "user": user_detail_serializer.data['user_obj'],
+                                "role": role,
+                                "school": ""
+                            }
+                    print("user_role------------>",user_role)
+                    user_role_serializer = UserRoleSerializer(
+                        data=dict(user_role))
+                    if user_role_serializer.is_valid():
+                        user_role_serializer.save()
+                        
+                        self.context.update({
+                            "user_role": user_role_serializer.data
+                        })
+                       
+                    else:
+                        print("ERROR------------>",user_role_serializer.errors)
+                        raise ValidationError(user_role_serializer.errors)
                     
                     if "reporting_to" in self.context:
                         self.context['reporting_to']['user_detail'] = user_detail_serializer.data['user_obj']
