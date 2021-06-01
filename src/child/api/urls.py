@@ -5,22 +5,14 @@ from .views import*
 urlpatterns = [
      path('child_list_create',
          ChildListCreate.as_view(), name='ChildListCreate'),
-
      path('child_retrive_update_delete/<int:pk>', ChildRetriveUpdateDestroy.as_view(),
          name='ChildRetriveUpdateDestroy'),
-
-         
-
+     path('child_detail_by_child/<int:pk>',
+         ChildDetailByChild.as_view(), name='ChildDetailByChild'),
      path('child-detail_list_create',
          ChildDetailListCreate.as_view(), name='ChildDetailListCreate'),
      path('child-detail_retrive_update_delete/<int:pk>', ChildDetailRetriveUpdateDestroy.as_view(),
          name='ChildDetailRetriveUpdateDestroy'),
-
-
-
-    # path('area-of-devlopment_retrive_update_delete/<int:pk>', AreaOfDevlopmentRetriveUpdateDestroy.as_view(),
-    #      name='AreaOfDevlopmentRetriveUpdateDestroy'),
-
     path('attendance_list_create',
          AttendanceListCreate.as_view(), name='AttendanceListCreate'),
 
