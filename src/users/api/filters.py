@@ -19,6 +19,8 @@ class UserTypeFilter(filters.FilterSet):
 
 
 class UserDetailFilter(filters.FilterSet):
+    user_obj = filters.CharFilter(
+        field_name='user_obj__username', lookup_expr='icontains')
 
     class Meta:
         model = UserDetail
