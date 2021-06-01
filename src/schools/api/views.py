@@ -335,7 +335,18 @@ class SectionListByGrade(GeneralClass, Mixins, ListCreateAPIView):
 
 
 
+""" Grade list By School """
 
+
+class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            grade_qs = SchoolGradeSubject.objects.filter(school__id=request.data.get('school',None))
+            grade_serializer = SchoolGradeSubjectListSerializer(grade_qs, many=True)
+            return Response(grade_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

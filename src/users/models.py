@@ -22,6 +22,20 @@ Relationship_With_Child_Choice = [
 ]
 
 
+
+"""  Choice """
+Male = 'Male'
+Female = 'Female'
+Other = 'Other'
+
+
+Gender_Choice = [
+    (Male, 'Male'),
+    (Female, 'Female'),
+    (Other, 'Other')
+]
+
+
 """ Type Model """
 
 
@@ -84,6 +98,7 @@ class UserDetail(TimestampAwareModel):
         UserType, on_delete=models.PROTECT, null=True, blank=True)
     role = models.ManyToManyField(Role, related_name='user_role', blank=True)
     role_label = models.CharField(max_length=25, null=True, blank=True)
+    gender = models.CharField(max_length=25, choices=Gender_Choice,null=True, blank=True)
     email_verified = models.BooleanField(
         default=False, verbose_name='Email Verified')
     phone_verified = models.BooleanField(
