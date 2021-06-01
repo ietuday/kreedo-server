@@ -184,6 +184,58 @@ class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestro
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
+
+
+""" Child Session Create Serializer """
+class ChildSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = ChildSession
+    filterset_class = ChildSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildSessionListSerializer
+
+        if self.request.method == 'POST':
+            return ChildSessionCreateSerializer
+
+"""  Child Session Retrive Delete update """
+class ChildSessionRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIView):
+    model = ChildSession
+    filterset_class = ChildSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildSessionListSerializer
+
+        if self.request.method == 'PUT':
+            return ChildSessionCreateSerializer
+
+        if self.request.method == 'PATCH':
+            return ChildSessionCreateSerializer
+        
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+""" Child According Child detail """
+class ChildDetailByChild(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            child_detail_qs = ChildDetail.objects.filter(child=pk)
+            child_detail_serializer = ChildDetailListSerializer(child_detail_qs, many=True)
+            return Response(child_detail_serializer.data,status = status.HTTP_200_OK)
+            
+        except Exception as ex:
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 """ Attendance List and Create """
 
 

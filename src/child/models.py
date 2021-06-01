@@ -9,6 +9,20 @@ from .managers import*
 from plan.models import*
 # Create your models here.
 
+
+
+"""  Relationship Choice """
+Individual = 'Individual'
+Group = 'Group'
+
+
+Academic_Session_Type_Choice = [
+    (Individual, 'Individual'),
+    (Group, 'Group')
+]
+
+
+
 """  Choice """
 Male = 'Male'
 Female = 'Female'
@@ -89,6 +103,30 @@ class ChildDetail(TimestampAwareModel):
 
 
 """ Child Session Model """
+
+class ChildSession(TimestampAwareModel):
+    child = models.ForeignKey('Child', on_delete=models.CASCADE, null=True,blank=True)
+    session_name = models.CharField(max_length=100, null=True,blank=True)
+    session_type = models.CharField(
+        max_length=50, choices=Academic_Session_Type_Choice)
+    academic_session = models.ForeignKey(
+        to='session.AcademicSession', on_delete=models.PROTECT,null=True,blank=True)
+    start_date=models.DateField()
+    end_date = models.DateField()
+    is_active= models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'ChildSession'
+        verbose_name_plural = 'ChildSessions'
+        ordering = ['-id']
+        unique_together = ['child','session_type','is_active']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('ChildSession_detail', kwargs={"pk": self.pk})
+
 
 
 """ Attendance Model """

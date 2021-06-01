@@ -24,6 +24,15 @@ class ChildDetailFilter(filters.FilterSet):
         fields = ['child']
 
 
+
+""" ChildSession Filter """
+
+class ChildSessionFilter(filters.FilterSet):
+    class Meta:
+        model = ChildSession
+        fields = '__all__'
+
+
 """  Attendance filter """
 
 

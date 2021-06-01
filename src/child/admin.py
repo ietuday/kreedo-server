@@ -34,6 +34,17 @@ class ChildDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                    'siblings_details', 'document_checklist', 'is_active']
 
 
+""" ChildSession Admin """
+@admin.register(ChildSession)
+class ChildSessionAdmin(ImportExportModelAdmin,admin.ModelAdmin):
+    list_display = ['id','child','session_name','session_type','academic_session',
+            'start_date','end_date','is_active']
+    search_fields = ['id','child','session_name','session_type','academic_session',
+            'start_date','end_date','is_active']
+    list_filter = ['id','child','session_name','session_type','academic_session',
+            'start_date','end_date','is_active']
+
+
 """ Attendance Admin """
 
 
