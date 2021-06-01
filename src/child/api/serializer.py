@@ -213,7 +213,8 @@ class ChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields='__all__'
-        # depth= 3
+        # depth= 2
+
 
     def to_representation(self, obj):
         serialized_data = super(

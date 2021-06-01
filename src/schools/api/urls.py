@@ -37,6 +37,9 @@ urlpatterns = [
     path('section_list_by_grade', SectionListByGrade.as_view(),
          name='SectionListByGrade'),
 
+    path('grade_list_by_school', GradeListBySchool.as_view(),
+         name='GradeListBySchool'),
+         
          
      path('bulk-upload/add-school',
          AddSubject.as_view(), name='AddSubject'),
