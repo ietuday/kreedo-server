@@ -19,6 +19,7 @@ urlpatterns = [
           name='AcademicSessionByTeacher'),
      path('generate_calender_to_pdf', GenerateCalenderToPdf.as_view(),
           name='GenerateCalenderToPdf'),
-
+     path('academic_session_by_school', AcademicSessionBySchool.as_view(),
+          name='AcademicSessionBySchool'),
 
 ]

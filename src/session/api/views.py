@@ -95,6 +95,20 @@ class AcademicCalenderListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AcademicCalenderCreateSerializer
 
 
+
+
+
+""" Get Academic Session According to School ID """
+class AcademicSessionBySchool(GeneralClass,Mixins,ListCreateAPIView):
+    def post(self, request):
+        try:
+            academic_session_qs = AcademicSession.objects.filter(session__school=request.data.get('school',None))
+            academic_session_serializer = AcademicSessionListSerializer(academic_session_qs,many=True)
+            return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
+    
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 """ Retrive Update and Delete Academic Calender """
 
 
