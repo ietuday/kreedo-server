@@ -69,3 +69,11 @@ class RoomAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'name', 'room_no', 'school', 'is_active']
     search_fields = ['id', 'name', 'room_no', 'school', 'is_active']
     list_filter = ['id', 'name', 'room_no', 'school', 'is_active']
+
+""" SchoolGradeSubject Admin """
+@admin.register(SchoolGradeSubject)
+class SchoolGradeSubjectAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id','school','grade','is_active']
+    search_fields = ['id','school','grade','is_active']
+    list_filter = ['id','school','grade','is_active']
+

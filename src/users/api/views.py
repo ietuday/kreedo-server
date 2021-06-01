@@ -577,10 +577,12 @@ class AddUser(ListCreateAPIView):
             }
             reporting_to = {
                 "user_detail": 1,
-                "user_role": request.data.get('role', None),
+                "user_role": request.data.get('role', None)[0],
                 "reporting_to": request.data.get('reporting_to', None),
                 "is_active": "true"
             }
+            
+            print("reporting_to----------->",reporting_to)
 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
@@ -602,7 +604,7 @@ class AddUser(ListCreateAPIView):
 
                     return Response(context)
             except Exception as ex:
-
+                print("TRACEback", traceback.print_exc())
                 logger.debug(ex)
                 context = {
                     "error": ex, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
