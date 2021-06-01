@@ -227,11 +227,15 @@ class ChildSerializer(serializers.ModelSerializer):
     
         serialized_data['parent_data'] = user_qs_serializer.data
             
-        child_id_qs = ChildPlan.objects.filter(child__id=child_id)
+        child_id_qs = ChildPlan.objects.filter(child=child_id)
         if child_id_qs:
             child_id_serializer = ChildPlanOfChildSerializer(
                 child_id_qs, many=True)
             serialized_data['academic_session_data'] = child_id_serializer.data
+        child_detail_qs = ChildDetail.objects.filter(child=child_id)
+        if child_detail_qs:
+            child_detail_serializer = ChildDetailListSerializer(child_detail_qs, many=True)
+            serialized_data['child_additional_details']=child_detail_serializer.data
     
         return serialized_data
 
@@ -262,6 +266,23 @@ class ChildDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildDetail
         fields = '__all__'
+
+""" ChildSession List Serializer """
+class ChildSessionListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSession
+        fields = '__all__'
+        depth = 2
+
+    
+""" ChildSession Create Serializer """
+class ChildSessionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSession
+        fields = '__all__'
+       
+
+
 
 
 """ Attendance Create Serializer """
