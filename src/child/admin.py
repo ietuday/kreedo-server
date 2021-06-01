@@ -26,11 +26,11 @@ class ChildAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(ChildDetail)
 class ChildDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'child', 'medical_details', 'recidence_details', 'emergency_contact_details',
+    list_display = ['id', 'child', 'medical_details', 'residence_details', 'emergency_contact_details',
                     'siblings_details', 'document_checklist', 'is_active']
-    search_fields = ['id',  'child', 'medical_details', 'recidence_details', 'emergency_contact_details',
+    search_fields = ['id',  'child', 'medical_details', 'residence_details', 'emergency_contact_details',
                      'siblings_details', 'document_checklist', 'is_active']
-    list_filter = ['id',  'child', 'medical_details', 'recidence_details', 'emergency_contact_details',
+    list_filter = ['id',  'child', 'medical_details', 'residence_details', 'emergency_contact_details',
                    'siblings_details', 'document_checklist', 'is_active']
 
 
