@@ -164,17 +164,31 @@ class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
         model = SchoolGradeSubject
         fields = '__all__'
 
+
 """ SchoolGradeSubject List Serializer """
+
+
 class SchoolGradeSubjectListSerializer(serializers.ModelSerializer):
     class Meta:
-        model= SchoolGradeSubject
+        model = SchoolGradeSubject
         fields = '__all__'
-        depth =  1
+        depth = 1
+
 
 """ SchoolGradeSubject Create Serializer """
+
+
 class SchoolGradeSubjectCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model= SchoolGradeSubject
+        model = SchoolGradeSubject
         fields = '__all__'
 
 
+""" SchoolGradeSubject  Serializer """
+
+
+class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = ['grade']
+        depth = 1

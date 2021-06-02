@@ -49,12 +49,11 @@ class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return SchoolSessionCreateSerializer
         if self.request.method == 'PATCH':
             return SchoolSessionCreateSerializer
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
-
 
 
 """ AcademicSession Create  and list """
@@ -85,7 +84,7 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
             return AcademicSessionCreateSerializer
         if self.request.method == 'PATCH':
             return AcademicSessionCreateSerializer
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -106,19 +105,21 @@ class AcademicCalenderListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AcademicCalenderCreateSerializer
 
 
-
-
-
 """ Get Academic Session According to School ID """
-class AcademicSessionBySchool(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class AcademicSessionBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
-            academic_session_qs = AcademicSession.objects.filter(session__school=request.data.get('school',None))
-            academic_session_serializer = AcademicSessionListSerializer(academic_session_qs,many=True)
+            academic_session_qs = AcademicSession.objects.filter(
+                session__school=request.data.get('school', None))
+            academic_session_serializer = AcademicSessionListSerializer(
+                academic_session_qs, many=True)
             return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
-    
+
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ Retrive Update and Delete Academic Calender """
 
@@ -134,7 +135,7 @@ class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
             return AcademicCalenderCreateSerializer
         if self.request.method == 'PATCH':
             return AcademicCalenderCreateSerializer
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -166,44 +167,45 @@ class AcademicSessionByTeacher(GeneralClass, Mixins, ListCreateAPIView):
 
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class GenerateCalenderToPdf(ListCreateAPIView):
 
-    def post(self,request):
+    def post(self, request):
         try:
 
             """ 
                 Filter School ID From School Model 
             """
-            school_qs = School.objects.get(id=request.data.get('school_id', None)).id
+            school_qs = School.objects.get(
+                id=request.data.get('school_id', None)).id
 
             """ 
                 Filter School ID From ACADEMIC CALENDER Model for getting no. of years
             """
-            school_academic_calender_qs = SchoolCalendar.objects.filter(school=school_qs)
-            print("ACADEMIC CALENDER--->",school_academic_calender_qs)
+            school_academic_calender_qs = SchoolCalendar.objects.filter(
+                school=school_qs)
 
             for school_academic_calender_year in school_academic_calender_qs:
-                """ get date list """ 
-                date_list = Genrate_Date_of_Year(school_academic_calender_year.session_from,school_academic_calender_year.session_till)
-                print("DATE----->",date_list)
+                """ get date list """
+                date_list = Genrate_Date_of_Year(
+                    school_academic_calender_year.session_from, school_academic_calender_year.session_till)
                 """ get month list """
-                month_list = Genrate_Month(school_academic_calender_year.session_from,school_academic_calender_year.session_till)
-                print("MONTH------>", month_list)
-
+                month_list = Genrate_Month(
+                    school_academic_calender_year.session_from, school_academic_calender_year.session_till)
 
             """ Get Week off list from SchoolWeakOff model """
             school_week_off = SchoolWeakOff.objects.filter(school=school_qs)
-            school_week_off_serializer = SchoolWeakOffListSerializer(school_week_off,many=True)
+            school_week_off_serializer = SchoolWeakOffListSerializer(
+                school_week_off, many=True)
             print("SCHOOL WEEK OFF", school_week_off_serializer.data)
 
             """ School holiday list from SchoolHoliday model"""
-            school_holiday_qs = SchoolHoliday.objects.filter(school_session__school=school_qs)
+            school_holiday_qs = SchoolHoliday.objects.filter(
+                school_session__school=school_qs)
             print("School holiday QS---->", school_holiday_qs)
-            school_holiday_serailizer = SchoolHolidayListSerializer(school_holiday_qs, many=True)
+            school_holiday_serailizer = SchoolHolidayListSerializer(
+                school_holiday_qs, many=True)
             print("SCHOOL HOLIDAY ", school_holiday_serailizer.data)
-
-
-
 
         except Exception as ex:
             print("ERROR----->", ex)
