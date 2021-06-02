@@ -21,11 +21,12 @@ handler.setFormatter(CustomFormatter())
 logger.addHandler(handler)
 
 """ block Create Serailizer """
+
+
 class BlockCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Block
         fields = '__all__'
-        
 
 
 """ Child Create Serializer """
@@ -83,7 +84,7 @@ class ChildCreateSerializer(serializers.ModelSerializer):
 
                             parent_id = parent_detail_serializer.data['user_obj']
                             parent_list.append(parent_id)
-                            
+
                             # self.context.update({"parent_detail_serializer_data": parent_detail_serializer.data})
                         else:
                             raise ValidationError(
@@ -103,7 +104,7 @@ class ChildCreateSerializer(serializers.ModelSerializer):
             child.parent.set(validated_data['parent'])
 
             child.save()
-            
+
             acad_session = self.context['academic_session_detail']['academic_session']
             section = self.context['academic_session_detail']['section']
             grade = self.context['academic_session_detail']['grade']
@@ -125,7 +126,7 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                     data=dict(academic_session_detail))
                 if child_plan_serializer.is_valid():
                     child_plan_serializer.save()
-            
+
                     # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
                 else:
@@ -136,21 +137,21 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                 raise ValidationError(ex)
             return child
             """ create block """
-            try: 
-                academic_session= AcademicSession.objects.get(id=acad_session,
-                                                         grade=grade, section=section, class_teacher=class_teacher)
-                
+            try:
+                academic_session = AcademicSession.objects.get(id=acad_session,
+                                                               grade=grade, section=section, class_teacher=class_teacher)
+
                 start_date = academic_session.session_from
                 end_date = academic_session.session_till
                 """ calculate working days """
-                working_days = calculate_working_days(start_date,end_date)
+                working_days = calculate_working_days(start_date, end_date)
                 print("working_days--->", working_days)
 
                 """ calculate blocks"""
                 blocks = calculate_blocks(working_days)
 
                 print("Blocks", blocks)
-                for block in range(1,blocks+1):
+                for block in range(1, blocks+1):
                     print("@@@@@@@@", block)
 
                     block_detail = {
@@ -159,23 +160,24 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                         "activity": random_activity(academic_session)
                     }
 
-                    print("$$$$$",block_detail)
+                    print("$$$$$", block_detail)
 
-                    blockCreateSerializer = BlockCreateSerializer(data=block_detail)
+                    blockCreateSerializer = BlockCreateSerializer(
+                        data=block_detail)
 
                     if blockCreateSerializer.is_valid():
                         blockCreateSerializer.save()
-                        
+
                     else:
                         raise ValidationError(BlockCreateSerializer.errors)
-            
+
             except Exception as ex:
-                print("$$$$$$$$$",ex)
+                print("$$$$$$$$$", ex)
                 logger.debug(ex)
                 raise ValidationError(ex)
 
         except Exception as ex:
-            print("@#######",ex)
+            print("@#######", ex)
             logger.info(ex)
             logger.debug(ex)
             raise ValidationError(ex)
@@ -189,7 +191,6 @@ class ChildListSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
         depth = 2
-    
 
     def to_representation(self, obj):
         serialized_data = super(
@@ -197,7 +198,7 @@ class ChildListSerializer(serializers.ModelSerializer):
         # print("DATA----", serialized_data)
         child_id = serialized_data.get('id')
         print("ID---", child_id)
-        
+
         child_id_qs = ChildPlan.objects.filter(child__id=child_id)
         if child_id_qs:
             child_id_serializer = ChildPlanSerializer(
@@ -207,48 +208,43 @@ class ChildListSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class ChildSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Child
-        fields='__all__'
+        fields = '__all__'
         # depth= 2
-
 
     def to_representation(self, obj):
         serialized_data = super(
             ChildSerializer, self).to_representation(obj)
-    
+
         child_id = serialized_data.get('id')
-       
+
         parent_list = serialized_data.get('parent')
-       
+
         user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
         user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
-    
+
         serialized_data['parent_data'] = user_qs_serializer.data
-            
+
         child_id_qs = ChildPlan.objects.filter(child=child_id)
         if child_id_qs:
             child_id_serializer = ChildPlanOfChildSerializer(
                 child_id_qs, many=True)
             serialized_data['academic_session_data'] = child_id_serializer.data
+        child_session_qs = ChildSession.objects.filter(child=child_id)
+        if child_session_qs:
+            child_session_serializer= ChildSessionListSerializer(child_session_qs, many=True)
+            serialized_data['session_details'] = child_session_serializer.data
+
         child_detail_qs = ChildDetail.objects.filter(child=child_id)
         if child_detail_qs:
-            child_detail_serializer = ChildDetailListSerializer(child_detail_qs, many=True)
-            serialized_data['child_additional_details']=child_detail_serializer.data
-    
+            child_detail_serializer = ChildDetailListSerializer(
+                child_detail_qs, many=True)
+            serialized_data['child_additional_details'] = child_detail_serializer.data
+
         return serialized_data
-
-
-
-
-
-
-
-
-       
 
 
 """ Child Detail list """
@@ -269,22 +265,24 @@ class ChildDetailCreateSerializer(serializers.ModelSerializer):
         model = ChildDetail
         fields = '__all__'
 
+
 """ ChildSession List Serializer """
+
+
 class ChildSessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildSession
         fields = '__all__'
         depth = 2
 
-    
+
 """ ChildSession Create Serializer """
+
+
 class ChildSessionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildSession
         fields = '__all__'
-       
-
-
 
 
 """ Attendance Create Serializer """
@@ -305,4 +303,3 @@ class AttendanceListSerializer(serializers.ModelSerializer):
         model = Attendance
         fields = '__all__'
         depth = 1
-
