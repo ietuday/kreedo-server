@@ -47,8 +47,14 @@ class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return SchoolSessionListSerializer
         if self.request.method == 'PUT':
             return SchoolSessionCreateSerializer
-        if self.request.method == 'DELETE':
+        if self.request.method == 'PATCH':
             return SchoolSessionCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 
 """ AcademicSession Create  and list """
@@ -77,8 +83,13 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
             return AcademicSessionListSerializer
         if self.request.method == 'PUT':
             return AcademicSessionCreateSerializer
-        if self.request.method == 'DELETE':
-            return AcademicSessionListSerializer
+        if self.request.method == 'PATCH':
+            return AcademicSessionCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Create and List of Academic Calender """
@@ -121,8 +132,13 @@ class AcademicCalenderRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
             return AcademicCalenderListSerializer
         if self.request.method == 'PUT':
             return AcademicCalenderCreateSerializer
-        if self.request.method == 'DELETE':
-            return AcademicCalenderListSerializer
+        if self.request.method == 'PATCH':
+            return AcademicCalenderCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 class AcademicSessionByTeacher(GeneralClass, Mixins, ListCreateAPIView):

@@ -60,8 +60,22 @@ class GradeListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class GradeRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Grade
-    serializer_class = GradeSerializer
     filterset_class = GradeFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return GradeSerializer
+        if self.request.method == 'PUT':
+            return GradeSerializer
+        if self.request.method == 'PATCH':
+            return GradeSerializer
+      
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 
 """ Section List and Create """
@@ -92,14 +106,7 @@ class SectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
             return SectionCreateSerializer
         if self.request.method == 'PATCH':
             return SectionCreateSerializer
-        if self.request.method == 'DELETE':
-            return SectionListSerializer
-
-
-    # def perform_destroy(self, instance, *args, **kwargs):
-    #     serializer = self.get_serializer(self.get_object())
-    #     super().destroy(*args, **kwargs)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+       
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -126,7 +133,6 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SubjectRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Subject
-    serializer_class = SubjectListSerializer
     filterset_class = SubjectFilter
 
     def get_serializer_class(self):
@@ -134,6 +140,13 @@ class SubjectRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
             return SubjectListSerializer
         if self.request.method == 'PUT':
             return SubjectCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 """ License List and Create """
@@ -155,7 +168,6 @@ class LicenseListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = License
-    serializer_class = LicenseCreateSerializer
     filterset_class = LicenseFilter
 
     def get_serializer_class(self):
@@ -163,6 +175,13 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
             return LicenseListSerializer
         if self.request.method == 'PUT':
             return LicenseCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 """ School List and Create """
@@ -253,8 +272,23 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = School
-    serializer_class = SchoolListSerializer
     filterset_class = SchoolFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SchoolListSerializer
+        if self.request.method == 'PUT':
+            return SchoolSerializer
+        if self.request.method == 'PATCH':
+            return SchoolSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
+
 
 
 """ Section Subject Teacher List and Create """
@@ -282,6 +316,14 @@ class SectionSubjectTeacherRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUp
             return SectionSubjectTeacherListSerializer
         if self.request.method == 'PUT':
             return SectionSubjectTeacherCreateSerializer
+        if self.request.method == 'PATCH':
+            return SectionSubjectTeacherCreateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 
 """ Room List and Create """
@@ -310,8 +352,8 @@ class RoomRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
             return RoomListSerializer
         if self.request.method == 'PUT':
             return RoomCreateSerializer
-        if self.request.method == 'DELETE':
-            return RoomListSerializer
+        if self.request.method == 'PATCH':
+            return RoomCreateSerializer
 
 
     def destroy(self, request, *args, **kwargs):
