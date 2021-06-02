@@ -80,8 +80,14 @@ class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
             return PlanListSerailizer
         if self.request.method == 'PUT':
             return PlanCreateSerailizer
-        if self.request.method == 'DELETE':
-            return PlanListSerailizer
+        if self.request.method == 'PATCH':
+            return PlanCreateSerailizer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 
 """ Child Plan List and create """
@@ -104,13 +110,19 @@ class ChildPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class ChildPlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ChildPlan
     filterset_class = ChildPlanFilter
-    serializer_class = ChildPlanListSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildPlanListSerializer
         if self.request.method == 'PUT':
             return ChildPlanCreateSerailizer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 """ Plan Activity List Create """
@@ -140,6 +152,13 @@ class PlanActivityRetriveUpdateDestroy(GeneralClass, Mixins,  RetrieveUpdateDest
         if self.request.method == 'PUT':
             return PlanActivityCreateSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
+
 
 """ Subject school Grade Plan Api of List and Create """
 
@@ -165,8 +184,13 @@ class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveU
             return SubjectSchoolGradePlanListSerializer
         if self.request.method == 'PUT':
             return SubjectSchoolGradePlanCreateSerializer
-        if self.request.method == 'DELETE':
-            return SubjectSchoolGradePlanCreateSerializer
+            
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 """ Child related Activity """
