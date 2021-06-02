@@ -71,6 +71,15 @@ class UserDetailListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+""" User Detail List Serializer """
+class UserDetailListForAcademicSessionSerializer(serializers.ModelSerializer):
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        # depth = 1
+
+
 """ Reporting To  Serializer """
 
 
@@ -78,6 +87,16 @@ class ReportingToSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportingTo
         fields = '__all__'
+
+
+""" Reporting To  Serializer """
+
+
+class ReportingToListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportingTo
+        fields = '__all__'
+        depth = 1
 
 
 """ User Role Serializer"""
@@ -89,6 +108,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        
         print("User Role Called--------->", validated_data)
         return UserRole.objects.create(**validated_data)
 
@@ -98,21 +118,31 @@ class UserRoleCreateSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = '__all__'
 
+
+class ReportingToCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportingTo
+        fields = '__all__'
+
     def create(self, validated_data):
         try:
             
-            print("User Role Called--------->", validated_data)
-            # user_role = UserRole.objects.create(**validated_data)
-            print("@@@@@@@@@@@@@@@@@",validated_data.get('user'))
-            user_detail = UserDetail.objects.get(user_obj=validated_data.get('user'))
-            print("********", user_detail)
-            # user_detail.role = [validated_data.get('user')]
-            user_detail.role.add(validated_data.get('role'))
+            reporting_qs = ReportingTo.objects.create(**validated_data)
+            """ Role update in User Detail """
+            user_detail = UserDetail.objects.get(user_obj=validated_data.get('user_detail',None))
+        
+            role_id = validated_data.get('user_role',None)
+            user_detail.role.add(role_id)
             user_detail.save()
             print("SAVE ROLE")
-
-
-
+           
+            """ User Role Creation """
+            role_serializer= UserRoleCreateSerializer(data= self.context['role_detail'])
+            if role_serializer.is_valid():
+                role_serializer.save()
+            else:
+                raise ValidationError(role_serializer.errors)
+            return reporting_qs
         except Exception as ex:
             print("ERROR SERIALIZER", ex)
         
