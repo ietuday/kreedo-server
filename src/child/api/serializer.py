@@ -226,7 +226,7 @@ class ChildSerializer(serializers.ModelSerializer):
         user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
         user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
 
-        serialized_data['parent_data'] = user_qs_serializer.data
+        serialized_data['parents'] = user_qs_serializer.data
 
         child_id_qs = ChildPlan.objects.filter(child=child_id)
         if child_id_qs:

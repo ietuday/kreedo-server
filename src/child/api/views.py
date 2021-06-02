@@ -78,7 +78,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             }
 
             parent_detail = {
-                "parents": request.data.get('parent', None)
+                "parents": request.data.get('parents', None)
             }
 
             academic_session_detail = {
