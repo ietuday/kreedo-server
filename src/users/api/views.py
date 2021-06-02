@@ -67,6 +67,11 @@ class RoleRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestroyAPIVie
     serializer_class = RoleSerializer
     filterset_class = RoleFilter
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 """ User Type List and Create """
 
@@ -85,6 +90,10 @@ class UserTypeRetriveUpdateDelete(Mixins, GeneralClass, RetrieveUpdateDestroyAPI
     serializer_class = UserTypeSerializer
     filterset_class = UserTypeFilter
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 """ Reporting_to  List and Create API"""
 
@@ -101,6 +110,11 @@ class ReportingToRetriveUpdateDestroy(Mixins, GeneralClass, RetrieveUpdateDestro
     model = ReportingTo
     serializer_class = ReportingToSerializer
     filterset_class = ReportingToFilter
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ User Detail List """
@@ -126,6 +140,7 @@ class UserRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
         if self.request.method == 'PATCH':
             return UserDetailSerializer
         
+    
     
 
     def destroy(self, request, *args, **kwargs):
@@ -393,7 +408,6 @@ class ResetPassword(Mixins, GeneralClass, CreateAPIView):
 
     def post(self, request,uidb64,token):
         try:
-            # url = request.data.get('url', None)
             user_token_detail = {
                 "uidb64": uidb64,
                 "token": token
@@ -417,7 +431,6 @@ class ResetPassword(Mixins, GeneralClass, CreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 """ logged in """
 

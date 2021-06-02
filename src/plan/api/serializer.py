@@ -135,12 +135,13 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
-
+from session.api.serializer import*
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
+    academic_session = AcademicSessionListSerializer()
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth = 2
+        depth = 3
 
 
 """ Plan activity List Serializer """

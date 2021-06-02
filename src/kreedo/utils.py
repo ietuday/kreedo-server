@@ -28,8 +28,7 @@ def get_url(request_obj):
         url1 = url0.strip("'/")
         url2 = url1.split("/")
         url = url2[1]
-        print("url, method----->",url, method)
-        print("@@@@@@@@@@@@",data[-1])
+        
         return url, method
     except Exception as ex:
         logger.info(ex)
@@ -44,7 +43,6 @@ def get_url(request_obj):
 
 def get_message(api_name, method):
     apiname_list = api_name.split('?')
-    print("apiname_list--------------->", apiname_list[0])
     return  apiname_list[0]
 
 
@@ -104,9 +102,7 @@ def get_paginated_response(self, data):
 def get_response(data, response_obj, message):
     try:
         if data:
-            print("DATA-------------",data)
-            print("response_obj------",response_obj)
-            print("message--------",message)
+           
             error_msg = ["non_field_errors", "detail"]
             for error_message in error_msg:
                 if error_message in data:
