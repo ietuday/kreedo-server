@@ -247,6 +247,7 @@ class ChildSerializer(serializers.ModelSerializer):
         return serialized_data
 
 
+
 """ Child Detail list """
 
 

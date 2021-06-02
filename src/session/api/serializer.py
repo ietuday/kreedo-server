@@ -44,12 +44,14 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = '__all__'
 
-
+from users.api.serializer import*
 class AcademicSessionListSerializer(serializers.ModelSerializer):
+    class_teacher = UserDetailListSerializer()
+
     class Meta:
         model = AcademicSession
         fields = '__all__'
-        depth = 1
+        depth = 4
 
 
 class AcademicSessionTeacherListSerializer(serializers.ModelSerializer):
