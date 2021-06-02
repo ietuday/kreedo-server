@@ -28,7 +28,7 @@ class PlanListSerailizer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             PlanListSerailizer, self).to_representation(obj)
-    
+
         plan_id = serialized_data.get('id')
         plan_activity = PlanActivity.objects.filter(plan__id=plan_id)
         plan_activity_serializer = PlanActivityListSerializer(
@@ -36,11 +36,13 @@ class PlanListSerailizer(serializers.ModelSerializer):
         serialized_data['plan_activity_data'] = plan_activity_serializer.data
         return serialized_data
 
+
 class PlanSerailizer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = '__all__'
-        
+
+
 """ Plan Create Serializer """
 
 
@@ -94,25 +96,27 @@ class ChildPlanListSerializer(serializers.ModelSerializer):
         model = ChildPlan
         fields = '__all__'
         depth = 1
-    
+
     def to_representation(self, obj):
         serialized_data = super(
             ChildPlanListSerializer, self).to_representation(obj)
-            
+
         child_data = serialized_data.get('child')
         child_id = child_data.get('id')
-        child_activity_count = ActivityComplete.objects.filter(child__id=child_id, is_completed=False).count() 
+        child_activity_count = ActivityComplete.objects.filter(
+            child__id=child_id, is_completed=False).count()
         serialized_data['activity_behind'] = child_activity_count
         return serialized_data
 
+
 """ child plan activity Serializer """
+
+
 class ChildPlanActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth=3
-      
-
+        depth = 3
 
 
 """ child Plan create Serailizer """
@@ -125,22 +129,19 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
                   'subjects', 'curriculum_start_date']
 
 
-
-
-
 class ChildPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = ['academic_session']
         depth = 2
-    
+
 
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth = 1
-    
+        depth = 2
+
 
 """ Plan activity List Serializer """
 
