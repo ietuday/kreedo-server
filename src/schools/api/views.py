@@ -392,9 +392,6 @@ class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 
 
 
-
-
-
 """ Bulk Upload Subjects """
 
 
