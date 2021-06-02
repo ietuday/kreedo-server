@@ -637,6 +637,24 @@ class AddUser(ListCreateAPIView):
             return Response(context)
 
 
+""" Add role from user detail """
+class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
+    def post(self, request):
+        try:
+            print(request.data)
+
+
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
 class AddAccount(ListCreateAPIView):
 
     def post(self, request):

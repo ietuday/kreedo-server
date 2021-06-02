@@ -37,6 +37,10 @@ urlpatterns = [
     path('add-user', AddUser.as_view(), name='AddUser'),
     path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
+    path('add_role_of_user_list_create', AddRoleOfUserListCreate.as_view(), name='AddRoleOfUserListCreate'),
+
+
+
 
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
