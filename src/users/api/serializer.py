@@ -93,6 +93,32 @@ class UserRoleSerializer(serializers.ModelSerializer):
         return UserRole.objects.create(**validated_data)
 
 
+class UserRoleCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            
+            print("User Role Called--------->", validated_data)
+            # user_role = UserRole.objects.create(**validated_data)
+            print("@@@@@@@@@@@@@@@@@",validated_data.get('user'))
+            user_detail = UserDetail.objects.get(user_obj=validated_data.get('user'))
+            print("********", user_detail)
+            # user_detail.role = [validated_data.get('user')]
+            user_detail.role.add(validated_data.get('role'))
+            user_detail.save()
+            print("SAVE ROLE")
+
+
+
+        except Exception as ex:
+            print("ERROR SERIALIZER", ex)
+        
+
+
+
 """ User Register API """
 
 

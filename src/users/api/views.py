@@ -641,7 +641,17 @@ class AddUser(ListCreateAPIView):
 class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
     def post(self, request):
         try:
-            print(request.data)
+            # print(request.data)
+            user_role_serializer = UserRoleCreateSerializer(data=request.data)
+            if user_role_serializer.is_valid():
+                user_role_serializer.save()
+                print("Serializer---", user_role_serializer.data)
+                return Response(user_role_serializer.data,status=status.HTTP_200_OK)
+            else:
+                print(user_role_serializer.errors)
+                return Response(user_role_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
         except Exception as ex:
