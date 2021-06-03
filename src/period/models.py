@@ -48,7 +48,7 @@ Days_Choice = [
 
 class PeriodTemplate(TimestampAwareModel):
     name = models.CharField(max_length=100, unique=True)
-    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT,null=True, blank=True)
     is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = PeriodTemplateManager
