@@ -230,8 +230,8 @@ class ChildSessionRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroy
 class ChildDetailByChild(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request, pk):
         try:
-            child_detail_qs = ChildDetail.objects.filter(child=pk)
-            child_detail_serializer = ChildDetailListSerializer(child_detail_qs, many=True)
+            child_detail_qs = ChildDetail.objects.filter(child=pk)[0]
+            child_detail_serializer = ChildDetailListSerializer(child_detail_qs)
             return Response(child_detail_serializer.data,status = status.HTTP_200_OK)
             
         except Exception as ex:
