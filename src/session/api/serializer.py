@@ -1,3 +1,4 @@
+from users.api.serializer import*
 from rest_framework import serializers
 from ..models import *
 from schools.api.serializer import*
@@ -44,14 +45,23 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = '__all__'
 
-from users.api.serializer import*
+
 class AcademicSessionListSerializer(serializers.ModelSerializer):
-    class_teacher = UserDetailListSerializer()
+    class_teacher = UserDetailListForAcademicSessionSerializer()
 
     class Meta:
         model = AcademicSession
         fields = '__all__'
-        depth = 4
+        depth = 1
+
+
+class AcademicSessionListForChildSerializer(serializers.ModelSerializer):
+    class_teacher = UserDetailListForAcademicSessionSerializer()
+
+    class Meta:
+        model = AcademicSession
+        fields = '__all__'
+        depth = 1
 
 
 class AcademicSessionTeacherListSerializer(serializers.ModelSerializer):

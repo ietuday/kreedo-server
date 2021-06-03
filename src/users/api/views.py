@@ -639,10 +639,21 @@ class AddUser(ListCreateAPIView):
 
 """ Add role from user detail """
 class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
+    model = ReportingTo
+    def get_serializer_class(self):
+        return ReportingToListSerializer
+        
     def post(self, request):
         try:
             # print(request.data)
-            user_role_serializer = UserRoleCreateSerializer(data=request.data)
+            role_detail = {
+                "user":request.data.get('user_detail',None),
+                "role":request.data.get('user_role',None),
+                "school":""
+            }
+            context = super().get_serializer_context()
+            context.update({"role_detail": role_detail})
+            user_role_serializer = ReportingToCreateSerializer(data=request.data,context=context)
             if user_role_serializer.is_valid():
                 user_role_serializer.save()
                 print("Serializer---", user_role_serializer.data)

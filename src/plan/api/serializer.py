@@ -1,3 +1,4 @@
+from session.api.serializer import*
 from rest_framework import serializers
 from ..models import*
 from django.core.exceptions import ValidationError
@@ -135,13 +136,14 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
-from session.api.serializer import*
+
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
-    academic_session = AcademicSessionListSerializer()
+    academic_session = AcademicSessionListForChildSerializer()
+
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth = 3
+        depth = 1
 
 
 """ Plan activity List Serializer """
