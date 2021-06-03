@@ -207,7 +207,6 @@ class ChildListSerializer(serializers.ModelSerializer):
         return serialized_data
 
 
-
 class ChildSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -235,17 +234,17 @@ class ChildSerializer(serializers.ModelSerializer):
             serialized_data['academic_session_data'] = child_id_serializer.data
         child_session_qs = ChildSession.objects.filter(child=child_id)
         if child_session_qs:
-            child_session_serializer= ChildSessionListSerializer(child_session_qs, many=True)
+            child_session_serializer = ChildSessionListSerializer(
+                child_session_qs, many=True)
             serialized_data['session_details'] = child_session_serializer.data
 
-        child_detail_qs = ChildDetail.objects.filter(child=child_id)
-        if child_detail_qs:
-            child_detail_serializer = ChildDetailListSerializer(
-                child_detail_qs, many=True)
-            serialized_data['child_additional_details'] = child_detail_serializer.data
+        # child_detail_qs = ChildDetail.objects.filter(child=child_id)
+        # if child_detail_qs:
+        #     child_detail_serializer = ChildDetailListSerializer(
+        #         child_detail_qs, many=True)
+        #     serialized_data['child_additional_details'] = child_detail_serializer.data
 
         return serialized_data
-
 
 
 """ Child Detail list """
@@ -274,7 +273,7 @@ class ChildSessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildSession
         fields = '__all__'
-        depth = 2
+        # depth = 1
 
 
 """ ChildSession Create Serializer """
