@@ -87,7 +87,7 @@ class ChildDetail(TimestampAwareModel):
     residence_details = JSONField(blank=True, null=True)
     emergency_contact_details = JSONField(null=True, blank=True)
     siblings = JSONField(null=True, blank=True)
-    document_checklist = JSONField(null=True, blank=True)
+    documents = JSONField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
