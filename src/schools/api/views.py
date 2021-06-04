@@ -398,13 +398,11 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
             list = []
             dict= {}
             room_qs = Room.objects.filter(school=pk)
-            room_serializer = RoomListSerializer(room_qs,many=True)
+            room_serializer = RoomBySchoolSerializer(room_qs,many=True)
             dict['room_list']= room_serializer.data
             subject_qs = SchoolGradeSubject.objects.filter(school=pk)
-            print("@@@@@@@@", subject_qs)
-            subject_serializer = SchoolGradeSubjectListSerializer(subject_qs,many=True)
-            dict['subjects']= subject_serializer.data
-            # print("subject_serializer-------",subject_serializer.data)
+            subject_serializer = SubjectBySchoolSerializer(subject_qs,many=True)
+            dict['subject_list']= subject_serializer.data
             list.append(dict)
             return Response(list,status=status.HTTP_200_OK)
 
