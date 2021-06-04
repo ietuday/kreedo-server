@@ -671,6 +671,27 @@ class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
 
 
 
+import os
+""" S3 Key Access """
+class KeyAccessOfS3(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self, request):
+        try:
+            crediential = {}
+            crediential['aws_bucket_name'] =genrate_encrypted_string(os.environ.get('AWS_STORAGE_BUCKET_NAME'))
+            crediential['aws_region_name']= genrate_encrypted_string(os.environ.get('AWS_S3_REGION_NAME'))
+            crediential['aws_secret_access_key']= genrate_encrypted_string(os.environ.get('AWS_SECRET_ACCESS_KEY'))
+            crediential['aws_access_key_id'] = genrate_encrypted_string(os.environ.get('AWS_ACCESS_KEY_ID'))
+            
+            decrypt_value = genrate_decrypted_string(crediential['aws_bucket_name'] )
+            print("###############",decrypt_value)
+            return Response(crediential,status=status.HTTP_200_OK)
+            
+            
+        except Exception as ex:
+            print("ERROR", ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 
