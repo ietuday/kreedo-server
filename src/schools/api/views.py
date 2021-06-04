@@ -390,24 +390,29 @@ class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+import itertools
 """ school according room and subject """
 class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request, pk):
         try:
-            list = []
+            
             dict= {}
             room_qs = Room.objects.filter(school=pk)
             room_serializer = RoomBySchoolSerializer(room_qs,many=True)
             dict['room_list']= room_serializer.data
             subject_qs = SchoolGradeSubject.objects.filter(school=pk)
             subject_serializer = SubjectBySchoolSerializer(subject_qs,many=True)
-            dict['subject_list']= subject_serializer.data
-           
+            subject_list = subject_serializer.data
+            
+            subject_list = list(itertools.chain(*subject_list))
+            print("subject_list------>",subject_list)
+
+            dict['subject_list']=subject_list
             return Response(dict,status=status.HTTP_200_OK)
 
             
         except Exception as ex:
+            print("Error", ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
