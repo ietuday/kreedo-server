@@ -149,6 +149,11 @@ class RoomListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+class RoomBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'
+        
     # def to_representation(self, obj):
     #     serialized_data = super(
     #         RoomListSerializer, self).to_representation(obj)
@@ -202,4 +207,14 @@ class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolGradeSubject
         fields = ['grade']
+        depth = 1
+
+
+""" SchoolGradeSubject List Serializer """
+
+
+class SubjectBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = ['subject']
         depth = 1
