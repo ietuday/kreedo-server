@@ -268,7 +268,7 @@ class ChildSessionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildSession
         fields = '__all__'
-        # depth = 1
+        depth = 2
 
 
 """ ChildSession Create Serializer """
