@@ -390,24 +390,32 @@ class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+import itertools
+# l = [{'a': 0}, {'b': 1}, {'c': 2}, {'d': 3}, {'e': 4, 'a': 4}]
+from collections import ChainMap
+# d = dict(ChainMap(*l))
+# print(d)
 """ school according room and subject """
 class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request, pk):
         try:
-            list = []
-            dict= {}
+            
+            resultant_dict= {}
             room_qs = Room.objects.filter(school=pk)
             room_serializer = RoomBySchoolSerializer(room_qs,many=True)
-            dict['room_list']= room_serializer.data
+            resultant_dict['room_list']= room_serializer.data
             subject_qs = SchoolGradeSubject.objects.filter(school=pk)
             subject_serializer = SubjectBySchoolSerializer(subject_qs,many=True)
-            dict['subject_list']= subject_serializer.data
-           
-            return Response(dict,status=status.HTTP_200_OK)
+            subject_list = subject_serializer.data
+            resultant_data = list(zip(*[d.values() for d in subject_list]))
+            resultant_data = list(itertools.chain(*resultant_data))
+            resultant_data = list(itertools.chain(*resultant_data))
+            resultant_dict['subject_list']=resultant_data
+            return Response(resultant_dict,status=status.HTTP_200_OK)
 
             
         except Exception as ex:
+            print("Error", ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
