@@ -149,6 +149,17 @@ class RoomListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+    # def to_representation(self, obj):
+    #     serialized_data = super(
+    #         RoomListSerializer, self).to_representation(obj)
+
+    #     school_id = serialized_data.get('school')
+    #     school_id = subject_qs.get('id')
+    #     subject_qs = SchoolGradeSubject.objects.filter(
+    #         school=school_id)
+    #     subject_serializer = SchoolGradeSubjectSerializer(subject_qs,many=True)
+    #     serialized_data['subject'] = subject_serializer.data
+    #     return serialized_data
 
 """ Room create Serializer """
 
@@ -159,10 +170,10 @@ class RoomCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SchoolGradeSubject
-        fields = '__all__'
+# class SchoolGradeSubjeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = SchoolGradeSubject
+#         fields = '__all__'
 
 
 """ SchoolGradeSubject List Serializer """
