@@ -403,8 +403,8 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
             subject_qs = SchoolGradeSubject.objects.filter(school=pk)
             subject_serializer = SubjectBySchoolSerializer(subject_qs,many=True)
             dict['subject_list']= subject_serializer.data
-            list.append(dict)
-            return Response(list,status=status.HTTP_200_OK)
+           
+            return Response(dict,status=status.HTTP_200_OK)
 
             
         except Exception as ex:
