@@ -391,6 +391,27 @@ class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" school according room and subject """
+class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            list = []
+            dict= {}
+            room_qs = Room.objects.filter(school=pk)
+            room_serializer = RoomListSerializer(room_qs,many=True)
+            dict['room_list']= room_serializer.data
+            subject_qs = SchoolGradeSubject.objects.filter(school=pk)
+            print("@@@@@@@@", subject_qs)
+            subject_serializer = SchoolGradeSubjectListSerializer(subject_qs,many=True)
+            dict['subjects']= subject_serializer.data
+            # print("subject_serializer-------",subject_serializer.data)
+            list.append(dict)
+            return Response(list,status=status.HTTP_200_OK)
+
+            
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 """ Bulk Upload Subjects """
 
