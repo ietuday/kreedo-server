@@ -15,6 +15,32 @@ class PeriodTemplateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class PeriodTemplateListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplate
+        fields = ['id','name']
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            PeriodTemplateListSerializer, self).to_representation(obj)
+
+        period_template_id = serialized_data.get('id')
+        week_list = ['MONDAY', 'TUESDAY', 'WEDNESDAY','THURSDAY','FRIDAY','SATURDAY']
+        period_details = []
+        for week_name in week_list:
+            week_dict ={}
+            week_dict['name']=week_name
+            period_template_detail_qs = PeriodTemplateDetail.objects.filter(
+            period_template=period_template_id, days=week_name)
+            period_template_detail_serializer = PeriodTemplateDetailListSerializer(period_template_detail_qs,many=True)
+            week_dict['periods'] = period_template_detail_serializer.data
+            period_details.append(week_dict)
+        serialized_data['period_template_details'] = period_details
+        return serialized_data
+
+
+
 """ Period List Serializer """
 
 
@@ -48,7 +74,6 @@ class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
             instance = super(ClassAccordingToTeacherSerializer,
                              self).to_representation(instance)
             instance['data_list'] = self.context['data_list']
-            print("INSTANCE@@@@@@@@@@@@@@@", instance)
 
             return instance
         except Exception as ex:
@@ -57,11 +82,11 @@ class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             teacher = self.context['data_dict']['teacher'][0]
-            print("TEACHER", teacher)
+        
 
             period_list_qs = Period.objects.filter(
                 teacher=teacher, start_date=validated_data['start_date'])
-            print("##############", period_list_qs)
+         
 
             periods_lists = []
             dict = {}
@@ -75,7 +100,6 @@ class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
                     period=class_period.id).count()
                 dict['activity_behind'] = activity_missed
                 periods_lists.append(dict)
-                print("periods_lists----------->", periods_lists)
                 dict = {}
             self.context.update({"data_list": periods_lists})
             return periods_lists

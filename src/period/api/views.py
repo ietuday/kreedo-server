@@ -415,18 +415,30 @@ class PerioListAccordingDate(GeneralClass,Mixins,ListCreateAPIView):
     def post(self,request):
         try:
             date_period= request.data.get('start_date',None)
-            print("Date---->",date_period)
+      
             academic_id = AcademicSession.objects.get(
                 grade=request.data.get('grade',None), section=request.data.get('section',None)).id
-            print("academic_id",academic_id)
+       
             period_qs = Period.objects.filter(academic_session=academic_id,start_date=request.data.get('start_date',None))
-            print("PERIOD------>",period_qs)
+   
             period_serializer = PeriodListSerializer(period_qs,many=True)
             return Response(period_serializer.data,status=status.HTTP_200_OK)     
         except Exception as ex:
-            print("ERROR------->", ex)
-            print("Traceback", traceback.print_exc())
+          
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
          
+
+""" Period Template Detail List By  Period Template by  ID """
+class PeriodTemplateDetailByPeriodTemplate(GeneralClass, Mixins,ListCreateAPIView):
+    def get(self,request,pk):
+        try:
+            period_template = PeriodTemplate.objects.filter(id=pk)
+            period_template_serializer = PeriodTemplateListSerializer(period_template,many=True)
+            return Response(period_template_serializer.data,status=status.HTTP_200_OK)
+            
+        except Exception as ex:
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
