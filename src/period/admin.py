@@ -32,11 +32,11 @@ class PeriodAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(PeriodTemplateDetail)
 class PeriodTemplateDetailAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'period_template', 'subject', 'room', 'start_time',
+    list_display = ['id', 'period_template', 'subject', 'room','days', 'start_time',
                     'end_time', 'type', 'is_active']
-    search_fields = ['id', 'period_template', 'subject', 'room', 'start_time',
+    search_fields = ['id', 'period_template', 'subject', 'room', 'days', 'start_time',
                      'end_time', 'type', 'is_active']
-    list_filter = ['id', 'period_template', 'subject', 'room', 'start_time',
+    list_filter = ['id', 'period_template', 'subject', 'room', 'days', 'start_time',
                    'end_time', 'type', 'is_active']
 
 

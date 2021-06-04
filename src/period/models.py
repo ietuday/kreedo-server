@@ -108,6 +108,8 @@ class Period(TimestampAwareModel):
 class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
         'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
+    name =  models.CharField(
+        max_length=50,null=True,blank=True)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
@@ -119,7 +121,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
     days = models.CharField(
         max_length=50, choices=Days_Choice)
     academic_session = models.ForeignKey(
-        to='session.AcademicSession', on_delete=models.PROTECT)
+        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:

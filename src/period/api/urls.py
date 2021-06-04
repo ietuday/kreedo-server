@@ -44,5 +44,6 @@ urlpatterns = [
     path('period_list_according_to_date',
          PerioListAccordingDate.as_view(), name='PerioListAccordingDate'),
      
-
+     path('period_template_detail_by_period_template/<int:pk>', PeriodTemplateDetailByPeriodTemplate.as_view(),
+         name='PeriodTemplateDetailByPeriodTemplate'),
 ]
