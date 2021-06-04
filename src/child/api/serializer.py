@@ -112,9 +112,10 @@ class ChildCreateSerializer(serializers.ModelSerializer):
 
             acadmic_ids = AcademicSession.objects.filter(id=acad_session,
                                                          grade=grade, section=section, class_teacher=class_teacher).values('id')[0]['id']
-            # pdb.set_trace()
+            
+            child_id = child.id
             academic_session_detail = {
-                "child": 3,
+                "child":child_id,
                 "academic_session": acadmic_ids,
                 "subjects": self.context['academic_session_detail']['subjects'],
                 "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
@@ -145,22 +146,17 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                 end_date = academic_session.session_till
                 """ calculate working days """
                 working_days = calculate_working_days(start_date, end_date)
-                print("working_days--->", working_days)
 
                 """ calculate blocks"""
                 blocks = calculate_blocks(working_days)
 
-                print("Blocks", blocks)
                 for block in range(1, blocks+1):
-                    print("@@@@@@@@", block)
 
                     block_detail = {
                         "block_no": "Block" + " " + str(block),
                         "child_plan": child_plan_serializer.data['id'],
                         "activity": random_activity(academic_session)
                     }
-
-                    print("$$$$$", block_detail)
 
                     blockCreateSerializer = BlockCreateSerializer(
                         data=block_detail)
@@ -195,9 +191,8 @@ class ChildListSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             ChildListSerializer, self).to_representation(obj)
-        # print("DATA----", serialized_data)
         child_id = serialized_data.get('id')
-        print("ID---", child_id)
+      
 
         child_id_qs = ChildPlan.objects.filter(child__id=child_id)
         if child_id_qs:
