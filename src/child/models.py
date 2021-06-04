@@ -119,7 +119,7 @@ class ChildSession(TimestampAwareModel):
         verbose_name = 'ChildSession'
         verbose_name_plural = 'ChildSessions'
         ordering = ['-id']
-        unique_together = ['child','session_type','is_active']
+        # unique_together = ['child','session_type','is_active']
 
     def __str__(self):
         return str(self.id)
