@@ -413,3 +413,28 @@ def addYears(d, years):
     except ValueError:
 #If not same day, it will return other, i.e.  February 29 to March 1 etc.        
         return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))
+
+
+""" Encription """
+def genrate_encrypted_string(random_string):
+    try:
+        encrypted_string =""
+        for ch in random_string:
+            encrypted_string += chr(ord(ch) + 15)
+        return encrypted_string
+
+    except Exception as ex:
+        raise ValidationError(ex)
+
+""" Decryption """
+
+def genrate_decrypted_string(random_string):
+    try:
+        decrypted_string =""
+        for ch in random_string:
+            decrypted_string += chr(ord(ch) - 15)
+          
+        return decrypted_string
+        
+    except Exception as ex:
+        raise ValidationError(ex)
