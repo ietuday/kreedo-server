@@ -367,7 +367,6 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
 class PeriodMonthList(GeneralClass,Mixins,ListCreateAPIView):
     def post(self, request):
         try:
-            # print("@@@@@@@@@@@@", request.data)
 
             academic_id = AcademicSession.objects.get(
                 grade=request.data.get('grade',None), section=request.data.get('section',None)).id

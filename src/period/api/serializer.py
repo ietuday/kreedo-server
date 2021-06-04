@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from activity.models import*
 from ..models import*
 from session.models import*
+
+
 """ Period Template Serializer """
 
 
