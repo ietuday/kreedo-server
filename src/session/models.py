@@ -38,9 +38,10 @@ class SchoolSession(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('SchoolSession_detail', kwargs={"pk": self.pk})
 
-
+""" Year according Calender Genration """
 class SchoolCalendar(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    session = models.CharField(max_length=50, null=True, blank=True)
     session_from = models.DateField(blank=True)
     session_till = models.DateField(blank=True)
     is_active = models.BooleanField(default=False)

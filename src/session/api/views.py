@@ -176,11 +176,10 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             academic_calender_qs = SchoolCalendar.objects.filter(school=pk)
-            print("########", academic_calender_qs)
+            
             academic_calender_serializer = AcademicCalenderBySchoolSerializer(
                 academic_calender_qs, many=True)
-            print("academic_calender_serializer",
-                  academic_calender_serializer.data)
+           
             return Response(academic_calender_serializer.data,status=status.HTTP_200_OK)
 
         except Exception as ex:
@@ -191,18 +190,28 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
+           
             resultant_dict= {}
-            # grade_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None))
-            # grade_serializer = GradeListOfAcademicSessionSerializer(grade_qs, many=True)
-            # resultant_dict['grade_list'] = grade_serializer.data
-            section_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None))
-            section_serializer = SectionListOfAcademicSessionSerializer(section_qs, many=True)
-            # resultant_dict['section_list'] = section_serializer.data
+            grade_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None)).values('grade')
+            
+            grade_list = list(set(val for dic in grade_qs for val in dic.values()))
 
-            return Response(section_serializer.data,status=status.HTTP_200_OK)
+            grade_qs = Grade.objects.filter(id__in=grade_list)
+            
+            grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
+            # resultant_dict['grade'] = grade_qs_serializer.data
+            # section_qs = Section.objects.filter(grade__in=grade_list)
+           
+            # section_qs_serializer = SectionSerializer(section_qs, many=True)
+            # resultant_dict['sections']= section_qs_serializer.data
+          
+
+            return Response(grade_qs_serializer.data,status=status.HTTP_200_OK)
 
 
         except Exception as ex:
+            print("ERROR-------", ex)
+            logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

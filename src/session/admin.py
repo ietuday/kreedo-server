@@ -33,9 +33,10 @@ class AcademicCalenderAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(SchoolCalendar)
 class SchoolCalendarAdmin(ImportExportModelAdmin,admin.ModelAdmin):
-    list_display = ['id','school','session_from','session_till','is_active']
-    search_fields = ['id','school','session_from','session_till','is_active']
-    list_filter = ['id','school','session_from','session_till','is_active']
+    list_display = ['id','school','session','session_from','session_till','is_active']
+    search_fields = ['id','school','session','session_from','session_till','is_active']
+    list_filter = ['id','school','session','session_from','session_till','is_active']
+
 
 
 
