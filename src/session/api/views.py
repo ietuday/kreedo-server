@@ -181,10 +181,32 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
                 academic_calender_qs, many=True)
             print("academic_calender_serializer",
                   academic_calender_serializer.data)
-            return Response(academic_calender_serializer.data, status=status.HTTP_200_OK)
+            return Response(academic_calender_serializer.data,status=status.HTTP_200_OK)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" According to school get list of grades and section list """
+class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            resultant_dict= {}
+            # grade_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None))
+            # grade_serializer = GradeListOfAcademicSessionSerializer(grade_qs, many=True)
+            # resultant_dict['grade_list'] = grade_serializer.data
+            section_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None))
+            section_serializer = SectionListOfAcademicSessionSerializer(section_qs, many=True)
+            # resultant_dict['section_list'] = section_serializer.data
+
+            return Response(section_serializer.data,status=status.HTTP_200_OK)
+
+
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 
 class GenerateCalenderToPdf(ListCreateAPIView):
