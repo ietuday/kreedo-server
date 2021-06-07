@@ -288,20 +288,22 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             subject = request.data.get('subject', None)
-            academic_id = AcademicSession.objects.get(
-                grade__name=grade, section__name=section).id
-            subject = Subject.objects.get(name=subject).name
-
-            child_query = ChildPlan.objects.filter(
-                academic_session=academic_id, subjects__name=subject,curriculum_start_date__lte=date.today())
-            
-            child_serailizer = ChildPlanListSerializer(child_query, many=True)
+            academic_session = AcademicSession.objects.filter(
+                grade=grade, section=section)
+            print("academic_session",academic_session)
+            if academic_session:
+                child_query = ChildPlan.objects.filter(
+                    academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
+                
+                child_serailizer = ChildPlanListSerializer(child_query, many=True)
 
             # context = {"message": "Child List According to grade",
             #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
-            return Response(child_serailizer.data,status=status.HTTP_200_OK)
-
+                return Response(child_serailizer.data,status=status.HTTP_200_OK)
+            else:
+                return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
+            print("#############",ex)
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
