@@ -168,13 +168,32 @@ class AcademicSessionByTeacher(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" According to school get list of academic calender list"""
+
+
+class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+
+            academic_calender_qs = SchoolCalendar.objects.filter(school=pk)
+            print("########", academic_calender_qs)
+            academic_calender_serializer = AcademicCalenderBySchoolSerializer(
+                academic_calender_qs, many=True)
+            print("academic_calender_serializer",
+                  academic_calender_serializer.data)
+            return Response(academic_calender_serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class GenerateCalenderToPdf(ListCreateAPIView):
 
     def post(self, request):
         try:
 
-            """ 
-                Filter School ID From School Model 
+            """
+                Filter School ID From School Model
             """
             school_qs = School.objects.get(
                 id=request.data.get('school_id', None)).id
