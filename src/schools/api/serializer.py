@@ -11,6 +11,29 @@ class GradeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GradeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            GradeListSerializer, self).to_representation(obj)
+
+
+      
+        grade_id = serialized_data.get('id')
+
+        section_qs = Section.objects.filter(grade__in=str(grade_id))
+        section_qs_serializer = SectionSerializer(section_qs, many=True)
+        serialized_data['sections']= section_qs_serializer.data
+
+        return serialized_data
+
+
+
+
+
 """Section List Serializer """
 
 
@@ -19,6 +42,15 @@ class SectionListSerializer(serializers.ModelSerializer):
         model = Section
         fields = '__all__'
         depth = 1
+
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = '__all__'
+        
+
 
 
 """Section Create Serializer """
@@ -129,6 +161,7 @@ class SectionSubjectTeacherListSerializer(serializers.ModelSerializer):
         model = SectionSubjectTeacher
         fields = '__all__'
         depth = 1
+
 
 
 """ Section Subject Teacher Create Serializer """
