@@ -642,7 +642,7 @@ class UserRoleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 """ Logged In User Serializer """
 
@@ -652,7 +652,7 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
-        depth = 1
+        depth = 2
     
     def to_representation(self, obj):
         serialized_data = super(
