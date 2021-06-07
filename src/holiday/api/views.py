@@ -12,6 +12,20 @@ from .filters import*
 from rest_framework import status
 # Create your views here.
 
+""" holiday type list """
+
+class HolidayTypeListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = HolidayType
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return HolidayTypeListSerializer
+        if self.request.method == 'POST':
+            return HolidayTypeListSerializer
+
+
+
+
 """ School Holiday List and create """
 
 

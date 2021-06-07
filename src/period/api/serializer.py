@@ -168,3 +168,14 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
+    
+    # def create(self, validated_data):
+    #     try:
+    #         print("SELF", self)
+    #         print("@@@@@@@@@@@", self.context)
+    #         grade_list = self.context['grade_list']
+    #         print("###", grade_list)
+            
+
+    #     except Exception as ex:
+    #         print("ERROR-----------", ex)
