@@ -158,7 +158,7 @@ class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 """ PeriodTemplateToGrade Create Serializer """
