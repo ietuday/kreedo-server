@@ -68,6 +68,21 @@ class SectionListOfAcademicSessionSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = ['section']
         depth = 2
+    
+    # def to_representation(self, obj):
+    #     serialized_data = super(
+    #         SectionListOfAcademicSessionSerializer, self).to_representation(obj)
+
+      
+    #     section_data = serialized_data.get('section')
+
+    #     grade = section_data.get('grade')
+    #     print("GRADE--------------",grade)
+
+        
+       
+    #     return serialized_data
+
 
 
 
