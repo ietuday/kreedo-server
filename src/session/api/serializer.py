@@ -53,6 +53,22 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = '__all__'
         depth = 1
+""" Grade List of Academic Session """
+class GradeListOfAcademicSessionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AcademicSession
+        fields = ['grade']
+        depth = 1
+
+""" Section List of Academic Session """
+class SectionListOfAcademicSessionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AcademicSession
+        fields = ['section']
+        depth = 2
+
 
 
 class AcademicCalenderBySchoolSerializer(serializers.ModelSerializer):
