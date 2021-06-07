@@ -3,6 +3,10 @@ from .views import*
 
 
 urlpatterns = [
+
+     path('holiday_type_list',
+         HolidayTypeListCreate.as_view(), name='HolidayTypeListCreate'),
+     
     path('school-holiday_list_create',
          SchoolHolidayListCreate.as_view(), name='SchoolHolidayListCreate'),
     path('school-holiday_retrive_update_delete/<int:pk>', SchoolHolidayRetriveUpdateDestroy.as_view(),
