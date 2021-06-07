@@ -135,6 +135,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                 dict['section'] = acad_session.section.name
                 dict['section_id'] = acad_session.section.id
                 dict['subject'] = class_period.subject.name
+                dict['subject_id'] = class_period.subject.id
                 activity_list = class_period.subject.activity.all()
                 activitys_list = []
                 activitys_dict = {}
