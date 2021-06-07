@@ -391,10 +391,8 @@ class GradeListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 import itertools
-# l = [{'a': 0}, {'b': 1}, {'c': 2}, {'d': 3}, {'e': 4, 'a': 4}]
 from collections import ChainMap
-# d = dict(ChainMap(*l))
-# print(d)
+
 """ school according room and subject """
 class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request, pk):

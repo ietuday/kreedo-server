@@ -55,6 +55,13 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class AcademicCalenderBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolCalendar
+        fields = '__all__'
+        # depth = 1
+
+
 class AcademicSessionListForChildSerializer(serializers.ModelSerializer):
     class_teacher = UserDetailListForAcademicSessionSerializer()
 
