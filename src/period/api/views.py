@@ -419,14 +419,7 @@ class PeriodMonthList(GeneralClass,Mixins,ListCreateAPIView):
                 else:
                     is_holiday ="false"
                 day_name = j.start_date.strftime('%A')
-                print("**************8", day_name)
-                # if SchoolWeakOff.objects.filter(academic_session=academic_id).exists():
-                    # weakoff_data = SchoolWeakOff.objects.filter(academic_session=academic_id)
-                
-                
-                    
-                # else:
-                #     is_weakoff = "false"
+              
                 period_dict['is_holiday'] =is_holiday
                 period_list.append(period_dict)
                 period_dict = {}
@@ -470,6 +463,45 @@ class PeriodTemplateDetailByPeriodTemplate(GeneralClass, Mixins,ListCreateAPIVie
             return Response(period_template_serializer.data,status=status.HTTP_200_OK)
             
         except Exception as ex:
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Period Count According Date Month List """
+class PeriodCountListByAcademicSession(GeneralClass,Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            period_data = Period.objects.filter(start_date__year=request.data.get('year',None),
+                           start_date__month=request.data.get('month',None),academic_session=request.data.get('academic_session',None))
+            print("period_data--------------->", period_data)
+            period_list = []
+            
+            for period_qs in period_data:
+                print(period_qs)
+                period_dict = {}
+                period_count=Period.objects.filter(start_date=period_qs.start_date)
+                period_dict['period_count'] =period_count.count()
+                for period in period_count:
+                
+                    period_dict['start_date']  = period.start_date.strftime("%Y/%m/%d")
+               
+                    if SchoolHoliday.objects.filter(holiday_from=period.start_date,academic_session=request.data.get('academic_session',None)).exists():
+                        is_holiday = "true"
+                    else:
+                        is_holiday ="false"
+                    day_name = period.start_date.strftime('%A')
+              
+                period_dict['is_holiday'] =is_holiday
+                period_list.append(period_dict)
+                period_dict = {}
+
+            return Response(period_list,status=status.HTTP_200_OK)
+
+            
+
+        except Exception as ex:
+            print("ERROR", ex)
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
