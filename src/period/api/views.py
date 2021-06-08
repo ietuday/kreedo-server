@@ -438,12 +438,7 @@ class PeriodMonthList(GeneralClass,Mixins,ListCreateAPIView):
 class PerioListAccordingDate(GeneralClass,Mixins,ListCreateAPIView):
     def post(self,request):
         try:
-            date_period= request.data.get('start_date',None)
-      
-            academic_id = AcademicSession.objects.get(
-                grade=request.data.get('grade',None), section=request.data.get('section',None)).id
-       
-            period_qs = Period.objects.filter(academic_session=academic_id,start_date=request.data.get('start_date',None))
+            period_qs = Period.objects.filter(academic_session=request.data.get('academic_session', None),start_date=request.data.get('start_date',None))
    
             period_serializer = PeriodListSerializer(period_qs,many=True)
             return Response(period_serializer.data,status=status.HTTP_200_OK)     
