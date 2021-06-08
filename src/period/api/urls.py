@@ -34,16 +34,19 @@ urlpatterns = [
     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
          name='PeriodTemplateAppyToGradesListCreate'),
 
+
+    path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
+         name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
-     
+
 
     path('period_month_list',
          PeriodMonthList.as_view(), name='PeriodMonthList'),
 
     path('period_list_according_to_date',
          PerioListAccordingDate.as_view(), name='PerioListAccordingDate'),
-     
-     path('period_template_detail_by_period_template/<int:pk>', PeriodTemplateDetailByPeriodTemplate.as_view(),
+
+    path('period_template_detail_by_period_template/<int:pk>', PeriodTemplateDetailByPeriodTemplate.as_view(),
          name='PeriodTemplateDetailByPeriodTemplate'),
 ]
