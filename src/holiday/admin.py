@@ -16,11 +16,11 @@ class HolidayTypeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(SchoolHoliday)
 class SchoolHolidayAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'type', 'is_active'
+    list_display = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                     ]
-    search_fields = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'type', 'is_active'
+    search_fields = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                      ]
-    list_filter = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'type', 'is_active'
+    list_filter = ['id', 'name', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                    ]
 
 
