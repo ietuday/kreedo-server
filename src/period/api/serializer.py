@@ -50,7 +50,7 @@ class PeriodListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 """ Period  Serializer """
