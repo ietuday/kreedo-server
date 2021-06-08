@@ -106,7 +106,30 @@ class SchoolWeakOffRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateAPIV
         if self.request.method == 'PUT':
             return SchoolWeakOffCreateSerializer
 
+""" School Week off By Academic Session """
+class SchoolWeakOffByAcademicSession(GeneralClass, Mixins,ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            
+            school_week_qs = SchoolWeakOff.objects.filter(academic_session=pk)
+            school_week_qs_serializer = SchoolWeakOffListSerializer(school_week_qs, many=True)
+            return Response(school_week_qs_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+         
 
+""" School Holiday List By Academic Session """
+class HolidayListByAcademicSession(GeneralClass, Mixins,ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            holiday_qs = SchoolHoliday.objects.filter(academic_session=pk)
+            holiday_qs_serializer = SchoolHolidayListSerializer(holiday_qs,many=True)
+            return Response(holiday_qs_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+         
 """ Create Calendar """
 
 
