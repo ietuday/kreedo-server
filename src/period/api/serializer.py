@@ -17,30 +17,30 @@ class PeriodTemplateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class PeriodTemplateListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplate
-        fields = ['id','name']
-    
+        fields = ['id', 'name']
+
     def to_representation(self, obj):
         serialized_data = super(
             PeriodTemplateListSerializer, self).to_representation(obj)
 
         period_template_id = serialized_data.get('id')
-        week_list = ['MONDAY', 'TUESDAY', 'WEDNESDAY','THURSDAY','FRIDAY','SATURDAY']
+        week_list = ['MONDAY', 'TUESDAY', 'WEDNESDAY',
+                     'THURSDAY', 'FRIDAY', 'SATURDAY']
         period_details = []
         for week_name in week_list:
-            week_dict ={}
-            week_dict['name']=week_name
+            week_dict = {}
+            week_dict['name'] = week_name
             period_template_detail_qs = PeriodTemplateDetail.objects.filter(
-            period_template=period_template_id, days=week_name)
-            period_template_detail_serializer = PeriodTemplateDetailListSerializer(period_template_detail_qs,many=True)
+                period_template=period_template_id, days=week_name)
+            period_template_detail_serializer = PeriodTemplateDetailListSerializer(
+                period_template_detail_qs, many=True)
             week_dict['periods'] = period_template_detail_serializer.data
             period_details.append(week_dict)
         serialized_data['period_template_details'] = period_details
         return serialized_data
-
 
 
 """ Period List Serializer """
@@ -84,11 +84,9 @@ class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             teacher = self.context['data_dict']['teacher'][0]
-        
 
             period_list_qs = Period.objects.filter(
                 teacher=teacher, start_date=validated_data['start_date'])
-         
 
             periods_lists = []
             dict = {}
@@ -148,7 +146,6 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
-        
 
 
 """ PeriodTemplateToGrade List Serializer """
@@ -168,14 +165,3 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
-    
-    # def create(self, validated_data):
-    #     try:
-    #         print("SELF", self)
-    #         print("@@@@@@@@@@@", self.context)
-    #         grade_list = self.context['grade_list']
-    #         print("###", grade_list)
-            
-
-    #     except Exception as ex:
-    #         print("ERROR-----------", ex)

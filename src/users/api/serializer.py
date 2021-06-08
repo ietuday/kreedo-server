@@ -145,6 +145,9 @@ class ReportingToCreateSerializer(serializers.ModelSerializer):
             return reporting_qs
         except Exception as ex:
             print("ERROR SERIALIZER", ex)
+            raise ValidationError(ex)
+    
+ 
         
 
 
