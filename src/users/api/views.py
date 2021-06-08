@@ -662,12 +662,46 @@ class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
                 print(user_role_serializer.errors)
                 return Response(user_role_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-
         except Exception as ex:
+            logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+"""  Reprting to list by User Detail """
+class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyAPIView):
+    def get(self, request,pk):
+        try:
+            reporting_to_qs = ReportingTo.objects.filter(user_detail=pk)
+            reporting_to_serializer = ReportingToListSerializer(reporting_to_qs, many=True)
+            return Response(reporting_to_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    def put(self, request, pk):
+        try:
+            role_detail = {
+                "user":request.data.get('user_detail',None),
+                "role":request.data.get('user_role',None),
+                "school":""
+            }
+            context = super().get_serializer_context()
+            context.update({"role_detail": role_detail})
+            reporting_to_qs = ReportingTo.objects.filter(user_detail = pk)
+            print("$$$$$$$----->",reporting_to_qs)
+            user_role_serializer = ReportingToCreateSerializer(reporting_to_qs,data=request.data)
+            if user_role_serializer.is_valid():
+                user_role_serializer.save()
+                print("Serializer---", user_role_serializer.data)
+                return Response(user_role_serializer.data,status=status.HTTP_200_OK)
+            else:
+                print(user_role_serializer.errors)
+                return Response(user_role_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as ex:
+            print("ERROR--------", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
