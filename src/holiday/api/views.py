@@ -44,7 +44,7 @@ class SchoolHolidayListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class SchoolHolidayListBySchool(GeneralClass,Mixins, ListCreateAPIView):
     def get(self,request, pk):
         try:
-            school_holiday_qs = SchoolHoliday.objects.filter(school_session__school=pk)
+            school_holiday_qs = SchoolHoliday.objects.filter(school=pk)
             
             school_holiday_qs_serializer = SchoolHolidayListSerializer(school_holiday_qs, many=True)
             return Response(school_holiday_qs_serializer.data,status=status.HTTP_200_OK)

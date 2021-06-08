@@ -182,6 +182,7 @@ def create_period(grade_dict):
                                         period_serializer.errors)
                             else:
                                 raise ValidationError("error in period")
+                        
         data = "Period Created"
         return data
     except Exception as ex:
