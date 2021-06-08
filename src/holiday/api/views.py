@@ -40,7 +40,20 @@ class SchoolHolidayListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SchoolHolidayCreateSerializer
 
 
-""" School Holiday Reetrive Update delete """
+""" SchoolHolidayListBySchool """
+class SchoolHolidayListBySchool(GeneralClass,Mixins, ListCreateAPIView):
+    def get(self,request, pk):
+        try:
+            school_holiday_qs = SchoolHoliday.objects.filter(school_session__school=pk)
+            
+            school_holiday_qs_serializer = SchoolHolidayListSerializer(school_holiday_qs, many=True)
+            return Response(school_holiday_qs_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+""" School Holiday Retrive Update delete """
 
 
 class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
@@ -53,6 +66,16 @@ class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return SchoolHolidayListSerializer
         if self.request.method == 'PUT':
             return SchoolHolidayCreateSerializer
+        if self.request.method == 'PATCH':
+            return SchoolHolidayCreateSerializer
+    
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
 
 
 """ School Weak off List and create """
