@@ -51,8 +51,9 @@ class SchoolHoliday(TimestampAwareModel):
     
     holiday_from = models.DateField(blank=True)
     holiday_till = models.DateField(blank=True)
-    type = models.CharField(
-        max_length=50, choices=Holidaye_Type_Choice)
+    # type = models.CharField(
+    #     max_length=50, choices=Holidaye_Type_Choice)
+    holiday_type = models.ForeignKey('HolidayType',on_delete=models.PROTECT, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     objects = SchoolHolidayManager
 
