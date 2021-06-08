@@ -146,10 +146,11 @@ def create_period(grade_dict):
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=grade_dict['acad_session']).count()
+                    
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
-
+                        print("@@@@@@@@@@@@",period_list)
                         period_dict = {}
 
                         for period in period_list:
@@ -178,10 +179,16 @@ def create_period(grade_dict):
                                     period_serializer.save()
 
                                 else:
+                                    print("PERIOD-Serializer",period_serializer.errors)
                                     raise ValidationError(
                                         period_serializer.errors)
                             else:
                                 raise ValidationError("error in period")
+                        period_qs = PeriodTemplateToGrade.objects.filter(academic_session=grade_dict['acad_session'],
+                                        start_date=grade_dict['start_date'], end_date=grade_dict['end_date']).update(is_applied='True')
+                        
+                        print("#PERIOD-----------#", period_qs)
+                       
                         
         data = "Period Created"
         return data
