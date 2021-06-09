@@ -14,6 +14,7 @@ from rest_framework import status
 
 """ holiday type list """
 
+
 class HolidayTypeListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = HolidayType
 
@@ -22,8 +23,6 @@ class HolidayTypeListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return HolidayTypeListSerializer
         if self.request.method == 'POST':
             return HolidayTypeListSerializer
-
-
 
 
 """ School Holiday List and create """
@@ -41,17 +40,23 @@ class SchoolHolidayListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 
 """ SchoolHolidayListBySchool """
-class SchoolHolidayListBySchool(GeneralClass,Mixins, ListCreateAPIView):
-    def get(self,request, pk):
+
+
+class SchoolHolidayListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(school=pk)
-            
-            school_holiday_qs_serializer = SchoolHolidayListSerializer(school_holiday_qs, many=True)
-            return Response(school_holiday_qs_serializer.data,status=status.HTTP_200_OK)
+            if school_holiday_qs:
+                school_holiday_qs_serializer = SchoolHolidayListSerializer(
+                    school_holiday_qs, many=True)
+                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+
         except Exception as ex:
             logger.debug(ex)
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ School Holiday Retrive Update delete """
 
@@ -68,14 +73,11 @@ class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return SchoolHolidayCreateSerializer
         if self.request.method == 'PATCH':
             return SchoolHolidayCreateSerializer
-    
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
-
-
 
 
 """ School Weak off List and create """
@@ -106,34 +108,49 @@ class SchoolWeakOffRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateAPIV
         if self.request.method == 'PUT':
             return SchoolWeakOffCreateSerializer
 
+
 """ School Week off By Academic Session """
-class SchoolWeakOffByAcademicSession(GeneralClass, Mixins,ListCreateAPIView):
+
+
+class SchoolWeakOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
-            
+
             school_week_qs = SchoolWeakOff.objects.filter(academic_session=pk)
-            school_week_qs_serializer = SchoolWeakOffListSerializer(school_week_qs, many=True)
-            return Response(school_week_qs_serializer.data,status=status.HTTP_200_OK)
+            if school_week_qs:
+                school_week_qs_serializer = SchoolWeakOffListSerializer(
+                    school_week_qs, many=True)
+                return Response(school_week_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Week-Off Not Found", status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             logger.debug(ex)
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-         
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ School Holiday List By Academic Session """
-class HolidayListByAcademicSession(GeneralClass, Mixins,ListCreateAPIView):
+
+
+class HolidayListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
             holiday_qs = SchoolHoliday.objects.filter(academic_session=pk)
-            holiday_qs_serializer = SchoolHolidayListSerializer(holiday_qs,many=True)
-            return Response(holiday_qs_serializer.data,status=status.HTTP_200_OK)
+            if holiday_qs:
+                holiday_qs_serializer = SchoolHolidayListSerializer(
+                    holiday_qs, many=True)
+                return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+
         except Exception as ex:
             logger.debug(ex)
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-         
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ Create Calendar """
 
 
-class Calendar(GeneralClass, Mixins,ListCreateAPIView):
+class Calendar(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             start_date = request.data.get('start_date', None)
@@ -142,13 +159,13 @@ class Calendar(GeneralClass, Mixins,ListCreateAPIView):
             calendar_data = SchoolHoliday.objects.filter(
                 holiday_from__gte=start_date, holiday_till__gte=end_date, is_active=True)
             print("Calendar", calendar_data)
-            calendar_data_qs = SchoolHolidayListSerializer(calendar_data, many=True)
-            return Response(calendar_data_qs.data,status=status.HTTP_200_OK)
+            calendar_data_qs = SchoolHolidayListSerializer(
+                calendar_data, many=True)
+            return Response(calendar_data_qs.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         # list = []
 
         # for calendar_obj in calendar_data:
@@ -173,30 +190,51 @@ class Calendar(GeneralClass, Mixins,ListCreateAPIView):
         #     print("Error", calendar_serializer.errors)
 
 
-
 """ School Calender according to start date and type """
-import traceback
-class HolidayListByType(GeneralClass, Mixins,ListCreateAPIView):
+
+
+class HolidayListByType(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
             start_date = request.data.get('start_date', None)
             end_date = request.data.get('end_date', None)
             type = request.data.get('type', None)
-  
-            if type:
-                querset = SchoolHoliday.objects.filter(school_session=type,holiday_from__gte=start_date, holiday_till__lte=end_date)
-            elif type:
-                querset = SchoolHoliday.objects.filter(academic_calender=type,holiday_from__gte=start_date, holiday_till__lte=end_date)
-            elif type:
-                querset = SchoolHoliday.objects.filter(academic_session=type,holiday_from__gte=start_date,holiday_till__lte=end_date)
 
-            holiday_serializer = SchoolHolidayListSerializer(querset,many=True)
-            # context = {"message": "Holiday List according to Type.",
-            #                "data": holiday_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(holiday_serializer.data, status= status.HTTP_200_OK)
+            if type:
+                querset = SchoolHoliday.objects.filter(
+                    school_session=type, holiday_from__gte=start_date, holiday_till__lte=end_date)
+            elif type:
+                querset = SchoolHoliday.objects.filter(
+                    academic_calender=type, holiday_from__gte=start_date, holiday_till__lte=end_date)
+            elif type:
+                querset = SchoolHoliday.objects.filter(
+                    academic_session=type, holiday_from__gte=start_date, holiday_till__lte=end_date)
+
+            holiday_serializer = SchoolHolidayListSerializer(
+                querset, many=True)
+            return Response(holiday_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
-            
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Holiday List of month  According to School """
+
+
+class HolidayListOfMonthBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
+                                                             holiday_from__month=request.data.get('month', None), school=request.data.get('school', None))
+            if school_holiday_qs:
+                school_holiday_qs_serializer = SchoolHolidaySerializer(
+                    school_holiday_qs, many=True)
+                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

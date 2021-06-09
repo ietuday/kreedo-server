@@ -2,11 +2,6 @@ from rest_framework import serializers
 from holiday.models import*
 
 
-
-
-
-
-
 """ Holiday Type List Serializer """
 
 
@@ -25,6 +20,16 @@ class SchoolHolidayListSerializer(serializers.ModelSerializer):
         model = SchoolHoliday
         fields = '__all__'
         depth = 2
+
+
+""" School Holiday  Serializer """
+
+
+class SchoolHolidaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolHoliday
+        fields = '__all__'
+        depth = 1
 
 
 """ School Holiday create Serializer """
