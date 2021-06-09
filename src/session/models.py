@@ -103,7 +103,6 @@ class AcademicSession(TimestampAwareModel):
 
 class AcademicCalender(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT,null=True, blank=True)
-    academic_session = models.ForeignKey('AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     session_name =models.CharField(max_length=50, null=True, blank=True)
     start_date = models.DateField(blank=True)
     end_date = models.DateField(blank=True)

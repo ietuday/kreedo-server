@@ -271,20 +271,21 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
             holiday_list = []
             if type == 'school':
                 school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
-                print("school-------",school_holiday_qs)
+                school_id = request.data.get('school', None)
+                print("school-------",school_holiday_qs,school_id)
             elif type == 'academic_session':
                 school_holiday_qs = SchoolHoliday.objects.filter(academic_session=request.data.get('academic_session', None))
-                print("academic_session-------",school_holiday_qs)
+                school_id = request.data.get('academic_session', None)
+                print("academic_session-------",school_holiday_qs,school_id)
             elif type == 'academic_calender':
                 school_holiday_qs = SchoolHoliday.objects.filter(academic_calender=request.data.get('academic_calender', None))
-                print("academic_calender-------",school_holiday_qs)
-
-            # print("HOLIDAY------------>",school_holiday_qs)
+                school_id = request.data.get('academic_calender', None)
+                print("academic_calender-------",school_holiday_qs,school_id)
 
 
 
             for data in school_holiday_qs: 
-                print("data",data)
+          
                 holiday_list.append(
                     {
                         "title" :data.title,
@@ -297,7 +298,7 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
                 )
 
             keys = holiday_list[0].keys()
-            name = str(pk) + '-' 'holiday_list'+'.csv'
+            name = str(school_id) + '-' 'holiday_list'+'.csv'
             with open(name, 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
@@ -308,8 +309,8 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/'+name
             print(path_to_file)
             return Response(path_to_file, status=status.HTTP_200_OK)
-            # return Response(holiday_list)
 
             
         except Exception as ex:
+            print(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
