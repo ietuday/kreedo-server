@@ -259,19 +259,41 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+import pandas as pd
+import csv
+from users.api.custum_storage import FileStorage
 
 """ Download Calender of School holiday """
-class DownloadListOfHolidaysBySchool(GeneralClass, Mixins, ListCreateAPIView):
+class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request,pk):
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
-            if school_holiday_qs:
-                school_holiday_qs_serializer = SchoolHolidaySerializer(
-                    school_holiday_qs, many=True)
-                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+           
+            school_holiday_qs_serializer = DownloadSchoolHolidaySerializer(
+                school_holiday_qs, many=True)
+            
+            for data in school_holiday_qs_serializer.data:
+                
+                keys = data.keys()
+                print("KEYS---------", keys)
 
+                name = str(request.data.get('school')) + 'holiday_list'+'.csv'
+                print("School Holiday Id--------", name)
+           
+
+           
+                with open(name, 'w', newline='')  as output_file:
+                    dict_writer = csv.DictWriter(output_file, keys)
+                    dict_writer.writeheader()
+                    dict_writer.writerows(data)
+
+            # fs = FileStorage()
+            # fs.bucket.meta.client.upload_file(name, 'kreedo-new' , 'files/')
+            # path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            # print(path_to_file)
+            return Response("Success")
+
+            
         except Exception as ex:
-            logger.debug(ex)
+            print("ERROR---------", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
