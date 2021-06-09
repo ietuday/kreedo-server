@@ -238,3 +238,24 @@ class HolidayListOfMonthBySchool(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Holiday List of month  According to Academic Session """
+
+
+class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
+                                                             holiday_from__month=request.data.get('month', None), academic_session=request.data.get('academic_session', None))
+            if school_holiday_qs:
+                school_holiday_qs_serializer = SchoolHolidaySerializer(
+                    school_holiday_qs, many=True)
+                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
