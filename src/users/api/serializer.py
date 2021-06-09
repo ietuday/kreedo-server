@@ -93,6 +93,7 @@ class ReportingToSerializer(serializers.ModelSerializer):
 
 
 class ReportingToListSerializer(serializers.ModelSerializer):
+    reporting_to = UserDetailListForAcademicSessionSerializer()
     class Meta:
         model = ReportingTo
         fields = '__all__'
