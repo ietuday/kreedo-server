@@ -41,6 +41,16 @@ class SchoolHolidayCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+
+
+class DownloadSchoolHolidaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolHoliday
+        fields = '__all__'
+       
+
+
 """ School Weak Off List Serailizer """
 
 
