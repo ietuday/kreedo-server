@@ -265,10 +265,24 @@ from users.api.custum_storage import FileStorage
 
 """ Download Calender of School holiday """
 class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIView):
-    def get(self, request,pk):
+    def post(self, request):
+        type = request.data.get('type', None)
         try:
             holiday_list = []
-            school_holiday_qs = SchoolHoliday.objects.filter(school=pk)
+            if type == 'school':
+                school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
+                print("school-------",school_holiday_qs)
+            elif type == 'academic_session':
+                school_holiday_qs = SchoolHoliday.objects.filter(academic_session=request.data.get('academic_session', None))
+                print("academic_session-------",school_holiday_qs)
+            elif type == 'academic_calender':
+                school_holiday_qs = SchoolHoliday.objects.filter(academic_calender=request.data.get('academic_calender', None))
+                print("academic_calender-------",school_holiday_qs)
+
+            # print("HOLIDAY------------>",school_holiday_qs)
+
+
+
             for data in school_holiday_qs: 
                 print("data",data)
                 holiday_list.append(
@@ -281,6 +295,7 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
                         "is_active" :data.is_active
                     }
                 )
+
             keys = holiday_list[0].keys()
             name = str(pk) + '-' 'holiday_list'+'.csv'
             with open(name, 'w', newline='') as output_file:
@@ -293,6 +308,7 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/'+name
             print(path_to_file)
             return Response(path_to_file, status=status.HTTP_200_OK)
+            # return Response(holiday_list)
 
             
         except Exception as ex:
