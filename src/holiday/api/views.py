@@ -259,3 +259,41 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+import pandas as pd
+import csv
+from users.api.custum_storage import FileStorage
+
+""" Download Calender of School holiday """
+class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+            holiday_list = []
+            school_holiday_qs = SchoolHoliday.objects.filter(school=pk)
+            for data in school_holiday_qs: 
+                print("data",data)
+                holiday_list.append(
+                    {
+                        "title" :data.title,
+                        "description" :data.description,
+                        "holiday_from" :data.holiday_from,
+                        "holiday_till" :data.holiday_till,
+                        "holiday_type" :data.holiday_type,
+                        "is_active" :data.is_active
+                    }
+                )
+            keys = holiday_list[0].keys()
+            name = str(pk) + '-' 'holiday_list'+'.csv'
+            with open(name, 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(holiday_list)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file(name, 'kreedo-new' , 'files/'+name)
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/'+name
+            print(path_to_file)
+            return Response(path_to_file, status=status.HTTP_200_OK)
+
+            
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
