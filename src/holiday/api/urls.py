@@ -30,6 +30,9 @@ urlpatterns = [
 
     path('holiday_list_of_month_by_school',
          HolidayListOfMonthBySchool.as_view(), name='HolidayListOfMonthBySchool'),
+    path('holiday_list_of_month_by_academic_session',
+         HolidayListOfMonthByAcademicSession.as_view(), name='HolidayListOfMonthByAcademicSession'),
+
 
 
 
