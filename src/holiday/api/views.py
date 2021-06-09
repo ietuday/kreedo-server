@@ -259,3 +259,19 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+""" Download Calender of School holiday """
+class DownloadListOfHolidaysBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+            school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
+            if school_holiday_qs:
+                school_holiday_qs_serializer = SchoolHolidaySerializer(
+                    school_holiday_qs, many=True)
+                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
