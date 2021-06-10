@@ -694,7 +694,7 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
             user_role_qs.role = user_role
             user_role_qs.save()
 
-            user_detail_qs = UserDetail.objects.filter(user_obj=request_data['user_detail'])[0]
+            user_detail_qs = UserDetail.objects.filter(user_obj=request_data['reporting_to'])[0]
             reporting_to_qs = ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
             reporting_to_qs.reporting_to = user_detail_qs
             reporting_to_qs.user_role = user_role
