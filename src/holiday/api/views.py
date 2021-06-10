@@ -7,6 +7,9 @@ from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPI
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
+import pandas as pd
+import csv
+from users.api.custum_storage import FileStorage
 from rest_framework.response import Response
 from .filters import*
 from rest_framework import status
@@ -228,13 +231,11 @@ class HolidayListOfMonthBySchool(GeneralClass, Mixins, ListCreateAPIView):
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
                                                              holiday_from__month=request.data.get('month', None), school=request.data.get('school', None))
-            if school_holiday_qs:
-                school_holiday_qs_serializer = SchoolHolidaySerializer(
-                    school_holiday_qs, many=True)
-                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
-
+           
+            school_holiday_qs_serializer = SchoolHolidaySerializer(
+                school_holiday_qs, many=True)
+            return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+        
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -248,20 +249,31 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
                                                              holiday_from__month=request.data.get('month', None), academic_session=request.data.get('academic_session', None))
-            if school_holiday_qs:
-                school_holiday_qs_serializer = SchoolHolidaySerializer(
-                    school_holiday_qs, many=True)
-                return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
-
+           
+            school_holiday_qs_serializer = SchoolHolidaySerializer(
+                school_holiday_qs, many=True)
+            return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+           
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-import pandas as pd
-import csv
-from users.api.custum_storage import FileStorage
+
+""" Holiday List According to  month , year , academic_calender id """
+class HolidayListOfMonthByAcademicCalender(GeneralClass,Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
+                                holiday_from__month=request.data.get('month', None), academic_calender=request.data.get('academic_calender', None))
+           
+            school_holiday_qs_serializer = SchoolHolidaySerializer(
+                school_holiday_qs, many=True)
+            return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("ERROR----", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 """ Download Calender of School holiday """
 class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIView):
@@ -272,17 +284,15 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
             if type == 'school':
                 school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
                 school_id = request.data.get('school', None)
-                print("school-------",school_holiday_qs,school_id)
-            elif type == 'academic_session':
-                school_holiday_qs = SchoolHoliday.objects.filter(academic_session=request.data.get('academic_session', None))
-                school_id = request.data.get('academic_session', None)
-                print("academic_session-------",school_holiday_qs,school_id)
+               
             elif type == 'academic_calender':
                 school_holiday_qs = SchoolHoliday.objects.filter(academic_calender=request.data.get('academic_calender', None))
                 school_id = request.data.get('academic_calender', None)
-                print("academic_calender-------",school_holiday_qs,school_id)
-
-
+            
+            elif type == 'academic_session':
+                school_holiday_qs = SchoolHoliday.objects.filter(academic_session=request.data.get('academic_session', None))
+                school_id = request.data.get('academic_session', None)
+            
 
             for data in school_holiday_qs: 
           
