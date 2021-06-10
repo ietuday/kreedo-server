@@ -16,6 +16,7 @@ urlpatterns = [
          name='ReportingToListCreate'),
     path('reporting_to_retrive_update_delete/<int:pk>', ReportingToRetriveUpdateDestroy.as_view(),
          name='ReportingToRetriveUpdateDestroy'),
+  
     path('user_register', UserRegister.as_view(), name='UserRegister'),
     path('user_list', UserList.as_view(), name='UserList'),
 
@@ -43,7 +44,11 @@ urlpatterns = [
          
    path('reporting_to_list_by_user_deatil/<int:pk>', ReportingToListByUserDetailList.as_view(),
          name='ReportingToListByUserDetailList'),   
+
+ path('reporting_to_list_by_user_deatil', ReportingToListByUserDetailList.as_view(),
+         name='ReportingToListByUserDetailList'), 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
+
 
 
 
