@@ -678,7 +678,7 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-    def put(self, request, pk):
+    def put(self, request):
         try:
             role_detail = {
                 "user":request.data.get('user_detail',None),
@@ -687,9 +687,34 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
             }
             context = super().get_serializer_context()
             context.update({"role_detail": role_detail})
-            reporting_to_qs = ReportingTo.objects.filter(user_detail = pk)
-            print("$$$$$$$----->",reporting_to_qs)
-            user_role_serializer = ReportingToCreateSerializer(reporting_to_qs,data=request.data)
+            
+            user_detail_role = UserDetail.objects.filter(user_obj=request.data.get('user_detail',None))
+            print("USER DEtail Role", user_detail_role)
+            user_id = request.data.get('user_detail',None)
+            user_role_id = request.data.get('user_role',None)
+            user_detail = {
+  
+
+                "role":[user_role_id]
+            }
+            user_detail_role_serializer = ParentDetailSerializer(user_id,data=dict(user_detail), partial=True)
+            if user_detail_role_serializer.is_valid():
+                user_detail_role_serializer.save()
+                print("User Detail Updated-")
+            else:
+                print("user_detail_role_serializer.errors----",user_detail_role_serializer.errors)
+                raise ValidationError(user_detail_role_serializer.errors)
+            
+
+
+
+
+
+
+
+            reporting_to_qs = ReportingTo.objects.filter(user_detail = request.data.get('user_detail',None))
+        
+            user_role_serializer = ReportingToUpdateSerializer(reporting_to_qs,data=request.data)
             if user_role_serializer.is_valid():
                 user_role_serializer.save()
                 print("Serializer---", user_role_serializer.data)

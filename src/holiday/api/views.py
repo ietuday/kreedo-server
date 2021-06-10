@@ -241,6 +241,8 @@ class HolidayListOfMonthBySchool(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
 """ Holiday List of month  According to Academic Session """
 
 
@@ -254,6 +256,33 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
                 school_holiday_qs, many=True)
             return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
            
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+""" Week off by  academic_calender """
+class  WeekOffByAcademicCalender(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+
+            week_off_qs = SchoolWeakOff.objects.filter(academic_calender=pk)
+            week_off_qs_serializer = SchoolWeakOffListSerializer(week_off_qs, many=True)
+            return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
+    
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Week off by  academic_session """
+class  WeekOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+
+            week_off_qs = SchoolWeakOff.objects.filter(academic_session=pk)
+            week_off_qs_serializer = SchoolWeakOffListSerializer(week_off_qs, many=True)
+            return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
+    
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
