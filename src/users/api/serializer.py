@@ -148,8 +148,11 @@ class ReportingToCreateSerializer(serializers.ModelSerializer):
             print("ERROR SERIALIZER", ex)
             raise ValidationError(ex)
     
- 
-        
+class ReportingToUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportingTo
+        fields = '__all__'
+
 
 
 
