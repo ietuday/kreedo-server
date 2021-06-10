@@ -112,7 +112,7 @@ class AcademicSessionBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             academic_session_qs = AcademicSession.objects.filter(
-                session__school=request.data.get('school', None))
+                session__school=request.data.get('session', None))
             academic_session_serializer = AcademicSessionListSerializer(
                 academic_session_qs, many=True)
             return Response(academic_session_serializer.data, status=status.HTTP_200_OK)

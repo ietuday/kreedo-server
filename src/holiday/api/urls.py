@@ -35,7 +35,8 @@ urlpatterns = [
     path('download_list_of_holiday_in_csv_by_school', DownloadListOfHolidaysInCSVBySchool.as_view(),
          name='DownloadListOfHolidaysInCSVBySchool'),
 
-
+    path('holiday_list_of_month_by_academic_calender', HolidayListOfMonthByAcademicCalender.as_view(),
+         name='HolidayListOfMonthByAcademicCalender'),
 
 
 
