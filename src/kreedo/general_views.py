@@ -15,3 +15,13 @@ class Mixins(GenericAPIView):
         model = self.model
         queryset = model.objects.all()
         return queryset
+
+
+
+
+class Mixin(GenericAPIView):
+
+    def get_queryset(self):
+        model = self.model
+        queryset = model.objects.all().order_by('id')
+        return queryset
