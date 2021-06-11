@@ -113,6 +113,7 @@ class AcademicCalender(TimestampAwareModel):
         verbose_name = 'AcademicCalender'
         verbose_name_plural = 'AcademicCalenders'
         ordering = ['-id']
+        unique_together = ('school','start_date','end_date')
 
     def __str__(self):
         return str(self.id)
