@@ -113,6 +113,7 @@ class AcademicCalender(TimestampAwareModel):
         verbose_name = 'AcademicCalender'
         verbose_name_plural = 'AcademicCalenders'
         ordering = ['-id']
+        
 
     def __str__(self):
         return str(self.id)
