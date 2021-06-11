@@ -94,19 +94,14 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
-
-    def list(self, request, *args, **kwargs):
-        queryset = AcademicCalender.objects.all().order_by('id')
-        serializer = AcademicCalenderListSerializer(queryset, many=True)
-        print(self.request.data)
-        print(kwargs)
-        return Response(serializer.data)
-
+   
+   
     def get_serializer_class(self):
-           
+        if self.request.method == 'GET':
+            return AcademicCalenderListSerializer
         if self.request.method == 'POST':
             return AcademicCalenderCreateSerializer
 
