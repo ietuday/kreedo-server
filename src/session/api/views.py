@@ -66,8 +66,25 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicSessionListSerializer
-        if self.request.method == 'POST':
-            return AcademicSessionCreateSerializer
+        # if self.request.method == 'POST':
+        #     return AcademicSessionCreateSerializer
+    
+    def post(self, request):
+        try:
+            print("REQUEST-------------",request.data)
+
+            academic_session_serializer = AcademicSessionCreateSerializer(
+                data=request.data.get('grade_list'),many=True)
+
+            # if academic_session_serializer.is_valid():
+            #     # academic_session_serializer.save()
+            #     return Response(academic_session_serializer.data,status=status.HTTP_200_OK)
+            # else:
+            #     return Response(academic_session_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as ex:
+            print("ERROR--->", ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ AcademicSession Retrive Update Delete """
@@ -195,7 +212,7 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
            
             resultant_dict= {}
             grade_qs =SchoolGradeSubject.objects.filter(school=request.data.get('school', None)).values('grade')
-            print('grade_qs------------->',grade_qs)
+            
             grade_list = list(set(val for dic in grade_qs for val in dic.values()))
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
