@@ -120,3 +120,6 @@ class AcademicCalender(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('AcademicCalender_detail', kwargs={"pk": self.pk})
+
+
+
