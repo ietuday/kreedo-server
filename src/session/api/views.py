@@ -187,21 +187,21 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
 """ According to school get list of grades and section list """
 class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
            
             resultant_dict= {}
-            grade_qs = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None)).values('grade')
-            
+            grade_qs =SchoolGradeSubject.objects.filter(school=request.data.get('school', None)).values('grade')
+            print('grade_qs------------->',grade_qs)
             grade_list = list(set(val for dic in grade_qs for val in dic.values()))
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
             
             grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
           
-
             return Response(grade_qs_serializer.data,status=status.HTTP_200_OK)
 
 
@@ -209,9 +209,6 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR-------", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
 
 class GenerateCalenderToPdf(ListCreateAPIView):
@@ -257,3 +254,8 @@ class GenerateCalenderToPdf(ListCreateAPIView):
             print("ERROR----->", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
