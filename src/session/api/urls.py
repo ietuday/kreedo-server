@@ -15,7 +15,7 @@ urlpatterns = [
           name='AcademicCalenderListCreate'),
      path('academic_calender_retrive_update_delete/<int:pk>', AcademicCalenderRetriveUpdateDestroy.as_view(),
           name='AcademicCalenderRetriveUpdateDestroy'),
-     path('academic_session-by-teacher', AcademicSessionByTeacher.as_view(),
+     path('academic_session_by_teacher', AcademicSessionByTeacher.as_view(),
           name='AcademicSessionByTeacher'),
      path('generate_calender_to_pdf', GenerateCalenderToPdf.as_view(),
           name='GenerateCalenderToPdf'),
