@@ -16,11 +16,11 @@ class HolidayTypeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(SchoolHoliday)
 class SchoolHolidayAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'school','title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
+    list_display = ['id', 'school', 'academic_calender', 'title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                     ]
-    search_fields = ['id', 'school','title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
+    search_fields = ['id', 'school', 'academic_calender', 'title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                      ]
-    list_filter = ['id', 'school','title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
+    list_filter = ['id', 'school', 'academic_calender', 'title', 'description', 'holiday_from', 'holiday_till', 'holiday_type', 'is_active'
                    ]
 
 
@@ -29,9 +29,9 @@ class SchoolHolidayAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(SchoolWeakOff)
 class SchoolWeakOffAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'school', 'monday', 'tuesday', 'wednesday',
+    list_display = ['id', 'school', 'academic_calender', 'monday', 'tuesday', 'wednesday',
                     'thursday', 'friday', 'saturday', 'sunday', 'is_active']
-    list_filter = ['id', 'school', 'monday', 'tuesday', 'wednesday',
+    list_filter = ['id', 'school', 'academic_calender', 'monday', 'tuesday', 'wednesday',
                    'thursday', 'friday', 'saturday', 'sunday', 'is_active']
-    search_fields = ['id', 'school', 'monday', 'tuesday', 'wednesday',
+    search_fields = ['id', 'school', 'academic_calender', 'monday', 'tuesday', 'wednesday',
                      'thursday', 'friday', 'saturday', 'sunday', 'is_active']
