@@ -198,18 +198,13 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
         try:
            
             resultant_dict= {}
-            grade_qs = AcademicSession.objects.filter(school_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None)).values('grade')
+            grade_qs = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None),session__school=request.data.get('school', None)).values('grade')
             
             grade_list = list(set(val for dic in grade_qs for val in dic.values()))
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
             
             grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
-            # resultant_dict['grade'] = grade_qs_serializer.data
-            # section_qs = Section.objects.filter(grade__in=grade_list)
-           
-            # section_qs_serializer = SectionSerializer(section_qs, many=True)
-            # resultant_dict['sections']= section_qs_serializer.data
           
 
             return Response(grade_qs_serializer.data,status=status.HTTP_200_OK)
