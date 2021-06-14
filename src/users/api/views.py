@@ -712,8 +712,8 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
 class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request, pk):
         try:
-            user_school_qs = UserRole.objects.filter(user=pk)
-            # .exclude(school__isnull =False)
+            user_school_qs = UserRole.objects.filter(user=pk).exclude(school__isnull =True)
+            
             user_school_qs_serializer = SchoolListByUserSerializer(user_school_qs,many=True)
             return Response(user_school_qs_serializer.data,status=status.HTTP_200_OK)
         except Exception as ex:
