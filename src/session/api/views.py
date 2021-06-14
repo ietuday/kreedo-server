@@ -86,6 +86,9 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
+
 """ AcademicSession Retrive Update Delete """
 
 
