@@ -45,7 +45,7 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
         # fields = '__all__'
-        fields = ['id', 'school', 'grade','academic_calender',
+        fields = ['id', 'school', 'grade','academic_calender','session_from','session_till',
                   'section', 'is_active', 'is_applied']
 
 
@@ -57,6 +57,14 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+
+class AcademicSessionForCalender(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = '__all__'
+        
+    
+    
 
 """ Grade List of Academic Session """
 

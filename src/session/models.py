@@ -74,9 +74,9 @@ class AcademicSession(TimestampAwareModel):
         to='schools.Grade', on_delete=models.PROTECT, null=True, blank=True)
     section = models.ForeignKey(
         to='schools.Section', on_delete=models.PROTECT, null=True, blank=True)
-    Subject = models.ManyToManyField(to='schools.Subject')
+    Subject = models.ManyToManyField(to='schools.Subject',blank=True)
     type = models.CharField(
-        max_length=50, choices=Academic_Session_Type_Choice)
+        max_length=50, choices=Academic_Session_Type_Choice,null=True)
     school_calender = models.ForeignKey(
         'SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
     session_from = models.DateField(blank=True, null=True)
