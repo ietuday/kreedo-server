@@ -92,8 +92,8 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR--->", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from holiday.api.serializer import*
-from holiday.models import*
+# from holiday.api.serializer import*
+# from holiday.models import*
 
 """ Appply Holiday List in Academic Session """
 class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView):
@@ -127,7 +127,7 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
 
                     raise ValidationError(school_holiday_serializer.errors)
             week_off_by_academic_calender = {
-                "academic_session": academic_sesion_qs.id,
+                "academic_session":academic_sesion_qs.id,
                 "monday": "false",
                 "tuesday": "false",
                 "wednesday": "false",
