@@ -31,3 +31,10 @@ class ReportingToFilter(filters.FilterSet):
     class Meta:
         model = ReportingTo
         fields = '__all__'
+
+
+
+class UserRoleFilter(filters.FilterSet):
+    class Meta:
+        model = UserRole
+        fields = '__all__'

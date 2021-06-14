@@ -708,6 +708,37 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" School list according to User """
+class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            user_school_qs = UserRole.objects.filter(user=pk)
+            user_school_qs_serializer = SchoolListByUserSerializer(user_school_qs,many=True)
+            return Response(user_school_qs_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" User Role Update and Retrive """
+class UserRoleRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIView):
+    model = UserRole
+    filterset_class = UserRoleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserRoleListSerializer
+        if self.request.method == 'PUT':
+            return UserRoleSerializer
+        if self.request.method == 'PATCH':
+            return UserRoleSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+        
+
 
 import os
 """ S3 Key Access """
