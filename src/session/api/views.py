@@ -66,25 +66,24 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicSessionListSerializer
-        if self.request.method == 'POST':
-            return AcademicSessionCreateSerializer
-    
-    # def post(self, request):
-    #     try:
-    #         print("REQUEST-------------",request.data)
+        # if self.request.method == 'POST':
+        #     return AcademicSessionCreateSerializer
 
-    #         academic_session_serializer = AcademicSessionCreateSerializer(
-    #             data=request.data.get('grade_list'),many=True)
+    def post(self, request):
+        try:
 
-    #         # if academic_session_serializer.is_valid():
-    #         #     # academic_session_serializer.save()
-    #         #     return Response(academic_session_serializer.data,status=status.HTTP_200_OK)
-    #         # else:
-    #         #     return Response(academic_session_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            academic_session_serializer = AcademicSessionCreateSerializer(
+                data=request.data.get('grade_list'), many=True)
 
-    #     except Exception as ex:
-    #         print("ERROR--->", ex)
-    #         return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if academic_session_serializer.is_valid():
+                academic_session_serializer.save()
+                return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(academic_session_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as ex:
+            print("ERROR--->", ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ AcademicSession Retrive Update Delete """
@@ -106,6 +105,7 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
+        
 
 
 """ Create and List of Academic Calender """
@@ -114,8 +114,7 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
 class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
-   
-   
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
@@ -194,33 +193,35 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             academic_calender_qs = SchoolCalendar.objects.filter(school=pk)
-            
+
             academic_calender_serializer = AcademicCalenderBySchoolSerializer(
                 academic_calender_qs, many=True)
-           
-            return Response(academic_calender_serializer.data,status=status.HTTP_200_OK)
+
+            return Response(academic_calender_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 """ According to school get list of grades and section list """
+
+
 class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
-           
-            resultant_dict= {}
-            grade_qs =SchoolGradeSubject.objects.filter(school=request.data.get('school', None)).values('grade')
-            
-            grade_list = list(set(val for dic in grade_qs for val in dic.values()))
+
+            resultant_dict = {}
+            grade_qs = SchoolGradeSubject.objects.filter(
+                school=request.data.get('school', None)).values('grade')
+
+            grade_list = list(
+                set(val for dic in grade_qs for val in dic.values()))
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
-            
-            grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
-          
-            return Response(grade_qs_serializer.data,status=status.HTTP_200_OK)
 
+            grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
+
+            return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR-------", ex)
@@ -271,8 +272,3 @@ class GenerateCalenderToPdf(ListCreateAPIView):
             print("ERROR----->", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
