@@ -656,7 +656,7 @@ class UserRoleListSerializer(serializers.ModelSerializer):
 class SchoolListByUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
-        fields = ['id','is_active','school']
+        fields = ['school']
         depth = 2
 
 
