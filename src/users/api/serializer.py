@@ -651,6 +651,15 @@ class UserRoleListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 2
 
+
+
+class SchoolListByUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = ['id','is_active','school']
+        depth = 2
+
+
 """ Logged In User Serializer """
 
 class LoggedInUserSerializer(serializers.ModelSerializer):

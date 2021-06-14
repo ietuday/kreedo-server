@@ -44,14 +44,9 @@ class SchoolSessionCreateSerializer(serializers.ModelSerializer):
 class AcademicSessionCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
-        fields = ['grade','section','session_from','session_till','academic_calender','is_active','is_close']
-
-    def create(self, validated_data):
-        try:
-            print("Validated Data-----", validated_data)
-        except Exception as ex:
-            print("ERROR--------", ex)
-            raise ValidationError(ex)
+        # fields = '__all__'
+        fields = ['id', 'school', 'grade',
+                  'section', 'is_active', 'is_applied']
 
 
 class AcademicSessionListSerializer(serializers.ModelSerializer):

@@ -38,14 +38,16 @@ class SchoolSession(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('SchoolSession_detail', kwargs={"pk": self.pk})
 
+
 """ Year according Calender Genration """
+
+
 class SchoolCalendar(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     session = models.CharField(max_length=50, null=True, blank=True)
     session_from = models.DateField(blank=True)
     session_till = models.DateField(blank=True)
     is_active = models.BooleanField(default=False)
-    
 
     class Meta:
         verbose_name = 'SchoolCalendar'
@@ -59,29 +61,38 @@ class SchoolCalendar(TimestampAwareModel):
         return reverse('SchoolCalendar_detail', kwargs={"pk": self.pk})
 
 
-
 """  Academic Session Model """
 
 
 class AcademicSession(TimestampAwareModel):
     name = models.CharField(max_length=50, null=True, blank=True)
-    session = models.ForeignKey('SchoolSession', on_delete=models.PROTECT, null=True, blank=True)
-    grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT, null=True, blank=True)
-    section = models.ForeignKey(to='schools.Section', on_delete=models.PROTECT, null=True, blank=True)
+    school = grade = models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True)
+    session = models.ForeignKey(
+        'SchoolSession', on_delete=models.PROTECT, null=True, blank=True)
+    grade = models.ForeignKey(
+        to='schools.Grade', on_delete=models.PROTECT, null=True, blank=True)
+    section = models.ForeignKey(
+        to='schools.Section', on_delete=models.PROTECT, null=True, blank=True)
     Subject = models.ManyToManyField(to='schools.Subject')
     type = models.CharField(
         max_length=50, choices=Academic_Session_Type_Choice)
-    school_calender = models.ForeignKey('SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
-    session_from = models.DateField(blank=True)
-    session_till = models.DateField(blank=True)
+    school_calender = models.ForeignKey(
+        'SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
+    session_from = models.DateField(blank=True, null=True)
+    session_till = models.DateField(blank=True, null=True)
     period_template = models.ForeignKey(
         to='period.PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     class_teacher = models.ForeignKey(
-        to='users.UserDetail', on_delete=models.PROTECT)
+        to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     academic_calender = models.ForeignKey(
         'AcademicCalender', on_delete=models.PROTECT, null=True, blank=True)
     is_close = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    is_applied = models.BooleanField(default=False)
+    academic_session = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True)
+
     objects = AcademicSessionManager
 
     class Meta:
@@ -96,14 +107,13 @@ class AcademicSession(TimestampAwareModel):
         return reverse('AcademicSession_detail', kwargs={"pk": self.pk})
 
 
-
-
 """ academic calender model """
 
 
 class AcademicCalender(TimestampAwareModel):
-    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT,null=True, blank=True)
-    session_name =models.CharField(max_length=50, null=True, blank=True)
+    school = models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True)
+    session_name = models.CharField(max_length=50, null=True, blank=True)
     start_date = models.DateField(blank=True)
     end_date = models.DateField(blank=True)
     is_active = models.BooleanField(default=False)
@@ -113,7 +123,6 @@ class AcademicCalender(TimestampAwareModel):
         verbose_name = 'AcademicCalender'
         verbose_name_plural = 'AcademicCalenders'
         ordering = ['-id']
-        
 
     def __str__(self):
         return str(self.id)
