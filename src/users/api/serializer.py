@@ -13,7 +13,9 @@ from .utils import*
 import traceback
 import logging
 from kreedo.conf.logger import*
-
+from django.contrib.auth.models import Permission,Group
+from group.api.serializer import*
+from group.models import*
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -33,6 +35,13 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = '__all__'
+
+
+class RoleListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+        depth = 2
 
 
 """ User Type Serializer """
@@ -99,6 +108,7 @@ class ReportingToListSerializer(serializers.ModelSerializer):
         model = ReportingTo
         fields = '__all__'
         depth = 1
+
 
 
 """ User Role Serializer"""
@@ -272,6 +282,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                             else:
                                 raise ValidationError(user_role_serializer.errors)
                         else:
+
                             return user
                         
                     else:
@@ -419,9 +430,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
                         raise ValidationError("Sorry, this account is deactivated")
                 else:
                     raise ValidationError("Login failed ,Invalid Username and Password")
-                    
-                    # raise ValidationError({'message':'Login failed ,Invalid Username and Password'})
-                
+                                    
             except Exception as ex:
                 logger.info(ex)
                 logger.debug(ex)
@@ -605,10 +614,6 @@ class Reset_Password_Serializer(serializers.ModelSerializer):
             confirm_password = self.context['password_detail']['confirm_password']
             
             
-            # password = validated_data.pop('password')
-            # confirm_password = validated_data.pop('confirm_password')
-
-            
             assert uidb64 is not None and token is not None  # checked by URLconf
             try:
                 uid = urlsafe_base64_decode(uidb64)
@@ -677,7 +682,7 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
-        depth = 2
+        depth = 3
     
     def to_representation(self, obj):
         serialized_data = super(
