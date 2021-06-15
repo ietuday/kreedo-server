@@ -110,6 +110,33 @@ class SchoolListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+
+""" School  List Serializer"""
+
+from users.models import*
+from users.api.serializer import*
+class SchoolDetailListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+        depth = 1
+
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolDetailListSerializer, self).to_representation(obj)
+
+        school_data_id = serialized_data.get('id')
+        print("School",school_data_id)
+        
+        user_qs = UserRole.objects.filter(
+            school=school_data_id)
+        user_qs_serializer = UserRoleListForSchoolSerializer(user_qs,many=True)
+        serialized_data['user_list'] = user_qs_serializer.data
+        return serialized_data
+
+
+
 """ School create Serializer"""
 
 

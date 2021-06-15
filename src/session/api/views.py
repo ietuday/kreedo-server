@@ -92,8 +92,7 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR--->", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# from holiday.api.serializer import*
-# from holiday.models import*
+
 
 """ Appply Holiday List in Academic Session """
 class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView):
