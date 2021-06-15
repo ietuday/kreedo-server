@@ -42,6 +42,8 @@ class AcademicCalenderFilter(filters.FilterSet):
 class AcademicSessionFilter(filters.FilterSet):
     school_session = filters.CharFilter(
         field_name='school__name', lookup_expr='icontains')
+    section= filters.CharFilter(
+        field_name='section__name', lookup_expr='icontains')
 
     class Meta:
         model = AcademicSession
