@@ -723,6 +723,8 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
 
 """ School list according to User """
 class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
+    model = UserRole
+    filterset_class = UserRoleFilter
     def get(self, request, pk):
         try:
             user_school_qs = UserRole.objects.filter(user=pk).exclude(school__isnull =True)
