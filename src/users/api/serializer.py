@@ -74,6 +74,7 @@ class UserDetailListSerializer(serializers.ModelSerializer):
 """ User Detail List Serializer """
 class UserDetailListForAcademicSessionSerializer(serializers.ModelSerializer):
     user_obj = AuthUserSerializer()
+    
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
@@ -651,6 +652,14 @@ class UserRoleListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 2
 
+
+
+class UserRoleListForSchoolSerializer(serializers.ModelSerializer):
+    user = UserDetailListForAcademicSessionSerializer()
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 1
 
 
 class SchoolListByUserSerializer(serializers.ModelSerializer):
