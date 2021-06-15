@@ -145,6 +145,8 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
             else:
 
                 raise ValidationError(week_off_qs_serializer.errors)
+            academic_sesion_qs.is_applied="True"
+            academic_sesion_qs.save()
             return Response("Academic Session Apply to Section", status=status.HTTP_200_OK)
             
 
