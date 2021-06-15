@@ -55,8 +55,14 @@ logger.info("VIEW CAlled ")
 
 class RoleListCreate(Mixins, GeneralClass, ListCreateAPIView):
     model = Role
-    serializer_class = RoleSerializer
     filterset_class = RoleFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RoleListSerializer
+        if self.request.method == 'POST':
+            return RoleSerializer
+       
 
 
 """ Role Retrive, Update and Delete  API"""
@@ -442,6 +448,7 @@ class LoggedIn(Mixins, GeneralClass,ListAPIView):
         user_data = LoggedInUserSerializer(user_obj_detail)
         return Response(user_data.data)
 
+import traceback
 """ Genrate OTP """
 class GenerateOTP(ListAPIView):
 
@@ -450,14 +457,16 @@ class GenerateOTP(ListAPIView):
             user_obj = UserDetail.objects.filter(
             phone=request.data['phone']).first()
 
+            print("@@@@@@@@@@@@@@@----", user_obj)
             if user_obj == None:
                 context = {'error': "This phone number is not linked to any account. Please check again.",
-            'success': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                    'success': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
-            # random_number = secrets.choice(range(100000,999999))
+
             random_number = random.randint(100000, 999999)
-
+            print("random_number--------", random_number)
+            print("AWS_SNS_CLIENT-@@@@@@---------", AWS_SNS_CLIENT)
             response = AWS_SNS_CLIENT.publish(
                 PhoneNumber=request.data['country_code']+request.data['phone'],
                 Message='OTP to set your password for your Kreedo account is ' +
@@ -471,16 +480,18 @@ class GenerateOTP(ListAPIView):
                     }
                 )
 
+            print("RESPONSE-----", response)
+
             if response['ResponseMetadata']['HTTPStatusCode'] != 200:
                 context = {"success": False, "message": "Unable to send OTP",
-                "error": " AWS SNS is Unable to send OTP"}
-            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
+                    "error": " AWS SNS is Unable to send OTP"}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+           
             date_time = datetime.datetime.now()
 
             hashed_otp_combo = pbkdf2_sha256.hash(
             str(random_number) + str(date_time) + str(user_obj.id))
-
+            print("hashed_otp_combo----", hashed_otp_combo)
             data = {
             "otp": hashed_otp_combo[14:],
             "phone": request.data['phone'],
@@ -491,6 +502,8 @@ class GenerateOTP(ListAPIView):
             "error": "", "data": data}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as error:
+            print("TRACEBACK-----------", traceback.print_exc())
+
             context = {'error': str(error), 'success': "false",
             'message': 'Unable to generate OTP'}
         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

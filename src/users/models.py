@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
-
+from django.contrib.auth.models import Group, Permission
 from django.contrib.auth.models import User
 
 from kreedo.core import TimestampAwareModel
@@ -58,10 +58,10 @@ class UserType(TimestampAwareModel):
 
 """ Role Model """
 
-
 class Role(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
     type = models.ForeignKey(UserType, on_delete=models.CASCADE)
+    group = models.OneToOneField('auth.Group',on_delete=models.CASCADE, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     objects = RoleManager
 
@@ -69,7 +69,7 @@ class Role(TimestampAwareModel):
         verbose_name = 'Role'
         verbose_name_plural = 'Roles'
         ordering = ['-id']
-        unique_together = ['name', 'type', 'is_active']
+        # unique_together = ['name', 'type', 'is_active']
 
     def __str__(self):
         return str(self.name)

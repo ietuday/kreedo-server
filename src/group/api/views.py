@@ -42,7 +42,19 @@ class GroupRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVie
 class PermissionListCreate(ListCreateAPIView):
     model = Permission
     serializer_class = PermissionSerializer
+    def get(self, request):
+        try:
+            permission_qs = Permission.objects.all()
+            permission_qs_serializer = PermissionSerializer(permission_qs, many=True)
+            
+            context = {
+                "success": True, "message": "Permission List", "error": "", "data": permission_qs_serializer.data}
+            return Response(context, status=status.HTTP_200_OK)
 
+        except Exception as ex:
+            context = {"error": ex, 'isSuccess': False,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
     def post(self, request):
 
         try:
