@@ -99,46 +99,34 @@ def get_paginated_response(self, data):
 """
 
 import pdb
+from rest_framework.utils.serializer_helpers import ReturnList
 def get_response(data, response_obj, message):
     try:
-        print("BEFORE IF---------")
-        # pdb.set_trace()
-        
-        
-        error_msg = ["non_field_errors", "detail"]
-        for error_message in error_msg:
-            print("INNER IF  -----",data)
-            if error_message in data:
-                
-                print("data---------->",data)
-                if 'non_field_errors' in data:
-                    message = data['non_field_errors']
-                else:
-                    message = data['detail']
+        if type(data) is ReturnList:
+
+            if 'non_field_errors' in data[0]:
+                message = data[0]['non_field_errors']
                 response = json.dumps(
                     {
                         'isSuccess': False,
                         'statusCode': 200,
                         'message':message,
-                        'data':''
+                        'data':None
                     }
                 )
                 return response
 
-        # print("Data---------->", data)
-        # if 'non_field_errors' in data[0]:
-        #     print("@$################")
-            
-        #     response = json.dumps(
-        #     {
-                
-        #         'statusCode': 200 ,
-        #         'isSuccess': False,
-        #         'message': data[0]['non_field_errors'][0],
-        #         'data': None,
-        #     }
-        #     )
-        #     return response
+            elif 'detail' in data[0]:
+                message = data[0]['detail']
+                response = json.dumps(
+                    {
+                        'isSuccess': False,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':None
+                    }
+                )
+                return response
 
         response = json.dumps(
             {
