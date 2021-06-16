@@ -98,30 +98,32 @@ def get_paginated_response(self, data):
     Genrate Response
 """
 
-
+import pdb
 def get_response(data, response_obj, message):
     try:
         print("BEFORE IF---------")
+        # pdb.set_trace()
         
-        if data:
-            print("INNER IF  -----")
-            error_msg = ["non_field_errors", "detail"]
-            for error_message in error_msg:
-                if error_message in data:
-                    print("data---------->",data)
-                    if 'non_field_errors' in data:
-                        message = data['non_field_errors']
-                    else:
-                        message = data['detail']
-                    response = json.dumps(
-                        {
-                            'isSuccess': False,
-                            'statusCode': response_obj.status_code,
-                            'message':message,
-                            'data':''
-                        }
-                    )
-                    return response
+        
+        error_msg = ["non_field_errors", "detail"]
+        for error_message in error_msg:
+            print("INNER IF  -----",data)
+            if error_message in data:
+                
+                print("data---------->",data)
+                if 'non_field_errors' in data:
+                    message = data['non_field_errors']
+                else:
+                    message = data['detail']
+                response = json.dumps(
+                    {
+                        'isSuccess': False,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':''
+                    }
+                )
+                return response
 
         # print("Data---------->", data)
         # if 'non_field_errors' in data[0]:
