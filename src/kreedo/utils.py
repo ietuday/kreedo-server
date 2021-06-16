@@ -117,7 +117,7 @@ def get_response(data, response_obj, message):
 
 
             elif 'non_field_errors' in data[0]:
-                print("********* 1 ", data)
+                
                 message = data[0]['non_field_errors']
                 response = json.dumps(
                     {
@@ -130,19 +130,18 @@ def get_response(data, response_obj, message):
                 return response
 
             
-            else:
-                print("********* 1 ",data)
+            elif 'detail' in data[0]:
+                message = data[0]['detail']
                 response = json.dumps(
-                {
-                    
-                    'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
-                    'isSuccess': True,
-                    'message': message,
-                    'data': data,
-                }
+                    {
+                        'isSuccess': False,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':None
+                    }
                 )
                 return response
-        
+
         response = json.dumps(
             {
                 
