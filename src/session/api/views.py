@@ -109,7 +109,7 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
                 holiday_id = holiday.holiday_type.id
               
                 holiday_by_academic_calender = {
-                    "academic_session": [academic_id],
+                    "academic_session": academic_id,
                     "title": holiday.title,
                     "description": holiday.description,
                     "holiday_from": holiday.holiday_from,
@@ -123,7 +123,7 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
                 if school_holiday_serializer.is_valid():
                     school_holiday_serializer.save()
                 else:
-
+                    print("school_holiday_serializer.errors",school_holiday_serializer.errors)
                     raise ValidationError(school_holiday_serializer.errors)
             week_off_qs = SchoolWeakOff.objects.filter(academic_calender=academic_sesion_qs.academic_calender)
             for week in week_off_qs:
@@ -153,7 +153,7 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
             
 
         except Exception as ex:
-           
+            print("ERROR-------", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 """ AcademicSession Retrive Update Delete """
