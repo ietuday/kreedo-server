@@ -153,13 +153,15 @@ class SchoolCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return School.objects.create(**validated_data)
-        
+
 """ School Update Serializer"""
 
 class SchoolUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
+
+        
 
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
