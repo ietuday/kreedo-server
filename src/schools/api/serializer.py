@@ -129,10 +129,15 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
         school_data_id = serialized_data.get('id')
         print("School",school_data_id)
         
-        user_qs = UserRole.objects.filter(
-            school=school_data_id)
-        user_qs_serializer = UserRoleListForSchoolSerializer(user_qs,many=True)
-        serialized_data['user_list'] = user_qs_serializer.data
+        user_role_qs = UserRole.objects.filter(
+            school=school_data_id).values('user').distinct()
+        print("user_role_qs-",user_role_qs)
+        user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
+        print("USER- DETAIL", user_detail_qs)
+        user_detail_qs_serializer = UserDetailListSerializer(user_detail_qs, many=True)
+
+
+        serialized_data['user_list'] = user_detail_qs_serializer.data
         return serialized_data
 
 
