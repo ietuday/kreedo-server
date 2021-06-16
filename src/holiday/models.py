@@ -50,7 +50,7 @@ class SchoolHoliday(TimestampAwareModel):
     academic_calender = models.ForeignKey(to='session.AcademicCalender', on_delete = models.PROTECT, null=True,blank=True)
     academic_session = models.ForeignKey(to='session.AcademicSession',on_delete = models.PROTECT, null=True, blank=True)
     school_calender = models.ForeignKey(
-        'SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
+        to='schools.SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
     holiday_from = models.DateField(blank=True)
     holiday_till = models.DateField(blank=True)
     holiday_type = models.ForeignKey('HolidayType',on_delete=models.PROTECT, blank=True, null=True)
