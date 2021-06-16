@@ -98,45 +98,35 @@ def get_paginated_response(self, data):
     Genrate Response
 """
 
-
+import pdb
+from rest_framework.utils.serializer_helpers import ReturnList
 def get_response(data, response_obj, message):
     try:
-        print("BEFORE IF---------")
-        
-        if data:
-            print("INNER IF  -----")
-            error_msg = ["non_field_errors", "detail"]
-            for error_message in error_msg:
-                if error_message in data:
-                    print("data---------->",data)
-                    if 'non_field_errors' in data:
-                        message = data['non_field_errors']
-                    else:
-                        message = data['detail']
-                    response = json.dumps(
-                        {
-                            'isSuccess': False,
-                            'statusCode': response_obj.status_code,
-                            'message':message,
-                            'data':''
-                        }
-                    )
-                    return response
+        if type(data) is ReturnList:
 
-        # print("Data---------->", data)
-        # if 'non_field_errors' in data[0]:
-        #     print("@$################")
-            
-        #     response = json.dumps(
-        #     {
-                
-        #         'statusCode': 200 ,
-        #         'isSuccess': False,
-        #         'message': data[0]['non_field_errors'][0],
-        #         'data': None,
-        #     }
-        #     )
-        #     return response
+            if 'non_field_errors' in data[0]:
+                message = data[0]['non_field_errors']
+                response = json.dumps(
+                    {
+                        'isSuccess': False,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':None
+                    }
+                )
+                return response
+
+            elif 'detail' in data[0]:
+                message = data[0]['detail']
+                response = json.dumps(
+                    {
+                        'isSuccess': False,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':None
+                    }
+                )
+                return response
 
         response = json.dumps(
             {
