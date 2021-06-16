@@ -72,8 +72,9 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             grade_list = request.data.get('grade_list')
-            print(grade_list)
+           
             for grade in grade_list:
+
             
                 academic_calender_qs = AcademicCalender.objects.filter(id=grade['academic_calender'])[0]
                 grade['session_from']= academic_calender_qs.start_date
@@ -99,16 +100,16 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
     def get(self, request, pk):
         try:
             academic_sesion_qs = AcademicSession.objects.get(id=pk)
-            print("academic_sesion_qs---------->",academic_sesion_qs.academic_calender)
-            print("@@---------->",academic_sesion_qs.id)
-
+            academic_id = academic_sesion_qs.id
+         
             holiday_qs = SchoolHoliday.objects.filter(academic_calender = academic_sesion_qs.academic_calender)
-            print("@@@@@@@@@@@@@@@@", holiday_qs)
-
+  
             for holiday in holiday_qs:
+              
                 holiday_id = holiday.holiday_type.id
+              
                 holiday_by_academic_calender = {
-                    "academic_session": [academic_sesion_qs.id],
+                    "academic_session": [academic_id],
                     "title": holiday.title,
                     "description": holiday.description,
                     "holiday_from": holiday.holiday_from,
@@ -116,7 +117,6 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
                     "holiday_type": holiday_id,
                     "is_active": holiday.is_active
                 }
-                print("holiday_by_academic_calender---------", holiday_by_academic_calender)
 
                 school_holiday_serializer = SchoolHolidayCreateSerializer(
                     data=holiday_by_academic_calender)
@@ -125,36 +125,36 @@ class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView)
                 else:
 
                     raise ValidationError(school_holiday_serializer.errors)
-            week_off_by_academic_calender = {
-                "academic_session":academic_sesion_qs.id,
-                "monday": "false",
-                "tuesday": "false",
-                "wednesday": "false",
-                "thursday": "false",
-                "friday": "false",
-                "saturday": "false",
-                "sunday": "false",
-                "is_active": "true"
+            week_off_qs = SchoolWeakOff.objects.filter(academic_calender=academic_sesion_qs.academic_calender)
+            for week in week_off_qs:
 
-            }
-            print("week_off_by_academic_calender----",week_off_by_academic_calender)
-            week_off_qs_serializer = SchoolWeakOffCreateSerializer(
-                data=week_off_by_academic_calender)
-            if week_off_qs_serializer.is_valid():
-                week_off_qs_serializer.save()
-            else:
+                week_off_by_academic_calender = {
+                    "academic_session":academic_id,
+                    "monday": week.monday,
+                    "tuesday": week.tuesday,
+                    "wednesday": week.wednesday,
+                    "thursday": week.thursday,
+                    "friday": week.friday,
+                    "saturday": week.saturday,
+                    "sunday": week.sunday,
+                    "is_active": week.is_active
 
-                raise ValidationError(week_off_qs_serializer.errors)
+                }
+                week_off_qs_serializer = SchoolWeakOffCreateSerializer(
+                    data=week_off_by_academic_calender)
+                if week_off_qs_serializer.is_valid():
+                    week_off_qs_serializer.save()
+                else:
+
+                    raise ValidationError(week_off_qs_serializer.errors)
             academic_sesion_qs.is_applied="True"
             academic_sesion_qs.save()
             return Response("Academic Session Apply to Section", status=status.HTTP_200_OK)
             
 
         except Exception as ex:
-            print("ERROR--->", ex)
+           
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 """ AcademicSession Retrive Update Delete """
 
