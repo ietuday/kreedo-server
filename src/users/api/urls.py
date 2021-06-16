@@ -30,6 +30,7 @@ urlpatterns = [
                ResetPassword.as_view(), name='ResetPassword'),
      path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
      path('add-user', AddUser.as_view(), name='AddUser'),
+     path('update_user', UpdateUser.as_view(), name='UpdateUser'),
      path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
      path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
      path('add_role_of_user_list_create',

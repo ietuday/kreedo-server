@@ -650,6 +650,21 @@ class AddUser(ListCreateAPIView):
             return Response(context)
 
 
+class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
+    def put(self, request):
+        try:
+            print(request)
+
+
+
+        except Exception as ex:
+            context = {"error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+
+            return Response(context)
+
+
+
 """ Add role from user detail """
 class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
     model = ReportingTo
@@ -725,6 +740,7 @@ class ReportingToListByUserDetailList(GeneralClass,Mixins,RetrieveUpdateDestroyA
 class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
     model = UserRole
     filterset_class = UserRoleFilter
+
     def get(self, request, pk):
         try:
             user_school_qs = UserRole.objects.filter(user=pk).exclude(school__isnull =True)
@@ -734,6 +750,8 @@ class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 """ User Role Update and Retrive """
@@ -779,7 +797,7 @@ class KeyAccessOfS3(GeneralClass,Mixins,ListCreateAPIView):
 
 
 
-
+""" Bulk Upload """
 
 
 class AddAccount(ListCreateAPIView):

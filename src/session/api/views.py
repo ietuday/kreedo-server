@@ -87,7 +87,7 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 academic_session_serializer.save()
                 return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response(academic_session_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(academic_session_serializer.errors, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR--->", ex)
