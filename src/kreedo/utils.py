@@ -101,11 +101,14 @@ def get_paginated_response(self, data):
 
 def get_response(data, response_obj, message):
     try:
+        
         if data:
+            
            
             error_msg = ["non_field_errors", "detail"]
             for error_message in error_msg:
                 if error_message in data:
+                    print("data---------->",data)
                     if 'non_field_errors' in data:
                         message = data['non_field_errors']
                     else:
@@ -120,6 +123,21 @@ def get_response(data, response_obj, message):
                         }
                     )
                     return response
+
+
+        if 'non_field_errors' in data[0]:
+            
+            response = json.dumps(
+            {
+                
+                'statusCode': 200 ,
+                'isSuccess': False,
+                'message': data[0]['non_field_errors'][0],
+                'data': None,
+            }
+        )
+        return response
+
         response = json.dumps(
             {
                 
