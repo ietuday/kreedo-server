@@ -201,9 +201,8 @@ AWS_SNS_CLIENT = boto3.client(
     aws_secret_access_key=env('AWS_SNS_SECRET_ACCESS_KEY'),
     region_name="ap-southeast-1"
 )
-print("AWS_SNS_CLIENT-------------", AWS_SNS_CLIENT)
+
 if bool(env('DEV')) == False:
-    # print("@@@@@@@@@@@@@@2")
     AWS_SNS_CLIENT.set_sms_attributes(
         attributes={
             'DefaultSMSType': 'Transactional'
