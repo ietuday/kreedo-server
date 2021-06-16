@@ -102,9 +102,22 @@ import pdb
 from rest_framework.utils.serializer_helpers import ReturnList
 def get_response(data, response_obj, message):
     try:
+        
         if type(data) is ReturnList:
+            if len(data) is 0:
+                response = json.dumps(
+                    {
+                        'isSuccess': True,
+                        'statusCode': 200,
+                        'message':message,
+                        'data':[]
+                    }
+                )
+                return response
 
-            if 'non_field_errors' in data[0]:
+
+            elif 'non_field_errors' in data[0]:
+                print("********* 1 ", data)
                 message = data[0]['non_field_errors']
                 response = json.dumps(
                     {
@@ -116,18 +129,20 @@ def get_response(data, response_obj, message):
                 )
                 return response
 
-            elif 'detail' in data[0]:
-                message = data[0]['detail']
+            
+            else:
+                print("********* 1 ",data)
                 response = json.dumps(
-                    {
-                        'isSuccess': False,
-                        'statusCode': 200,
-                        'message':message,
-                        'data':None
-                    }
+                {
+                    
+                    'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
+                    'isSuccess': True,
+                    'message': message,
+                    'data': data,
+                }
                 )
                 return response
-
+        
         response = json.dumps(
             {
                 
