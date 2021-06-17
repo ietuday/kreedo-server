@@ -735,9 +735,6 @@ class AddUserSerializer(serializers.ModelSerializer):
             return instance
         except Exception as ex:
             raise ValidationError(ex)
-
-
-        
     
     def create(self, validated_data):
        
