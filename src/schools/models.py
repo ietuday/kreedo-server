@@ -148,7 +148,7 @@ class School(TimestampAwareModel):
 
 class SectionSubjectTeacher(TimestampAwareModel):
     subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
-    teacher = models.ManyToManyField(to='users.UserDetail', blank=True)
+    teacher = models.ForeignKey(to='users.UserDetail', blank=True)
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT)
     # period = models.ForeignKey(to='period.Period', on_delete=models.PROTECT)
