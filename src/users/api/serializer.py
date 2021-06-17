@@ -90,6 +90,15 @@ class UserDetailListForAcademicSessionSerializer(serializers.ModelSerializer):
         # depth = 1
 
 
+""" UserDetailListForSectionSubjectSerializer List Serializer """
+class UserDetailListForSectionSubjectSerializer(serializers.ModelSerializer):
+    # user_obj = AuthUserSerializer()
+    
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 1
+
 """ Reporting To  Serializer """
 
 
@@ -700,6 +709,12 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
 
 
 
+
+""" Update user Serializer """
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  User
+        fields =['email', 'first_name', 'last_name']
 
 """ Add user Serializer """
 class AddUserSerializer(serializers.ModelSerializer):

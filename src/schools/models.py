@@ -70,7 +70,6 @@ class Section(TimestampAwareModel):
         return reverse('Section_detail', kwargs={"pk": self.pk})
 
 
-
 class Subject(TimestampAwareModel):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     type = models.CharField(
@@ -161,7 +160,7 @@ class SectionSubjectTeacher(TimestampAwareModel):
         ordering = ['-id']
 
     def __str__(self):
-        return str(Self.id)
+        return str(self.id)
 
     def get_absolute_url(Self):
         return reverse('SectionSubjectTeacher_detail', kwargs == {"pk": self.pk})
