@@ -1,3 +1,5 @@
+from users.api.serializer import*
+from users.models import*
 from rest_framework import serializers
 from ..models import*
 
@@ -20,18 +22,13 @@ class GradeListSerializer(serializers.ModelSerializer):
         serialized_data = super(
             GradeListSerializer, self).to_representation(obj)
 
-
-      
         grade_id = serialized_data.get('id')
 
         section_qs = Section.objects.filter(grade__in=str(grade_id))
         section_qs_serializer = SectionSerializer(section_qs, many=True)
-        serialized_data['sections']= section_qs_serializer.data
+        serialized_data['sections'] = section_qs_serializer.data
 
         return serialized_data
-
-
-
 
 
 """Section List Serializer """
@@ -44,13 +41,10 @@ class SectionListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = '__all__'
-        
-
 
 
 """Section Create Serializer """
@@ -110,40 +104,35 @@ class SchoolListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 """ School  List Serializer"""
 
-from users.models import*
-from users.api.serializer import*
+
 class SchoolDetailListSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
         depth = 1
 
-    
     def to_representation(self, obj):
         serialized_data = super(
             SchoolDetailListSerializer, self).to_representation(obj)
 
         school_data_id = serialized_data.get('id')
-        print("School",school_data_id)
-        
+        print("School", school_data_id)
+
         user_role_qs = UserRole.objects.filter(
             school=school_data_id).values('user').distinct()
-        print("user_role_qs-",user_role_qs)
+        print("user_role_qs-", user_role_qs)
         user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
         print("USER- DETAIL", user_detail_qs)
-        user_detail_qs_serializer = UserDetailListSerializer(user_detail_qs, many=True)
-
+        user_detail_qs_serializer = UserDetailListSerializer(
+            user_detail_qs, many=True)
 
         serialized_data['user_list'] = user_detail_qs_serializer.data
         return serialized_data
 
 
-
 """ School create Serializer"""
-
 
 
 class SchoolCreateSerializer(serializers.ModelSerializer):
@@ -154,14 +143,15 @@ class SchoolCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return School.objects.create(**validated_data)
 
+
 """ School Update Serializer"""
+
 
 class SchoolUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
 
-        
 
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
@@ -198,11 +188,12 @@ class SchoolSerializer(serializers.ModelSerializer):
 
 
 class SectionSubjectTeacherListSerializer(serializers.ModelSerializer):
+    # teacher = UserDetailListForSectionSubjectSerializer()
+
     class Meta:
         model = SectionSubjectTeacher
         fields = '__all__'
         depth = 1
-
 
 
 """ Section Subject Teacher Create Serializer """
@@ -223,11 +214,12 @@ class RoomListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+
 class RoomBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = '__all__'
-        
+
     # def to_representation(self, obj):
     #     serialized_data = super(
     #         RoomListSerializer, self).to_representation(obj)
@@ -239,6 +231,7 @@ class RoomBySchoolSerializer(serializers.ModelSerializer):
     #     subject_serializer = SchoolGradeSubjectSerializer(subject_qs,many=True)
     #     serialized_data['subject'] = subject_serializer.data
     #     return serialized_data
+
 
 """ Room create Serializer """
 

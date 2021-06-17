@@ -651,16 +651,66 @@ class AddUser(ListCreateAPIView):
 
 
 class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
-    def put(self, request):
+ 
+
+    def put(self, request,pk):
         try:
-            print(request)
+            # print(request)
+            address_detail = {
+                "address": request.data.get('address', None),
+                "city": request.data.get('city', None),
+                "state": request.data.get('state', None),
+                "country": request.data.get('country', None),
+                "pincode": request.data.get('pincode', None),
+
+            }
+            address_qs = Address.objects.get(id=request.data.get('address_id',None))
+            address_qs_serializer = AddressSerializer(address_qs,data = dict(address_detail),partial=True)
+            if address_qs_serializer.is_valid():
+                address_qs_serializer.save()
+               
+            else:
+                raise ValidationError(address_qs.errors)
+            
+            
+            user_data = {
+                "first_name": request.data.get('first_name', None),
+                "last_name": request.data.get('last_name', None),
+                "email": request.data.get('email', None)
+            }
+            user_details_data = {
+                
+                "phone": request.data.get('phone', None),
+                "joining_date": request.data.get('joining_date', None),
+                "role": request.data.get('role', None),
+                "address": request.data.get('address_id', None),
+
+            }
+            user_qs = User.objects.get(id=pk)
+      
+            user_qs_serializer = UpdateUserSerializer(user_qs, data=dict(user_data), partial=True)
+            if user_qs_serializer.is_valid():
+                user_qs_serializer.save()
+                print("SAVE")
+            else:
+                print("user_qs_serializer.errors",user_qs_serializer.errors)
+                return Response(user_qs_serializer.errors)
+            user_details_qs = UserDetail.objects.get(user_obj = pk)
+           
+            user_detail_qs_serializer = UserDetailSerializer(user_details_qs, data=dict(user_details_data), partial=True)
+            if user_detail_qs_serializer.is_valid():
+                user_detail_qs_serializer.save()
+            else:
+                return Response(user_detail_qs_serializer.errors)
+            
 
 
 
         except Exception as ex:
+            print("ERROR------", ex)
+            print("traceback", traceback.print_exc())
             context = {"error": ex,
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-
             return Response(context)
 
 
