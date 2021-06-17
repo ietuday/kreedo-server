@@ -60,7 +60,7 @@ class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
 
 
 class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
-    model = AcademicSession
+    model = AcademicSession 
     filterset_class = AcademicSessionFilter
 
     def get_serializer_class(self):

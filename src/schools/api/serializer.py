@@ -196,7 +196,7 @@ class SectionSubjectTeacherListSerializer(serializers.ModelSerializer):
 
 
 class AcademicSessionSectionSubjectTeacherListSerializer(serializers.ModelSerializer):
-    # teacher = UserDetailListForSectionSubjectSerializer()
+    teacher = UserDetailListForSectionSubjectSerializer()
 
     class Meta:
         model = SectionSubjectTeacher
