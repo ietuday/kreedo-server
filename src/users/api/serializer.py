@@ -92,7 +92,7 @@ class UserDetailListForAcademicSessionSerializer(serializers.ModelSerializer):
 
 """ UserDetailListForSectionSubjectSerializer List Serializer """
 class UserDetailListForSectionSubjectSerializer(serializers.ModelSerializer):
-    # user_obj = AuthUserSerializer()
+    user_obj = AuthUserSerializer()
     
     class Meta:
         model = UserDetail
