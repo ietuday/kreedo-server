@@ -27,6 +27,11 @@ urlpatterns = [
          name='GradeAndSectionListBySchool'),  
      path('apply_academic_calender_to_academic_session/<int:pk>', ApplyAcademicCalenderToAcademicSession.as_view(),
           name='ApplyAcademicCalenderToAcademicSession'),
+     path('academic_calender_by_school/<int:pk>', AcademicCalenderBySchool.as_view(),
+         name='AcademicCalenderBySchool'),
+          
+     path('grade_list_by_academic_calender/<int:pk>', GradeLisbyAcademicSession.as_view(),
+         name='GradeLisbyAcademicSession'),
            
 
 ]

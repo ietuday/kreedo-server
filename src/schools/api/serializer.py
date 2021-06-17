@@ -188,11 +188,19 @@ class SchoolSerializer(serializers.ModelSerializer):
 
 
 class SectionSubjectTeacherListSerializer(serializers.ModelSerializer):
-    # teacher = UserDetailListForSectionSubjectSerializer()
 
     class Meta:
         model = SectionSubjectTeacher
         fields = '__all__'
+        depth = 1
+
+
+class AcademicSessionSectionSubjectTeacherListSerializer(serializers.ModelSerializer):
+    # teacher = UserDetailListForSectionSubjectSerializer()
+
+    class Meta:
+        model = SectionSubjectTeacher
+        fields = ['subject','teacher']
         depth = 1
 
 

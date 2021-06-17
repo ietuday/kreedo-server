@@ -695,14 +695,36 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
             else:
                 print("user_qs_serializer.errors",user_qs_serializer.errors)
                 return Response(user_qs_serializer.errors)
-            user_details_qs = UserDetail.objects.get(user_obj = pk)
+            user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
            
             user_detail_qs_serializer = UserDetailSerializer(user_details_qs, data=dict(user_details_data), partial=True)
             if user_detail_qs_serializer.is_valid():
                 user_detail_qs_serializer.save()
             else:
                 return Response(user_detail_qs_serializer.errors)
+            user_role_qs = UserRole.objects.filter(user=pk, role=request.data.get('previous_user_role',None))[0]
+            user_role = {
+                
+                        "role": request.data.get('role',None),
+                        "school": ""
+                    }
+            print("user_role------------>",user_role)
+            user_role_serializer = UserRoleSerializer(
+                data=dict(user_role))
+            if user_role_serializer.is_valid():
+                user_role_serializer.save()
+                
+                self.context.update({
+                    "user_role": user_role_serializer.data
+                })
+                
+            else:
+                print("ERROR------------>",user_role_serializer.errors)
+                raise ValidationError(user_role_serializer.errors)
+
+              
             
+
 
 
 
