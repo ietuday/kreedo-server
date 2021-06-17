@@ -93,9 +93,33 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR--->", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+""" Grade List by Academic Calender """
 
 
-""" Appply Holiday List in Academic Session """
+class GradeLisbyAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self,request, pk):
+        try:
+            academic_sesion_qs = AcademicSession.objects.filter(academic_calender=pk)
+            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_sesion_qs, many=True)
+            return Response(academic_sesion_qs_serializer.data, status=status.HTTP_200_OK)
+        except Exception as ex:
+            print("ERROR--->", ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+""" Academic Calender by School """
+
+class AcademicCalenderBySchool(GeneralClass,Mixins,ListCreateAPIView):
+    def get(self,request, pk):
+        try: 
+            academic_calender_qs = AcademicCalender.objects.filter(school=pk)
+            academic_calender_qs_serializer = AcademicCalenderListSerializer(academic_calender_qs, many=True)
+            return Response(academic_calender_qs_serializer.data, status=status.HTTP_200_OK)
+        except Exception as ex:
+            print("ERROR--->", ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Apply Holiday List in Academic Session """
 class ApplyAcademicCalenderToAcademicSession(GeneralClass, Mixins,CreateAPIView):
     def get(self, request, pk):
         try:
