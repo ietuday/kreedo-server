@@ -277,8 +277,8 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SchoolDetailListSerializer
-        if self.request.method == 'PUT':
-            return SchoolSerializer
+        # if self.request.method == 'PUT':
+        #     return SchoolSerializer
         if self.request.method == 'PATCH':
             return SchoolSerializer
     

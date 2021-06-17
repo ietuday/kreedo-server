@@ -22,7 +22,6 @@ Relationship_With_Child_Choice = [
 ]
 
 
-
 """  Choice """
 Male = 'Male'
 Female = 'Female'
@@ -58,10 +57,12 @@ class UserType(TimestampAwareModel):
 
 """ Role Model """
 
+
 class Role(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
     type = models.ForeignKey(UserType, on_delete=models.CASCADE)
-    group = models.OneToOneField('auth.Group',on_delete=models.CASCADE, unique=True, null=True, blank=True)
+    group = models.OneToOneField(
+        'auth.Group', on_delete=models.CASCADE, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     objects = RoleManager
 
@@ -98,12 +99,14 @@ class UserDetail(TimestampAwareModel):
         UserType, on_delete=models.PROTECT, null=True, blank=True)
     role = models.ManyToManyField(Role, related_name='user_role', blank=True)
     role_label = models.CharField(max_length=25, null=True, blank=True)
-    gender = models.CharField(max_length=25, choices=Gender_Choice,null=True, blank=True)
+    gender = models.CharField(
+        max_length=25, choices=Gender_Choice, null=True, blank=True)
     email_verified = models.BooleanField(
         default=False, verbose_name='Email Verified')
     phone_verified = models.BooleanField(
         default=False, verbose_name='Phone Verified')
     joining_date = models.DateField(null=True)
+    profile_pic = models.CharField(max_length=100, null=True, blank=True)
     objects = UserDetailManager
 
     class Meta:
