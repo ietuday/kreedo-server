@@ -1,4 +1,9 @@
 from rest_framework import serializers
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    CharField,
+    ValidationError)
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -16,6 +21,7 @@ from kreedo.conf.logger import*
 from django.contrib.auth.models import Permission,Group
 from group.api.serializer import*
 from group.models import*
+
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -71,13 +77,26 @@ class UserDetailSerializer(serializers.ModelSerializer):
         exclude = ('activation_key', 'activation_key_expires')
 
 
+
 """ User Detail List Serializer """
 class UserDetailListSerializer(serializers.ModelSerializer):
     user_obj = AuthUserSerializer()
+    reporting_to = SerializerMethodField()
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 1
+    
+    def get_reporting_to(self, obj):
+        print("@@@@@@@@", obj)
+        try:
+            reporting_obj = ReportingTo.objects.filter(user_detail=obj).first()
+            if reporting_obj==None:
+                return {}
+            return ReportingToListSerializer(reporting_obj).data
+        except Exception as e:
+            print(e)
+            return None
 
 
 """ User Detail List Serializer """
