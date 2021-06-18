@@ -72,7 +72,9 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                         parent_data = {
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
-                            "phone": parent['phone']
+                            "phone": parent['phone'],
+                            "gender":parent['gender'],
+                            "photo":parent['photo']
 
                         }
                         parent_detail_serializer = ParentDetailSerializer(
