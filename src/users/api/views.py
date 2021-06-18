@@ -651,7 +651,6 @@ class AddUser(ListCreateAPIView):
 
 
 class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
- 
 
     def put(self, request,pk):
         try:
@@ -671,13 +670,13 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
                
             else:
                 raise ValidationError(address_qs.errors)
-            
-            
+   
             user_data = {
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
                 "email": request.data.get('email', None)
             }
+
             user_details_data = {
                 
                 "phone": request.data.get('phone', None),
@@ -695,6 +694,7 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
             else:
                 print("user_qs_serializer.errors",user_qs_serializer.errors)
                 return Response(user_qs_serializer.errors)
+
             user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
            
             user_detail_qs_serializer = UserDetailSerializer(user_details_qs, data=dict(user_details_data), partial=True)
@@ -702,25 +702,30 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
                 user_detail_qs_serializer.save()
             else:
                 return Response(user_detail_qs_serializer.errors)
-            user_role_qs = UserRole.objects.filter(user=pk, role=request.data.get('previous_user_role',None))[0]
-            user_role = {
-                
-                        "role": request.data.get('role',None),
-                        "school": ""
-                    }
-            print("user_role------------>",user_role)
-            user_role_serializer = UserRoleSerializer(
-                data=dict(user_role))
-            if user_role_serializer.is_valid():
-                user_role_serializer.save()
-                
-                self.context.update({
-                    "user_role": user_role_serializer.data
-                })
-                
-            else:
-                print("ERROR------------>",user_role_serializer.errors)
-                raise ValidationError(user_role_serializer.errors)
+            role = request.data.get('role',None)
+            user_role_id= Role.objects.filter(id=role[0])[0]
+            print("user_role_id---", user_role_id)
+           
+            user_role_qs = UserRole.objects.filter(user=pk, role=request.data.get('previous_user_role',None))
+            print("@@@@@@",user_role_qs)
+         
+            for user_role_obj in user_role_qs:
+
+                user_role_obj.role = user_role_id
+                user_role_obj.save()
+            
+            print("Role saved")
+
+          
+            reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get('previous_user_role',None))
+            print("@#",reporting_to_qs)
+            for reporting_to_obj in reporting_to_qs:
+
+                reporting_to_obj.user_role = user_role_id
+                reporting_to_obj.save()
+            print("REporting to Save")
+
+            return Response("User Updated")
 
               
             
