@@ -649,12 +649,13 @@ class AddUser(ListCreateAPIView):
 
             return Response(context)
 
+""" Update User """
 
 class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
 
     def put(self, request,pk):
         try:
-            # print(request)
+        
             address_detail = {
                 "address": request.data.get('address', None),
                 "city": request.data.get('city', None),
@@ -707,7 +708,7 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
             print("user_role_id---", user_role_id)
            
             user_role_qs = UserRole.objects.filter(user=pk, role=request.data.get('previous_user_role',None))
-            print("@@@@@@",user_role_qs)
+            
          
             for user_role_obj in user_role_qs:
 
@@ -716,22 +717,15 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
             
             print("Role saved")
 
-          
             reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get('previous_user_role',None))
-            print("@#",reporting_to_qs)
+           
             for reporting_to_obj in reporting_to_qs:
 
                 reporting_to_obj.user_role = user_role_id
                 reporting_to_obj.save()
-            print("REporting to Save")
+            print("reporting to Save")
 
             return Response("User Updated")
-
-              
-            
-
-
-
 
         except Exception as ex:
             print("ERROR------", ex)
@@ -739,8 +733,6 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
             context = {"error": ex,
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
-
-
 
 """ Add role from user detail """
 class AddRoleOfUserListCreate(GeneralClass,Mixins,ListCreateAPIView):
@@ -827,8 +819,6 @@ class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 
 """ User Role Update and Retrive """
