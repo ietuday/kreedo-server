@@ -204,6 +204,15 @@ class ChildListSerializer(serializers.ModelSerializer):
         return serialized_data
 
 
+ 
+class ChildUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Child
+        fields = '__all__'
+        
+
+
 class ChildSerializer(serializers.ModelSerializer):
 
     class Meta:

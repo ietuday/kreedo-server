@@ -76,11 +76,9 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None)
             }
-
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
-
             academic_session_detail = {
                 "academic_session": request.data.get('academic_session', None),
                 "section": request.data.get('section', None),
@@ -128,8 +126,43 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             return ChildSerializer
         if self. request.method == 'PATCH':
             return ChildSerializer
-        if self.request.method == 'POST':
+        if self.request.method == 'PUT':
             return ChildSerializer
+    
+    # def put(self, request, pk):
+    #     try:
+
+
+    #         child_detail = {
+    #             "photo": request.data.get('photo', None),
+    #             "first_name": request.data.get('first_name', None),
+    #             "last_name": request.data.get('last_name', None),
+    #             "date_of_birth": request.data.get('date_of_birth', None),
+    #             "gender": request.data.get('gender', None),
+    #             "date_of_joining": request.data.get('date_of_joining', None),
+    #             "place_of_birth": request.data.get('place_of_birth', None),
+    #             "blood_group": request.data.get('blood_group', None)
+    #         }
+    #         child_qs = Child.objects.filter(id=pk)[0]
+    #         print("child_qs",child_qs)
+    #         child_qs_serializer = ChildUpdateSerializer(child_qs,data=dict(child_detail), partial=True)
+    #         if child_qs_serializer.is_valid():
+    #             child_qs_serializer.save()
+    #             print("@@@@@@@@")
+    #         else:
+    #             print(child_qs_serializer.errors)
+
+            
+            
+
+
+
+
+
+    #     except Exception as ex:
+    #         logger.info(ex)
+    #         logger.debug(ex)
+    #         return Response(ex)
     
 
     def destroy(self, request, *args, **kwargs):
