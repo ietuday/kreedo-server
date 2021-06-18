@@ -716,12 +716,15 @@ class UpdateUser(GeneralClass,Mixins,ListCreateAPIView):
                 user_role_obj.save()
             
             print("Role saved")
-
-            reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get('previous_user_role',None))
-           
+            user_detail_qs = UserDetail.objects.get(user_obj=request.data.get('reporting', None))
+            
+            print("user_detail_qs-------->",user_detail_qs)
+            reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get('previous_user_role',None),reporting_to=request.data.get('previous_reporting_to',None))
+            print("#$$$$")
             for reporting_to_obj in reporting_to_qs:
 
                 reporting_to_obj.user_role = user_role_id
+                reporting_to_obj.reporting_to = user_detail_qs
                 reporting_to_obj.save()
             print("reporting to Save")
 
