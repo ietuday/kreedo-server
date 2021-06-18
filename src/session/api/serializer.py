@@ -62,22 +62,20 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
             AcademicSessionListSerializer, self).to_representation(obj)
 
         academic_session_id = serialized_data.get('id')
-
         academic_session_qs = SectionSubjectTeacher.objects.filter(
             academic_session=academic_session_id)
         academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherListSerializer(
             academic_session_qs, many=True)
-
         serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
         return serialized_data
 
-
 class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AcademicSession
         fields =['grade']
         depth = 1
+
+
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
     class Meta:
@@ -86,10 +84,7 @@ class AcademicSessionForCalender(serializers.ModelSerializer):
 
 
 """ Grade List of Academic Session """
-
-
 class GradeListOfAcademicSessionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = AcademicSession
         fields = ['grade']

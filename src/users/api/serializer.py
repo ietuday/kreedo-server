@@ -134,6 +134,11 @@ class UserRoleSerializer(serializers.ModelSerializer):
         return UserRole.objects.create(**validated_data)
 
 
+class UserRoleUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+
 class UserRoleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
