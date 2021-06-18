@@ -106,7 +106,7 @@ class UserDetail(TimestampAwareModel):
     phone_verified = models.BooleanField(
         default=False, verbose_name='Phone Verified')
     joining_date = models.DateField(null=True)
-    profile_pic = models.CharField(max_length=100, null=True, blank=True)
+    photo = models.CharField(max_length=100, null=True, blank=True)
     objects = UserDetailManager
 
     class Meta:

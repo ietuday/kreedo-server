@@ -325,43 +325,47 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 
 class GenerateCalenderToPdf(ListCreateAPIView):
 
-    def post(self, request):
+    def get(self, request,pk):
         try:
 
-            """
-                Filter School ID From School Model
-            """
-            school_qs = School.objects.get(
-                id=request.data.get('school_id', None)).id
+            # school_qs = School.objects.get(
+            #     id=pk).id
 
-            """ 
-                Filter School ID From ACADEMIC CALENDER Model for getting no. of years
-            """
-            school_academic_calender_qs = SchoolCalendar.objects.filter(
-                school=school_qs)
-
+            school_academic_calender_qs = AcademicCalender.objects.filter(
+                school=pk)
+            calender_list = []
+            calender_dict = {}
+            print("school_academic_calender_qs", school_academic_calender_qs)
             for school_academic_calender_year in school_academic_calender_qs:
+                
                 """ get date list """
-                date_list = Genrate_Date_of_Year(
-                    school_academic_calender_year.session_from, school_academic_calender_year.session_till)
+                calender_dict['date_list'] = Genrate_Date_of_Year(
+                    school_academic_calender_year.start_date, school_academic_calender_year.end_date)
+                # print("Date--------", date_list)
+
                 """ get month list """
-                month_list = Genrate_Month(
-                    school_academic_calender_year.session_from, school_academic_calender_year.session_till)
+                calender_dict['month_list'] = Genrate_Month(
+                    school_academic_calender_year.start_date, school_academic_calender_year.end_date)
+                # print("Month------------>")
+                calender_list.append(calender_dict)
 
             """ Get Week off list from SchoolWeakOff model """
-            school_week_off = SchoolWeakOff.objects.filter(school=school_qs)
+            school_week_off = SchoolWeakOff.objects.filter(school=pk)
             school_week_off_serializer = SchoolWeakOffListSerializer(
                 school_week_off, many=True)
             print("SCHOOL WEEK OFF", school_week_off_serializer.data)
+            # calender_list['school_week_off'] = school_week_off_serializer.data
 
             """ School holiday list from SchoolHoliday model"""
-            school_holiday_qs = SchoolHoliday.objects.filter(
-                school_session__school=school_qs)
+            school_holiday_qs = SchoolHoliday.objects.filter(school=pk)
             print("School holiday QS---->", school_holiday_qs)
+
             school_holiday_serailizer = SchoolHolidayListSerializer(
                 school_holiday_qs, many=True)
             print("SCHOOL HOLIDAY ", school_holiday_serailizer.data)
-
+            # calender_list['school_holiday_list'] = school_holiday_serailizer.data
+            
+            return Response(calender_list)
         except Exception as ex:
             print("ERROR----->", ex)
             logger.debug(ex)
