@@ -69,12 +69,12 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
         return serialized_data
 
+
 class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
-        fields =['grade']
+        fields = ['grade']
         depth = 1
-
 
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
@@ -84,10 +84,24 @@ class AcademicSessionForCalender(serializers.ModelSerializer):
 
 
 """ Grade List of Academic Session """
+
+
 class GradeListOfAcademicSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
         fields = ['grade']
+        depth = 1
+
+
+""" Class Teacher by academic session """
+
+
+class ClassTeacherByAcademicSession(serializers.ModelSerializer):
+    class_teacher = UserDetailListForAcademicSessionSerializer()
+
+    class Meta:
+        model = AcademicSession
+        fields = ['id', 'class_teacher', 'academic_calender', 'is_active']
         depth = 1
 
 
