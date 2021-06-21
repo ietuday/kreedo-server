@@ -487,6 +487,10 @@ class SessionGradeSectionTeacherSubject(GeneralClass, Mixins, ListCreateAPIView)
             grade_qs = SchoolGradeSubject.objects.filter(school=pk)
             grade_qs_serializer = SchoolGradeListSerializer(grade_qs, many=True)
             resultant_dict['grade_list'] = grade_qs_serializer.data
+            subject_qs = SchoolGradeSubject.objects.filter(school=pk)
+            subject_qs_serializer = SchoolSubjectListSerializer(subject_qs, many=True)
+            resultant_dict['subject_list'] = subject_qs_serializer.data
+
             teacher_qs = UserRole.objects.filter(school=pk)
             teacher_qs_serializer = UserRoleListForSchoolSerializer(teacher_qs, many=True)
             resultant_dict['teacher_list'] = teacher_qs_serializer.data
