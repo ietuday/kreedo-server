@@ -462,9 +462,11 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
 
 """ Subject list by SectionSubjectTeacher """
 class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
-    def get(self, request, pk):
+    def post(self, request):
         try:
-            subject_qs = SectionSubjectTeacher.objects.filter(academic_session=pk)
+            academic_id = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None)
+                        ,grade = request.data.get('grade', None), section = request.data.get('section', None))[0]
+            subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic_id.id)
             subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
             return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
         except Exception as ex:
