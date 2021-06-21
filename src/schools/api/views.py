@@ -464,18 +464,28 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
 class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
+            
             academic_id = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None)
                         ,grade = request.data.get('grade', None), section = request.data.get('section', None))
-            for academic in academic_id:
-                print("academic_id------", academic)
-                if academic_id:
-                    subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic.id)
-                    if subject_qs:
+            if academic_id:
+                for academic in academic_id:
+       
+                    if academic_id:
+                        subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic.id)
+                        if subject_qs:
 
-                        subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
-                        return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
-                    return Response("Subject Not Found",status=status.HTTP_200_OK)
-                return Response("Subject Not Found",status=status.HTTP_200_OK)
+                            subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
+                            return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
+                        else:
+                            data=[]    
+                            return Response(data,status=status.HTTP_200_OK)
+                    else:
+                        data=[]
+                        return Response(data,status=status.HTTP_200_OK)
+            else:
+
+                data=[]
+                return Response(data,status=status.HTTP_200_OK)
         except Exception as ex:
             print("Error--------", ex)
             logger.debug(ex)
