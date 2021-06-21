@@ -262,7 +262,13 @@ class RoomCreateSerializer(serializers.ModelSerializer):
 class SchoolGradeSubjectListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolGradeSubject
-        fields = '__all__'
+        fields = ['id', 'grade', 'is_active']
+        depth = 1
+
+class SchoolSubjectListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = ['id', 'subject', 'is_active']
         depth = 1
 
 
