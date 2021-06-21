@@ -475,7 +475,29 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+from session.api.serializer import*
+""" session Grade subject class teacher list """
+class SessionGradeSectionTeacherSubject(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            resultant_dict= {} 
+            session_qs  = AcademicCalender.objects.filter(school=pk)
+            session_qs_serializer = AcademicCalenderListSerializer(session_qs, many=True)
+            resultant_dict['session_list'] =  session_qs_serializer.data
+            grade_qs = SchoolGradeSubject.objects.filter(school=pk)
+            grade_qs_serializer = SchoolGradeListSerializer(grade_qs, many=True)
+            resultant_dict['grade_list'] = grade_qs_serializer.data
+            teacher_qs = UserRole.objects.filter(school=pk)
+            teacher_qs_serializer = UserRoleListForSchoolSerializer(teacher_qs, many=True)
+            resultant_dict['teacher_list'] = teacher_qs_serializer.data
 
+            return Response(resultant_dict, status=status.HTTP_200_OK)
+
+
+        except Exception as ex:
+            print("Error", ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 """ Bulk Upload Subjects """
 

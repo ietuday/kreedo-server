@@ -266,6 +266,15 @@ class SchoolGradeSubjectListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+
+class SchoolGradeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = '__all__'
+        depth = 1
+
+
+
 """ SchoolGradeSubject Create Serializer """
 
 
