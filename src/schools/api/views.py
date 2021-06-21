@@ -460,6 +460,21 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+""" Subject list by SectionSubjectTeacher """
+class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            subject_qs = SectionSubjectTeacher.objects.filter(academic_session=pk)
+            subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
+            return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
+        except Exception as ex:
+            print("Error", ex)
+            logger.debug(ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 """ Bulk Upload Subjects """
 
 
