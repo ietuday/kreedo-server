@@ -39,14 +39,17 @@ urlpatterns = [
 
     path('grade_list_by_school', GradeListBySchool.as_view(),
          name='GradeListBySchool'),
- 
+
     path('subject_room_by_school/<int:pk>', SubjectAndRoomBySchool.as_view(),
          name='SubjectAndRoomBySchool'),
 
-         
-     path('bulk-upload/add-school',
+
+    path('subject_by_academic_session/<int:pk>', SubjectByAcademicSession.as_view(),
+         name='SubjectByAcademicSession'),
+
+    path('bulk-upload/add-school',
          AddSubject.as_view(), name='AddSubject'),
-     path('bulk-upload/add-grade',
+    path('bulk-upload/add-grade',
          AddGrade.as_view(), name='AddGrade'),
 
 
