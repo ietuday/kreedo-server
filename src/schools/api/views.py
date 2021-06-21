@@ -465,12 +465,19 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             academic_id = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None)
-                        ,grade = request.data.get('grade', None), section = request.data.get('section', None))[0]
-            subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic_id.id)
-            subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
-            return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
+                        ,grade = request.data.get('grade', None), section = request.data.get('section', None))
+            for academic in academic_id:
+                print("academic_id------", academic)
+                if academic_id:
+                    subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic.id)
+                    if subject_qs:
+
+                        subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
+                        return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
+                    return Response("Subject Not Found",status=status.HTTP_200_OK)
+                return Response("Subject Not Found",status=status.HTTP_200_OK)
         except Exception as ex:
-            print("Error", ex)
+            print("Error--------", ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
