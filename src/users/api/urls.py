@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from .views import*
-
+from .edoofun_views import*
 
 urlpatterns = [
     path('role_list_create', RoleListCreate.as_view(), name='RoleListCreate'),
@@ -50,6 +50,11 @@ urlpatterns = [
     path('bulk-upload/add-school-grade-subject',
          AddSchoolGradeSubject.as_view(), name='Add School Grade Subject'),
     path('bulk-upload/add-user', AddUserData.as_view(), name='AddUserData'),
+
+
+
+
+     path('edoofun/register_parent', RegisterParent.as_view(),name='Register Parent')
 
 
 ]

@@ -467,6 +467,7 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
             
             academic_id = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None)
                         ,grade = request.data.get('grade', None), section = request.data.get('section', None))
+            print("academic_id-----",academic_id)
             if academic_id:
                 for academic in academic_id:
        
