@@ -228,6 +228,7 @@ class ChildSerializer(serializers.ModelSerializer):
 
         parent_list = serialized_data.get('parent')
 
+        print("$$$$$$$$$$",parent_list)
         user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
         user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
 

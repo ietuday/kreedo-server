@@ -102,7 +102,7 @@ import pdb
 from rest_framework.utils.serializer_helpers import ReturnList
 def get_response(data, response_obj, message):
     try:
-        
+        print(data)
         if type(data) is ReturnList:
             if len(data) is 0:
                 response = json.dumps(
