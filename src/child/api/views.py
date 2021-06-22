@@ -1,4 +1,5 @@
 import traceback
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
@@ -130,40 +131,160 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
         if self.request.method == 'PUT':
             return ChildSerializer
     
-    # def put(self, request, pk):
-    #     try:
-
-
-    #         child_detail = {
-    #             "photo": request.data.get('photo', None),
-    #             "first_name": request.data.get('first_name', None),
-    #             "last_name": request.data.get('last_name', None),
-    #             "date_of_birth": request.data.get('date_of_birth', None),
-    #             "gender": request.data.get('gender', None),
-    #             "date_of_joining": request.data.get('date_of_joining', None),
-    #             "place_of_birth": request.data.get('place_of_birth', None),
-    #             "blood_group": request.data.get('blood_group', None)
-    #         }
-    #         child_qs = Child.objects.filter(id=pk)[0]
-    #         print("child_qs",child_qs)
-    #         child_qs_serializer = ChildUpdateSerializer(child_qs,data=dict(child_detail), partial=True)
-    #         if child_qs_serializer.is_valid():
-    #             child_qs_serializer.save()
-    #             print("@@@@@@@@")
-    #         else:
-    #             print(child_qs_serializer.errors)
-
+    def patch(self, request, pk):
+        try:
+            child_detail = {
+                "photo": request.data.get('photo', None),
+                "first_name": request.data.get('first_name', None),
+                "last_name": request.data.get('last_name', None),
+                "date_of_birth": request.data.get('date_of_birth', None),
+                "gender": request.data.get('gender', None),
+                "date_of_joining": request.data.get('date_of_joining', None),
+                "place_of_birth": request.data.get('place_of_birth', None),
+                "blood_group": request.data.get('blood_group', None)
+            }
             
+            parent_detail = {
+                "parents": request.data.get('parents', None)
+            }
+            academic_session_detail = {
+                "academic_session": request.data.get('academic_session', None),
+                "section": request.data.get('section', None),
+                "grade": request.data.get('grade', None),
+                "class_teacher": request.data.get('class_teacher', None),
+                "curriculum_start_date": request.data.get('curriculum_start_date', None),
+                "subjects": request.data.get('subjects', None)
+
+            }
+
+            child_qs = Child.objects.filter(id=pk)[0]
+            print(parent_detail['parents'])
+            child_qs_serializer = ChildUpdateSerializer(child_qs,data=dict(child_detail), partial=True)
+            if child_qs_serializer.is_valid():
+                child_qs_serializer.save()
+                parents_detail = parent_detail['parents']
+                # pdb.set_trace()
+                parent_list = []
+                for parent in parents_detail:
+
+                    try:
+                        if parent['id'] is None:
+                            parent_serializer = ParentSerializer(data=dict(parent))
+                            if parent_serializer.is_valid():
+                                parent_serializer.save()
+                                parent_data = {
+                                    "user_obj": parent_serializer.data['id'],
+                                    "relationship_with_child": parent['relationship_with_child'],
+                                    "phone": parent['phone'],
+                                    "gender":parent['gender'],
+                                    "photo":parent['photo']
+
+                                }
+                                parent_detail_serializer = ParentDetailSerializer(
+                                    data=dict(parent_data))
+
+                                if parent_detail_serializer.is_valid():
+
+                                    parent_detail_serializer.save()
+
+                                    parent_id = parent_detail_serializer.data['user_obj']
+                                    parent_list.append(parent_id)
+
+                                    # self.context.update({"parent_detail_serializer_data": parent_detail_serializer.data})
+                                else:
+                                    raise ValidationError(
+                                        parent_detail_serializer.errors)
+
+                            else:
+                                raise ValidationError(parent_serializer.errors)
+                        else:
+                            parent_qs = User.objects.filter(id=parent['id'])[0]
+                            parent_serializer = ParentSerializer(parent_qs, data=dict(parent), partial=True)
+                            if parent_serializer.is_valid():
+                                parent_serializer.save()
+                                parent_data = {
+                                    "user_obj": parent_serializer.data['id'],
+                                    "relationship_with_child": parent['relationship_with_child'],
+                                    "phone": parent['phone'],
+                                    "gender":parent['gender'],
+                                    "photo":parent['photo']
+
+                                }
+                                parent_detail_qs = UserDetail.objects.filter(user_obj=parent_serializer.data['id'])[0]
+                                parent_detail_serializer = ParentDetailSerializer(
+                                    parent_detail_qs, data=dict(parent_data), partial=True)
+
+                                if parent_detail_serializer.is_valid():
+
+                                    parent_detail_serializer.save()
+
+                                    parent_id = parent_detail_serializer.data['user_obj']
+                                    parent_list.append(parent_id)
+
+                                    # self.context.update({"parent_detail_serializer_data": parent_detail_serializer.data})
+                                else:
+                                    raise ValidationError(
+                                        parent_detail_serializer.errors)
+
+                            else:
+                                raise ValidationError(parent_serializer.errors)
+
+
+                    except Exception as ex:
+                        logger.debug(ex)
+                        logger.info(ex)
+                        raise ValidationError(ex)
+
+                child_qs.parent.set(parent_list)
+
+                child_qs.save()
+
+                acad_session = academic_session_detail['academic_session']
+                section = academic_session_detail['section']
+                grade = academic_session_detail['grade']
+                class_teacher = academic_session_detail['class_teacher']
+
+                acadmic_ids = AcademicSession.objects.filter(id=acad_session,
+                                                         grade=grade, section=section, class_teacher=class_teacher).values('id')
             
+                if len(acadmic_ids) is 0:
+                    acadmic_ids = []
+                    return Response("acadmic_ids not found", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    acadmic_ids = acadmic_ids[0]['id']
+                academic_session_detail = {
+                    "child":pk,
+                    "academic_session": acadmic_ids,
+                    "subjects": academic_session_detail['subjects'],
+                    "curriculum_start_date": academic_session_detail['curriculum_start_date']
+                }
+                child_plan_qs = ChildPlan.objects.filter(id= request.data.get('academic_session_data', None))
+                """  update child plan """
+                try:
 
+                    child_plan_serializer = ChildPlanCreateSerailizer(
+                        child_plan_qs, data=dict(academic_session_detail), partial=True)
+                    if child_plan_serializer.is_valid():
+                        child_plan_serializer.save()
 
+                    # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
+                    else:
+                        raise ValidationError(child_plan_serializer.errors)
+                except Exception as ex:
+                    logger.debug(ex)
+                    logger.info(ex)
+                    raise ValidationError(ex)
 
+                    
+            else:
+                print(child_qs_serializer.errors)
+                raise ValidationError(child_qs_serializer.errors)
 
-    #     except Exception as ex:
-    #         logger.info(ex)
-    #         logger.debug(ex)
-    #         return Response(ex)
+        except Exception as ex:
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex)
     
 
     def destroy(self, request, *args, **kwargs):
