@@ -36,5 +36,8 @@ urlpatterns = [
     path('grade_list_by_academic_calender/<int:pk>', GradeLisbyAcademicSession.as_view(),
          name='GradeLisbyAcademicSession'),
 
+    path('associate_academic_session/<int:pk>', AssociateAcademicSession.as_view(),
+         name='AssociateAcademicSession'),
+
 
 ]
