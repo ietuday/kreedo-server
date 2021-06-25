@@ -388,3 +388,28 @@ class GenerateCalenderToPdf(ListCreateAPIView):
             print("ERROR----->", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AssociateAcademicSession(RetrieveUpdateDestroyAPIView):
+
+    def patch(self, request,pk):
+        try:
+            acad_data = {
+                "session": request.data.get('session', None),
+                "grade": request.data.get('session', None),
+                "section": request.data.get('section', None),
+                "class_teacher": request.data.get('class_teacher', None),
+                "subjects": request.data.get('subjects', None),
+            }
+            acad_session_qs = AcademicSession.objects.filter(id=pk)
+            academic_session_qs = AcademicSessionCreateSerializer(acad_session_qs,data=dict(acad_data), partial=True)
+            subject_teacher_list = request.data.get('subject_teacher_list', None)
+            for sub_tech in subject_teacher_list:
+                sub_tech_qs = SectionSubjectTeacher.objects.create(sub_tech)
+            
+            return Response(academic_session_qs.data, status=status.HTTP_200_OK)
+
+
+        except Exception as ex:
+            print("ERROR----->", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
