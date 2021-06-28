@@ -63,3 +63,46 @@ def Genrate_Month(start_date, end_date):
         print("ERROR", ex)
 
 
+
+from datetime import timedelta, date
+
+def daterange(date1, date2):
+    for n in range(int ((date2 - date1).days)+1):
+        yield date1 + timedelta(n)
+
+def checkFirstDay(date):
+    if date.day == 1:
+        return True
+    else:
+        return False
+
+def checkHoliday(date, holiday_list):
+    for holiday in holiday_list:
+        start = datetime.strptime(holiday['holiday_from'], '%Y-%m-%d').date()
+        end = datetime.strptime(holiday['holiday_till'], '%Y-%m-%d').date()
+        if start <= date <= end:
+            return True
+        else:
+            return False
+
+
+def checkHolidayType(date, holiday_list):
+    for holiday in holiday_list:
+        start = datetime.strptime(holiday['holiday_from'], '%Y-%m-%d').date()
+        end = datetime.strptime(holiday['holiday_till'], '%Y-%m-%d').date()
+        if start <= date <= end:
+            return holiday['holiday_type']['holiday_type']
+        else:
+            return ''
+
+
+def checkHolidayColor(date, holiday_list):
+    for holiday in holiday_list:
+        start = datetime.strptime(holiday['holiday_from'], '%Y-%m-%d').date()
+        end = datetime.strptime(holiday['holiday_till'], '%Y-%m-%d').date()
+        if start <= date <= end:
+            return holiday['holiday_type']['color_code']
+        else:
+            return ''
+
+
