@@ -439,6 +439,7 @@ class DownloadCalendar(ListCreateAPIView):
                     result['holidays'] = schoolHolidayListSerializer.data
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
                         month_dict = {
@@ -447,7 +448,10 @@ class DownloadCalendar(ListCreateAPIView):
                             'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
                             'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
                             'isweekend': False,
-                            'isStart': checkFirstDay(dt.date())
+                            'isFirstDayofMonth': checkFirstDay(dt.date()),
+                            "weekday": dt.date().weekday(),
+                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
                         }
                         print(month_dict)
                         months.append(month_dict)
