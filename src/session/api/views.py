@@ -413,3 +413,67 @@ class AssociateAcademicSession(RetrieveUpdateDestroyAPIView):
             print("ERROR----->", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+import datetime
+
+class DownloadCalendar(ListCreateAPIView):
+
+    def post(self, request, *args, **kwargs):
+        try:
+            start_date = request.data.get('start_date', None)
+            end_date = request.data.get('end_date', None)
+            calendar_type = request.data.get('calendar_type', None)
+            school = request.data.get('school', None)
+            grade = request.data.get('grade', None)
+            section = request.data.get('section', None)
+            
+            result =  {}
+            result['days'] = ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S']
+            if calendar_type == 'school-calender':
+                school_calender_qs = SchoolCalendar.objects.filter(school=school)
+                if len(school_calender_qs) is not 0:
+                    print(school_calender_qs[0].id)
+                    school_calender_holiday_qs = SchoolHoliday.objects.filter(school_calender=school_calender_qs[0].id,school=school)
+                    schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
+                    print(school_calender_holiday_qs)
+                    result['holidays'] = schoolHolidayListSerializer.data
+                    start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+                    end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+                    months = []
+                    for dt in daterange(start_date_time_obj, end_date_time_obj):
+                        month_dict = {
+                            'date': dt.date(),
+                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                            'isweekend': False,
+                            'isStart': checkFirstDay(dt.date())
+                        }
+                        print(month_dict)
+                        months.append(month_dict)
+                else:
+                    context = {
+                    "success": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                    
+            elif calendar_type == 'academic-session-calendar':
+                # AcademicCalender
+                pass
+            elif calendar_type == 'section-calendar':
+                pass
+            else:
+                context = {
+                "success": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            result['months'] = months
+            context = {
+                "success": True, "message": "DownloadCalendar", "error": "", "data": result}
+
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print(ex)
+            context = {
+                "success": False, "message": "Error", "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
