@@ -39,5 +39,8 @@ urlpatterns = [
     path('associate_academic_session/<int:pk>', AssociateAcademicSession.as_view(),
          name='AssociateAcademicSession'),
 
+    path('download_calendar', DownloadCalendar.as_view(),
+         name='DownloadCalendar'),
+
 
 ]
