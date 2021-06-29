@@ -244,9 +244,9 @@ class AddPlan(ListCreateAPIView):
                     plan_qs.delete()
                 else:
                     print("Create")
-
+                    
                     plan_serializer = PlanSerailizer(
-                        data=dict(f))
+                        data=dict(f)) 
                     if plan_serializer.is_valid():
                         plan_serializer.save()
                         added_plan.append(
