@@ -4,6 +4,9 @@ from .serializer import*
 from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
+from django.db.models import Q
+
+
 
 from .utils import*
 from holiday.models import*
@@ -461,11 +464,77 @@ class DownloadCalendar(ListCreateAPIView):
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                     
+            elif calendar_type == 'section-calendar': 
+                school_calender_qs = SchoolCalendar.objects.filter(school=school)
+                acadamic_calender_qs = AcademicCalender.objects.filter(school=school)
+                acadamic_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+                if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0 and len(acadamic_session_qs) is not 0:
+                    school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id)| Q(academic_session=acadamic_session_qs[0].id))
+                    schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
+                    print(school_calender_holiday_qs)
+                    result['holidays'] = schoolHolidayListSerializer.data
+                    start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+                    end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+                    school_week_off_qs = SchoolWeakOff.objects.filter(school=school,academic_calender= acadamic_calender_qs[0].id)
+                    schoolWeakOffSerializer = SchoolWeakOffCreateSerializer(school_week_off_qs, many=True)
+
+                    months = []
+                    for dt in daterange(start_date_time_obj, end_date_time_obj):
+                        month_dict = {
+                            'date': dt.date(),
+                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                            'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
+                            'isFirstDayofMonth': checkFirstDay(dt.date()),
+                            "weekday": dt.date().weekday(),
+                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
+                        }
+                        print(month_dict)
+                        months.append(month_dict)
+
+                else:
+                    context = {
+                    "success": False, "message": "DownloadCalendar", "error": "academic-session-calendar for this School is not valid", "data": ""}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
+
+
             elif calendar_type == 'academic-session-calendar':
-                # AcademicCalender
-                pass
-            elif calendar_type == 'section-calendar':
-                pass
+                school_calender_qs = SchoolCalendar.objects.filter(school=school)
+                acadamic_calender_qs = AcademicCalender.objects.filter(school=school)
+                if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0:
+                    school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id))
+                    schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
+                    print(school_calender_holiday_qs)
+                    result['holidays'] = schoolHolidayListSerializer.data
+                    start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
+                    end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
+                    school_week_off_qs = SchoolWeakOff.objects.filter(school=school,academic_calender= acadamic_calender_qs[0].id)
+                    schoolWeakOffSerializer = SchoolWeakOffCreateSerializer(school_calender_holiday_qs, many=True)
+
+                    months = []
+                    for dt in daterange(start_date_time_obj, end_date_time_obj):
+                        month_dict = {
+                            'date': dt.date(),
+                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                            'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
+                            'isFirstDayofMonth': checkFirstDay(dt.date()),
+                            "weekday": dt.date().weekday(),
+                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
+                        }
+                        print(month_dict)
+                        months.append(month_dict)
+
+                else:
+                    context = {
+                    "success": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
             else:
                 context = {
                 "success": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
