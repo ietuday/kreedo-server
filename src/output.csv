@@ -1,2 +1,2 @@
-id,created_at,updated_at,name,type,sub_type,is_group,range_from,range_to,previous_kreedo,is_active,grade,subject
-3,2021-06-29T09:41:26.984721Z,2021-06-29T09:41:26.984750Z,Plan1,Group,"""""",True,0,0,False,True,1,1
+id,created_at,updated_at,name,type,is_active,is_kreedo,activity,plan
+6,2021-06-29T11:43:49.053783Z,2021-06-29T11:43:49.053902Z,ENGLISH,Group,True,False,"[3, 2, 1]",[]
