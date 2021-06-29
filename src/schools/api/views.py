@@ -494,6 +494,7 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
 
 
 from session.api.serializer import*
+import ast
 """ session Grade subject class teacher list """
 class SessionGradeSectionTeacherSubject(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
@@ -532,6 +533,7 @@ class AddSubject(ListCreateAPIView):
             added_subject = []
 
             for i, f in enumerate(df, start=1):
+                f['activity']= ast.literal_eval(f['activity'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     subject_qs = Subject.objects.filter(id=f['id'])[0]
@@ -564,7 +566,7 @@ class AddSubject(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_subject)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file(
@@ -572,12 +574,18 @@ class AddSubject(ListCreateAPIView):
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "Subject Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
 
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue Subject",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Bulk Upload GRADE """
