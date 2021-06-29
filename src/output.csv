@@ -1,2 +1,2 @@
-id,created_at,updated_at,name,type,is_active,is_kreedo,activity,plan
-6,2021-06-29T11:43:49.053783Z,2021-06-29T11:43:49.053902Z,ENGLISH,Group,True,False,"[3, 2, 1]",[]
+id,email,first_name,last_name,phone,address
+87,geekworks201791@gmail.com,mayuri,waghmare,9145670866,42
