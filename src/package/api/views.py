@@ -27,6 +27,8 @@ from rest_framework.response import Response
 from users.api.custum_storage import FileStorage
 from kreedo.conf.logger import CustomFormatter
 import logging
+from rest_framework import status
+import ast
 
 # Create your views here.
 
@@ -110,9 +112,10 @@ class AddPackage(ListCreateAPIView):
         try:
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
-            added_material = []
+            added_package = []
 
             for i, f in enumerate(df, start=1):
+                f['materials']= ast.literal_eval(f['materials'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     package_qs = Package.objects.filter(id=f['id'])[0]
@@ -127,7 +130,7 @@ class AddPackage(ListCreateAPIView):
                     added_package.append(package_qs)
                     package_qs.delete()
                 else:
-                    print("Create")
+                    print("Create", f)
                     
                     package_serializer = PackageCreateSerializer(
                         data=dict(f))
@@ -144,17 +147,23 @@ class AddPackage(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_package)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            context = {
+                "success": True, "message": "Package added successfully", "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Response(path_to_file)
 
         except Exception as ex:
-           
+            print(ex)
             logger.debug(ex)
-            return Response(ex)
+            context = {
+                "success": False, "message": "Issue on Package ", "error": "", "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response(ex)
 
 
