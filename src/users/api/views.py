@@ -845,6 +845,8 @@ class UserRoleRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
 
 
 import os
+import ast
+import math as m
 """ S3 Key Access """
 class KeyAccessOfS3(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request):
@@ -1254,6 +1256,7 @@ class AddUserData(ListCreateAPIView):
             added_user = []
 
             for i, f in enumerate(df, start=1):
+                f['role']= ast.literal_eval(f['role'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     auth_user = User.objects.filter(user_obj=id)[0]
@@ -1389,18 +1392,15 @@ class AddUserData(ListCreateAPIView):
                     try:
                         role_data = f.get('role', None)
                         print(role_data)
-                        for i, da in enumerate(json.loads(role_data), start=1):
-                            print("da",da)
-                            role_detail = {
-                                "user":user_detail_serializer.data['id'],
-                                "role":da['role'],
-                            }
-
-                            UserRoleSerializer = UserRoleSerializer(data=dict(role_detail))
-                            if UserRoleSerializer.is_valid():
-                                UserRoleSerializer.save()
-                            else:
-                                raise ValidationError(UserRoleSerializer.errors)
+                        role_detail = {
+                            "user":user_detail_serializer.data['user_detail_data']['user_obj'],
+                            "role":role_data[0],
+                        }
+                        userRoleSerializer = UserRoleSerializer(data=dict(role_detail))
+                        if userRoleSerializer.is_valid():
+                            userRoleSerializer.save()
+                        else:
+                            raise ValidationError(userRoleSerializer.errors)
 
                     except Exception as ex:
                         print("error", ex)
@@ -1412,10 +1412,9 @@ class AddUserData(ListCreateAPIView):
 
                     try:
                         user_reporting_data = {
-                        "user_detail":user_detail_serializer.data['id'],
-                        "user_role":f.get('email',None),
-                        "reporting_to":f.get('email',None)
-
+                        "user_detail":user_detail_serializer.data['user_detail_data']['user_obj'],
+                        "user_role":f['role'][0],
+                        "reporting_to":f['reporting_to']
                         }
 
                         reporting_to_serializer = ReportingToSerializer(data=dict(user_reporting_data))
@@ -1434,14 +1433,22 @@ class AddUserData(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_user)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "User Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
+            print(ex)
+            print(traceback.format_exc())
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue User",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
