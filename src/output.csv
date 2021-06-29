@@ -1,2 +1,2 @@
-id,created_at,updated_at,name,decription,photo,code,is_active
-11,2021-06-29T08:58:42.198126Z,2021-06-29T08:58:42.198182Z,test1,,https://i.picsum.photos/id/605/200/300.jpg?hmac=XxO9Fq91nFhrH3zq-9AlrpU84EnKslY5CeTA_6dBlRg,1,True
+id,created_at,updated_at,name,type,sub_type,is_group,range_from,range_to,previous_kreedo,is_active,grade,subject
+3,2021-06-29T09:41:26.984721Z,2021-06-29T09:41:26.984750Z,Plan1,Group,"""""",True,0,0,False,True,1,1

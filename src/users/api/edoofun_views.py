@@ -48,10 +48,12 @@ logger.info("Serailizer CAlled ")
 
 
 """  Register Parent """
+
+
 class RegisterParent(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
-            print(request)
+            # print(requjest)
             user_data = {
                 "username": "test",
                 "first_name": request.data.get('first_name', None),
@@ -60,38 +62,33 @@ class RegisterParent(GeneralClass, Mixins, ListCreateAPIView):
             }
 
             user_detail_data = {
-                "photo":request.data.get('photo',None),
+                "photo": request.data.get('photo', None),
                 "phone": request.data.get('phone', None),
-                "reason_for_discontinution": request.data.get('reason_for_discontinution', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
-                "role":5 ,
-                "type": 2
+
             }
 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
-            context.update({"user_data": user_data, "user_detail_data": user_detail_data})
-            
-            try:
-                user_detail = RegisterParentSerializer(data=dict(user_data),context=context)
-                print("USER-----------", user_detail)
+            context.update(
+                {"user_data": user_data, "user_detail_data": user_detail_data})
 
-            except Exception as ex:
-                print("error----->", ex)
-                return Response(ex)
-                
-            
-            if user_detail.is_valid():
-                user_detail.save()
-                return Response(user_detail.data,status=status.HTTP_200_OK)
+            user_detail_serialzer = RegisterParentSerializer(
+                data=dict(user_data), context=context)
+            # print("USER-----------", user_detail)
+
+            if user_detail_serialzer.is_valid():
+                user_detail_serialzer.save()
+                return Response(user_detail_serialzer.data, status=status.HTTP_200_OK)
             else:
-                logger.debug(user_detail.errors)
-                return Response(user_detail.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                print("user_detail_serialzer.errors------>",
+                      user_detail_serialzer.errors)
+                logger.debug(user_detail_serialzer.errors)
+                return Response(user_detail_serialzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
-            print("Error------>",ex)
+            print("Error------>", ex)
+            print("TRACEBACK---------->", traceback.print_exc())
             logger.debug(ex)
-            
+
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-

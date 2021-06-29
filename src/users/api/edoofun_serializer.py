@@ -1,22 +1,26 @@
+from kreedo.conf.logger import*
+import logging
+import traceback
+from .utils import*
+from address.api.serializer import AddressSerializer
+from ..models import*
 from rest_framework import serializers
-""" 
-    Django Files 
+"""
+    Django Files
 """
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-""" 
-    App Files  
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    CharField,
+    ValidationError)
 """
-from ..models import*
-from address.api.serializer import AddressSerializer
-from .utils import*
-import traceback
-import logging
-from kreedo.conf.logger import*
-
+    App Files
+"""
 
 
 """ Create Log for Edoo-Fun  Serializer"""
@@ -32,8 +36,9 @@ logger.addHandler(handler)
 logger.info("Serailizer CAlled ")
 
 
-
 """ Register Parent Serializer """
+
+
 class RegisterParentSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -43,7 +48,8 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("validated_data------>",validated_data)
+            print("@@@@@@@@ User", validated_data)
+            # print("SELF-----------------", self)
             first_name = validated_data['first_name']
             last_name = validated_data['last_name']
             email = validated_data['email']
@@ -51,21 +57,15 @@ class RegisterParentSerializer(serializers.ModelSerializer):
             address_created = False
             user_role_created = False
 
-
-            """ Validate Email """
-            try:
-                email_password = validate_auth_user(email)
-            except ValidationError:
-                raise ValidationError(
-                    "Email and Password is required")
-
             """ Validate Email """
             try:
                 if not email:
                     raise ValidationError("Email is required")
                 else:
+
                     email = user_validate_email(email)
                     if email is True:
+                        print("Email TRUE")
                         validated_data['email'] = validated_data['email'].lower(
                         ).strip()
                     else:
@@ -74,6 +74,24 @@ class RegisterParentSerializer(serializers.ModelSerializer):
             except ValidationError:
                 raise ValidationError(
                     "Enter a valid email address")
+            try:
+                if User.objects.filter(email=validated_data['email']).exists():
+                    if UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
+                        print("Provide Correct Registered Number.")
+                        raise ValidationError(
+                            "Provide Correct Registered Number.")
+                raise ValidationError("Provide Correct Registered Number.")
+            except Exception as ex:
+                raise ValidationError(ex)
+
+            try:
+                user_email = User.objects.filter(email=validated_data['email'])
+
+                if UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
+                    print(
+                        "Phone already regsitered for another user provide different no")
+            except Exception as ex:
+                raise ValidationError(ex)
 
             """ Genrate Username """
             try:
@@ -82,18 +100,52 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                 validated_data['username'] = username
             except ValidationError:
                 raise ValidationError("Failed to genrate username")
-                     
+
             """ Genrate Password """
             try:
                 genrated_password = get_random_string(8)
-                print("genrated_password----------->", genrated_password)
             except Exception as ex:
                 raise ValidationError("Failed to Genrate Password")
 
+            try:
+                if User.objects.filter(email=validated_data['email']).exists():
+                    raise ValidationError("Email is already Exists")
+                else:
+                    """ Create User """
+                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=first_name,
+                                                    last_name=last_name, is_active=False)
+                    user.set_password(genrated_password)
+                    user.save()
+                    auth_user_created = True
+                    self.context['user_detail_data']['user_obj'] = user.id
 
-            
- 
+                    """ Pass request data of User detail"""
+
+                    user_detail_serializer = UserDetailSerializer(
+                        data=self.context['user_detail_data'])
+                    if user_detail_serializer.is_valid():
+                        user_detail_serializer.save()
+                        self.context.update(
+                            {"user_detail_serializer_data": user_detail_serializer.data})
+
+                        """ send User Detail Funation """
+                        send_user_details(user, user_detail_serializer.data)
+                        return user
+
+                    else:
+                        logger.info(user_detail_serializer.errors)
+                        logger.debug(user_detail_serializer.errors)
+                        raise ValidationError(user_detail_serializer.errors)
+
+            except Exception as ex:
+
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError(ex)
+
         except Exception as ex:
+            print("SERIALIZER---------Error", ex)
+            print("TRACEBACK", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex)
+            raise ValidationError(ex)
