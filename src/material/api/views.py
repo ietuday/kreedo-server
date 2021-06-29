@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from users.api.custum_storage import FileStorage
 from kreedo.conf.logger import CustomFormatter
 import logging
+from rest_framework import status
 # Create your views here.
 
 """ Logger Function """
@@ -78,7 +79,7 @@ class AddMaterial(ListCreateAPIView):
             added_material = []
 
             for i, f in enumerate(df, start=1):
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     material_qs = Material.objects.filter(id=f['id'])[0]
                     material_qs.name = f['name']
@@ -88,7 +89,7 @@ class AddMaterial(ListCreateAPIView):
                     material_qs.is_active = f['is_active']
                     material_qs.save()
                     added_material.append(material_qs)
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     material_qs = Material.objects.filter(id=f['id'])[0]
                     added_material.append(material_qs)
@@ -120,10 +121,15 @@ class AddMaterial(ListCreateAPIView):
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            context = {
+                "success": True, "message": "Material added successfully", "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Response(path_to_file)
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            context = {
+                "success": False, "message": "Issue on Material ", "error": "", "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
