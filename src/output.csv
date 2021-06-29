@@ -1,2 +1,2 @@
-id,created_at,updated_at,name,is_active
-7,2021-06-29T06:37:33.753293Z,2021-06-29T06:37:33.753336Z,AAAAA,True
+id,created_at,updated_at,name,description,is_active,materials
+2,2021-06-29T08:07:47.404842Z,2021-06-29T08:07:47.404877Z,Test1,,True,"[3, 2, 1]"
