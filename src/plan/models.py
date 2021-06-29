@@ -43,12 +43,12 @@ Previous_Session_Choice = [
 """ Plan Model """
 
 
-class Plan(TimestampAwareModel):
+class   Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     type = models.CharField(
         max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
     sub_type = models.CharField(
-        max_length=50, choices=Plan_Sub_Type_Choice, null=True, blank=True)
+        max_length=50, null=True, blank=True)
     is_group = models.BooleanField(default=False)
     grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
