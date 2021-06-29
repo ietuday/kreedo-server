@@ -40,6 +40,7 @@ Gender_Choice = [
 
 class UserType(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
+    sub_type = models.CharField(max_length=50, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     objects = UserTypeManager
 
