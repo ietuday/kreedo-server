@@ -115,7 +115,6 @@ class AddPackage(ListCreateAPIView):
             added_package = []
 
             for i, f in enumerate(df, start=1):
-                {'materials': ['Expected a list of items but got type "str".']}
                 f['materials']= ast.literal_eval(f['materials'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
