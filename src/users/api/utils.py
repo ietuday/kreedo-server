@@ -57,6 +57,9 @@ def validate_auth_user(email, password):
         return False
 
 
+
+
+
 """ Validate Email """
 
 
@@ -96,6 +99,7 @@ def send_user_details(user_obj, user_detail_obj):
         logger.info(ex)
         logger.debug(ex)
         raise ValidationError("Error in genrate verification link")
+
 
 
 """ genrate activation link """
