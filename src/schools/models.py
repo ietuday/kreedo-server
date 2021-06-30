@@ -98,10 +98,10 @@ class Subject(TimestampAwareModel):
 class License(TimestampAwareModel):
     total_no_of_user = models.IntegerField()
     total_no_of_children = models.IntegerField()
-    licence_from = models.DateField(blank=True)
-    licence_from_time = models.TimeField(blank=True)
-    licence_till = models.DateField(blank=True)
-    licence_till_time = models.TimeField(blank=True)
+    licence_from = models.DateField(null=True, blank=True)
+    licence_from_time = models.TimeField((null=True, blank=True)
+    licence_till = models.DateField((null=True, blank=True)
+    licence_till_time = models.TimeField((null=True, blank=True)
     is_active = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT)
