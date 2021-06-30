@@ -876,10 +876,12 @@ class AddAccount(ListCreateAPIView):
 
     def post(self, request):
         try:
+            print("AddAccount Called")
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
             added_user = []
             for i, f in enumerate(df, start=1):
+                f['role']= ast.literal_eval(f['role'])
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     auth_user = User.objects.filter(user_obj=id)[0]
                     auth_user.first_name = f.get('first_name', None)
@@ -961,6 +963,7 @@ class AddAccount(ListCreateAPIView):
                             "phone":f.get('phone', None),
                             "joining_date":f.get('joining_date', None),
                             "address":address_serializer.data['id'],
+                            "role": f.get('role', None)
                     }
 
                     """  Pass dictionary through Context """
@@ -969,7 +972,7 @@ class AddAccount(ListCreateAPIView):
                     "user_details_data":user_details_data})
                     try:
                         user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
-
+ 
                         if user_detail_serializer.is_valid():
                             user_detail_serializer.save()
                             added_user.append(
@@ -989,7 +992,9 @@ class AddAccount(ListCreateAPIView):
                         print("error", ex)
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
-                        return Response(ex)
+                        context = {"success": False, "message": "Issue Account",
+                            "error": ex, "data": ""}
+                        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             keys = added_user[0].keys()
             with open('output.csv', 'w', newline='')  as output_file:
@@ -1001,13 +1006,17 @@ class AddAccount(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            context = {"success": True, "message": "Account Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            context = {"success": False, "message": "Issue User",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AddSchool(ListCreateAPIView):
@@ -1036,7 +1045,7 @@ class AddSchool(ListCreateAPIView):
                     school_qs.name = f.get('name', None)
                     school_qs.type = f.get('type', None)
                     school_qs.logo = f.get('logo', None)
-                    schhool_qs.save()
+                    school_qs.save()
 
                     package_data = f.get('package', None)
                     print(package_data)
@@ -1094,6 +1103,7 @@ class AddSchool(ListCreateAPIView):
                         "total_no_of_children": f.get('no_of_children', None),
                         "licence_from": f.get('licence_start', None),
                         "licence_till": add_months(f.get('licence_start', None), f.get('no_of_month', None)),
+                        "created_by": f.get('created_by', None),
                     }
 
                     licenseCreateSerializer = LicenseCreateSerializer(data=dict(licence_detail))
@@ -1108,7 +1118,7 @@ class AddSchool(ListCreateAPIView):
                         "type": f.get('type', None),
                         "logo": f.get('logo', None),
                         "address": address_serializer.data['id'],
-                        "license": licenseCreateSerializer.data['id']
+                        "license": licenseCreateSerializer.data['id'],
                     }
 
                     schoolCreateSerializer = SchoolCreateSerializer(data=dict(school_detail))
@@ -1150,7 +1160,7 @@ class AddSchool(ListCreateAPIView):
                         raise ValidationError(schoolCalendarCreateSerializer.errors)
                     user_role_detail = {
                         "user": f.get('account_id', None),
-                        "role": Role.objects.filter(name="SCHOOL_OWNER")[0].id,
+                        "role": Role.objects.filter(name="School Account Owner")[0].id,
                         "school": schoolCreateSerializer.data['id']
                     }
 
@@ -1183,14 +1193,20 @@ class AddSchool(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "School Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
         
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue School",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AddSchoolGradeSubject(ListCreateAPIView):
