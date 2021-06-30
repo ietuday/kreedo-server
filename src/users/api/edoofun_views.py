@@ -65,7 +65,6 @@ class RegisterParent(GeneralClass, Mixins, ListCreateAPIView):
                 "photo": request.data.get('photo', None),
                 "phone": request.data.get('phone', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
-
             }
 
             """  Pass dictionary through Context """
@@ -75,14 +74,13 @@ class RegisterParent(GeneralClass, Mixins, ListCreateAPIView):
 
             user_detail_serialzer = RegisterParentSerializer(
                 data=dict(user_data), context=context)
-            # print("USER-----------", user_detail)
+  
 
             if user_detail_serialzer.is_valid():
                 user_detail_serialzer.save()
                 return Response(user_detail_serialzer.data, status=status.HTTP_200_OK)
             else:
-                print("user_detail_serialzer.errors------>",
-                      user_detail_serialzer.errors)
+                print("user_detail_serialzer.errors------>", user_detail_serialzer.errors)
                 logger.debug(user_detail_serialzer.errors)
                 return Response(user_detail_serialzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -92,3 +90,7 @@ class RegisterParent(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
 
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
