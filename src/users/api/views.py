@@ -1028,6 +1028,11 @@ class AddSchool(ListCreateAPIView):
             print(df)
             added_school = [] 
             for i, f in enumerate(df, start=1):
+                licence_start = datetime.strptime(f.get('licence_start', None), '%d/%m/%Y').date()
+                print(licence_start)
+                # licence_start = f.get('licence_start', None)
+                licence_start = licence_start.strftime('%Y-%m-%d')
+                print(licence_start)
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     school_qs = School.objects.filter(id=f['id'])[0]
                     address_qs = Address.objects.filter(id=school_qs['address'])[0]
@@ -1039,7 +1044,7 @@ class AddSchool(ListCreateAPIView):
                     license_qs = License.objects.filter(id=school_qs['license'])[0]
                     license_qs.total_no_of_user = f.get('no._of_users', None)
                     license_qs.total_no_of_children = f.get('no_of_children', None)
-                    license_qs.licence_from = f.get('licence_start', None)
+                    license_qs.licence_from = licence_start
                     license_qs.licence_till = add_months(f.get('licence_start', None), f.get('no_of_month', None))
                     license_qs.save()
                     school_qs.name = f.get('name', None)
@@ -1101,7 +1106,7 @@ class AddSchool(ListCreateAPIView):
                     licence_detail = {
                         "total_no_of_user": f.get('no._of_users', None),
                         "total_no_of_children": f.get('no_of_children', None),
-                        "licence_from": f.get('licence_start', None),
+                        "licence_from": licence_start,
                         "licence_till": add_months(f.get('licence_start', None), f.get('no_of_month', None)),
                         "created_by": f.get('created_by', None),
                     }
@@ -1134,11 +1139,11 @@ class AddSchool(ListCreateAPIView):
                         school_package_detail = {
                             "school": schoolCreateSerializer.data['id'],
                             "package": da['pakage'],
-                            "from_date": f.get('from_date', None),
-                            "to_date": f.get('to_date', None),
+                            # "from_date": f.get('from_date', None),
+                            # "to_date": f.get('to_date', None),
                             "custom_materials": da['customized_material'],
                         }
-
+ 
                         schoolPackageCreateSerializer = SchoolPackageCreateSerializer(data=dict(school_package_detail))
                         if schoolPackageCreateSerializer.is_valid():
                             schoolPackageCreateSerializer.save()
