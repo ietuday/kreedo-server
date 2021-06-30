@@ -60,7 +60,7 @@ class UserType(TimestampAwareModel):
 
 
 class Role(TimestampAwareModel):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
     type = models.ForeignKey(UserType, on_delete=models.CASCADE)
     group = models.OneToOneField(
         'auth.Group', on_delete=models.CASCADE, unique=True, null=True, blank=True)
