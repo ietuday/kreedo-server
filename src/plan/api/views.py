@@ -217,7 +217,7 @@ class ChildActivity(GeneralClass,Mixins,ListCreateAPIView):
 
 """ Bilk Upload Plan """
 
-
+ 
 class AddPlan(ListCreateAPIView):
     def post(self, request):
         try:
@@ -244,9 +244,9 @@ class AddPlan(ListCreateAPIView):
                     plan_qs.delete()
                 else:
                     print("Create")
-
+                    
                     plan_serializer = PlanSerailizer(
-                        data=dict(f))
+                        data=dict(f)) 
                     if plan_serializer.is_valid():
                         plan_serializer.save()
                         added_plan.append(
@@ -279,17 +279,23 @@ class AddPlan(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_plan)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file(
                 'output.csv', 'kreedo-new', 'files/output.csv')
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
-            print(path_to_file)
-            return Response(path_to_file)
+            # print(path_to_file)
+            context = {
+                    "success": True, "message": "Add Plan", "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+
+            # return Response(path_to_file)
 
         except Exception as ex:
 
             logger.debug(ex)
-            return Response(ex)
+            context = {
+                    "success": False, "message": "Issue on Plan", "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -106,3 +106,21 @@ def checkHolidayColor(date, holiday_list):
             return ''
 
 
+def checkStartEndDate(date1, date2):
+    # date2 = datetime.strptime(date2, '%d-%m-%Y').date()
+    print(date1, date2)
+    # date1 = date1.date()
+    print(date1, date2)
+    if date1 == date2:
+        return True
+    else:
+        return False
+
+def checkWeekOff(checkdate, weekoff):
+    intDay = checkdate.weekday()
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    print(days[intDay])
+    week_off = weekoff[0]
+    return week_off[days[intDay]]
+
+

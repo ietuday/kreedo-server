@@ -39,7 +39,7 @@ urlpatterns = [
           name='SubjectByAcademicSession'),
      path('session_grade_section_teacher_by_school/<int:pk>', SessionGradeSectionTeacherSubject.as_view(),
           name='SessionGradeSectionTeacherSubject'),
-     path('bulk-upload/add-school',
+     path('bulk-upload/add-subject',
           AddSubject.as_view(), name='AddSubject'),
      path('bulk-upload/add-grade',
           AddGrade.as_view(), name='AddGrade'),

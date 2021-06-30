@@ -845,6 +845,8 @@ class UserRoleRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
 
 
 import os
+import ast
+import math as m
 """ S3 Key Access """
 class KeyAccessOfS3(GeneralClass,Mixins,ListCreateAPIView):
     def get(self, request):
@@ -874,10 +876,12 @@ class AddAccount(ListCreateAPIView):
 
     def post(self, request):
         try:
+            print("AddAccount Called")
             file_in_memory = request.FILES['file']
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
             added_user = []
             for i, f in enumerate(df, start=1):
+                f['role']= ast.literal_eval(f['role'])
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     auth_user = User.objects.filter(user_obj=id)[0]
                     auth_user.first_name = f.get('first_name', None)
@@ -959,6 +963,7 @@ class AddAccount(ListCreateAPIView):
                             "phone":f.get('phone', None),
                             "joining_date":f.get('joining_date', None),
                             "address":address_serializer.data['id'],
+                            "role": f.get('role', None)
                     }
 
                     """  Pass dictionary through Context """
@@ -967,7 +972,7 @@ class AddAccount(ListCreateAPIView):
                     "user_details_data":user_details_data})
                     try:
                         user_detail_serializer = AddUserSerializer(data=dict(user_data), context=context)
-
+ 
                         if user_detail_serializer.is_valid():
                             user_detail_serializer.save()
                             added_user.append(
@@ -987,7 +992,9 @@ class AddAccount(ListCreateAPIView):
                         print("error", ex)
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
-                        return Response(ex)
+                        context = {"success": False, "message": "Issue Account",
+                            "error": ex, "data": ""}
+                        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             keys = added_user[0].keys()
             with open('output.csv', 'w', newline='')  as output_file:
@@ -999,14 +1006,20 @@ class AddAccount(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            context = {"success": True, "message": "Account Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            context = {"success": False, "message": "Issue User",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+import datetime
+from datetime import date
 
 class AddSchool(ListCreateAPIView):
 
@@ -1017,6 +1030,12 @@ class AddSchool(ListCreateAPIView):
             print(df)
             added_school = [] 
             for i, f in enumerate(df, start=1):
+                print(f['licence_start'])
+                licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
+                print(licence_start)
+                # licence_start = f.get('licence_start', None)
+                licence_start = licence_start.strftime('%Y-%m-%d')
+                print(licence_start)
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     school_qs = School.objects.filter(id=f['id'])[0]
                     address_qs = Address.objects.filter(id=school_qs['address'])[0]
@@ -1028,13 +1047,13 @@ class AddSchool(ListCreateAPIView):
                     license_qs = License.objects.filter(id=school_qs['license'])[0]
                     license_qs.total_no_of_user = f.get('no._of_users', None)
                     license_qs.total_no_of_children = f.get('no_of_children', None)
-                    license_qs.licence_from = f.get('licence_start', None)
+                    license_qs.licence_from = licence_start
                     license_qs.licence_till = add_months(f.get('licence_start', None), f.get('no_of_month', None))
                     license_qs.save()
                     school_qs.name = f.get('name', None)
                     school_qs.type = f.get('type', None)
                     school_qs.logo = f.get('logo', None)
-                    schhool_qs.save()
+                    school_qs.save()
 
                     package_data = f.get('package', None)
                     print(package_data)
@@ -1090,8 +1109,9 @@ class AddSchool(ListCreateAPIView):
                     licence_detail = {
                         "total_no_of_user": f.get('no._of_users', None),
                         "total_no_of_children": f.get('no_of_children', None),
-                        "licence_from": f.get('licence_start', None),
+                        "licence_from": licence_start,
                         "licence_till": add_months(f.get('licence_start', None), f.get('no_of_month', None)),
+                        "created_by": f.get('created_by', None),
                     }
 
                     licenseCreateSerializer = LicenseCreateSerializer(data=dict(licence_detail))
@@ -1106,7 +1126,7 @@ class AddSchool(ListCreateAPIView):
                         "type": f.get('type', None),
                         "logo": f.get('logo', None),
                         "address": address_serializer.data['id'],
-                        "license": licenseCreateSerializer.data['id']
+                        "license": licenseCreateSerializer.data['id'],
                     }
 
                     schoolCreateSerializer = SchoolCreateSerializer(data=dict(school_detail))
@@ -1122,11 +1142,11 @@ class AddSchool(ListCreateAPIView):
                         school_package_detail = {
                             "school": schoolCreateSerializer.data['id'],
                             "package": da['pakage'],
-                            "from_date": f.get('from_date', None),
-                            "to_date": f.get('to_date', None),
+                            # "from_date": f.get('from_date', None),
+                            # "to_date": f.get('to_date', None),
                             "custom_materials": da['customized_material'],
                         }
-
+ 
                         schoolPackageCreateSerializer = SchoolPackageCreateSerializer(data=dict(school_package_detail))
                         if schoolPackageCreateSerializer.is_valid():
                             schoolPackageCreateSerializer.save()
@@ -1135,8 +1155,8 @@ class AddSchool(ListCreateAPIView):
 
                     school_calender_detail = {
                         "school": schoolCreateSerializer.data['id']   ,
-                        "session_from": datetime.date.today(),
-                        "session_till": addYears(datetime.date.today(),f.get('school_calender_for_no_of_year', None)),
+                        "session_from": date.today(),
+                        "session_till": addYears(date.today(),f.get('school_calender_for_no_of_year', None)),
                     }
 
                 
@@ -1148,7 +1168,7 @@ class AddSchool(ListCreateAPIView):
                         raise ValidationError(schoolCalendarCreateSerializer.errors)
                     user_role_detail = {
                         "user": f.get('account_id', None),
-                        "role": Role.objects.filter(name="SCHOOL_OWNER")[0].id,
+                        "role": Role.objects.filter(name="School Account Owner")[0].id,
                         "school": schoolCreateSerializer.data['id']
                     }
 
@@ -1181,14 +1201,20 @@ class AddSchool(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "School Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
         
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue School",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AddSchoolGradeSubject(ListCreateAPIView):
@@ -1254,6 +1280,7 @@ class AddUserData(ListCreateAPIView):
             added_user = []
 
             for i, f in enumerate(df, start=1):
+                f['role']= ast.literal_eval(f['role'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     auth_user = User.objects.filter(user_obj=id)[0]
@@ -1389,18 +1416,15 @@ class AddUserData(ListCreateAPIView):
                     try:
                         role_data = f.get('role', None)
                         print(role_data)
-                        for i, da in enumerate(json.loads(role_data), start=1):
-                            print("da",da)
-                            role_detail = {
-                                "user":user_detail_serializer.data['id'],
-                                "role":da['role'],
-                            }
-
-                            UserRoleSerializer = UserRoleSerializer(data=dict(role_detail))
-                            if UserRoleSerializer.is_valid():
-                                UserRoleSerializer.save()
-                            else:
-                                raise ValidationError(UserRoleSerializer.errors)
+                        role_detail = {
+                            "user":user_detail_serializer.data['user_detail_data']['user_obj'],
+                            "role":role_data[0],
+                        }
+                        userRoleSerializer = UserRoleSerializer(data=dict(role_detail))
+                        if userRoleSerializer.is_valid():
+                            userRoleSerializer.save()
+                        else:
+                            raise ValidationError(userRoleSerializer.errors)
 
                     except Exception as ex:
                         print("error", ex)
@@ -1412,10 +1436,9 @@ class AddUserData(ListCreateAPIView):
 
                     try:
                         user_reporting_data = {
-                        "user_detail":user_detail_serializer.data['id'],
-                        "user_role":f.get('email',None),
-                        "reporting_to":f.get('email',None)
-
+                        "user_detail":user_detail_serializer.data['user_detail_data']['user_obj'],
+                        "user_role":f['role'][0],
+                        "reporting_to":f['reporting_to']
                         }
 
                         reporting_to_serializer = ReportingToSerializer(data=dict(user_reporting_data))
@@ -1434,14 +1457,22 @@ class AddUserData(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_user)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "User Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
+            print(ex)
+            print(traceback.format_exc())
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue User",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -29,8 +29,8 @@ class Package(TimestampAwareModel):
 class SchoolPackage(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     package = models.ForeignKey('Package', on_delete=models.PROTECT)
-    from_date = models.DateField(blank=True)
-    to_date = models.DateField(blank=True)
+    from_date = models.DateField(null=True, blank=True)
+    to_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
     custom_materials = models.ManyToManyField(
         to='material.Material', blank=True)

@@ -412,8 +412,11 @@ def add_months(sourcedate, months):
 
 def addYears(d, years):
     try:
-#Return same day of the current year        
-        return d.replace(year = d.year + years)
+#Return same day of the current year   
+        print(d.year)  
+        print(years)
+        print(d.year + int(years))     
+        return d.replace(year = d.year + int(years))
     except ValueError:
 #If not same day, it will return other, i.e.  February 29 to March 1 etc.        
         return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))

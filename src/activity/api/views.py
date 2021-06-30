@@ -22,6 +22,8 @@ from rest_framework.response import Response
 from users.api.custum_storage import FileStorage
 from kreedo.conf.logger import CustomFormatter
 import logging
+from rest_framework import status
+import ast
 
 # Create your views here.
 
@@ -159,6 +161,9 @@ class AddActivity(ListCreateAPIView):
             added_activity = []
 
             for i, f in enumerate(df, start=1):
+                f['master_material']= ast.literal_eval(f['master_material'])
+                f['supporting_material']= ast.literal_eval(f['supporting_material'])
+                f['subject']= ast.literal_eval(f['subject'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
@@ -170,6 +175,7 @@ class AddActivity(ListCreateAPIView):
                     activity_qs.subject = f['subject']
                     activity_qs.supporting_material = f['supporting_material']
                     activity_qs.is_active = f['is_active']
+                    activity_qs.created_by = f['created_by']
                     activity_qs.save()
                     added_activity.append(activity_qs)
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
@@ -186,8 +192,13 @@ class AddActivity(ListCreateAPIView):
                         "description": f.get('description', None),
                         "master_material": f.get('master_material', None),
                         "supporting_material": f.get('supporting_material', None),
-                        "is_active": f.get('is_active', None)
-                    }
+                        "subject": f.get('subject', None),
+                        "is_active": f.get('is_active', None),
+                        "created_by": f.get('created_by', None)
+                    }   
+                    print(activity_detail)
+                    print(f)
+
 
                     activity_serializer = ActivityCreateSerializer(
                         data=dict(activity_detail))
@@ -203,7 +214,7 @@ class AddActivity(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_activity)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file(
@@ -211,9 +222,88 @@ class AddActivity(ListCreateAPIView):
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            context = {"success": True, "message": "Activity Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Response(path_to_file, status=status.HTTP_200_OK)
 
         except Exception as ex:
-
+            print(ex)
             logger.debug(ex)
-            return Response(ex)
+            context = {"success": False, "message": "Issue Activity",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AddActivityAsset(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_activity = []
+
+            for i, f in enumerate(df, start=1):
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    activity_qs = ActivityAsset.objects.filter(id=f['id'])[0]
+                    activity_qs.activity = f['activity']
+                    activity_qs.type = f['type']
+                    activity_qs.activity_data = f['activity_data']
+                    activity_qs.title = f['title']
+                    activity_qs.description = f['description']
+                    activity_qs.is_active = f['is_active']
+                    activity_qs.save()
+                    added_activity.append(activity_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    activity_qs = ActivityAsset.objects.filter(id=f['id'])[0]
+                    added_activity.append(activity_qs)
+                    activity_qs.delete()
+                else:
+                    print("Create")
+                    activity_detail = {
+                        "activity": f.get('activity', None),
+                        "type": f.get('type', None),
+                        "activity_data": f.get('activity_data', None),
+                        "title": f.get('title', None),
+                        "description": f.get('description', None),
+                        "is_active": f.get('is_active', None),
+                        "created_by": f.get('created_by', None)
+                    }   
+                    print(activity_detail)
+                    print(f)
+
+
+                    activity_serializer = ActivityAssetCreateSerializer(
+                        data=dict(activity_detail))
+                    if activity_serializer.is_valid():
+                        activity_serializer.save()
+                        added_activity.append(
+                            activity_serializer.data)
+                        print(activity_serializer.data)
+                    else:
+                        raise ValidationError(activity_serializer.errors)
+
+            keys = added_activity[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_activity)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            context = {"success": True, "message": "Activity Asset Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Response(path_to_file, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print(ex)
+            logger.debug(ex)
+            context = {"success": False, "message": "Issue Activity Asset",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
