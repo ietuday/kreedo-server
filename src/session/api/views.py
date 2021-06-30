@@ -539,7 +539,7 @@ class DownloadCalendar(ListCreateAPIView):
                 context = {
                 "success": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            result['months'] = months
+            result['day'] = months
             context = {
                 "success": True, "message": "DownloadCalendar", "error": "", "data": result}
 

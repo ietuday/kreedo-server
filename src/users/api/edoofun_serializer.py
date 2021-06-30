@@ -1,7 +1,7 @@
 from kreedo.conf.logger import*
 import logging
 import traceback
-from .utils import*
+from .edoofun_utils import*
 from address.api.serializer import AddressSerializer
 from ..models import*
 from rest_framework import serializers
@@ -103,7 +103,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
             """ Genrate Password """
             try:
-                genrated_password = get_random_string(8)
+                genrated_password = create_password(8)
             except Exception as ex:
                 raise ValidationError("Failed to Genrate Password")
 
@@ -112,7 +112,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                     raise ValidationError("Email is already Exists")
                 else:
                     """ Create User """
-                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=first_name,
+                    user = User.objects.create_user(email=validated_data['email'], username=username, first_name=first_name,
                                                     last_name=last_name, is_active=False)
                     user.set_password(genrated_password)
                     user.save()
@@ -127,9 +127,6 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                         user_detail_serializer.save()
                         self.context.update(
                             {"user_detail_serializer_data": user_detail_serializer.data})
-
-                        """ send User Detail Funation """
-                        send_user_details(user, user_detail_serializer.data)
                         return user
 
                     else:
