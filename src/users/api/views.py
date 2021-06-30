@@ -1018,6 +1018,8 @@ class AddAccount(ListCreateAPIView):
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+import datetime
+from datetime import date
 
 class AddSchool(ListCreateAPIView):
 
@@ -1028,7 +1030,7 @@ class AddSchool(ListCreateAPIView):
             print(df)
             added_school = [] 
             for i, f in enumerate(df, start=1):
-                licence_start = datetime.strptime(f.get('licence_start', None), '%d/%m/%Y').date()
+                licence_start = datetime.datetime.strptime(f.get('licence_start', None), '%d/%m/%Y').date()
                 print(licence_start)
                 # licence_start = f.get('licence_start', None)
                 licence_start = licence_start.strftime('%Y-%m-%d')
@@ -1152,8 +1154,8 @@ class AddSchool(ListCreateAPIView):
 
                     school_calender_detail = {
                         "school": schoolCreateSerializer.data['id']   ,
-                        "session_from": datetime.date.today(),
-                        "session_till": addYears(datetime.date.today(),f.get('school_calender_for_no_of_year', None)),
+                        "session_from": date.today(),
+                        "session_till": addYears(date.today(),f.get('school_calender_for_no_of_year', None)),
                     }
 
                 
