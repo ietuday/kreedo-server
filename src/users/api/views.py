@@ -4,6 +4,7 @@
 import math
 import pdb
 import csv
+import ast
 from pandas import DataFrame
 import json
 from .serializer import*
@@ -1018,6 +1019,8 @@ class AddAccount(ListCreateAPIView):
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+import datetime
+from datetime import date
 
 class AddSchool(ListCreateAPIView):
 
@@ -1028,7 +1031,8 @@ class AddSchool(ListCreateAPIView):
             print(df)
             added_school = [] 
             for i, f in enumerate(df, start=1):
-                licence_start = datetime.strptime(f.get('licence_start', None), '%d/%m/%Y').date()
+                print(f['licence_start'])
+                licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
                 print(licence_start)
                 # licence_start = f.get('licence_start', None)
                 licence_start = licence_start.strftime('%Y-%m-%d')
@@ -1152,8 +1156,8 @@ class AddSchool(ListCreateAPIView):
 
                     school_calender_detail = {
                         "school": schoolCreateSerializer.data['id']   ,
-                        "session_from": datetime.date.today(),
-                        "session_till": addYears(datetime.date.today(),f.get('school_calender_for_no_of_year', None)),
+                        "session_from": date.today(),
+                        "session_till": addYears(date.today(),f.get('school_calender_for_no_of_year', None)),
                     }
 
                 
@@ -1223,6 +1227,8 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             added_school_grade_subject = []
 
             for i, f in enumerate(df, start=1):
+                # f['subject'] = json.loads(f['subject'])
+                f['subject']= ast.literal_eval(f['subject'])
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     schoolGradeSubject_qs = SchoolGradeSubject.objects.filter(id=f['id'])[0]
@@ -1236,10 +1242,10 @@ class AddSchoolGradeSubject(ListCreateAPIView):
                     schoolGradeSubject_qs = SchoolGradeSubject.objects.filter(id=f['id'])[0]
                     added_school_grade_subject.append(schoolGradeSubject_qs)
                     schoolGradeSubject_qs.delete()
-                else:
+                else:  
                     print("Create")
-                    f['subject'] = json.loads(f['subject'])
-                    schoolGradeSubject_serializer = SchoolGradeSubjectSerializer(
+                    # f['subject'] = json.loads(f['subject'])
+                    schoolGradeSubject_serializer = SchoolGradeSubjectCreateSerializer(
                         data=dict(f))
                     if schoolGradeSubject_serializer.is_valid():
                         schoolGradeSubject_serializer.save()
@@ -1251,17 +1257,30 @@ class AddSchoolGradeSubject(ListCreateAPIView):
                             schoolGradeSubject_serializer._errors)
                         raise ValidationError(schoolGradeSubject_serializer.errors)
 
-            # keys = added_school_grade_subject[0].keys()
-            # with open('output.csv', 'w', newline='') as output_file:
-            #     dict_writer = csv.DictWriter(output_file, keys)
-            #     dict_writer.writeheader()
-            #     dict_writer.writerows(added_school_grade_subject)
+            keys = added_school_grade_subject[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_school_grade_subject)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "School Grade Subject Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue School subject grade",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
