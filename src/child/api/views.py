@@ -463,29 +463,51 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class AttendenceByAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
+from plan.api.serializer import*
+class AttendenceByAcademicSession(ListCreateAPIView):
     def post(self, request):
         try:
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             attendance_date = request.data.get('attendance_date', None)
             academic_id = AcademicSession.objects.filter(
-                grade=grade, section=section)[0].id
+                grade=grade, section=section)
+            if len(academic_id) is not 0:
+                
+                academic_qs_serializer = AcademicSessionForCalender(academic_id[0])
+
+                attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
+                print("attendence_qs------------", attendence_qs)
+                academic_qs_serializer
+                if len(attendence_qs)is not 0:
+                    attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
+                    
+                    return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
+
+                child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
+                # print("child_qs-----",child_qs)
+                child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
+                # print("@@@@@@@@@@@@@@ DATA---------", child_qs_serializer.data)
+                
+                child_data = {
+                    "marked_status":False,
+                    "childs":ChildJsonData(child_qs_serializer.data),
+                    "attendance_date":"",
+                    "is_active":False
+
+                }
+                context = {"success": True, "message": "Child List",
+                "error": "", "data": child_data}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                context = {"success": False, "message": "Issue in Child List",
+                    "error": "Grade Section is not valid", "data": ""}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             
-            attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
-            print("attendence_qs------------", attendence_qs)
-            if len(attendence_qs)is not 0:
-                attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
-                
-                return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
-                
-            print("Child----", attendence_qs)
-            child_qs = ChildPlan.objects.filter(academic_session=academic_id)
-            child_qs_serializer = ChildPlanSChilderializer(child_qs, many=True)
-            return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
-           
         except Exception as ex:
+            print("ERROR--", ex)
+            print("traceback----", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
