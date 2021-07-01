@@ -101,6 +101,7 @@ class ChildDetail(TimestampAwareModel):
         return reverse('ChildDetail_detail', kwargs={"pk": self.pk})
 
 
+
 """ Child Session Model """
 
 
