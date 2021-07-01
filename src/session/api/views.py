@@ -425,6 +425,7 @@ class DownloadCalendar(ListCreateAPIView):
         try:
             start_date = request.data.get('start_date', None)
             end_date = request.data.get('end_date', None)
+            # print(Genrate_Month(start_date, end_date))
             calendar_type = request.data.get('calendar_type', None)
             school = request.data.get('school', None)
             grade = request.data.get('grade', None)
@@ -432,32 +433,41 @@ class DownloadCalendar(ListCreateAPIView):
             
             result =  {}
             result['days'] = ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S']
+            months_list = ["", "Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul", "Aug", "Sep", "Oct",  "Nov", "Dec"]
+            generated_month_list = Genrate_Month(start_date, end_date)
+            print("generated_month_list",generated_month_list)
             if calendar_type == 'school-calender':
                 school_calender_qs = SchoolCalendar.objects.filter(school=school)
                 if len(school_calender_qs) is not 0:
-                    print(school_calender_qs[0].id)
+                    # print(school_calender_qs[0].id)
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(school_calender=school_calender_qs[0].id,school=school)
                     schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
-                    print(school_calender_holiday_qs)
+                    # print(school_calender_holiday_qs)
                     result['holidays'] = schoolHolidayListSerializer.data
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
 
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
-                        month_dict = {
-                            'date': dt.date(),
-                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
-                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
-                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
-                            'isweekend': False,
-                            'isFirstDayofMonth': checkFirstDay(dt.date()),
-                            "weekday": dt.date().weekday(),
-                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
-                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
-                        }
-                        print(month_dict)
-                        months.append(month_dict)
+                        if months_list[dt.date().month] + "-" + str(dt.date().year) in generated_month_list:
+                            print(months_list[dt.date().month] + "-" + str(dt.date().year))
+                            month_dict = {
+                                "month": months_list[dt.date().month] + "-" + str(dt.date().year),
+                                "days": [],
+                            }
+                            month_dict['days'].append({
+                                        'date': dt.date(),
+                                        'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                                        'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                                        'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                                        'isweekend': False,
+                                        'isFirstDayofMonth': checkFirstDay(dt.date()),
+                                        "weekday": dt.date().weekday(),
+                                        "month": months_list[dt.date().month] + "-" + str(dt.date().year),
+                                        "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                                        "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
+                            })
+                            months.append(month_dict)
                 else:
                     context = {
                     "success": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
@@ -471,7 +481,7 @@ class DownloadCalendar(ListCreateAPIView):
                 if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0 and len(acadamic_session_qs) is not 0:
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id)| Q(academic_session=acadamic_session_qs[0].id))
                     schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
-                    print(school_calender_holiday_qs)
+                    # print(school_calender_holiday_qs)
                     result['holidays'] = schoolHolidayListSerializer.data
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
@@ -491,7 +501,7 @@ class DownloadCalendar(ListCreateAPIView):
                             "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
                             "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
                         }
-                        print(month_dict)
+                        # print(month_dict)
                         months.append(month_dict)
 
                 else:
@@ -507,7 +517,7 @@ class DownloadCalendar(ListCreateAPIView):
                 if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0:
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id))
                     schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
-                    print(school_calender_holiday_qs)
+                    # print(school_calender_holiday_qs)
                     result['holidays'] = schoolHolidayListSerializer.data
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
@@ -527,7 +537,7 @@ class DownloadCalendar(ListCreateAPIView):
                             "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
                             "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
                         }
-                        print(month_dict)
+                        # print(month_dict)
                         months.append(month_dict)
 
                 else:
@@ -539,6 +549,7 @@ class DownloadCalendar(ListCreateAPIView):
                 context = {
                 "success": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # result['day'] = months_by_month(months,generated_month_list)
             result['day'] = months
             context = {
                 "success": True, "message": "DownloadCalendar", "error": "", "data": result}
