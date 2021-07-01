@@ -470,15 +470,21 @@ class AttendenceByAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             attendance_date = request.data.get('attendance_date', None)
-            academic_id = AcademicSession.objects.get(
-                grade=grade, section=section).id
-
+            academic_id = AcademicSession.objects.filter(
+                grade=grade, section=section)[0].id
+            
             attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
-            attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
-            # context = {"message": "Attendence By Academic Session",
-            #            "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
-
+            print("attendence_qs------------", attendence_qs)
+            if len(attendence_qs)is not 0:
+                attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
+                
+                return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
+                
+            print("Child----", attendence_qs)
+            child_qs = ChildPlan.objects.filter(academic_session=academic_id)
+            child_qs_serializer = ChildPlanSChilderializer(child_qs, many=True)
+            return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
+           
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)

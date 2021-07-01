@@ -135,7 +135,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                         raise ValidationError(user_detail_serializer.errors)
 
             except Exception as ex:
-
+                print("ERRor---------", ex)
                 logger.info(ex)
                 logger.debug(ex)
                 raise ValidationError(ex)
