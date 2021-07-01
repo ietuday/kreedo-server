@@ -490,7 +490,10 @@ class AddChild(ListCreateAPIView):
     def post(self, request):
         try:
             file_in_memory = request.FILES['file']
+            print("File in memory", file_in_memory)
+
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            print("df",df)
             added_child = []
 
             for i, f in enumerate(df, start=1):
@@ -517,7 +520,7 @@ class AddChild(ListCreateAPIView):
                         child_plan_qs.curriculum_start_date = da['curriculum_start_date']
                         child_plan_qs.save()
                     added_child.append(child_qs)
-                    parents_data = f.get('parents', None)
+                    parents_data = f.get('parents_id', None)
                     print(parents_data)
                     for i in parents_data:
                         auth_user = User.objects.filter(user_obj=i)[0]
@@ -546,10 +549,12 @@ class AddChild(ListCreateAPIView):
 
                 else:
                     print("Create")
+                    print(" f.get('parents',None)", f.get('parents',None))
+
                     parent_detail = f.get('parents',None)
                     parent_list = []
                     for i, da in enumerate(json.loads(parent_detail), start=1):
-                        print("da",da)
+                        print("da---->",da)
 
                         """ Create Auth User"""
                         user_data = {
@@ -561,6 +566,7 @@ class AddChild(ListCreateAPIView):
                         }
                         user_data_serializer = ParentSerializer(data=dict(user_data))
                         if user_data_serializer.is_valid():
+
                             user_data_serializer.save()
                         else:
                             raise ValidationError(user_data_serializer.errors)
@@ -579,6 +585,7 @@ class AddChild(ListCreateAPIView):
                             if user_details_data_serializer.is_valid():
 
                                 user_details_data_serializer.save()
+                                print("parent")
                                 parent_id = user_details_data_serializer.data['user_obj']
                                 parent_list.append(parent_id)
                             else:
@@ -604,11 +611,13 @@ class AddChild(ListCreateAPIView):
                         "parent":parent_list
 
                     }
+                    print("Child----", child_data)
                     try:
                         child_serializer = ChildSerializer(
                         data=dict(child_data))
                         if child_serializer.is_valid():
                             child_serializer.save()
+                            print("child Create")
                             added_child.append(
                                 child_serializer.data)
                             print(child_serializer.data)
@@ -626,10 +635,12 @@ class AddChild(ListCreateAPIView):
                     child_plan_data = f.get('child_plan', None)
                     print(child_plan_data)
                     for i, da in enumerate(json.loads(child_plan_data), start=1):
-                        print("da",da)
-                        acadmic_ids = AcademicSession.objects.filter(id=da['acad_session'],
-                                                         grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')[0]['id']
-
+                        print("da",da['academic_calender'])
+                        acadmic_ids = AcademicSession.objects.filter(academic_calender=da['academic_calender'],
+                                                         grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')
+                       
+                        acadmic_ids = acadmic_ids[0]['id']
+                        print("####", acadmic_ids)
                         child_plan_data = {
                             "child":child_serializer.data['id'],
                             "academic_session":acadmic_ids,
@@ -639,11 +650,11 @@ class AddChild(ListCreateAPIView):
                             "is_active":"TRUE"
                         }
                         try:
-                            childplan_serializer = ChildPlanCreateSerailizer(data=dict(school_package_detail))
+                            childplan_serializer = ChildPlanCreateSerailizer(data=dict(child_plan_data))
                             if childplan_serializer.is_valid():
                                 childplan_serializer.save()
-                                added_child.append(
-                                childplan_serializer.data)
+                                print("child_plan Create")
+                                
                             else:
                                 raise ValidationError(childplan_serializer.errors)
                         except Exception as ex:
@@ -656,16 +667,172 @@ class AddChild(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_child)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            return Response(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "Child Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
-           
+            print("ERROR-------", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            context = {"success": False, "message": "Issue in child",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Bulk Upload Child Detail """
+
+
+import math
+
+
+class AddChildDetail(ListCreateAPIView):
+
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_child = []
+
+            for i, f in enumerate(df, start=1):
+                # f['subject'] = json.loads(f['subject'])
+                
+                if not math.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    child_detail_qs.child = f['child']
+                    child_detail_qs.medical_details = f['medical_details']
+                    child_detail_qs.residence_details = f['residence_details']
+                    child_detail_qs.emergency_contact_details = f['emergency_contact_details']
+                    child_detail_qs.residence_details = f['residence_details']
+                    child_detail_qs.siblings = f['siblings']
+                    child_detail_qs.documents = json.loads(f['documents'])
+                    child_detail_qs.save()
+                    added_child.append(child_detail_qs)
+                elif not math.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    added_child.append(child_detail_qs)
+                    child_detail_qs.delete()
+                else:  
+                    print("Create")
+                    # f['subject'] = json.loads(f['subject'])
+                    child_detail_serializer = ChildDetailCreateSerializer(
+                        data=dict(f))
+                    if child_detail_serializer.is_valid():
+                        child_detail_serializer.save()
+                        added_child.append(
+                            child_detail_serializer.data)
+                        print(child_detail_serializer.data)
+                    else:
+                        print("child_detail_serializer._errors",
+                            child_detail_serializer._errors)
+                        raise ValidationError(child_detail_serializer.errors)
+
+            keys = added_child[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_child)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "Child Detail Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue Child Detail",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Bulk  upload child Session """
+
+class AddChildSession(ListCreateAPIView):
+
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_child = []
+
+            for i, f in enumerate(df, start=1):
+                # f['subject'] = json.loads(f['subject'])
+                
+                if not math.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    child_detail_qs.child = f['child']
+                    child_detail_qs.medical_details = f['medical_details']
+                    child_detail_qs.residence_details = f['residence_details']
+                    child_detail_qs.emergency_contact_details = f['emergency_contact_details']
+                    child_detail_qs.residence_details = f['residence_details']
+                    child_detail_qs.siblings = f['siblings']
+                    child_detail_qs.documents = json.loads(f['documents'])
+                    child_detail_qs.save()
+                    added_child.append(child_detail_qs)
+                elif not math.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    added_child.append(child_detail_qs)
+                    child_detail_qs.delete()
+                else:  
+                    print("Create")
+                    # f['subject'] = json.loads(f['subject'])
+                    child_detail_serializer = ChildDetailCreateSerializer(
+                        data=dict(f))
+                    if child_detail_serializer.is_valid():
+                        child_detail_serializer.save()
+                        added_child.append(
+                            child_detail_serializer.data)
+                        print(child_detail_serializer.data)
+                    else:
+                        print("child_detail_serializer._errors",
+                            child_detail_serializer._errors)
+                        raise ValidationError(child_detail_serializer.errors)
+
+            keys = added_child[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_child)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "Child Detail Added sucessfully",
+            "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+            logger.debug(ex)
+            # return Response(ex)
+            context = {"success": False, "message": "Issue Child Detail",
+            "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
 

@@ -1169,7 +1169,7 @@ class AddSchool(ListCreateAPIView):
                         raise ValidationError(schoolCalendarCreateSerializer.errors)
                     user_role_detail = {
                         "user": f.get('account_id', None),
-                        "role": Role.objects.filter(name="School Account Owner")[0].id,
+                        "role": Role.objects.filter(name="School Acocunt Owner")[0].id,
                         "school": schoolCreateSerializer.data['id']
                     }
 
@@ -1190,9 +1190,6 @@ class AddSchool(ListCreateAPIView):
                     )
                 
                 
-
-            print("ADDED School",added_school)
-            
             keys = added_school[0].keys()
             with open('output.csv', 'w', newline='')  as output_file:
                dict_writer = csv.DictWriter(output_file, keys)
