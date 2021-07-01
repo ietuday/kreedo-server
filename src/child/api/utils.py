@@ -38,7 +38,7 @@ def ChildJsonData(Child_data):
     for child in Child_data:
         child_dict = {
         "name":child['child']['first_name']+" "+child['child']['last_name'],
-        "child" :child['child']['id'],
+        "child_id" :child['child']['id'],
         "present":"FALSE"
         }
         childs.append(child_dict)
