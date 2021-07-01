@@ -42,8 +42,8 @@ def check_date_day(date):
 """ Genrate List of month """
 def Genrate_Month(start_date, end_date):
     try:
-        date1 = datetime.strptime(str(start_date), "%Y-%m-%d")
-        date2 = datetime.strptime(str(end_date), "%Y-%m-%d")
+        date1 = datetime.strptime(str(start_date), "%d-%m-%Y")
+        date2 = datetime.strptime(str(end_date), "%d-%m-%Y")
         date1 = date1.replace(day = 1)
         date2 = date2.replace(day = 1)
         months_str = calendar.month_name
@@ -122,5 +122,18 @@ def checkWeekOff(checkdate, weekoff):
     print(days[intDay])
     week_off = weekoff[0]
     return week_off[days[intDay]]
+
+def months_by_month(months,generated_month_list):
+    print(len(generated_month_list))
+    try:
+        for mon in months:
+            pass
+            # yield date1 + timedelta(n)
+    except Exception as Ex:
+        print(Ex) 
+
+
+def covert_month_by_month(month):
+    pass
 
 
