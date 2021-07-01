@@ -2,7 +2,11 @@ from session.api.serializer import*
 from rest_framework import serializers
 from ..models import*
 from django.core.exceptions import ValidationError
-
+from rest_framework.serializers import (
+    ModelSerializer,
+    SerializerMethodField,
+    CharField,
+    ValidationError)
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.models import*
@@ -142,11 +146,27 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
-class ChildPlanSChilderializer(serializers.ModelSerializer):
+from child.models import*
+from child.api.serializer import*
+
+class ChildPlansChildSerializer(serializers.ModelSerializer):
+    # child = SerializerMethodField()
     class Meta:
         model = ChildPlan
-        fields = ['id','child','is_active']
-        depth = 2
+        fields = ['id', 'child','is_active']
+        depth = 1
+    
+    # def to_representation(self, obj):
+    #     print("#############", obj)
+        # serialized_data = super(
+        #     ChildPlanListSerializer, self).to_representation(obj)
+
+        # child_data = serialized_data.get('child')
+        # child_id = child_data.get('id')
+        # child_activity_count = ActivityComplete.objects.filter(
+        #     child__id=child_id, is_completed=False).count()
+        # serialized_data['activity_behind'] = child_activity_count
+        # return serialized_data
 
 
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
