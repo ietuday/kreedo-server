@@ -142,6 +142,12 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
+class ChildPlanSChilderializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = ['id','child','is_active']
+        depth = 2
+
 
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
     academic_session = AcademicSessionListForChildSerializer()
