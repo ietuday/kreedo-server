@@ -154,7 +154,7 @@ class AddPackage(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {
-                "success": True, "message": "Package added successfully", "error": "", "data": path_to_file}
+                "isSuccess": True, "message": "Package added successfully", "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file)
 
@@ -162,7 +162,7 @@ class AddPackage(ListCreateAPIView):
             print(ex)
             logger.debug(ex)
             context = {
-                "success": False, "message": "Issue on Package ", "error": "", "data": ""}
+                "isSuccess": False, "message": "Issue on Package ", "error": "", "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             # return Response(ex)
 

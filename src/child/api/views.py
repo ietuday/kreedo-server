@@ -647,8 +647,8 @@ class AddChild(ListCreateAPIView):
                         if child_serializer.is_valid():
                             child_serializer.save()
                             print("child Create")
-                            added_child.append(
-                                child_serializer.data)
+                            # added_child.append(
+                            #     child_serializer.data)
                             print(child_serializer.data)
                         else:
                             raise ValidationError(child_serializer.errors)
@@ -682,6 +682,7 @@ class AddChild(ListCreateAPIView):
                             childplan_serializer = ChildPlanCreateSerailizer(data=dict(child_plan_data))
                             if childplan_serializer.is_valid():
                                 childplan_serializer.save()
+                                added_child.append(childplan_serializer.data)
                                 print("child_plan Create")
                                 
                             else:
@@ -703,7 +704,7 @@ class AddChild(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Child Added sucessfully",
+            context = {"isSuccess": True, "message": "Child Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -711,7 +712,7 @@ class AddChild(ListCreateAPIView):
             print("ERROR-------", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            context = {"success": False, "message": "Issue in child",
+            context = {"isSuccess": False, "message": "Issue in child",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -776,7 +777,7 @@ class AddChildDetail(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Child Detail Added sucessfully",
+            context = {"isSuccess": True, "message": "Child Detail Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -785,7 +786,7 @@ class AddChildDetail(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue Child Detail",
+            context = {"isSuccess": False, "message": "Issue Child Detail",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -846,7 +847,7 @@ class AddChildSession(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Child Session Added sucessfully",
+            context = {"isSuccess": True, "message": "Child Session Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -855,7 +856,7 @@ class AddChildSession(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue Child Session",
+            context = {"isSuccess": False, "message": "Issue Child Session",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
