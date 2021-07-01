@@ -399,8 +399,10 @@ def user_reset_password_link(user_obj, link):
 def add_months(sourcedate, months):
     print("##############",sourcedate,months)
     # print(mont
-    sourcedate = datetime.datetime.strptime(str(sourcedate), '%d/%m/%Y').date()
+    # sourcedate = datetime.datetime.strptime(str(sourcedate), '%d/%m/%Y').date()
     # print(datetime.datetime.strptime(sourcedate , '%d/%m/%Y').date())
+    sourcedate = datetime.datetime.strptime(sourcedate, '%Y-%m-%d').date()
+    print("sourcedate-------",sourcedate)
     months = int(months)
     print("##############",sourcedate,months)
     month = sourcedate.month - 1 + months
