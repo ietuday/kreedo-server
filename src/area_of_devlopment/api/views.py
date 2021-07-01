@@ -23,6 +23,8 @@ from kreedo.conf import logger
 from users.api.custum_storage import FileStorage
 from kreedo.conf.logger import CustomFormatter
 import logging
+import ast
+from rest_framework import status
 
 # Create your views here.
 
@@ -127,6 +129,9 @@ class AddConceptSkill(ListCreateAPIView):
             added_conept_skill = []
 
             for i, f in enumerate(df, start=1):
+                # f.get('aod',None)
+                f['activity']= ast.literal_eval(f['activity'])
+                f['remed_activity']= ast.literal_eval(f['remed_activity'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
@@ -142,13 +147,13 @@ class AddConceptSkill(ListCreateAPIView):
                     skill_qs.activity = f['activity']
                     skill_qs.remed_activity=f['remed_activity']
                     skill_qs.save()
-                    added_conept_skill.append(concept_qs)
+                    # added_conept_skill.append(concept_qs)
                     added_conept_skill.append(skill_qs)
                 elif not m.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
                     skill_qs = Skill.objects.filter(id=f['skill_id'],concept=concept_qs['id'])
-                    added_conept_skill.append(concept_qs)
+                    # added_conept_skill.append(concept_qs)
                     added_conept_skill.append(skill_qs)
                     concept_qs.delete()
                     skill_qs.delete()
@@ -166,8 +171,8 @@ class AddConceptSkill(ListCreateAPIView):
                             data=dict(concept_data))
                         if conept_serializer.is_valid():
                             conept_serializer.save()
-                            added_conept_skill.append(
-                                conept_serializer.data)
+                            # added_conept_skill.append(
+                            #     conept_serializer.data)
                             print(conept_serializer.data)
                         else:
                             
@@ -186,14 +191,15 @@ class AddConceptSkill(ListCreateAPIView):
                         "concept":conept_serializer.data['id'],
                         "is_active":"TRUE",
                         "threshold_percentage":f.get('threshold_percentage', None),
-                        "activity":f.get('activity', None),
-                        "remed_activity":f.get('remed_activity', None),
+                        "activity":f['activity'],
+                        "remed_activity":f['activity'],
                     }
                     try:
                         skill_serializer = SkillCreateSerializer(
                             data=dict(skill_data))
                         if skill_serializer.is_valid():
                             skill_serializer.save()
+                            print("skill_serializer.data",skill_serializer.data)
                             added_conept_skill.append(
                                 skill_serializer.data)
                            
@@ -210,18 +216,25 @@ class AddConceptSkill(ListCreateAPIView):
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
                 dict_writer.writeheader()
-                dict_writer.writerows(added_material)
+                dict_writer.writerows(added_conept_skill)
 
             fs = FileStorage()
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
-            print(path_to_file)
-            return Response(path_to_file)
+            # print(path_to_file)
+            # return Response(path_to_file)
+            context = {"success": True, "message": "Concept Skill Added sucessfully",
+                "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Res
 
         except Exception as ex:
-           
+            print(ex)
+            print(traceback.print_exc())
             logger.debug(ex)
-            return Response(ex)
+            context = {"success": False, "message": "Issue Skill Concept",
+                "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
