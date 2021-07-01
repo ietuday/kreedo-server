@@ -288,7 +288,7 @@ class AddPlan(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             # print(path_to_file)
             context = {
-                    "success": True, "message": "Add Plan", "error": "", "data": path_to_file}
+                    "isSuccess": True, "message": "Add Plan", "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
             # return Response(path_to_file)
@@ -297,5 +297,5 @@ class AddPlan(ListCreateAPIView):
 
             logger.debug(ex)
             context = {
-                    "success": False, "message": "Issue on Plan", "error": ex, "data": ""}
+                    "isSuccess": False, "message": "Issue on Plan", "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

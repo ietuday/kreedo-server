@@ -1007,7 +1007,7 @@ class AddAccount(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            context = {"success": True, "message": "Account Added sucessfully",
+            context = {"isSuccess": True, "message": "Account Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1015,7 +1015,7 @@ class AddAccount(ListCreateAPIView):
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            context = {"success": False, "message": "Issue User",
+            context = {"isSuccess": False, "message": "Issue User",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1203,7 +1203,7 @@ class AddSchool(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "School Added sucessfully",
+            context = {"isSuccess": True, "message": "School Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
         
@@ -1213,7 +1213,7 @@ class AddSchool(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue School",
+            context = {"isSuccess": False, "message": "Issue School",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1268,7 +1268,7 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "School Grade Subject Added sucessfully",
+            context = {"isSuccess": True, "message": "School Grade Subject Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1277,7 +1277,7 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue School subject grade",
+            context = {"isSuccess": False, "message": "Issue School subject grade",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1480,7 +1480,7 @@ class AddUserData(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "User Added sucessfully",
+            context = {"isSuccess": True, "message": "User Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1489,6 +1489,6 @@ class AddUserData(ListCreateAPIView):
             print(traceback.format_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue User",
+            context = {"isSuccess": False, "message": "Issue User",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -222,7 +222,7 @@ class AddActivity(ListCreateAPIView):
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            context = {"success": True, "message": "Activity Added sucessfully",
+            context = {"isSuccess": True, "message": "Activity Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
@@ -230,7 +230,7 @@ class AddActivity(ListCreateAPIView):
         except Exception as ex:
             print(ex)
             logger.debug(ex)
-            context = {"success": False, "message": "Issue Activity",
+            context = {"isSuccess": False, "message": "Issue Activity",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -296,7 +296,7 @@ class AddActivityAsset(ListCreateAPIView):
             path_to_file = 'https://' + \
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            context = {"success": True, "message": "Activity Asset Added sucessfully",
+            context = {"isSuccess": True, "message": "Activity Asset Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
@@ -304,6 +304,6 @@ class AddActivityAsset(ListCreateAPIView):
         except Exception as ex:
             print(ex)
             logger.debug(ex)
-            context = {"success": False, "message": "Issue Activity Asset",
+            context = {"isSuccess": False, "message": "Issue Activity Asset",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

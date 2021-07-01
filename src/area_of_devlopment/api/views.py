@@ -223,7 +223,7 @@ class AddConceptSkill(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             # print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Concept Skill Added sucessfully",
+            context = {"isSuccess": True, "message": "Concept Skill Added sucessfully",
                 "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Res
@@ -232,7 +232,7 @@ class AddConceptSkill(ListCreateAPIView):
             print(ex)
             print(traceback.print_exc())
             logger.debug(ex)
-            context = {"success": False, "message": "Issue Skill Concept",
+            context = {"isSuccess": False, "message": "Issue Skill Concept",
                 "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
