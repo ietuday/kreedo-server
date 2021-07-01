@@ -1,3 +1,4 @@
+from activity.models import*
 from django.db import models
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
@@ -10,7 +11,6 @@ from plan.models import*
 # Create your models here.
 
 
-
 """  Relationship Choice """
 Individual = 'Individual'
 Group = 'Group'
@@ -20,7 +20,6 @@ Academic_Session_Type_Choice = [
     (Individual, 'Individual'),
     (Group, 'Group')
 ]
-
 
 
 """  Choice """
@@ -35,7 +34,7 @@ Gender_Choice = [
     (Other, 'Other')
 ]
 
- 
+
 """ Session_With_Kreedo_Choice """
 Kreedo = 'Kreedo'
 New = 'New'
@@ -104,16 +103,18 @@ class ChildDetail(TimestampAwareModel):
 
 """ Child Session Model """
 
+
 class ChildSession(TimestampAwareModel):
-    child = models.ForeignKey('Child', on_delete=models.CASCADE, null=True,blank=True)
-    session_name = models.CharField(max_length=100, null=True,blank=True)
+    child = models.ForeignKey(
+        'Child', on_delete=models.CASCADE, null=True, blank=True)
+    session_name = models.CharField(max_length=100, null=True, blank=True)
     session_type = models.CharField(
         max_length=50, choices=Academic_Session_Type_Choice)
     academic_session = models.ForeignKey(
-        to='session.AcademicSession', on_delete=models.PROTECT,null=True,blank=True)
-    start_date=models.DateField()
+        to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
+    start_date = models.DateField()
     end_date = models.DateField()
-    is_active= models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'ChildSession'
@@ -126,7 +127,6 @@ class ChildSession(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ChildSession_detail', kwargs={"pk": self.pk})
-
 
 
 """ Attendance Model """
@@ -151,15 +151,19 @@ class Attendance(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('Attendance_detail', kwargs={"pk": self.pk})
 
-from activity.models import*
 
 """ Block Model """
+
+
 class Block(TimestampAwareModel):
-    block_no = models.CharField(max_length=100,null=True, blank= True)
-    child_plan = models.ForeignKey(to='plan.ChildPlan', on_delete=models.PROTECT, null=True, blank= True)
-    activity = models.ForeignKey(to='activity.Activity', on_delete=models.PROTECT, null=True,blank= True)
+    block_no = models.CharField(max_length=100, null=True, blank=True)
+    child_plan = models.ForeignKey(
+        to='plan.ChildPlan', on_delete=models.PROTECT, null=True, blank=True)
+    activity = models.ForeignKey(
+        to='activity.Activity', on_delete=models.PROTECT, null=True, blank=True)
     is_done = models.BooleanField(default=False)
-    period= models.ForeignKey(to='period.Period', on_delete=models.PROTECT, null=True,blank= True)
+    period = models.ForeignKey(
+        to='period.Period', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -172,5 +176,3 @@ class Block(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('Block_detail', kwargs={"pk": self.pk})
-    
-    

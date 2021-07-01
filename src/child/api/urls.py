@@ -34,6 +34,11 @@ urlpatterns = [
          name='Attendence By Academic Session'),
     path('bulk-upload/add-child',
          AddChild.as_view(), name='AddChild'),
+    path('bulk-upload/add-child-detail',
+         AddChildDetail.as_view(), name='AddChildDetail'),
+    path('bulk-upload/add-child-session',
+         AddChildSession.as_view(), name='AddChildSession'),
+
 
 
 
