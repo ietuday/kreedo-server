@@ -488,7 +488,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 # print("child_qs-----",child_qs)
                 child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
                 # print("@@@@@@@@@@@@@@ DATA---------", child_qs_serializer.data)
-                
+                child_list =[]
                 child_data = {
                     "marked_status":False,
                     "childs":ChildJsonData(child_qs_serializer.data),
@@ -496,8 +496,9 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                     "is_active":False
 
                 }
+                child_list.append(child_data)
                 context = {"success": True, "message": "Child List",
-                "error": "", "data": child_data}
+                "error": "", "data": child_list}
                 return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {"success": False, "message": "Issue in Child List",
