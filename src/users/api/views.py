@@ -1032,11 +1032,13 @@ class AddSchool(ListCreateAPIView):
             added_school = [] 
             for i, f in enumerate(df, start=1):
                 print(f['licence_start'])
-                licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
-                print(licence_start)
+                # licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
+                licence_start = f.get('licence_start', None)
+
+                # print(licence_start)
                 # licence_start = f.get('licence_start', None)
-                licence_start = licence_start.strftime('%Y-%m-%d')
-                print(licence_start)
+                # licence_start = licence_start.strftime('%Y-%m-%d')
+                # print(licence_start)
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     school_qs = School.objects.filter(id=f['id'])[0]
                     address_qs = Address.objects.filter(id=school_qs['address'])[0]
@@ -1169,7 +1171,7 @@ class AddSchool(ListCreateAPIView):
                         raise ValidationError(schoolCalendarCreateSerializer.errors)
                     user_role_detail = {
                         "user": f.get('account_id', None),
-                        "role": Role.objects.filter(name="School Acocunt Owner")[0].id,
+                        "role": Role.objects.filter(name="School Account Owner")[0].id,
                         "school": schoolCreateSerializer.data['id']
                     }
 
