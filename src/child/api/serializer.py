@@ -181,6 +181,13 @@ class ChildCreateSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
+
+class ChildListForPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+        
+
 """ Child List Serializer """
 
 

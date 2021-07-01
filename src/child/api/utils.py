@@ -32,6 +32,16 @@ def random_activity(academic_session):
            return random.choice(sub.activity.all()).id
 
 
-
+""" ChildJsonData"""
+def ChildJsonData(Child_data):
+    childs = []
+    for child in Child_data:
+        child_dict = {
+        "name":child['child']['first_name']+" "+child['child']['last_name'],
+        "child" :child['child']['id'],
+        "present":"FALSE"
+        }
+        childs.append(child_dict)
+    return childs
 
     
