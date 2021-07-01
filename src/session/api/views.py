@@ -490,19 +490,27 @@ class DownloadCalendar(ListCreateAPIView):
 
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
-                        month_dict = {
-                            'date': dt.date(),
-                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
-                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
-                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
-                            'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
-                            'isFirstDayofMonth': checkFirstDay(dt.date()),
-                            "weekday": dt.date().weekday(),
-                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
-                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
-                        }
-                        # print(month_dict)
-                        months.append(month_dict)
+
+
+                        if months_list[dt.date().month] + "-" + str(dt.date().year) in generated_month_list:
+                            print(months_list[dt.date().month] + "-" + str(dt.date().year))
+                            month_dict = {
+                                "month": months_list[dt.date().month] + "-" + str(dt.date().year),
+                                "days": [],
+                            }
+                            month_dict = {
+                                'date': dt.date(),
+                                'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                                'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                                'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                                'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
+                                'isFirstDayofMonth': checkFirstDay(dt.date()),
+                                "weekday": dt.date().weekday(),
+                                "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                                "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
+                            }
+                            # print(month_dict)
+                            months.append(month_dict)
 
                 else:
                     context = {
@@ -526,19 +534,25 @@ class DownloadCalendar(ListCreateAPIView):
 
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
-                        month_dict = {
-                            'date': dt.date(),
-                            'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
-                            'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
-                            'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
-                            'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
-                            'isFirstDayofMonth': checkFirstDay(dt.date()),
-                            "weekday": dt.date().weekday(),
-                            "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
-                            "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
-                        }
-                        # print(month_dict)
-                        months.append(month_dict)
+                        if months_list[dt.date().month] + "-" + str(dt.date().year) in generated_month_list:
+                            print(months_list[dt.date().month] + "-" + str(dt.date().year))
+                            month_dict = {
+                                "month": months_list[dt.date().month] + "-" + str(dt.date().year),
+                                "days": [],
+                            }
+                            month_dict = {
+                                'date': dt.date(),
+                                'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
+                                'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
+                                'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
+                                'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
+                                'isFirstDayofMonth': checkFirstDay(dt.date()),
+                                "weekday": dt.date().weekday(),
+                                "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
+                                "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
+                            }
+                            # print(month_dict)
+                            months.append(month_dict)
 
                 else:
                     context = {
