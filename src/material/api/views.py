@@ -122,7 +122,7 @@ class AddMaterial(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {
-                "success": True, "message": "Material added successfully", "error": "", "data": path_to_file}
+                "isSuccess": True, "message": "Material added successfully", "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file)
 
@@ -131,5 +131,5 @@ class AddMaterial(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             context = {
-                "success": False, "message": "Issue on Material ", "error": "", "data": ""}
+                "isSuccess": False, "message": "Issue on Material ", "error": "", "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
