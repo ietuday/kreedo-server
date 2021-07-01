@@ -478,12 +478,13 @@ class AttendenceByAcademicSession(ListCreateAPIView):
 
                 attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
                 print("attendence_qs------------", attendence_qs)
+                academic_qs_serializer
                 if len(attendence_qs)is not 0:
                     attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
                     
                     return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
 
-                child_qs = ChildPlan.objects.filter(academic_session=academic_id)
+                child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
                 # print("child_qs-----",child_qs)
                 child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
                 # print("@@@@@@@@@@@@@@ DATA---------", child_qs_serializer.data)
@@ -500,7 +501,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {"success": False, "message": "Issue in Child List",
-                    "error": ex, "data": ""}
+                    "error": "Grade Section is not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             
