@@ -33,6 +33,7 @@ class ActivityAssetAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(ActivityComplete)
 class ActivityCompleteAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'child','is_completed', 'is_active']
-    search_fields = ['id','child', 'is_completed', 'is_active']
-    list_filter = ['id','child', 'is_completed', 'is_active']
+    list_display = ['id', 'child','activity','period','is_completed', 'is_active']
+    search_fields = ['id','child', 'activity','period','is_completed', 'is_active']
+    list_filter = ['id','child', 'activity','period','is_completed', 'is_active']
+

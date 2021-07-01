@@ -470,15 +470,21 @@ class AttendenceByAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             attendance_date = request.data.get('attendance_date', None)
-            academic_id = AcademicSession.objects.get(
-                grade=grade, section=section).id
-
+            academic_id = AcademicSession.objects.filter(
+                grade=grade, section=section)[0].id
+            
             attendence_qs = Attendance.objects.filter(academic_session=academic_id,attendance_date= attendance_date)
-            attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
-            # context = {"message": "Attendence By Academic Session",
-            #            "data": attendanceListSerializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
-
+            print("attendence_qs------------", attendence_qs)
+            if len(attendence_qs)is not 0:
+                attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
+                
+                return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
+                
+            print("Child----", attendence_qs)
+            child_qs = ChildPlan.objects.filter(academic_session=academic_id)
+            child_qs_serializer = ChildPlanSChilderializer(child_qs, many=True)
+            return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
+           
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)
@@ -776,35 +782,35 @@ class AddChildSession(ListCreateAPIView):
                 
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
-                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[0]
                     child_detail_qs.child = f['child']
-                    child_detail_qs.medical_details = f['medical_details']
-                    child_detail_qs.residence_details = f['residence_details']
-                    child_detail_qs.emergency_contact_details = f['emergency_contact_details']
-                    child_detail_qs.residence_details = f['residence_details']
-                    child_detail_qs.siblings = f['siblings']
-                    child_detail_qs.documents = json.loads(f['documents'])
+                    child_detail_qs.session_name = f['session_name']
+                    child_detail_qs.session_type = f['session_type']
+                    child_detail_qs.academic_session = f['academic_session']
+                    child_detail_qs.start_date = f['start_date']
+                    child_detail_qs.end_date = f['end_date']
+                    child_detail_qs.is_active = json.loads(f['is_active'])
                     child_detail_qs.save()
                     added_child.append(child_detail_qs)
                 elif not math.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
-                    child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
+                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[0]
                     added_child.append(child_detail_qs)
                     child_detail_qs.delete()
                 else:  
                     print("Create")
                     # f['subject'] = json.loads(f['subject'])
-                    child_detail_serializer = ChildDetailCreateSerializer(
+                    child_session_serializer = ChildSessionCreateSerializer(
                         data=dict(f))
-                    if child_detail_serializer.is_valid():
-                        child_detail_serializer.save()
+                    if child_session_serializer.is_valid():
+                        child_session_serializer.save()
                         added_child.append(
-                            child_detail_serializer.data)
-                        print(child_detail_serializer.data)
+                            child_session_serializer.data)
+                        print(child_session_serializer.data)
                     else:
-                        print("child_detail_serializer._errors",
-                            child_detail_serializer._errors)
-                        raise ValidationError(child_detail_serializer.errors)
+                        print("child_session_serializer._errors",
+                            child_session_serializer._errors)
+                        raise ValidationError(child_session_serializer.errors)
 
             keys = added_child[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
@@ -817,7 +823,7 @@ class AddChildSession(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Child Detail Added sucessfully",
+            context = {"success": True, "message": "Child Session Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -826,7 +832,7 @@ class AddChildSession(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue Child Detail",
+            context = {"success": False, "message": "Issue Child Session",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
