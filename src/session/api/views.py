@@ -29,7 +29,7 @@ from rest_framework import status
 
 class SchoolSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = SchoolSession
-    filterset_class = SchoolSessionFilter
+    filterset_class = SchoolSessionFilter 
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -575,3 +575,24 @@ class DownloadCalendar(ListCreateAPIView):
             context = {
                 "success": False, "message": "Error", "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SchoolCalendarBySchool(RetrieveUpdateDestroyAPIView):
+     def get(self, request,pk):
+        try:
+            school_calander_qs = SchoolCalendar.objects.filter(school=pk, is_active=True)
+            if len(school_calander_qs) != 0:
+                schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(school_calander_qs[0])
+                context = {"success": True, "message": "School Calendar By School", "error": "", "data": schoolCalendarCreateSerializer.data}
+                return Response(context, status=status.HTTP_200_OK)
+            else: 
+                context = {
+                "success": False, "message": "School calander not vailable", "error": "", "data": ""}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        except Exception as ex:
+            print("ERROR----->", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

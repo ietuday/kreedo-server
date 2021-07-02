@@ -42,5 +42,8 @@ urlpatterns = [
     path('download_calendar', DownloadCalendar.as_view(),
          name='DownloadCalendar'),
 
+    path('school_calendar_by_school/<int:pk>', SchoolCalendarBySchool.as_view(),
+         name='SchoolCalendarBySchool'),
+
 
 ]
