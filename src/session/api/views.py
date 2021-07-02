@@ -470,7 +470,7 @@ class DownloadCalendar(ListCreateAPIView):
                             months.append(month_dict)
                 else:
                     context = {
-                    "success": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
+                    "isSuccess": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                     
@@ -514,7 +514,7 @@ class DownloadCalendar(ListCreateAPIView):
 
                 else:
                     context = {
-                    "success": False, "message": "DownloadCalendar", "error": "academic-session-calendar for this School is not valid", "data": ""}
+                    "isSuccess": False, "message": "DownloadCalendar", "error": "academic-session-calendar for this School is not valid", "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
  
 
@@ -556,24 +556,24 @@ class DownloadCalendar(ListCreateAPIView):
 
                 else:
                     context = {
-                    "success": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
+                    "isSuccess": False, "message": "DownloadCalendar", "error": "SchoolCalendar for this School is not valid", "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
  
             else:
                 context = {
-                "success": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
+                "isSuccess": False, "message": "DownloadCalendar", "error": "calendar type not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             # result['day'] = months_by_month(months,generated_month_list)
             result['day'] = months
             context = {
-                "success": True, "message": "DownloadCalendar", "error": "", "data": result}
+                "isSuccess": True, "message": "DownloadCalendar", "error": "", "data": result}
 
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print(ex)
             context = {
-                "success": False, "message": "Error", "error": ex, "data": ""}
+                "isSuccess": False, "message": "Error", "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
