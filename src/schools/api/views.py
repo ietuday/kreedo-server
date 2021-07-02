@@ -575,7 +575,7 @@ class AddSubject(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "Subject Added sucessfully",
+            context = {"isSuccess": True, "message": "Subject Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -583,7 +583,7 @@ class AddSubject(ListCreateAPIView):
 
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue Subject",
+            context = {"isSuccess": False, "message": "Issue Subject",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -640,11 +640,11 @@ class AddGrade(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {
-                "success": True, "message": "Add Grade", "error": "", "data": path_to_file}
+                "isSuccess": True, "message": "Add Grade", "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print(ex)
             context = {
-                "success": False, "message": "Error on adding grade", "error": "", "data": ""}
+                "isSuccess": False, "message": "Error on adding grade", "error": "", "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1007,7 +1007,7 @@ class AddAccount(ListCreateAPIView):
             fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
-            context = {"success": True, "message": "Account Added sucessfully",
+            context = {"isSuccess": True, "message": "Account Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1015,7 +1015,7 @@ class AddAccount(ListCreateAPIView):
             print("error", ex)
             print("traceback", traceback.print_exc())
             logger.debug(ex)
-            context = {"success": False, "message": "Issue User",
+            context = {"isSuccess": False, "message": "Issue User",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1032,11 +1032,13 @@ class AddSchool(ListCreateAPIView):
             added_school = [] 
             for i, f in enumerate(df, start=1):
                 print(f['licence_start'])
-                licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
-                print(licence_start)
+                # licence_start = datetime.datetime.strptime(str(f.get('licence_start', None)), '%d/%m/%Y').date()
+                licence_start = f.get('licence_start', None)
+
+                # print(licence_start)
                 # licence_start = f.get('licence_start', None)
-                licence_start = licence_start.strftime('%Y-%m-%d')
-                print(licence_start)
+                # licence_start = licence_start.strftime('%Y-%m-%d')
+                # print(licence_start)
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     school_qs = School.objects.filter(id=f['id'])[0]
                     address_qs = Address.objects.filter(id=school_qs['address'])[0]
@@ -1169,7 +1171,7 @@ class AddSchool(ListCreateAPIView):
                         raise ValidationError(schoolCalendarCreateSerializer.errors)
                     user_role_detail = {
                         "user": f.get('account_id', None),
-                        "role": Role.objects.filter(name="School Acocunt Owner")[0].id,
+                        "role": Role.objects.filter(name="School Account Owner")[0].id,
                         "school": schoolCreateSerializer.data['id']
                     }
 
@@ -1201,7 +1203,7 @@ class AddSchool(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "School Added sucessfully",
+            context = {"isSuccess": True, "message": "School Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
         
@@ -1211,7 +1213,7 @@ class AddSchool(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue School",
+            context = {"isSuccess": False, "message": "Issue School",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1266,7 +1268,7 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "School Grade Subject Added sucessfully",
+            context = {"isSuccess": True, "message": "School Grade Subject Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1275,7 +1277,7 @@ class AddSchoolGradeSubject(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue School subject grade",
+            context = {"isSuccess": False, "message": "Issue School subject grade",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1478,7 +1480,7 @@ class AddUserData(ListCreateAPIView):
             path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
-            context = {"success": True, "message": "User Added sucessfully",
+            context = {"isSuccess": True, "message": "User Added sucessfully",
             "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
@@ -1487,6 +1489,6 @@ class AddUserData(ListCreateAPIView):
             print(traceback.format_exc())
             logger.debug(ex)
             # return Response(ex)
-            context = {"success": False, "message": "Issue User",
+            context = {"isSuccess": False, "message": "Issue User",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
