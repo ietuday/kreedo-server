@@ -117,11 +117,15 @@ def checkStartEndDate(date1, date2):
         return False
 
 def checkWeekOff(checkdate, weekoff):
-    intDay = checkdate.weekday()
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    print(days[intDay])
-    week_off = weekoff[0]
-    return week_off[days[intDay]]
+    if len(weekoff)!=0:
+        intDay = checkdate.weekday()
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        print(days[intDay])
+        week_off = weekoff[0]
+        print(weekoff)
+        return week_off[days[intDay]]
+    else: 
+        return ""
 
 def months_by_month(months,generated_month_list):
     print(len(generated_month_list))
