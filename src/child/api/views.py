@@ -19,7 +19,6 @@ from users.api.serializer import*
 from rest_framework import status
 from datetime import date
 
-from rest_framework.response import Response
 
 
 
