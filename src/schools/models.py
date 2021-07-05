@@ -70,6 +70,7 @@ class Section(TimestampAwareModel):
         return reverse('Section_detail', kwargs={"pk": self.pk})
 
 
+
 class Subject(TimestampAwareModel):
     name = models.CharField(max_length=50, null=True, blank=True, unique=True)
     type = models.CharField(
