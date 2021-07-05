@@ -478,16 +478,19 @@ class DownloadCalendar(ListCreateAPIView):
                 school_calender_qs = SchoolCalendar.objects.filter(school=school)
                 acadamic_calender_qs = AcademicCalender.objects.filter(school=school)
                 acadamic_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+                print("acadamic_session_qs",acadamic_session_qs)
+                print(school_calender_qs[0], acadamic_calender_qs[0], acadamic_calender_qs[0])
                 if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0 and len(acadamic_session_qs) is not 0:
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id)| Q(academic_session=acadamic_session_qs[0].id))
                     schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
                     # print(school_calender_holiday_qs)
                     result['holidays'] = schoolHolidayListSerializer.data
+                    print("@@@@@@@@@@@@@",result['holidays'])
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
                     school_week_off_qs = SchoolWeakOff.objects.filter(school=school,academic_calender= acadamic_calender_qs[0].id)
                     schoolWeakOffSerializer = SchoolWeakOffCreateSerializer(school_week_off_qs, many=True)
-
+                    print(schoolWeakOffSerializer.data)
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
 
@@ -509,12 +512,13 @@ class DownloadCalendar(ListCreateAPIView):
                                 "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
                                 "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
                             }
-                            # print(month_dict)
+
+                            print("@@@@@@@@@@@@@@@@@@@@",month_dict)
                             months.append(month_dict)
 
                 else:
                     context = {
-                    "isSuccess": False, "message": "DownloadCalendar", "error": "academic-session-calendar for this School is not valid", "data": ""}
+                    "isSuccess": False, "message": "DownloadCalendar", "error": "Section-calendar for this School is not valid", "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
  
 
@@ -530,7 +534,7 @@ class DownloadCalendar(ListCreateAPIView):
                     start_date_time_obj = datetime.datetime.strptime(start_date, '%d-%m-%Y')
                     end_date_time_obj = datetime.datetime.strptime(end_date, '%d-%m-%Y')
                     school_week_off_qs = SchoolWeakOff.objects.filter(school=school,academic_calender= acadamic_calender_qs[0].id)
-                    schoolWeakOffSerializer = SchoolWeakOffCreateSerializer(school_calender_holiday_qs, many=True)
+                    schoolWeakOffSerializer = SchoolWeakOffCreateSerializer(school_week_off_qs, many=True)
 
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
@@ -545,7 +549,7 @@ class DownloadCalendar(ListCreateAPIView):
                                 'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
                                 'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
                                 'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
-                                'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
+                                'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data),
                                 'isFirstDayofMonth': checkFirstDay(dt.date()),
                                 "weekday": dt.date().weekday(),
                                 "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
@@ -571,6 +575,7 @@ class DownloadCalendar(ListCreateAPIView):
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
+            print(traceback.print_exc)
             print(ex)
             context = {
                 "isSuccess": False, "message": "Error", "error": ex, "data": ""}
