@@ -153,8 +153,8 @@ def calculate_working_days(month, year,date, request_data):
             school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], school=request_data['school']).count()
             print("####",school_holiday_count)
             working_days = total_no_of_days - school_holiday_count
-        elif request_data['calendar_type'] == 'academic-session-calendar':
-            school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], academic_calender=request_data['academic_calender']).count()
+        elif request_data['calendar_type'] == 'academic-session-calendar':                                                                                                                               
+            school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], academic_calender=request_data['academic_calendar']).count()
             print("####",school_holiday_count)
             working_days = total_no_of_days - school_holiday_count
         elif request_data['calendar_type'] == 'section-calendar':
