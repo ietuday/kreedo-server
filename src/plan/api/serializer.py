@@ -146,6 +146,20 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
+
+
+
+class ChildPlanOfChildSerializer(serializers.ModelSerializer):
+    academic_session = AcademicSessionListForChildSerializer()
+
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+        depth = 1
+
+
+
+
 from child.models import*
 from child.api.serializer import*
 
@@ -167,16 +181,6 @@ class ChildPlansChildSerializer(serializers.ModelSerializer):
         #     child__id=child_id, is_completed=False).count()
         # serialized_data['activity_behind'] = child_activity_count
         # return serialized_data
-
-
-class ChildPlanOfChildSerializer(serializers.ModelSerializer):
-    academic_session = AcademicSessionListForChildSerializer()
-
-    class Meta:
-        model = ChildPlan
-        fields = '__all__'
-        depth = 1
-
 
 """ Plan activity List Serializer """
 
