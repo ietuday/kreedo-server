@@ -462,6 +462,7 @@ class DownloadCalendar(ListCreateAPIView):
                                         'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
                                         'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
                                         'isweekend': False,
+                                        'working_days':16,
                                         'isFirstDayofMonth': checkFirstDay(dt.date()),
                                         "weekday": dt.date().weekday(),
                                         "month": months_list[dt.date().month] + "-" + str(dt.date().year),
@@ -509,6 +510,7 @@ class DownloadCalendar(ListCreateAPIView):
                                     'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
                                     'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data ),
                                     'isFirstDayofMonth': checkFirstDay(dt.date()),
+                                    'working_days':16,
                                     "weekday": dt.date().weekday(),
                                     "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
                                     "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
@@ -553,6 +555,7 @@ class DownloadCalendar(ListCreateAPIView):
                                 'isweekend': checkWeekOff(dt.date(),schoolWeakOffSerializer.data),
                                 'isFirstDayofMonth': checkFirstDay(dt.date()),
                                 "weekday": dt.date().weekday(),
+                                'working_days':16,
                                 "isStart": checkStartEndDate(dt.date(),school_calender_qs[0].session_from),
                                 "isEnd": checkStartEndDate(dt.date(),school_calender_qs[0].session_till)
                             })
