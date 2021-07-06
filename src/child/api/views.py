@@ -496,11 +496,11 @@ class AttendenceByAcademicSession(ListCreateAPIView):
 
                 }
                 child_list.append(child_data)
-                context = {"success": True, "message": "Child List",
+                context = {"isSuccess": True, "message": "Child List",
                 "error": "", "data": child_list}
                 return Response(context, status=status.HTTP_200_OK)
             else:
-                context = {"success": False, "message": "Issue in Child List",
+                context = {"isSuccess": False, "message": "Issue in Child List",
                     "error": "Grade Section is not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

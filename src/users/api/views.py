@@ -461,7 +461,7 @@ class GenerateOTP(ListAPIView):
             print("@@@@@@@@@@@@@@@----", user_obj)
             if user_obj == None:
                 context = {'error': "This phone number is not linked to any account. Please check again.",
-                    'success': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
+                    'isSuccess': "false", 'message': 'This phone number is not linked to any account. Please check again.'}
                 return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -484,7 +484,7 @@ class GenerateOTP(ListAPIView):
             print("RESPONSE-----", response)
 
             if response['ResponseMetadata']['HTTPStatusCode'] != 200:
-                context = {"success": False, "message": "Unable to send OTP",
+                context = {"isSuccess": False, "message": "Unable to send OTP",
                     "error": " AWS SNS is Unable to send OTP"}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
            
@@ -499,13 +499,13 @@ class GenerateOTP(ListAPIView):
             "datetime": str(date_time)
             }
 
-            context = {"success": True, "message": response,
+            context = {"isSuccess": True, "message": response,
             "error": "", "data": data}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as error:
             print("TRACEBACK-----------", traceback.print_exc())
 
-            context = {'error': str(error), 'success': "false",
+            context = {'error': str(error), 'isSuccess': "false",
             'message': 'Unable to generate OTP'}
         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -519,7 +519,7 @@ class OTPVerification(ListAPIView):
 
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
-                'success': "false", 'message': 'User with this phone number does not exist'}
+                'isSuccess': "false", 'message': 'User with this phone number does not exist'}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
             # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
@@ -528,7 +528,7 @@ class OTPVerification(ListAPIView):
 
             if datetime.datetime.now() - date_time >= datetime.timedelta(seconds=140):
                 context = {'error': "OTP expired",
-                'success': "false", 'message': 'OTP expired'}
+                'isSuccess': "false", 'message': 'OTP expired'}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
             # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
@@ -552,13 +552,13 @@ class OTPVerification(ListAPIView):
                 }
 
                 context = {
-                "success": True, "message": "OTP successfully validated", "error": "", "data": data}
+                "isSuccess": True, "message": "OTP successfully validated", "error": "", "data": data}
                 return Response(context, status=status.HTTP_200_OK)
             context = {'error': "Validation failed",
-            'success': "false", 'message': 'Failed to validate OTP'}
+            'isSuccess': "false", 'message': 'Failed to validate OTP'}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
-            context = {'error': str(error), 'success': "false",
+            context = {'error': str(error), 'isSuccess': "false",
             'message': 'Unable to validate OTP'}
         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -993,7 +993,7 @@ class AddAccount(ListCreateAPIView):
                         print("error", ex)
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
-                        context = {"success": False, "message": "Issue Account",
+                        context = {"isSuccess": False, "message": "Issue Account",
                             "error": ex, "data": ""}
                         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
