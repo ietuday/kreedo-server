@@ -430,6 +430,7 @@ class DownloadCalendar(ListCreateAPIView):
             school = request.data.get('school', None)
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
+            academic_calendar = request.data.get('academic_calendar', None)
             
             result =  {}
             result['days'] = ['M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S', 'M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -525,7 +526,7 @@ class DownloadCalendar(ListCreateAPIView):
 
             elif calendar_type == 'academic-session-calendar':
                 school_calender_qs = SchoolCalendar.objects.filter(school=school)
-                acadamic_calender_qs = AcademicCalender.objects.filter(school=school)
+                acadamic_calender_qs = AcademicCalender.objects.filter(school=school, id=academic_calendar)
                 if len(school_calender_qs) is not 0 and len(acadamic_calender_qs) is not 0:
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(Q(school_calender=school_calender_qs[0].id)|Q(academic_calender=acadamic_calender_qs[0].id))
                     schoolHolidayListSerializer = SchoolHolidaySerializer(school_calender_holiday_qs, many=True)
