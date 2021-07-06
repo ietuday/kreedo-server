@@ -11,6 +11,7 @@ from kreedo.conf.logger import*
 import pdb
 from users.models import*
 
+
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -219,7 +220,6 @@ class ChildUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
-from plan.api.serializer import*
 class ChildSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -243,21 +243,21 @@ class ChildSerializer(serializers.ModelSerializer):
 
         child_id_qs = ChildPlan.objects.filter(child=child_id)
         if child_id_qs:
+            print("child_id_qs----", child_id_qs)
             child_id_serializer = ChildPlanOfChildSerializer(
                 child_id_qs, many=True)
             serialized_data['academic_session_data'] = child_id_serializer.data
+        
+        else:
+            serialized_data['academic_session_data'] = ""
         child_session_qs = ChildSession.objects.filter(child=child_id)
         if child_session_qs:
             child_session_serializer = ChildSessionListSerializer(
                 child_session_qs, many=True)
             serialized_data['session_details'] = child_session_serializer.data
-
-        # child_detail_qs = ChildDetail.objects.filter(child=child_id)
-        # if child_detail_qs:
-        #     child_detail_serializer = ChildDetailListSerializer(
-        #         child_detail_qs, many=True)
-        #     serialized_data['child_additional_details'] = child_detail_serializer.data
-
+        else:
+            serialized_data['session_details'] = ""
+       
         return serialized_data
 
 

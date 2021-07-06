@@ -185,3 +185,40 @@ class RegisterParentSerializer(serializers.ModelSerializer):
             print("errror", ex)
             print("TRACEBACK", traceback.print_exc())
             raise ValidationError(ex)
+
+
+
+
+
+""" Create parent serializer """
+class EdoofunParentSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ['id','email', 'first_name', 'last_name']
+
+    def create(self, validated_data):
+        """ Genrate Username """
+        try:
+            username = create_unique_username()
+            validated_data['username'] = username
+        except ValidationError:
+            raise ValidationError("Failed to genrate username")
+
+
+        user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=validated_data['first_name'],
+                                    last_name=validated_data['last_name'], is_active=True)
+        return user
+
+         
+            
+
+
+""" PArent detail serailizer """        
+class EdoofunParentDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDetail
+        fields = '__all__'
+
+
+
