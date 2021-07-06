@@ -102,7 +102,7 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
 
 
 class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
-    model = Period
+    # model = Period
     # serializer_class = ClassAccordingToTeacherSerializer
 
     def post(self, request):
@@ -110,9 +110,8 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             teacher = request.data.get('teacher', None)
-
             period_list_qs = Period.objects.filter(
-                teacher=teacher[0], start_date=request.data.get('start_date'))
+                teacher=teacher, start_date = request.data.get('start_date'))
 
             periods_lists = []
             dict = {}
