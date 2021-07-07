@@ -131,8 +131,11 @@ class SchoolWeakOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-""" School Holiday List By Academic Session """
 
+
+
+
+""" School Holiday List By Academic Session """
 
 class HolidayListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
