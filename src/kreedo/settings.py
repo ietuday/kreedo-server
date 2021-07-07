@@ -75,7 +75,8 @@ INSTALLED_APPS = [
     'material',
     'area_of_devlopment',
     'child',
-    'group'
+    'group',
+    'question_answer'
 ]
 
 MIDDLEWARE = [

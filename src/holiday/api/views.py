@@ -138,7 +138,7 @@ class HolidayListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
             holiday_qs = SchoolHoliday.objects.filter(academic_session=pk)
-            if holiday_qs:
+            if len(holiday_qs)==0:
                 holiday_qs_serializer = SchoolHolidayListSerializer(
                     holiday_qs, many=True)
                 return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)

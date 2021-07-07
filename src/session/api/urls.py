@@ -2,6 +2,7 @@ from django.urls import path, re_path
 from .views import*
 
 
+
 urlpatterns = [
     path('school_session_list_create', SchoolSessionListCreate.as_view(),
          name='SchoolSessionListCreate'),

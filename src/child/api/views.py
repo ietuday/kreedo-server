@@ -445,7 +445,7 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             academic_session = AcademicSession.objects.filter(
                 grade=grade, section=section)
             print("academic_session",academic_session)
-            if academic_session:
+            if len(academic_session) == 0:
                 child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
                 
@@ -476,7 +476,6 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 academic_qs_serializer = AcademicSessionForCalender(academic_id[0])
 
                 attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
-                print("attendence_qs------------", attendence_qs)
                 academic_qs_serializer
                 if len(attendence_qs)is not 0:
                     attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
@@ -484,9 +483,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                     return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
 
                 child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
-                # print("child_qs-----",child_qs)
                 child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
-                # print("@@@@@@@@@@@@@@ DATA---------", child_qs_serializer.data)
                 child_list =[]
                 child_data = {
                     "marked_status":False,
