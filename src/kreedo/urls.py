@@ -36,6 +36,7 @@ urlpatterns = [
     path('period/', include('period.api.urls')),
     path('child/', include('child.api.urls')),
     path('group/', include('group.api.urls')),
+    path('question_answer/', include('question_answer.api.urls'))
 
 
 
