@@ -5,6 +5,9 @@ from collections import OrderedDict
 import calendar
 from datetime import *
 
+from holiday.models import*
+from holiday.api.utils import*
+
 """ Genarte list of dates """
 def Genrate_Date_of_Year(start_date, end_date):
     try:
@@ -65,6 +68,7 @@ def Genrate_Month(start_date, end_date):
 
 
 from datetime import timedelta, date
+import traceback
 
 def daterange(date1, date2):
     for n in range(int ((date2 - date1).days)+1):
@@ -139,5 +143,51 @@ def months_by_month(months,generated_month_list):
 
 def covert_month_by_month(month):
     pass
+
+def calculate_working_days(month, year,date, request_data):
+    try:
+        total_no_of_days = calendar.monthrange(year,month)[1]
+        date_range_by_month = get_month_day_range(date)
+        print(request_data['calendar_type'])
+        if request_data['calendar_type'] == 'school-calender':
+            school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], school=request_data['school']).count()
+            print("####",school_holiday_count)
+            working_days = total_no_of_days - school_holiday_count
+        elif request_data['calendar_type'] == 'academic-session-calendar':                                                                                                                               
+            school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], academic_calender=request_data['academic_calendar']).count()
+            print("####",school_holiday_count)
+            working_days = total_no_of_days - school_holiday_count
+        elif request_data['calendar_type'] == 'section-calendar':
+            acadamic_session_qs = AcademicSession.objects.filter(grade=request_data['grade'], section=request_data['section'])
+            school_holiday_count = SchoolHoliday.objects.filter(holiday_from__lte=date_range_by_month['first_day'], holiday_till__gte=date_range_by_month['first_day'], academic_session=acadamic_session_qs[0].id).count()
+            print("####",school_holiday_count)
+            working_days = total_no_of_days - school_holiday_count
+        
+        return working_days
+
+    except Exception as Ex:
+        print(Ex)
+        print(traceback.print_exc())
+
+
+
+def get_month_day_range(date):
+    """
+    For a date 'date' returns the start and end date for the month of 'date'.
+
+    Month with 31 days:
+    >>> date = datetime.date(2011, 7, 27)
+    >>> get_month_day_range(date)
+    (datetime.date(2011, 7, 1), datetime.date(2011, 7, 31))
+
+    Month with 28 days:
+    >>> date = datetime.date(2011, 2, 15)
+    >>> get_month_day_range(date)
+    (datetime.date(2011, 2, 1), datetime.date(2011, 2, 28))
+    """
+    first_day = date.replace(day = 1)
+    last_day = date.replace(day = calendar.monthrange(date.year, date.month)[1])
+    return {"first_day": first_day, "last_day": last_day}
+
 
 
