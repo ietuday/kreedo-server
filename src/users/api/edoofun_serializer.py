@@ -156,6 +156,8 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
                         self.context.update(
                             {"user_detail": user_detail_serializer.data})
+                        send_temprorary_password_mail(
+                            user, user_detail_serializer.data, genrated_password)
 
                     else:
                         raise ValidationError(user_detail_serializer.errors)
@@ -187,15 +189,109 @@ class RegisterParentSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
+""" User Login Serialzer """
 
+
+class EdoofunUserLoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def to_representation(self, instance):
+        try:
+
+            instance = super(EdoofunUserLoginSerializer,
+                             self).to_representation(instance)
+            instance['token'] = self.context['token']
+
+            return instance
+        except Exception as ex:
+            raise ValidationError(ex)
+
+    def validate(self, validated_data):
+        try:
+            print("validated_data", validated_data)
+            email = validated_data.pop('email')
+            password = validated_data.pop('password')
+
+            """ validate email and password """
+            try:
+                email_password = validate_auth_user(email, password)
+            except Exception as ex:
+                raise ValidationError("Email and Password is required")
+
+            """ get username"""
+            try:
+
+                if email is not None:
+
+                    username = User.objects.get(
+                        email=email, is_active=True).username
+                    print("username-", username)
+                else:
+                    raise ValidationError("Email is required")
+            except Exception as ex:
+
+                raise ValidationError("Invalid Credentials, Try Again")
+
+            """ authenticate username and password """
+            try:
+                if username and password is not None:
+
+                    auth_user = authenticate_username_password(
+                        username, password)
+                else:
+                    raise ValidationError("Credentials is required")
+            except Exception as ex:
+                raise ValidationError("Credentials is required")
+
+            try:
+                if auth_user is not None:
+                    if auth_user.is_active:
+                        try:
+                            user_detail = UserDetail.objects.get(
+                                user_obj=auth_user)
+                            print("user_detail", user_detail)
+                            user_detail_serializer = UserDetailsSerializer(
+                                user_detail)
+                            token = genrate_token(auth_user)
+                            self.context.update({"token": token})
+                            data = "Login Successful"
+                            return data
+                        except Exception as ex:
+                            raise ValidationError(
+                                'Some issue in user detail.Please Check')
+                    else:
+                        raise ValidationError(
+                            "Sorry, this account is deactivated")
+                else:
+                    raise ValidationError(
+                        "Login failed ,Invalid Username and Password")
+
+            except Exception as ex:
+                print("ERROr-----11", ex)
+                print("TRACEBACK-------1", traceback.print_exc())
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError(ex)
+
+        except Exception as ex:
+            print("ERROr-----", ex)
+            print("TRACEBACK-------", traceback.print_exc())
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
 
 
 """ Create parent serializer """
+
+
 class EdoofunParentSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = User
-        fields = ['id','email', 'first_name', 'last_name']
+        fields = ['id', 'email', 'first_name', 'last_name']
 
     def create(self, validated_data):
         """ Genrate Username """
@@ -205,20 +301,15 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
         except ValidationError:
             raise ValidationError("Failed to genrate username")
 
-
         user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=validated_data['first_name'],
-                                    last_name=validated_data['last_name'], is_active=True)
+                                        last_name=validated_data['last_name'], is_active=True)
         return user
 
-         
-            
+
+""" PArent detail serailizer """
 
 
-""" PArent detail serailizer """        
 class EdoofunParentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
         fields = '__all__'
-
-
-

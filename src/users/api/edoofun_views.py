@@ -90,3 +90,32 @@ class RegisterParent(ListCreateAPIView):
             context = {"isSuccess": False, "message": "Issue in Parent Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" login Register """
+
+
+class LoginUserBasedOnEmailD(ListCreateAPIView):
+    model = User
+
+    def post(self, request):
+        try:
+
+            user_data_serializer = EdoofunUserLoginSerializer(
+                data=request.data)
+            if user_data_serializer.is_valid():
+                # context = {'isSuccess': True, 'message': "Login Successfull",
+                #            'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                # return Response(context, status=status.HTTP_200_OK)
+                return Response(user_data_serializer.data, status=status.HTTP_200_OK)
+            else:
+
+                # context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
+                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+                # return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            # context = {'isSuccess': False, 'message': "Something went wrong",
+            #            'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
+            # return Response(context,status=status.HTTP_400_BAD_REQUEST)
+            return Response(ex, status=status.HTTP_400_BAD_REQUEST)

@@ -19,3 +19,5 @@ class QuestionAnswer(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('QuestionAnswer_detail', kwargs={"pk": self.pk})
+
+        

@@ -5,8 +5,7 @@ from question_answer.models import*
 
 class QuestionAnswerFilter(filters.FilterSet):
     question = filters.CharFilter(field_name='question', lookup_expr='icontains')
-    answer = filters.CharFilter(
-        field_name='answer', lookup_expr='icontains')
+    answer = filters.CharFilter(field_name='answer', lookup_expr='icontains')
    
     class Meta:
         model = QuestionAnswer
