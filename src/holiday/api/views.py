@@ -120,12 +120,12 @@ class SchoolWeakOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             school_week_qs = SchoolWeakOff.objects.filter(academic_session=pk)
-
-            school_week_qs_serializer = SchoolWeakOffListSerializer(
-                school_week_qs, many=True)
-            return Response(school_week_qs_serializer.data, status=status.HTTP_200_OK)
-            # else:
-            #     return Response("Week-Off Not Found", status=status.HTTP_404_NOT_FOUND)
+            if school_week_qs:
+                school_week_qs_serializer = SchoolWeakOffListSerializer(
+                    school_week_qs, many=True)
+                return Response(school_week_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Week-Off Not Found", status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -139,12 +139,12 @@ class HolidayListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
         try:
             holiday_qs = SchoolHoliday.objects.filter(academic_session=pk)
             print("holiday_qs", holiday_qs)
-
-            holiday_qs_serializer = SchoolHolidayListSerializer(
-                holiday_qs, many=True)
-            return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)
-            # else:
-            #     return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+            if holiday_qs:
+                holiday_qs_serializer = SchoolHolidayListSerializer(
+                    holiday_qs, many=True)
+                return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
             logger.debug(ex)
