@@ -14,11 +14,16 @@ from .filters import*
 
 # Create your views here.
 
+
+
+""" Secret Question and answer list create """
+
 class SecretQuestionAnswerListCreate(GeneralClass,Mixins,ListCreateAPIView):
     model = QuestionAnswer
     filterset_class = QuestionAnswerFilter
     serializer_class = QuestionAnswerSerializer
 
+""" Secret Question and answer Retrive, Update and Delete """
 
 class SecretQuestionAnswerRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = QuestionAnswer

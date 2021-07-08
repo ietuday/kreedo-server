@@ -5,5 +5,7 @@ from .views import*
 urlpatterns = [
 
     path('secret_question_answer_list_create',SecretQuestionAnswerListCreate.as_view(), name='SecretQuestionAnswerListCreate'),
-    # path()
+    path('secret_question_answer_retrive_update_delete/<int:pk>', SecretQuestionAnswerRetriveUpdateDelete.as_view(),
+         name='SecretQuestionAnswerRetriveUpdateDelete'),
+         
 ]
