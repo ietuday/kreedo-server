@@ -9,8 +9,19 @@ from ..models import*
 
 
 
+""" Question answer Serializer """
 
 class QuestionAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionAnswer
         fields = '__all__'
+
+
+
+
+
+
+
+
+
+        

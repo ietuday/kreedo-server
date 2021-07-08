@@ -120,33 +120,31 @@ class SchoolWeakOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             school_week_qs = SchoolWeakOff.objects.filter(academic_session=pk)
-            if school_week_qs:
-                school_week_qs_serializer = SchoolWeakOffListSerializer(
-                    school_week_qs, many=True)
-                return Response(school_week_qs_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Week-Off Not Found", status=status.HTTP_404_NOT_FOUND)
+
+            school_week_qs_serializer = SchoolWeakOffListSerializer(
+                school_week_qs, many=True)
+            return Response(school_week_qs_serializer.data, status=status.HTTP_200_OK)
+            # else:
+            #     return Response("Week-Off Not Found", status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
-
-
 """ School Holiday List By Academic Session """
+
 
 class HolidayListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
             holiday_qs = SchoolHoliday.objects.filter(academic_session=pk)
-            if len(holiday_qs)==0:
-                holiday_qs_serializer = SchoolHolidayListSerializer(
-                    holiday_qs, many=True)
-                return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
+            print("holiday_qs", holiday_qs)
+
+            holiday_qs_serializer = SchoolHolidayListSerializer(
+                holiday_qs, many=True)
+            return Response(holiday_qs_serializer.data, status=status.HTTP_200_OK)
+            # else:
+            #     return Response("Holiday List Not Found", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
             logger.debug(ex)
@@ -234,16 +232,14 @@ class HolidayListOfMonthBySchool(GeneralClass, Mixins, ListCreateAPIView):
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
                                                              holiday_from__month=request.data.get('month', None), school=request.data.get('school', None))
-           
+
             school_holiday_qs_serializer = SchoolHolidaySerializer(
                 school_holiday_qs, many=True)
             return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
-        
+
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 
 """ Holiday List of month  According to Academic Session """
@@ -254,88 +250,101 @@ class HolidayListOfMonthByAcademicSession(GeneralClass, Mixins, ListCreateAPIVie
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
                                                              holiday_from__month=request.data.get('month', None), academic_session=request.data.get('academic_session', None))
-           
+
             school_holiday_qs_serializer = SchoolHolidaySerializer(
                 school_holiday_qs, many=True)
             return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
-           
+
         except Exception as ex:
-         
+
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 """ Week off by  academic_calender """
-class  WeekOffByAcademicCalender(GeneralClass, Mixins, ListCreateAPIView):
-    def get(self, request,pk):
+
+
+class WeekOffByAcademicCalender(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
         try:
 
             week_off_qs = SchoolWeakOff.objects.filter(academic_calender=pk)[0]
             week_off_qs_serializer = SchoolWeakOffListSerializer(week_off_qs)
             return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
-    
+
         except Exception as ex:
             print("ERROR-----------", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Week off by  academic_session """
-class  WeekOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
-    def get(self, request,pk):
+
+
+class WeekOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
         try:
 
             week_off_qs = SchoolWeakOff.objects.filter(academic_session=pk)
-            week_off_qs_serializer = SchoolWeakOffListSerializer(week_off_qs, many=True)
+            week_off_qs_serializer = SchoolWeakOffListSerializer(
+                week_off_qs, many=True)
             return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
-    
+
         except Exception as ex:
-           
+
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Holiday List According to  month , year , academic_calender id """
-class HolidayListOfMonthByAcademicCalender(GeneralClass,Mixins, ListCreateAPIView):
+
+
+class HolidayListOfMonthByAcademicCalender(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             school_holiday_qs = SchoolHoliday.objects.filter(holiday_from__year=request.data.get('year', None),
-                                holiday_from__month=request.data.get('month', None), academic_calender=request.data.get('academic_calender', None))
-           
+                                                             holiday_from__month=request.data.get('month', None), academic_calender=request.data.get('academic_calender', None))
+
             school_holiday_qs_serializer = SchoolHolidaySerializer(
                 school_holiday_qs, many=True)
             return Response(school_holiday_qs_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR----", ex)
-        
+
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 """ Download Calender of School holiday """
+
+
 class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         type = request.data.get('type', None)
         try:
             holiday_list = []
             if type == 'school':
-                school_holiday_qs = SchoolHoliday.objects.filter(school=request.data.get('school', None))
+                school_holiday_qs = SchoolHoliday.objects.filter(
+                    school=request.data.get('school', None))
                 school_id = request.data.get('school', None)
-               
-            elif type == 'academic_calender':
-                school_holiday_qs = SchoolHoliday.objects.filter(academic_calender=request.data.get('academic_calender', None))
-                school_id = request.data.get('academic_calender', None)
-            
-            elif type == 'academic_session':
-                school_holiday_qs = SchoolHoliday.objects.filter(academic_session=request.data.get('academic_session', None))
-                school_id = request.data.get('academic_session', None)
-            
 
-            for data in school_holiday_qs: 
-          
+            elif type == 'academic_calender':
+                school_holiday_qs = SchoolHoliday.objects.filter(
+                    academic_calender=request.data.get('academic_calender', None))
+                school_id = request.data.get('academic_calender', None)
+
+            elif type == 'academic_session':
+                school_holiday_qs = SchoolHoliday.objects.filter(
+                    academic_session=request.data.get('academic_session', None))
+                school_id = request.data.get('academic_session', None)
+
+            for data in school_holiday_qs:
+
                 holiday_list.append(
                     {
-                        "title" :data.title,
-                        "description" :data.description,
-                        "holiday_from" :data.holiday_from,
-                        "holiday_till" :data.holiday_till,
-                        "holiday_type" :data.holiday_type,
-                        "is_active" :data.is_active
+                        "title": data.title,
+                        "description": data.description,
+                        "holiday_from": data.holiday_from,
+                        "holiday_till": data.holiday_till,
+                        "holiday_type": data.holiday_type,
+                        "is_active": data.is_active
                     }
                 )
 
@@ -347,12 +356,12 @@ class DownloadListOfHolidaysInCSVBySchool(GeneralClass, Mixins, ListCreateAPIVie
                 dict_writer.writerows(holiday_list)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file(name, 'kreedo-new' , 'files/'+name)
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/'+name
+            fs.bucket.meta.client.upload_file(
+                name, 'kreedo-new', 'files/'+name)
+            path_to_file = 'https://' + str(fs.custom_domain) + '/files/'+name
             print(path_to_file)
             return Response(path_to_file, status=status.HTTP_200_OK)
 
-            
         except Exception as ex:
             print(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
