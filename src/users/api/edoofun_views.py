@@ -104,18 +104,74 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
             user_data_serializer = EdoofunUserLoginSerializer(
                 data=request.data)
             if user_data_serializer.is_valid():
-                # context = {'isSuccess': True, 'message': "Login Successfull",
-                #            'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
-                # return Response(context, status=status.HTTP_200_OK)
-                return Response(user_data_serializer.data, status=status.HTTP_200_OK)
+                context = {'isSuccess': True, 'message': "Login Successfull",
+                           'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response(user_data_serializer.data, status=status.HTTP_200_OK)
             else:
 
-                # context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
-                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
-                # return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
+                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+                return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            # context = {'isSuccess': False, 'message': "Something went wrong",
-            #            'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
-            # return Response(context,status=status.HTTP_400_BAD_REQUEST)
-            return Response(ex, status=status.HTTP_400_BAD_REQUEST)
+            context = {'isSuccess': False, 'message': "Something went wrong",
+                       'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
+            return Response(context,status=status.HTTP_400_BAD_REQUEST)
+            # return Response(ex, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+"""Get All ACCOUNT """
+class GetAllAccounts(ListCreateAPIView):
+    def get(self, request):
+        try:
+            roles = Role.objects.get(name='School Account Owner')
+            roles=roles.id
+            
+            user_obj = UserDetail.objects.filter(role=roles)
+            if user_obj:
+            
+                user_obj_serializer = AccountUserSerializer(user_obj, many=True)
+
+                context = {'isSuccess': True, 'message': "Accounts List",
+                            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                context = {'isSuccess': False, 'message': "Accounts List Not Found",
+                            'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+            print("@@@@@@@@", ex)
+            print("TRACEBACK---", traceback.print_exc())
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+
+
+"""  Get UsersBasedOnSchoolID """
+class UserListBySchool(ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+
+            user_role = UserRole.objects.filter(school=pk)
+            if user_role:
+                user_role_serializer = SchoolUserRoleSerializer(user_role, many=True)
+
+                context = {'isSuccess': True, 'message': "User List By School",
+                            'data': user_role_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': True, 'message': "User List By School Not Found",
+                            'data': " ", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("@@@@@@@@", ex)
+            print("TRACEBACK---", traceback.print_exc())
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
