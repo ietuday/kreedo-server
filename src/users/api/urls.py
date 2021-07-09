@@ -43,7 +43,12 @@ urlpatterns = [
          name='SchoolListByUser'),
     path('user_role_retrive_update_delete/<int:pk>', UserRoleRetriveUpdateDestroy.as_view(),
          name='UserRoleRetriveUpdateDestroy'),
+    path('user_list_by_school/<int:pk>',
+         UserListBySchoolID.as_view(), name='User List By School'), 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
+
+
+
 
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
