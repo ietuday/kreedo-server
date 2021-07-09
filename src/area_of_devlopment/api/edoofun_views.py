@@ -49,11 +49,18 @@ class SkillListByConcept(ListCreateAPIView):
     def get(self, request, pk):
         try:
             skill_qs = Skill.objects.filter(concept=pk)
-            skill_qs_serializer = SkillSerializer(skill_qs, many=True)
+            if skill_qs:
+                skill_qs_serializer = SkillSerializer(skill_qs, many=True)
 
-            context = {'isSuccess': True, 'message': "Skill List by Concept ID",
-                            'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context, status=status.HTTP_200_OK)
+                context = {'isSuccess': True, 'message': "Skill List by Concept ID",
+                                'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': True, 'message': "Skill List by Concept ID Not foune",
+                                'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
         except Exception as ex:
             context = {'isSuccess': False, "error": ex,
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
