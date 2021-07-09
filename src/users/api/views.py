@@ -850,20 +850,16 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
         try:
            
             user_role = UserRole.objects.filter(school=pk)
+
             if user_role:
                 user_role_serializer = SchoolUserRoleSerializers(user_role, many=True)
-
                 return Response(user_role_serializer.data, status=status.HTTP_200_OK)
             else:
 
                 return Response(user_role_serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
-            print("@@@@@@@@", ex)
-            print("TRACEBACK---", traceback.print_exc())
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
-
 
 import os
 import ast
