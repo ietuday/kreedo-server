@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from .views import*
-
+from .edoofun_views import*
 
 urlpatterns = [
      path('grade_list_create', GradeListCreate.as_view(), name='GradeListCreate'),
@@ -44,6 +44,8 @@ urlpatterns = [
      path('bulk-upload/add-grade',
           AddGrade.as_view(), name='AddGrade'),
 
-
+     path('edoofun/active_school_list',
+         ActiveSchoolList.as_view(), name='Get All School list'),
+     
 
 ]

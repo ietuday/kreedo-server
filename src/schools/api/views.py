@@ -24,9 +24,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-""" 
-    Packages for uploading csv
-"""
 
 # Create your views here.
 
