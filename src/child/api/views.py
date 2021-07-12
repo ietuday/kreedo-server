@@ -524,7 +524,7 @@ class AddChild(ListCreateAPIView):
             added_child = []
 
             for i, f in enumerate(df, start=1):
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     child_qs = Child.objects.filter(id=f['id'])[0]
                     child_qs.first_name = f['first_name']
@@ -546,7 +546,8 @@ class AddChild(ListCreateAPIView):
                         child_plan_qs.class_teacher = da['class_teacher']
                         child_plan_qs.curriculum_start_date = da['curriculum_start_date']
                         child_plan_qs.save()
-                    added_child.append(child_qs)
+                    child_serializer = ChildSerializer(child_qs)
+                    added_child.append(child_serializer.data)
                     parents_data = f.get('parents_id', None)
                     print(parents_data)
                     for i in parents_data:
@@ -560,7 +561,7 @@ class AddChild(ListCreateAPIView):
                         user_detail_qs.joining_date = f.get('joining_date', None)
                         user_detail_qs.save()
 
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     child_qs = Child.objects.filter(id=f['id'])[0]
                     child_plan_qs = ChildPlan.objects.filter(child = child_qs['id'])[0]
@@ -569,7 +570,8 @@ class AddChild(ListCreateAPIView):
                         user_detail_qs = UserDetail.objects.filter(user_obj=user_qs['id'])[0]
                         user_detail_qs.delete()
                         user_qs.delete()
-                    added_child.append(child_qs)
+                    child_serializer = ChildSerializer(child_qs)
+                    added_child.append(child_serializer.data)
                     child_plan_qs.delete()
                     child_qs.delete()
 
@@ -645,8 +647,8 @@ class AddChild(ListCreateAPIView):
                         if child_serializer.is_valid():
                             child_serializer.save()
                             print("child Create")
-                            # added_child.append(
-                            #     child_serializer.data)
+                            added_child.append(
+                                child_serializer.data)
                             print(child_serializer.data)
                         else:
                             raise ValidationError(child_serializer.errors)
@@ -665,31 +667,35 @@ class AddChild(ListCreateAPIView):
                         print("da",da['academic_calender'])
                         acadmic_ids = AcademicSession.objects.filter(academic_calender=da['academic_calender'],
                                                          grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')
-                       
-                        acadmic_ids = acadmic_ids[0]['id']
-                        print("####", acadmic_ids)
-                        child_plan_data = {
-                            "child":child_serializer.data['id'],
-                            "academic_session":acadmic_ids,
-                            "subjects": da['subjects'],
-                            "class_teacher": da['class_teacher'],
-                            "curriculum_start_date": da['curriculum_start_date'],
-                            "is_active":"TRUE"
-                        }
-                        try:
-                            childplan_serializer = ChildPlanCreateSerailizer(data=dict(child_plan_data))
-                            if childplan_serializer.is_valid():
-                                childplan_serializer.save()
-                                added_child.append(childplan_serializer.data)
-                                print("child_plan Create")
-                                
-                            else:
-                                raise ValidationError(childplan_serializer.errors)
-                        except Exception as ex:
-                            print("error", ex)
-                            print("traceback", traceback.print_exc())
-                            logger.debug(ex)
-                            return Response(ex)
+
+                        if len(acadmic_ids) != 0: 
+
+                            acadmic_ids = acadmic_ids[0]['id']
+                            print("####", acadmic_ids)
+                            child_plan_data = {
+                                "child":child_serializer.data['id'],
+                                "academic_session":acadmic_ids,
+                                "subjects": da['subjects'],
+                                "class_teacher": da['class_teacher'],
+                                "curriculum_start_date": da['curriculum_start_date'],
+                                "is_active":"TRUE"
+                            }
+                            try:
+                                childplan_serializer = ChildPlanCreateSerailizer(data=dict(child_plan_data))
+                                if childplan_serializer.is_valid():
+                                    childplan_serializer.save()
+                                    # added_child.append(childplan_serializer.data)
+                                    print("child_plan Create")
+                                    
+                                else:
+                                    raise ValidationError(childplan_serializer.errors)
+                            except Exception as ex:
+                                print("error", ex)
+                                print("traceback", traceback.print_exc())
+                                logger.debug(ex)
+                                return Response(ex)
+                        else:
+                            print("acadmic_ids not found")
 
             keys = added_child[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
