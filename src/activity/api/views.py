@@ -164,7 +164,7 @@ class AddActivity(ListCreateAPIView):
                 f['master_material']= ast.literal_eval(f['master_material'])
                 f['supporting_material']= ast.literal_eval(f['supporting_material'])
                 f['subject']= ast.literal_eval(f['subject'])
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
                     activity_qs.name = f['name']
@@ -178,7 +178,7 @@ class AddActivity(ListCreateAPIView):
                     activity_qs.created_by = f['created_by']
                     activity_qs.save()
                     added_activity.append(activity_qs)
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
                     added_activity.append(activity_qs)
