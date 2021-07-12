@@ -445,7 +445,9 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             academic_session = AcademicSession.objects.filter(
                 grade=grade, section=section)
             print("academic_session",academic_session)
-            if len(academic_session) == 0:
+            print("academic_session",len(academic_session))
+
+            if len(academic_session) != 0:
                 child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
                 
