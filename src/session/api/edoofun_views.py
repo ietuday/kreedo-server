@@ -29,6 +29,7 @@ class SectionListBySchool(ListCreateAPIView):
                 section_qs_serializer = SectionListBySchoolSerializer(
                     section_qs, many=True)
 
+
                 context = {'isSuccess': True, 'message': "Section List",
                            'data': section_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
@@ -43,3 +44,7 @@ class SectionListBySchool(ListCreateAPIView):
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+

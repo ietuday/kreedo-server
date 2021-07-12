@@ -39,7 +39,7 @@ urlpatterns = [
          name='DownloadCalendar'),
     path('school_calendar_by_school/<int:pk>', SchoolCalendarBySchool.as_view(),
          name='SchoolCalendarBySchool'),
-
+         
     path('edoofun/section_list_by_school/<int:pk>',
          SectionListBySchool.as_view(), name='Section List By School'),
 
