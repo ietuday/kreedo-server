@@ -14,7 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('scheduler.log')
+handler = logging.FileHandler('edoofun_scheduler.log')
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(CustomFormatter())
 

@@ -34,8 +34,7 @@ class ActiveSchoolList(ListCreateAPIView):
                             'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
-            print("@@@@@@@@", ex)
-            print("TRACEBACK---", traceback.print_exc())
+           
             context = {'isSuccess': False, "error": ex,
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
