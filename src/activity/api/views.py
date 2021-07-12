@@ -3,6 +3,7 @@ from .serializer import*
 from .filters import*
 from kreedo.general_views import*
 from activity.models import*
+from users.models import*
 
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
@@ -167,21 +168,25 @@ class AddActivity(ListCreateAPIView):
                 if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
+                    
                     activity_qs.name = f['name']
                     activity_qs.type = f['type']
                     activity_qs.objective = f['objective']
                     activity_qs.description = f['description']
-                    activity_qs.master_material = f['master_material']
-                    activity_qs.subject = f['subject']
-                    activity_qs.supporting_material = f['supporting_material']
+                    activity_qs.master_material.set(f['master_material'])
+                    activity_qs.subject.set(f['subject'])
+                    activity_qs.supporting_material.set(f['supporting_material'])
                     activity_qs.is_active = f['is_active']
-                    activity_qs.created_by = f['created_by']
+                    activity_qs.created_by = UserDetail.objects.filter(user_obj=f['created_by'])[0]
                     activity_qs.save()
-                    added_activity.append(activity_qs)
+                    activity_serializer = ActivityCreateSerializer(activity_qs)
+                    added_activity.append(activity_serializer.data)
                 elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
-                    added_activity.append(activity_qs)
+                    activity_serializer = ActivityCreateSerializer(activity_qs)
+                    added_activity.append(activity_serializer.data)
+                    # added_activity.append(activity_qs)
                     activity_qs.delete()
                 else:
                     print("Create")
@@ -209,7 +214,8 @@ class AddActivity(ListCreateAPIView):
                         print(activity_serializer.data)
                     else:
                         raise ValidationError(activity_serializer.errors)
-
+            print(added_activity[0])
+            print(added_activity[0].keys())
             keys = added_activity[0].keys()
             with open('output.csv', 'w', newline='') as output_file:
                 dict_writer = csv.DictWriter(output_file, keys)
@@ -230,6 +236,7 @@ class AddActivity(ListCreateAPIView):
         except Exception as ex:
             print(ex)
             logger.debug(ex)
+            print(traceback.print_exc())
             context = {"isSuccess": False, "message": "Issue Activity",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
