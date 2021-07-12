@@ -226,7 +226,7 @@ class AddPlan(ListCreateAPIView):
             added_plan = []
 
             for i, f in enumerate(df, start=1):
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     plan_qs = Plan.objects.filter(id=f['id'])[0]
                     plan_qs.name = f['name']
@@ -234,13 +234,15 @@ class AddPlan(ListCreateAPIView):
                     plan_qs.activity = f['activity']
                     plan_qs.is_active = f['is_active']
                     plan_qs.save()
-                    added_plan.append(plan_qs)
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    plan_serializer = PlanSerailizer(plan_qs) 
+                    added_plan.append(plan_serializer.data)
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     plan_qs = Plan.objects.filter(id=f['id'])[0]
                     plan_activity_qs = PlanActivity.objects.filter(
                         plan=plan_qs['id'])
-                    added_plan.append(plan_qs)
+                    plan_serializer = PlanSerailizer(plan_qs) 
+                    added_plan.append(plan_serializer.data)
                     plan_qs.delete()
                 else:
                     print("Create")
@@ -294,7 +296,7 @@ class AddPlan(ListCreateAPIView):
             # return Response(path_to_file)
 
         except Exception as ex:
-
+            print(traceback.print_exc())
             logger.debug(ex)
             context = {
                     "isSuccess": False, "message": "Issue on Plan", "error": ex, "data": ""}
