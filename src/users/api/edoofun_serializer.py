@@ -48,6 +48,24 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
 
+""" Auth User Serializer """
+
+class AuthUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id','username','first_name','last_name','email','is_active']
+
+
+class AccountUserSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 3
+    
+   
 
 """ User Role Serializer"""
 
@@ -282,6 +300,24 @@ class EdoofunUserLoginSerializer(serializers.ModelSerializer):
             logger.info(ex)
             logger.debug(ex)
             raise ValidationError(ex)
+
+
+
+
+
+""" User Role Serializer"""
+
+
+class SchoolUserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 1
+
+
+
+
+
 
 
 """ Create parent serializer """

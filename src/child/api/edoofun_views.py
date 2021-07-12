@@ -45,15 +45,12 @@ logger.info("UTILS CAlled ")
 class RegisterChild(ListCreateAPIView):
     def post(self, request):
         try:
-
             child_detail = {
                 "photo": request.data.get('photo', None),
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
                 "date_of_birth": request.data.get('date_of_birth', None)
-
             }
-
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
@@ -62,9 +59,10 @@ class RegisterChild(ListCreateAPIView):
                 "grade": request.data.get('grade', None),
                 "class_teacher": request.data.get('class_teacher', None),
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
-                "subjects": request.data.get('subjects', None)
-
+                "subjects": request.data.get('subjects', None) 
             }
+
+
 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
@@ -85,7 +83,6 @@ class RegisterChild(ListCreateAPIView):
                         print("CHILD-----", child)
                         return Response("Parent with childrent already in kreedo")
 
-            # if User.objects.filters(first_name=)
             # try:
 
             #     child_detail_serializer = ChildRegisterSerializer(

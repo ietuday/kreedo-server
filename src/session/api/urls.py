@@ -1,7 +1,6 @@
 from django.urls import path, re_path
 from .views import*
-
-
+from .edoofun_views import*
 
 urlpatterns = [
     path('school_session_list_create', SchoolSessionListCreate.as_view(),
@@ -32,19 +31,18 @@ urlpatterns = [
          name='AcademicCalenderBySchool'),
     path('class_teacher_by_academic_calender', ClassTeacherByAcademicCalenderGrade.as_view(),
          name='ClassTeacherByAcademicCalenderGrade'),
-
-
     path('grade_list_by_academic_calender/<int:pk>', GradeLisbyAcademicSession.as_view(),
          name='GradeLisbyAcademicSession'),
-
     path('associate_academic_session/<int:pk>', AssociateAcademicSession.as_view(),
          name='AssociateAcademicSession'),
-
     path('download_calendar', DownloadCalendar.as_view(),
          name='DownloadCalendar'),
-
     path('school_calendar_by_school/<int:pk>', SchoolCalendarBySchool.as_view(),
          name='SchoolCalendarBySchool'),
+
+    path('edoofun/section_list_by_school/<int:pk>',
+         SectionListBySchool.as_view(), name='Section List By School'),
+
 
 
 ]

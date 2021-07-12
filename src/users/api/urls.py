@@ -43,7 +43,12 @@ urlpatterns = [
          name='SchoolListByUser'),
     path('user_role_retrive_update_delete/<int:pk>', UserRoleRetriveUpdateDestroy.as_view(),
          name='UserRoleRetriveUpdateDestroy'),
+    path('user_list_by_school/<int:pk>',
+         UserListBySchoolID.as_view(), name='User List By School'), 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
+
+
+
 
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
@@ -54,10 +59,11 @@ urlpatterns = [
 
     path('edoofun/register_parent',
          RegisterParent.as_view(), name='Register Parent'),
-
     path('edoofun/login_user_by_email_id',
-         LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD')
-
-
+         LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD'),
+    path('edoofun/get_all_account',
+         GetAllAccounts.as_view(), name='Get All Accounts'),
+   path('edoofun/user_list_by_school/<int:pk>',
+         UserListBySchool.as_view(), name='User List By School'),
 
 ]
