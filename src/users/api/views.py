@@ -1055,7 +1055,7 @@ class AddSchool(ListCreateAPIView):
                 # licence_start = f.get('licence_start', None)
                 # licence_start = licence_start.strftime('%Y-%m-%d')
                 # print(licence_start)
-                if not math.isnan(f['id']) and f['isDeleted'] == False:
+                if not math.isnan(f['id']) and f['is_Deleted'] == False:
                     school_qs = School.objects.filter(id=f['id'])[0]
                     address_qs = Address.objects.filter(id=school_qs['address'])[0]
                     address_qs.address = f.get('address', None)
@@ -1092,7 +1092,7 @@ class AddSchool(ListCreateAPIView):
                             "school": school_qs.data['id']
                         }
                     )
-                elif not math.isnan(f['id']) and f['isDeleted'] == True:
+                elif not math.isnan(f['id']) and f['is_Deleted'] == True:
                     school_qs = School.objects.filter(id=f['id']).delete()
                     SchoolCalender.objects.filter(school=school_qs['id']).delete()
                     UserRole.objects.filter(school=school_qs['id']).delete()
