@@ -34,6 +34,11 @@ urlpatterns = [
      path('bulk-upload/add-child-session',
           AddChildSession.as_view(), name='AddChildSession'),
 
-     path('edoofun/register_child', RegisterChild.as_view(),name='Register Parent')
+     path('edoofun/register_child', RegisterChild.as_view(),name='Register Parent'),
+
+     path('edoofun/child_list_by_section_id', ChildListAssociatedToSectionID.as_view(),
+          name='Child List Associated To SectionID')
+
+
 
 ]

@@ -59,9 +59,10 @@ class Child(TimestampAwareModel):
     parent = models.ManyToManyField(to='users.UserDetail', blank=True)
     registered_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by', null=True, blank=True)
-
     reason_for_discontinue = models.TextField(null=True, blank=True)
-
+    school_name = models.CharField(max_length=100, null=True, blank=True)
+    class_teacher = models.CharField(max_length=100, null=True, blank=True)
+    account_manager = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     objects = ChildManager
 

@@ -70,34 +70,34 @@ class RegisterChild(ListCreateAPIView):
                 {"child_detail": child_detail, "parent_detail": parent_detail,
                  "academic_session_detail": academic_session_detail})
 
-            for i, f in enumerate(request.data.get('parents', None), start=1):
-                print("PARENT----------", f['first_name'])
-                if User.objects.filter(first_name=f['first_name'], last_name=f['last_name'], email=f['email']).exists():
-                    parent_id = User.objects.filter(
-                        first_name=f['first_name'], last_name=f['last_name'], email=f['email'])
-                    for parent in parent_id:
-                        print("PARENT ID-------", parent.id)
-                        id_parent = UserDetail.objects.filter(
-                            user_obj=parent.id)
-                        child = Child.objects.filter(parent__in=id_parent)
-                        print("CHILD-----", child)
-                        return Response("Parent with childrent already in kreedo")
+            # for i, f in enumerate(request.data.get('parents', None), start=1):
+            #     print("PARENT----------", f['first_name'])
+            #     if User.objects.filter(first_name=f['first_name'], last_name=f['last_name'], email=f['email']).exists():
+            #         parent_id = User.objects.filter(
+            #             first_name=f['first_name'], last_name=f['last_name'], email=f['email'])
+            #         for parent in parent_id:
+            #             print("PARENT ID-------", parent.id)
+            #             id_parent = UserDetail.objects.filter(
+            #                 user_obj=parent.id)
+            #             child = Child.objects.filter(parent__in=id_parent)
+            #             print("CHILD-----", child)
+            #             return Response("Parent with childrent already in kreedo")
 
-            # try:
+            try:
 
-            #     child_detail_serializer = ChildRegisterSerializer(
-            #         data=dict(child_detail), context=context)
-            #     if child_detail_serializer.is_valid():
-            #         child_detail_serializer.save()
-            #         return Response(child_detail_serializer.data)
-            #     else:
-            #         return Response(child_detail_serializer.errors)
+                child_detail_serializer = ChildRegisterSerializer(
+                    data=dict(child_detail), context=context)
+                if child_detail_serializer.is_valid():
+                    child_detail_serializer.save()
+                    return Response(child_detail_serializer.data)
+                else:
+                    return Response(child_detail_serializer.errors)
 
-            # except Exception as ex:
-            #     print("ERROR---1", ex)
-            #     context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #            "error": ex, "data": ""}
-            #     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            except Exception as ex:
+                print("ERROR---1", ex)
+                context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
@@ -105,3 +105,27 @@ class RegisterChild(ListCreateAPIView):
             context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+""" child list by section id """
+
+class ChildListAssociatedToSectionID(ListCreateAPIView):
+    def post(self, request):
+        try:
+            print(request)
+            # if request.data['school'] == school:
+
+
+
+
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+

@@ -247,17 +247,17 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             child = request.data.get('child', None)
             period = request.data.get('period', None)
 
-            activity_missed_qs = ActivityComplete.objects.filter(child__id=child,
+            activity_missed_qs = ActivityComplete.objects.filter(child=child,
                                                                  period=period)
-            activity_missed_serializer = ActivityCompleteListChildSerilaizer(
-                activity_missed_qs, many=True)
-            # context = {"message": "Activity List by Child",
-            #            "data": activity_missed_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(activity_missed_serializer.data, status=status.HTTP_200_OK)
 
+            if len(activity_missed_qs) !=0:                                                    
+                activity_missed_serializer = ActivityCompleteListChildSerilaizer(
+                    activity_missed_qs, many=True)
+                return Response(activity_missed_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Activity Complete list by child is not found",status=status.HTTP_404_NOT_FOUND )
         except Exception as ex:
-            #     context = {"error": ex, 'isSuccess': False,
-            #                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+         
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
