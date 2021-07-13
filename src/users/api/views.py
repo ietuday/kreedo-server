@@ -846,11 +846,14 @@ class UserRoleRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
 
 """  Get UsersBasedOnSchoolID """
 class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
+    model = UserRole
+    filterset_class = UserRoleFilter
+    
     def get(self, request,pk):
         try:
            
             user_role = UserRole.objects.filter(school=pk)
-
+            print(user_role)
             if user_role:
                 user_role_serializer = SchoolUserRoleSerializers(user_role, many=True)
                 return Response(user_role_serializer.data, status=status.HTTP_200_OK)
