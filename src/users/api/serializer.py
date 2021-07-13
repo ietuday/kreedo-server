@@ -712,10 +712,11 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
 
 
 class SchoolUserRoleSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
     class Meta:
         model = UserRole
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 
