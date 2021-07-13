@@ -13,7 +13,6 @@ from django.shortcuts import render
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -25,12 +24,11 @@ class SectionListBySchool(ListCreateAPIView):
     def get(self, request, pk):
         try:
             section_qs = AcademicSession.objects.filter(school=pk)
-            if section_qs:
+            if len(section_qs) != 0:
                 section_qs_serializer = SectionListBySchoolSerializer(
                     section_qs, many=True)
 
-
-                context = {'isSuccess': True, 'message': "Section List",
+                context = {'isSuccess': True, 'message': "Section List by school",
                            'data': section_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
@@ -44,7 +42,3 @@ class SectionListBySchool(ListCreateAPIView):
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
