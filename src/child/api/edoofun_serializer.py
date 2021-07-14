@@ -43,27 +43,22 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
 
-            validated_data = self.context['child_detail']
-
-            child = super(ChildCreateSerializer, self).create(validated_data)
-
             parents_detail = self.context['parent_detail']['parents']
 
             parent_list = []
             for parent in parents_detail:
 
                 try:
-
                     parent_serializer = EdoofunParentSerializer(data=dict(parent))
                     if parent_serializer.is_valid():
                         parent_serializer.save()
+                        print("parent_serializer------",parent_serializer.data)
                         parent_data = {
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
                             "phone": parent['phone'],
                             "gender":parent['gender'],
                             "photo":parent['photo']
-
                         }
                         parent_detail_serializer = EdoofunParentDetailSerializer(
                             data=dict(parent_data))
@@ -73,9 +68,11 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                             parent_list.append(parent_id)
                         else:
 
+                            print("#$@$%%%%%%%%%%%%#")
                             raise ValidationError(parent_detail_serializer.errors)
 
                     else:
+                        
                         raise ValidationError(parent_serializer.errors)
 
                 except Exception as ex:
@@ -84,45 +81,46 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
 
                     raise ValidationError(ex)
 
-            validated_data['parent'] = parent_list
+            # validated_data['parent'] = parent_list
 
-            child.parent.set(validated_data['parent'])
+            # child.parent.set(validated_data['parent'])
 
+            self.context['child_detail']['parents'] = parent_list
+            validated_data = self.context['child_detail']
+     
+            child = super(ChildRegisterSerializer, self).create(validated_data)
+            print("child Created")
             child.save()
-
-            acad_session = self.context['academic_session_detail']['academic_session']
             section = self.context['academic_session_detail']['section']
             grade = self.context['academic_session_detail']['grade']
-            class_teacher = self.context['academic_session_detail']['class_teacher']
 
-            acadmic_ids = AcademicSession.objects.filter(id=acad_session,
-                                                         grade=grade, section=section, class_teacher=class_teacher).values('id')[0]['id']
+            acadmic_ids = AcademicSession.objects.filter(grade=grade, section=section)
+            if len(acadmic_ids) !=0:
+                child_id = child.id
+                academic_session_detail = {
+                    "child":child_id,
+                    "academic_session": acadmic_ids,
+                    }
+                """  create child plan """
+
+                try:
+
+                    child_plan_serializer = ChildPlanCreateSerailizer(
+                        data=dict(academic_session_detail))
+                    if child_plan_serializer.is_valid():
+                        child_plan_serializer.save()
+
+                    else:
+                        raise ValidationError(child_plan_serializer.errors)
+                except Exception as ex:
+                    print("@@@@@@@@@@@@@@", ex)
+                    logger.debug(ex)
+                    logger.info(ex)
+                    raise ValidationError(ex)
+            else:
+                print("Child plan not created")
+
             
-            child_id = child.id
-            academic_session_detail = {
-                "child":child_id,
-                "academic_session": acadmic_ids,
-                "subjects": self.context['academic_session_detail']['subjects'],
-                "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
-            }
-            """  create child plan """
-
-            try:
-
-                child_plan_serializer = ChildPlanCreateSerailizer(
-                    data=dict(academic_session_detail))
-                if child_plan_serializer.is_valid():
-                    child_plan_serializer.save()
-
-                else:
-                    raise ValidationError(child_plan_serializer.errors)
-            except Exception as ex:
-                print("@@@@@@@@@@@@@@", ex)
-                logger.debug(ex)
-                logger.info(ex)
-                raise ValidationError(ex)
-
-            return child
            
 
         except Exception as ex:
