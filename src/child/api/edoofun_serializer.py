@@ -43,90 +43,90 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
 
-            validated_data = self.context['child_detail']
-
-            child = super(ChildCreateSerializer, self).create(validated_data)
-
             parents_detail = self.context['parent_detail']['parents']
 
             parent_list = []
             for parent in parents_detail:
 
                 try:
-
-                    parent_serializer = EdoofunParentSerializer(data=dict(parent))
+                    parent_serializer = EdoofunParentSerializer(
+                        data=dict(parent))
                     if parent_serializer.is_valid():
                         parent_serializer.save()
-                        parent_data = {
-                            "user_obj": parent_serializer.data['id'],
-                            "relationship_with_child": parent['relationship_with_child'],
-                            "phone": parent['phone'],
-                            "gender":parent['gender'],
-                            "photo":parent['photo']
 
-                        }
-                        parent_detail_serializer = EdoofunParentDetailSerializer(
-                            data=dict(parent_data))
-                        if parent_detail_serializer.is_valid():
-                            parent_detail_serializer.save()
-                            parent_id = parent_detail_serializer.data['user_obj']
-                            parent_list.append(parent_id)
+                        if parent_serializer.data['msg'] == 'user create':
+
+                            parent_data = {
+                                "user_obj": parent_serializer.data['user_obj'],
+                                "relationship_with_child": parent['relationship_with_child'],
+                                "phone": parent['phone'],
+                                "gender": parent['gender'],
+                                "photo": parent['photo'],
+                                "role": []
+                            }
+                            parent_detail_serializer = EdoofunParentDetailSerializer(
+                                data=dict(parent_data))
+                            if parent_detail_serializer.is_valid():
+                                parent_detail_serializer.save()
+                                parent_id = parent_detail_serializer.data['user_obj']
+                                parent_list.append(parent_id)
+
+                            else:
+
+                                print("Detail  Serializer--------",
+                                      parent_detail_serializer.errors)
                         else:
-
-                            raise ValidationError(parent_detail_serializer.errors)
+                            parent_list.append(
+                                parent_serializer.data['user_obj'])
+                            print("User Exist")
 
                     else:
-                        raise ValidationError(parent_serializer.errors)
-
+                        print("User Exist")
                 except Exception as ex:
                     logger.debug(ex)
                     logger.info(ex)
 
                     raise ValidationError(ex)
 
-            validated_data['parent'] = parent_list
+            self.context['child_detail']['parent'] = parent_list
+            validated_data = self.context['child_detail']
 
-            child.parent.set(validated_data['parent'])
-
+            child = super(ChildRegisterSerializer, self).create(validated_data)
+            print("child Created")
             child.save()
-
-            acad_session = self.context['academic_session_detail']['academic_session']
-            section = self.context['academic_session_detail']['section']
-            grade = self.context['academic_session_detail']['grade']
-            class_teacher = self.context['academic_session_detail']['class_teacher']
-
-            acadmic_ids = AcademicSession.objects.filter(id=acad_session,
-                                                         grade=grade, section=section, class_teacher=class_teacher).values('id')[0]['id']
-            
-            child_id = child.id
-            academic_session_detail = {
-                "child":child_id,
-                "academic_session": acadmic_ids,
-                "subjects": self.context['academic_session_detail']['subjects'],
-                "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
-            }
-            """  create child plan """
-
-            try:
-
-                child_plan_serializer = ChildPlanCreateSerailizer(
-                    data=dict(academic_session_detail))
-                if child_plan_serializer.is_valid():
-                    child_plan_serializer.save()
-
-                else:
-                    raise ValidationError(child_plan_serializer.errors)
-            except Exception as ex:
-                print("@@@@@@@@@@@@@@", ex)
-                logger.debug(ex)
-                logger.info(ex)
-                raise ValidationError(ex)
-
             return child
-           
+            # section = self.context['academic_session_detail']['section']
+            # grade = self.context['academic_session_detail']['grade']
+
+            # acadmic_ids = AcademicSession.objects.filter(
+            #     grade=grade, section=section)
+            # if len(acadmic_ids) != 0:
+            #     child_id = child.id
+            #     academic_session_detail = {
+            #         "child": child_id,
+            #         "academic_session": acadmic_ids,
+            #     }
+            #     """  create child plan """
+
+            #     try:
+
+            #         child_plan_serializer = ChildPlanCreateSerailizer(
+            #             data=dict(academic_session_detail))
+            #         if child_plan_serializer.is_valid():
+            #             child_plan_serializer.save()
+
+            #         else:
+            #             raise ValidationError(child_plan_serializer.errors)
+            #     except Exception as ex:
+            #         print("@@@@@@@@@@@@@@", ex)
+            #         logger.debug(ex)
+            #         logger.info(ex)
+            #         raise ValidationError(ex)
+            # else:
+            #     print("Child plan not created")
 
         except Exception as ex:
-            print("@#######", ex)
+            print("serializer error", ex)
             print("traceback---------", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)

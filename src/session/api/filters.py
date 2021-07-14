@@ -19,8 +19,7 @@ class SchoolSessionFilter(filters.FilterSet):
 
 
 class SchoolCalendarFilter(filters.FilterSet):
-    school_name = filters.CharFilter(
-        field_name='school__name', lookup_expr='icontains')
+    school_name = filters.CharFilter(field_name='school__name', lookup_expr='icontains')
 
     class Meta:
         model = SchoolCalendar
