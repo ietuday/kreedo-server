@@ -246,7 +246,7 @@ class AddAod(ListCreateAPIView):
 
             for i, f in enumerate(df, start=1):
                 f['concept']= ast.literal_eval(f['concept'])
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     aod_qs = AreaOfDevlopment.objects.filter(id=f['id'])[0]
                     aod_qs.name = f['name']
@@ -254,7 +254,7 @@ class AddAod(ListCreateAPIView):
                     aod_qs.concept.set(f['concept'])
                     aod_qs.save()
                     added_aod.append(aod_qs)
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     aod_qs = AreaOfDevlopment.objects.filter(id=f['id'])[0]
                     added_aod.append(aod_qs)
