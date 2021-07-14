@@ -237,3 +237,75 @@ class AddConceptSkill(ListCreateAPIView):
 
 
 
+class AddAod(ListCreateAPIView):
+    def post(self, request):
+        try:
+            file_in_memory = request.FILES['file']
+            df = pd.read_csv(file_in_memory).to_dict(orient='records')
+            added_aod = []
+
+            for i, f in enumerate(df, start=1):
+                f['concept']= ast.literal_eval(f['concept'])
+                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                    print("UPDATION")
+                    aod_qs = AreaOfDevlopment.objects.filter(id=f['id'])[0]
+                    aod_qs.name = f['name']
+                    aod_qs.description = f['description']
+                    aod_qs.concept.set(f['concept'])
+                    aod_qs.save()
+                    added_aod.append(aod_qs)
+                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                    print("DELETION")
+                    aod_qs = AreaOfDevlopment.objects.filter(id=f['id'])[0]
+                    added_aod.append(aod_qs)
+                    aod_qs.delete()
+                else:
+                    print("Create")
+                    aod_data = {
+                        "name":f.get('name',None),
+                        "description":f.get('description',None),
+                        "concept":f.get('concept',None),
+                        "is_active":f.get('is_active',None)
+                    }
+                    try:
+                    
+                        aod_serializer = AreaOfDevlopmentSerializer(
+                            data=dict(aod_data))
+                        if aod_serializer.is_valid():
+                            aod_serializer.save()
+                            added_aod.append(
+                                aod_serializer.data)
+                            print(aod_serializer.data)
+                        else:
+                            print(aod_serializer.errors)
+                            # raise ValidationError(aod_serializer.errors)
+                    except Exception as ex:
+                        print("error", ex)
+                        print("traceback", traceback.print_exc())
+                        logger.debug(ex)
+                        return Response(ex)
+
+            keys = added_aod[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(added_aod)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
+            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            context = {"isSuccess": True, "message": "AOD Added sucessfully",
+                "error": "", "data": path_to_file}
+            return Response(context, status=status.HTTP_200_OK)
+            # return Res
+
+        except Exception as ex:
+            print(ex)
+            print(traceback.print_exc())
+            logger.debug(ex)
+            context = {"isSuccess": False, "message": "Issue AOD",
+                "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
