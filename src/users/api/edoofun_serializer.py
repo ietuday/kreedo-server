@@ -329,6 +329,22 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'first_name', 'last_name']
 
+    def to_representation(self, obj):
+        try:
+            serialized_data = super(
+            EdoofunParentSerializer, self).to_representation(obj)
+            print("obj----------", obj)
+            print("serialized_data------",serialized_data)
+            print("self--------", self.context)
+
+
+            return self.context
+
+        except Exception as ex:
+            print("Error-------", ex)
+            print("TRACEBACK-----------", traceback.print_exc())
+        
+
     def create(self, validated_data):
         """ Genrate Username """
         try:
@@ -337,18 +353,17 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
         except ValidationError:
             raise ValidationError("Failed to genrate username")
 
-        if User.objects.filter(email=validated_data['email'], first_name=validated_data['first_name'],
-                                        last_name=validated_data['last_name']).exists():
-            user_obj_qs = User.objects.filter(email=validated_data['email'], first_name=validated_data['first_name'],
-                                        last_name=validated_data['last_name'])[0]
-
-            print("@@@@@@@@@@@@",user_obj_qs.id)
+        if User.objects.filter(email=validated_data['email']).exists():
+            user_obj_qs = User.objects.filter(email=validated_data['email'])[0]
+            self.context.update({"user_obj":user_obj_qs.id,"msg":"user exist"})
             return user_obj_qs
         else:
             user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=validated_data['first_name'],
                                             last_name=validated_data['last_name'], is_active=True)
             
+            self.context.update({"user_obj":user.id,"msg":"user create"})
             return user
+            
 
 
 """ PArent detail serailizer """
@@ -361,31 +376,15 @@ class EdoofunParentDetailSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-
-
-        try:
-            print("validated_data-------->", validated_data)
-            if UserDetail.objects.filter(user_obj=validated_data['user_obj']).exists():
-                user_detail_qs = UserDetail.objects.filter(user_obj=validated_data['user_obj'])[0]
-                print("user_detail_qs----",user_detail_qs)
-                return user_detail_qs
-            else:
-                user_detail_qs = super(EdoofunParentDetailSerializer, self).create(validated_data)
-                return user_detail_qs
-
-
-        except Exception as ex:
+        print("validated_data-------->", validated_data)
+        if UserDetail.objects.filter(user_obj=validated_data['user_obj']).exists():
+            user_detail_qs = UserDetail.objects.filter(user_obj=validated_data['user_obj'])[0]
+            print("user_detail_qs----",user_detail_qs)
+            return user_detail_qs
+        else:
             user_detail_qs = super(EdoofunParentDetailSerializer, self).create(validated_data)
+
             return user_detail_qs
 
-            print("ERROR in UserDetail----------", ex)
+
         
-
-
-
-
-
-
-
-
-

@@ -53,7 +53,7 @@ class RegisterChild(ListCreateAPIView):
                 "class_teacher": request.data.get('class_teacher', None),
                 "school_name": request.data.get('school_name', None),
                 "account_manager": request.data.get('account_manager', None),
-                "parents":""
+                "parent": ""
             }
             parent_detail = {
                 "parents": request.data.get('parents', None)
@@ -69,39 +69,25 @@ class RegisterChild(ListCreateAPIView):
                 {"child_detail": child_detail, "parent_detail": parent_detail,
                  "academic_session_detail": academic_session_detail})
 
-            # for i, f in enumerate(request.data.get('parents', None), start=1):
-            #     print("PARENT----------", f['first_name'])
-            #     if User.objects.filter(first_name=f['first_name'], last_name=f['last_name'], email=f['email']).exists():
-            #         parent_id = User.objects.filter(
-            #             first_name=f['first_name'], last_name=f['last_name'], email=f['email'])
-            #         for parent in parent_id:
-            #             print("PARENT ID-------", parent.id)
-            #             id_parent = UserDetail.objects.filter(
-            #                 user_obj=parent.id)
-            #             child = Child.objects.filter(parent__in=id_parent)
-            #             print("CHILD-----", child)
-            #             return Response("Parent with children already in kreedo")
-
-
             try:
 
                 child_detail_serializer = ChildRegisterSerializer(
                     data=dict(child_detail), context=context)
                 if child_detail_serializer.is_valid():
                     child_detail_serializer.save()
-                    
+
                     context = {"isSuccess": True, "message": "Child register successfully", "status": status.HTTP_200_OK,
-                    "error": "", "data": child_detail_serializer.data}
+                               "error": "", "data": child_detail_serializer.data}
                     return Response(context, status=status.HTTP_200_OK)
                 else:
-                    context = {"isSuccess": True, "message":"Issue in Child Creation" , "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "error": child_detail_serializer.errors, "data": ""}
+                    context = {"isSuccess": True, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                               "error": child_detail_serializer.errors, "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             except Exception as ex:
                 print("ERROR---1", ex)
                 context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                       "error": ex, "data": ""}
+                           "error": ex, "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
@@ -112,8 +98,8 @@ class RegisterChild(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 """ child list by section id """
+
 
 class ChildListAssociatedToSectionID(ListCreateAPIView):
     def post(self, request):
@@ -121,16 +107,9 @@ class ChildListAssociatedToSectionID(ListCreateAPIView):
             print(request)
             # if request.data['school'] == school:
 
-
-
-
-
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
             print("ERROR----2", ex)
             context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
