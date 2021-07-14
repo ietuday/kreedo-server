@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-
+ 
 from .serializer import*
 from area_of_devlopment.models import*
 from kreedo.general_views import *
@@ -129,7 +129,6 @@ class AddConceptSkill(ListCreateAPIView):
             added_conept_skill = []
 
             for i, f in enumerate(df, start=1):
-                # f.get('aod',None)
                 f['activity']= ast.literal_eval(f['activity'])
                 f['remed_activity']= ast.literal_eval(f['remed_activity'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
