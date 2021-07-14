@@ -22,7 +22,10 @@ urlpatterns = [
           name='SkillRetriveUpdateDestroy'),
      path('bulk-upload/add-concept-skill',
           AddConceptSkill.as_view(), name='AddConceptSkill'),
-          
+     
+     path('bulk-upload/add-aod',
+          AddAod.as_view(), name='AddConceptSkill'),
+         
      path('edoofun/skill_list_by_concept/<int:pk>',
           SkillListByConcept.as_view(), name='Skill List By Concept'),
 

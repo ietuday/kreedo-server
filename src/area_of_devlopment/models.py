@@ -11,7 +11,7 @@ from activity.models import*
 class AreaOfDevlopment(TimestampAwareModel):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
-    subject = models.ManyToManyField(to='Concept', blank=True)
+    concept = models.ManyToManyField(to='Concept', blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
