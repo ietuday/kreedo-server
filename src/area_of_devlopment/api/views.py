@@ -253,11 +253,13 @@ class AddAod(ListCreateAPIView):
                     aod_qs.description = f['description']
                     aod_qs.concept.set(f['concept'])
                     aod_qs.save()
-                    added_aod.append(aod_qs)
+                    aod_serializer = AreaOfDevlopmentSerializer(aod_qs)
+                    added_aod.append(aod_serializer.data)
                 elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     aod_qs = AreaOfDevlopment.objects.filter(id=f['id'])[0]
-                    added_aod.append(aod_qs)
+                    aod_serializer = AreaOfDevlopmentSerializer(aod_qs)
+                    added_aod.append(aod_serializer.data)
                     aod_qs.delete()
                 else:
                     print("Create")
