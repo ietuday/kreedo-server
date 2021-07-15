@@ -17,6 +17,10 @@ class QuestionAnswerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAnswer
+        fields = ['id','question','is_active']
 
 
 
