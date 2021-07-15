@@ -174,8 +174,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
                         self.context.update(
                             {"user_detail": user_detail_serializer.data})
-                        send_temprorary_password_mail(
-                            user, user_detail_serializer.data, genrated_password)
+                        
 
                     else:
                         raise ValidationError(user_detail_serializer.errors)
@@ -302,9 +301,6 @@ class EdoofunUserLoginSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
-
-
-
 """ User Role Serializer"""
 
 
@@ -313,11 +309,6 @@ class SchoolUserRoleSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = '__all__'
         depth = 1
-
-
-
-
-
 
 
 """ Create parent serializer """
@@ -333,11 +324,7 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
             EdoofunParentSerializer, self).to_representation(obj)
-            print("obj----------", obj)
-            print("serialized_data------",serialized_data)
-            print("self--------", self.context)
-
-
+            
             return self.context
 
         except Exception as ex:

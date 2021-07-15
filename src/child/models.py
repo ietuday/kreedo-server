@@ -64,6 +64,8 @@ class Child(TimestampAwareModel):
     class_teacher = models.CharField(max_length=100, null=True, blank=True)
     account_manager = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    secret_pin = models.CharField(max_length=50, default='0000')
+
     objects = ChildManager
 
     class Meta:
