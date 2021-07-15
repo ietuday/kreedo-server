@@ -57,7 +57,7 @@ urlpatterns = [
     path('bulk-upload/add-user', AddUserData.as_view(), name='AddUserData'),
 
 
-    path('edoofun/register_parent',
+    path('edoofun/register_user',
          RegisterParent.as_view(), name='Register Parent'),
     path('edoofun/login_user_by_email_id',
          LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD'),
