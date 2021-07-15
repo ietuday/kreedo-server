@@ -481,8 +481,10 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 academic_qs_serializer
                 if len(attendence_qs)is not 0:
                     attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
-                    
-                    return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
+                    context = {"isSuccess": True, "message": "Child List",
+                    "error": "", "data": attendanceListSerializer.data}
+                    return Response(context, status=status.HTTP_200_OK)
+                    # return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
 
                 child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
                 child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
