@@ -1316,7 +1316,7 @@ class AddUserData(ListCreateAPIView):
 
             for i, f in enumerate(df, start=1):
                 f['role']= ast.literal_eval(f['role'])
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     auth_user = User.objects.filter(user_obj=id)[0]
                     auth_user.first_name = f.get('first_name', None)
@@ -1344,6 +1344,7 @@ class AddUserData(ListCreateAPIView):
                         user_role_qs = UserRole.objects.filter(user=id)[0]
                         user_role_qs.user = da['user']
                         user_role_qs.role = da['role']
+                        user_role_qs.school = da['school']
                         user_role_qs.save()
 
                         reporting_to_qs = ReportingTo.objects.filter(user_detail=id)
@@ -1360,10 +1361,11 @@ class AddUserData(ListCreateAPIView):
                             "first_name": auth_user.first_name,
                             "last_name": auth_user.last_name,
                             "phone": user_detail_qs.phone,
-                            "address": address_qs.id
+                            "address": address_qs.id,
+                            "school":f.get('school', None)
                         }
                     )
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("Deletion", f)
                     auth_user = User.objects.filter(user_obj=id)[0]
                     user_detail_qs = UserDetail.objects.filter(user_obj=id)[0]
@@ -1381,7 +1383,8 @@ class AddUserData(ListCreateAPIView):
                             "first_name": auth_user.first_name,
                             "last_name": auth_user.last_name,
                             "phone": user_detail_qs.phone,
-                            "address": address_qs.id
+                            "address": address_qs.id,
+                            "school":f.get('school', None)
                         }
                     )
 
@@ -1437,7 +1440,8 @@ class AddUserData(ListCreateAPIView):
                                         "first_name": user_detail_serializer.data['first_name'],
                                         "last_name": user_detail_serializer.data['last_name'],
                                         "phone": user_detail_serializer.data['user_detail_data']['phone'],
-                                        "address": user_detail_serializer.data['user_detail_data']['address']
+                                        "address": user_detail_serializer.data['user_detail_data']['address'],
+                                        "school":f.get('school', None)
                                     }
                                     )
                         else:
@@ -1454,6 +1458,7 @@ class AddUserData(ListCreateAPIView):
                         role_detail = {
                             "user":user_detail_serializer.data['user_detail_data']['user_obj'],
                             "role":role_data[0],
+                            "school":f.get('school', None)
                         }
                         userRoleSerializer = UserRoleSerializer(data=dict(role_detail))
                         if userRoleSerializer.is_valid():

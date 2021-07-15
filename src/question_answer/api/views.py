@@ -36,9 +36,10 @@ import random
 class RandomQuestion(ListCreateAPIView):
     def get(self, request):
         try:
+            #  count, random number 
             items = list(QuestionAnswer.objects.all())
             question =  random.sample(items,1)
-            question_serializer = QuestionSerializer(question, many=True)
+            question_serializer = QuestionSerializer(question)
            
             context = {'isSuccess': True, "error": "",
                         "statusCode": status.HTTP_200_OK,'data':question_serializer.data}
