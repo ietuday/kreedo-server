@@ -76,10 +76,8 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                                 print("Detail  Serializer--------",
                                       parent_detail_serializer.errors)
                         else:
-                            parent_list.append(
-                                parent_serializer.data['user_obj'])
+                            parent_list.append(parent_serializer.data['user_obj'])
                             print("User Exist")
-
                     else:
                         print("User Exist")
                 except Exception as ex:
