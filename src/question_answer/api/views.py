@@ -15,15 +15,17 @@ import random
 # Create your views here.
 
 
-
 """ Secret Question and answer list create """
 
-class SecretQuestionAnswerListCreate(GeneralClass,Mixins,ListCreateAPIView):
+
+class SecretQuestionAnswerListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = QuestionAnswer
     filterset_class = QuestionAnswerFilter
     serializer_class = QuestionAnswerSerializer
 
+
 """ Secret Question and answer Retrive, Update and Delete """
+
 
 class SecretQuestionAnswerRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = QuestionAnswer
@@ -32,40 +34,42 @@ class SecretQuestionAnswerRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpda
 
 
 """ Get Random Questions """
-import random
+
+
 class RandomQuestion(ListCreateAPIView):
     def get(self, request):
         try:
-            #  count, random number 
+            #  count, random number
             items = list(QuestionAnswer.objects.all())
-            question =  random.sample(items,1)
+            question = random.sample(items, 1)
             question_serializer = QuestionSerializer(question)
-           
+
             context = {'isSuccess': True, "error": "",
-                        "statusCode": status.HTTP_200_OK,'data':question_serializer.data}
-            return Response(context,status=status.HTTP_200_OK)
+                       "statusCode": status.HTTP_200_OK, 'data': question_serializer.data}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             context = {'isSuccess': False, "error": ex,
-                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
-            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-         
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ Valiodate Answer """
+
+
 class ValidateAnswer(ListCreateAPIView):
     def post(self, request):
         try:
-            if QuestionAnswer.objects.filter(id=request.data.get('id', None),answer=request.data.get('answer', None)).exists():
+            if QuestionAnswer.objects.filter(id=request.data.get('id', None), answer=request.data.get('answer', None)).exists():
                 context = {'isSuccess': True, "error": "",
-                        "statusCode": status.HTTP_200_OK,'data':"Answer is Correct"}
-                return Response(context,status=status.HTTP_200_OK)  
+                           "statusCode": status.HTTP_200_OK, 'data': "Answer is Correct"}
+                return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {'isSuccess': False, "error": "",
-                            "statusCode": status.HTTP_200_OK,'data':"Answer is InCorrect"}
-                return Response(context,status=status.HTTP_200_OK)
+                           "statusCode": status.HTTP_200_OK, 'data': "Answer is InCorrect"}
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             context = {'isSuccess': False, "error": ex,
-                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
-            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-         
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

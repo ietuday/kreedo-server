@@ -74,8 +74,8 @@ class ChildCreateSerializer(serializers.ModelSerializer):
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
                             "phone": parent['phone'],
-                            "gender":parent['gender'],
-                            "photo":parent['photo']
+                            "gender": parent['gender'],
+                            "photo": parent['photo']
 
                         }
                         parent_detail_serializer = ParentDetailSerializer(
@@ -115,10 +115,10 @@ class ChildCreateSerializer(serializers.ModelSerializer):
 
             acadmic_ids = AcademicSession.objects.filter(id=acad_session,
                                                          grade=grade, section=section, class_teacher=class_teacher).values('id')[0]['id']
-            
+
             child_id = child.id
             academic_session_detail = {
-                "child":child_id,
+                "child": child_id,
                 "academic_session": acadmic_ids,
                 "subjects": self.context['academic_session_detail']['subjects'],
                 "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
@@ -182,12 +182,11 @@ class ChildCreateSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
-
 class ChildListForPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = '__all__'
-        
+
 
 """ Child List Serializer """
 
@@ -202,7 +201,6 @@ class ChildListSerializer(serializers.ModelSerializer):
         serialized_data = super(
             ChildListSerializer, self).to_representation(obj)
         child_id = serialized_data.get('id')
-      
 
         child_id_qs = ChildPlan.objects.filter(child__id=child_id)
         if child_id_qs:
@@ -212,13 +210,12 @@ class ChildListSerializer(serializers.ModelSerializer):
         return serialized_data
 
 
- 
 class ChildUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Child
         fields = '__all__'
-        
+
 
 class ChildSerializer(serializers.ModelSerializer):
 
@@ -235,7 +232,7 @@ class ChildSerializer(serializers.ModelSerializer):
 
         parent_list = serialized_data.get('parent')
 
-        print("$$$$$$$$$$",parent_list)
+        print("$$$$$$$$$$", parent_list)
         user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
         user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
 
@@ -247,7 +244,7 @@ class ChildSerializer(serializers.ModelSerializer):
             child_id_serializer = ChildPlanOfChildSerializer(
                 child_id_qs, many=True)
             serialized_data['academic_session_data'] = child_id_serializer.data
-        
+
         else:
             serialized_data['academic_session_data'] = ""
         child_session_qs = ChildSession.objects.filter(child=child_id)
@@ -257,7 +254,7 @@ class ChildSerializer(serializers.ModelSerializer):
             serialized_data['session_details'] = child_session_serializer.data
         else:
             serialized_data['session_details'] = ""
-       
+
         return serialized_data
 
 
@@ -310,10 +307,32 @@ class AttendanceCreateSerializer(serializers.ModelSerializer):
 
 
 """ Attendance List Serializer """
-
-
+from activity.models import ActivityComplete
 class AttendanceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = '__all__'
         depth = 1
+
+    def to_representation(self, obj):
+        try:
+            serialized_data = super(
+                AttendanceListSerializer, self).to_representation(obj)
+            for child in serialized_data['childs']:
+                activity_qs = ActivityComplete.objects.filter(child=child['child'],period=self.context['period_detail']['period'])
+                
+                if len(activity_qs) == 0:
+                    child['is_completed'] = False
+                
+                else:
+                    child['is_completed'] = activity.is_completed
+
+            return serialized_data
+
+        except Exception as ex:
+            print("ERROR", ex)
+            print("traceback------", traceback.print_exc())
+
+
+
+

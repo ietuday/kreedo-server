@@ -471,16 +471,28 @@ class AttendenceByAcademicSession(ListCreateAPIView):
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             attendance_date = request.data.get('attendance_date', None)
+            
+
+            period_detail = {
+                "period": request.data.get('period', None),
+                "activity": request.data.get('activity', None)
+            }
+            context = super().get_serializer_context()
+            context.update({"period_detail": period_detail})
+
+
             academic_id = AcademicSession.objects.filter(
                 grade=grade, section=section)
+        
             if len(academic_id) is not 0:
                 
                 academic_qs_serializer = AcademicSessionForCalender(academic_id[0])
 
                 attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
-                academic_qs_serializer
                 if len(attendence_qs)is not 0:
-                    attendanceListSerializer = AttendanceListSerializer(attendence_qs, many=True)
+
+                    
+                    attendanceListSerializer = AttendanceListSerializer(attendence_qs[0],context=context)
                     context = {"isSuccess": True, "message": "Child List",
                     "error": "", "data": attendanceListSerializer.data}
                     return Response(context, status=status.HTTP_200_OK)
