@@ -39,9 +39,9 @@ def ChildJsonData(Child_data,period_detail):
     for child in Child_data:
         if ActivityComplete.objects.filter(child=child['child']['id'],period=period_detail['period'],
             activity=period_detail['activity']).exists():
-            activity_qs = ActivityComplete.objects.get(child=child['child']['id'],period=self.context['period_detail']['period'],
-                                activity=self.context['period_detail']['activity'])
-            child['is_completed'] = activity_qs.is_completed
+            activity_qs = ActivityComplete.objects.filter(child=child['child']['id'],period=period_detail['period'],
+                                activity=period_detail['activity'])
+            child['is_completed'] = activity_qs[0].is_completed
         else:
             child['is_completed'] = True
 
