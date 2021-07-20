@@ -82,6 +82,21 @@ def authenticate_username_password(username, password):
         raise ValidationError("Login failed , Invalid Username and Password")
 
 
+
+def authenticate_username(username, old_password):
+    try:
+        #  authenticate(username=username)
+        return authenticate(username=username)
+    except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
+        raise ValidationError("User not Authorized")
+
+
+
+
+
+
 """ Validate Email and Password """
 
 
