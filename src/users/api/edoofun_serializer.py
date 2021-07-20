@@ -384,15 +384,17 @@ class EdoofunParentDetailSerializer(serializers.ModelSerializer):
 class UserChangePinSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
-        fields =['id', 'secret_pin','is_active']
+        fields =['secret_pin']
 
     def to_representation(self, instance):
         instance = super(UserChangePinSerializer, self).to_representation(instance)
-        instance['message'] = self.context['message']
+        instance['data'] = self.context['data']
         return instance
 
     def validate(self, validated_data):
+        print("self----------->", self)
         username=self.context['parent_detail']['username']
+        email = self.context['parent_detail']['email']
         old_pin=self.context['parent_detail']['old_pin']
         new_pin=self.context['parent_detail']['new_pin']
 
@@ -400,29 +402,33 @@ class UserChangePinSerializer(serializers.ModelSerializer):
             """ authenticate password and username """
             try:
                             
-                user = authenticate_username(username=username)
+                user = user_obj = User._default_manager.filter(username=username, is_active=True).first()
+         
             except Exception as ex:
                 raise serializers.ValidationError("User is not Authorized")
-            print("user---------->", user)
             """ Password set """
             try:
                 if user is not None:
-                   
-                
-                    user.userdetail.secret_pin = new_pin
-                    user.userdetail.save()
-                    data = "Password has been reset."
-                    self.context.update({"data":data})
-                    return validated_data
+                    if UserDetail.objects.filter(user_obj=user,secret_pin=old_pin).exists():
+                        user_detail_qs = UserDetail.objects.get(user_obj=user,secret_pin=old_pin)
+                        user_detail_qs.secret_pin = new_pin
+                        user_detail_qs.save()
+                        data = "PIN has been reset."
+                        self.context.update({"data":data})
+                        return validated_data
+                    else:
+                        raise ValidationError("Old pin is not Matched")
                   
                 else:
-                    raise serializers.ValidationError('User Credentials incorrect')
+                    raise serializers.ValidationError('User is not Authorized')
             except Exception as ex:
-                raise serializers.ValidationError('User Credentials incorrect')
+                raise serializers.ValidationError(ex)
             
         except Exception as ex:
+            print("EROR", ex)
+            print("TRaceback-------", traceback.print_exc())
          
-            raise serializers.ValidationError("Old Password is not Matched")
+            raise serializers.ValidationError(ex)
 
 
         

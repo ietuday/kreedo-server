@@ -183,36 +183,34 @@ class UserListBySchool(ListCreateAPIView):
 """ Update Secret  PIN  For Parent """
 
 
-class UpdateSecretPINForParent(ListCreateAPIView):
-
-    def post(self, request):
+class UpdateSecretPinForParent(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
         try:
-
             parent_detail = {
-                
-                "parent": request.data.get('parent', None),
-                "old_pin": request.data.get('old_pin', None),
-                "new_pin": request.data.get('new_pin', None)
+                "username": request.user.username,
+                "email":request.data.get('parent_email', None),
+                "old_pin":request.data.get('old_pin', None),
+                "new_pin":request.data.get('new_pin', None)
             }
+            
             context = super().get_serializer_context()
             context.update({"parent_detail": parent_detail})
-            print("parent_detail",parent_detail)
-            user_data_serializer = UserChangePinSerializer(
-                data=request.data, context=context)
-            if user_data_serializer.is_valid():
-
-                # context = {"data": user_data_serializer.data,
-                #            "statusCode": status.HTTP_200_OK}
-                # return Response(context)
-                return Response(user_data_serializer.data)
+            user_qs_serializer = UserChangePinSerializer(data=request.data, context=context)
+            if user_qs_serializer.is_valid():
+               
+                context = {'isSuccess': True, 'message': "Pin changed Successfully",
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
             else:
-
-                # context = {"error": user_data_serializer.errors,
-                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(user_data_serializer.errors)
+                context = {'isSuccess': False, 'message': "User Not Found",
+                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
-            print("ERROR", ex)
-            print("Traceback", traceback.print_exc())
-            # context = {"error": ex,
-            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(ex)
+            print("EX", ex)
+            print("traceback", traceback)
+            context = {'isSuccess': False, "error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            
