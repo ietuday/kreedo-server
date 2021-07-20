@@ -34,20 +34,15 @@ from activity.models import*
 
 """ ChildJsonData"""
 def ChildJsonData(Child_data,period_detail):
-    print("Child Data", Child_data)
-    print("period_detail",period_detail['period'])
+
     childs = []
     for child in Child_data:
-        activity_qs = ActivityComplete.objects.filter(child=child['child']['id'],period=period_detail['period'])
-        print("activity_qs",activity_qs)
-        for activity in activity_qs:
-            print("@######3", activity)
-            if activity:
-                child['is_completed'] = True
-                
-            
-            else:
-                child['is_completed'] = False
+        if ActivityComplete.objects.filter(child=child['child']['id'],period=period_detail['period'],
+            activity=period_detail['activity']).exists():
+       
+            child['is_completed'] = False
+        else:
+            child['is_completed'] = True
 
         child_dict = {
         "name":child['child']['first_name']+" "+child['child']['last_name'],
