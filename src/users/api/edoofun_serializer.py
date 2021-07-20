@@ -374,4 +374,52 @@ class EdoofunParentDetailSerializer(serializers.ModelSerializer):
             return user_detail_qs
 
 
+
+
+
+
+""" Update secret pin Serializer """
+
+""" CHANGE PASSWORD """
+class UserChangePinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserDetail
+        fields =['id', 'secret_pin','is_active']
+
+    def to_representation(self, instance):
+        instance = super(UserChangePinSerializer, self).to_representation(instance)
+        instance['message'] = self.context['message']
+        return instance
+
+    def validate(self, validated_data):
+        username=self.context['parent_detail']['username']
+        old_password=self.context['parent_detail']['old_pin']
+        new_password=self.context['parent_detail']['new_pin']
+
+        try:
+            """ authenticate password and username """
+            try:
+                            
+                user = authenticate_password(username=username)
+            except Exception as ex:
+                raise serializers.ValidationError("Old Password is not Matched")
+            
+            """ Password set """
+            try:
+                if user is not None:
+                    user.set_password(new_password)
+                    user.save()
+                    data ='Password has been Changed'
+                    self.context.update({"message":'Password has been Changed'})
+                    return validated_data
+                else:
+                    raise serializers.ValidationError('User Credentials incorrect')
+            except Exception as ex:
+                raise serializers.ValidationError('User Credentials incorrect')
+            
+        except Exception as ex:
+         
+            raise serializers.ValidationError("Old Password is not Matched")
+
+
         
