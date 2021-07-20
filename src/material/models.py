@@ -12,6 +12,7 @@ class Material(TimestampAwareModel):
     decription = models.TextField(null=True, blank=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
     code = models.CharField(max_length=200, null=True, blank=True)
+    no_of_material = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     objects = MaterialManager
 
