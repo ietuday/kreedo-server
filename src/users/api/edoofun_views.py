@@ -180,24 +180,23 @@ class UserListBySchool(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-""" UpdateSecretPINForParent """
+""" Update Secret  PIN  For Parent """
 
 
 class UpdateSecretPINForParent(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
 
             parent_detail = {
-                "username": request.user.username,
+                
                 "parent": request.data.get('parent', None),
                 "old_pin": request.data.get('old_pin', None),
                 "new_pin": request.data.get('new_pin', None)
             }
             context = super().get_serializer_context()
             context.update({"parent_detail": parent_detail})
-
+            print("parent_detail",parent_detail)
             user_data_serializer = UserChangePinSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
@@ -205,13 +204,15 @@ class UpdateSecretPINForParent(ListCreateAPIView):
                 # context = {"data": user_data_serializer.data,
                 #            "statusCode": status.HTTP_200_OK}
                 # return Response(context)
-                return Response(user_data_serializer.data['message'], status=status.HTTP_200_OK)
+                return Response(user_data_serializer.data)
             else:
 
                 # context = {"error": user_data_serializer.errors,
                 #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(user_data_serializer.errors)
         except Exception as ex:
+            print("ERROR", ex)
+            print("Traceback", traceback.print_exc())
             # context = {"error": ex,
             #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex)

@@ -323,7 +323,9 @@ class AttendanceListSerializer(serializers.ModelSerializer):
                 print("child---------->>>>>",child)
                 if ActivityComplete.objects.filter(child=child['child'],period=self.context['period_detail']['period'],
                                 activity=self.context['period_detail']['activity']).exists():
-                    child['is_completed'] = True
+                    activity_qs = ActivityComplete.objects.get(child=child['child'],period=self.context['period_detail']['period'],
+                                activity=self.context['period_detail']['activity'])
+                    child['is_completed'] = activity_qs.is_completed
                 else:
                     child['is_completed'] = False
                
