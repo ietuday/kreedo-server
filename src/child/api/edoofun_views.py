@@ -113,3 +113,38 @@ class ChildListAssociatedToSectionID(ListCreateAPIView):
             context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+""" Update Secret Pin For Selected Child """
+class UpdateSecretPinForSelectedChild(ListCreateAPIView):
+    def post(self,request):
+        try:
+            print(self)
+            # child_detail = {
+            #     "child_id":request.data.get('child_id', None),
+            #     "parent_id":request.data.get('parent_id', None),
+            #     "old_pin":request.data.get('old_pin', None),
+            #     "new_pin":request.data.get('new_pin', None)
+            # }
+            
+
+            # context = super().get_serializer_context()
+            # context.update({"child_detail": child_detail})
+            # child_detail_serilaizer = UpdateSecretPinForChildSerializer(data=request.data, context=context)
+            
+            # if child_detail_serilaizer.is_valid():
+            #     print("child_detail_serilaizer------>")
+
+            # else:
+            #     print("child_detail_serilaizer errors ------->", child_detail_serilaizer.errors)
+
+
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            # context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            #            "error": ex, "data": ""}
+            # return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

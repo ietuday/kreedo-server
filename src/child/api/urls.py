@@ -37,7 +37,10 @@ urlpatterns = [
      path('edoofun/register_child', RegisterChild.as_view(),name='Register Parent'),
 
      path('edoofun/child_list_by_section_id', ChildListAssociatedToSectionID.as_view(),
-          name='Child List Associated To SectionID')
+          name='Child List Associated To SectionID'),
+     path('edoofun/update_secret_pin_for_selected_child',
+         UpdateSecretPinForSelectedChild.as_view(), name='Update Secret PIN For Child'),
+
 
 
 

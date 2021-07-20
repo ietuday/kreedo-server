@@ -129,3 +129,20 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
             logger.info(ex)
             logger.debug(ex)
             raise ValidationError(ex)
+
+
+
+
+""" Update Secret Pin For Child Serializer """
+class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        field = ['secret_pin']
+    
+
+    def create(self,validated_data):
+        try:
+            print("Validated data",validated_data)
+            
+        except Exception as ex:
+            print(ex)
