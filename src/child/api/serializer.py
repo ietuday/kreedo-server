@@ -318,17 +318,15 @@ class AttendanceListSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
                 AttendanceListSerializer, self).to_representation(obj)
+            print("serialized_data['childs']",serialized_data['childs'])
             for child in serialized_data['childs']:
-                activity_qs = ActivityComplete.objects.filter(child=child['child'],period=self.context['period_detail']['period'])
-                print("activity_qs",activity_qs)
-                for activity in activity_qs:
-                    print("@######3", activity)
-                    if activity:
-                        child['is_completed'] = True
-                        
-                    
-                    else:
-                        child['is_completed'] = False
+                print("child---------->>>>>",child)
+                if ActivityComplete.objects.filter(child=child['child'],period=self.context['period_detail']['period'],
+                                activity=self.context['period_detail']['activity']).exists():
+                    child['is_completed'] = True
+                else:
+                    child['is_completed'] = False
+               
 
             return serialized_data
 
