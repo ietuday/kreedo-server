@@ -503,7 +503,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 child_list =[]
                 child_data = {
                     "marked_status":False,
-                    "childs":ChildJsonData(child_qs_serializer.data),
+                    "childs":ChildJsonData(child_qs_serializer.data,period_detail),
                     "attendance_date":"",
                     "is_active":False
 
