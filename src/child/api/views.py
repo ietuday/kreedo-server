@@ -490,28 +490,35 @@ class AttendenceByAcademicSession(ListCreateAPIView):
 
                 attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
                 if len(attendence_qs)is not 0:
-
+                    print("attendence_qs",attendence_qs)
                     
                     attendanceListSerializer = AttendanceListSerializer(attendence_qs[0],context=context)
                     context = {"isSuccess": True, "message": "Child List",
                     "error": "", "data": attendanceListSerializer.data}
                     return Response(context, status=status.HTTP_200_OK)
                     # return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
+                # else:
 
-                child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
-                child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
-                child_list =[]
-                child_data = {
-                    "marked_status":False,
-                    "childs":ChildJsonData(child_qs_serializer.data,period_detail),
-                    "attendance_date":"",
-                    "is_active":False
+                #     context = {"isSuccess": False, "message": "Issue in Attendace",
+                #         "error": "Attendance is not available", "data": ""}
+                #     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                else:
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
+                    child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
+                    child_list =[]
+                    child_data = {
+                        "marked_status":False,
+                        "childs":ChildJsonData(child_qs_serializer.data,period_detail),
+                        "attendance_date":"",
+                        "is_active":False
 
-                }
-                child_list.append(child_data)
-                context = {"isSuccess": True, "message": "Child List",
-                "error": "", "data": child_list}
-                return Response(context, status=status.HTTP_200_OK)
+                    }
+                    child_list.append(child_data)
+                    context = {"isSuccess": True, "message": "Child List",
+                    "error": "", "data": child_list}
+                    return Response(context, status=status.HTTP_200_OK)
+
             else:
                 context = {"isSuccess": False, "message": "Issue in Child List",
                     "error": "Grade Section is not valid", "data": ""}
