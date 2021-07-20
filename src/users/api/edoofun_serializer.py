@@ -393,25 +393,28 @@ class UserChangePinSerializer(serializers.ModelSerializer):
 
     def validate(self, validated_data):
         username=self.context['parent_detail']['username']
-        old_password=self.context['parent_detail']['old_pin']
-        new_password=self.context['parent_detail']['new_pin']
+        old_pin=self.context['parent_detail']['old_pin']
+        new_pin=self.context['parent_detail']['new_pin']
 
         try:
             """ authenticate password and username """
             try:
                             
-                user = authenticate_password(username=username)
+                user = authenticate_username(username=username)
             except Exception as ex:
-                raise serializers.ValidationError("Old Password is not Matched")
-            
+                raise serializers.ValidationError("User is not Authorized")
+            print("user---------->", user)
             """ Password set """
             try:
                 if user is not None:
-                    user.set_password(new_password)
-                    user.save()
-                    data ='Password has been Changed'
-                    self.context.update({"message":'Password has been Changed'})
+                   
+                
+                    user.userdetail.secret_pin = new_pin
+                    user.userdetail.save()
+                    data = "Password has been reset."
+                    self.context.update({"data":data})
                     return validated_data
+                  
                 else:
                     raise serializers.ValidationError('User Credentials incorrect')
             except Exception as ex:

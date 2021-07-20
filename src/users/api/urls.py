@@ -66,4 +66,7 @@ urlpatterns = [
    path('edoofun/user_list_by_school/<int:pk>',
          UserListBySchool.as_view(), name='User List By School'),
 
+     path('edoofun/update_secret_pin_for_parent',
+         UpdateSecretPINForParent.as_view(), name='Update Secret PIN For Parent'),
+
 ]
