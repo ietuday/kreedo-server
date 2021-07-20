@@ -30,16 +30,30 @@ def random_activity(academic_session):
        for sub_id, sub in enumerate(subject_qs, start=1):
            print(sub.activity.all())
            return random.choice(sub.activity.all()).id
-
+from activity.models import*
 
 """ ChildJsonData"""
-def ChildJsonData(Child_data):
+def ChildJsonData(Child_data,period_detail):
+    print("Child Data", Child_data)
+    print("period_detail",period_detail['period'])
     childs = []
     for child in Child_data:
+        activity_qs = ActivityComplete.objects.filter(child=child['child']['id'],period=period_detail['period'])
+        print("activity_qs",activity_qs)
+        for activity in activity_qs:
+            print("@######3", activity)
+            if activity:
+                child['is_completed'] = True
+                
+            
+            else:
+                child['is_completed'] = False
+
         child_dict = {
         "name":child['child']['first_name']+" "+child['child']['last_name'],
         "child_id" :child['child']['id'],
-        "present":"FALSE"
+        "present":"FALSE",
+        "is_completed": child['is_completed']
         }
         childs.append(child_dict)
     return childs
