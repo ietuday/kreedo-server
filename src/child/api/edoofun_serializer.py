@@ -139,22 +139,33 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = ['secret_pin']
+    
+    def to_representation(self, instance):
+        instance = super(UpdateSecretPinForChildSerializer, self).to_representation(instance)
+        instance['data'] = self.context['data']
+        return instance
 
     def create(self, validated_data):
         try:
-
+            print("validated_data['new_pin']---------->", self.context['child_detail']['new_pin'])
             child_id = self.context['child_detail']['child']
 
             user_id = User.objects.get(
                 id=self.context['child_detail']['parent_id']).id
             print("user_id , child ", user_id, child_id)
-            if Child.objects.filter(id=child_id, parent=user_id).exists():
+            if Child.objects.filter(id=child_id, parent=user_id,secret_pin=self.context['child_detail']['old_pin']).exists():
                 print("@@@@@@", self.context['child_detail']['child'])
+                child_qs = Child.objects.get(id=child_id, parent=user_id,secret_pin=self.context['child_detail']['old_pin'])
+                print('child_qs',child_qs)
+                child_qs.secret_pin = self.context['child_detail']['new_pin']
+                child_qs.save()
+                data = "PIN has been reset."
+                self.context.update({"data":data})
+                return validated_data
             else:
-                print("Chilld not found")
-
-            return validated_data
+                raise ValidationError("Child not found")
 
         except Exception as ex:
             print("ERROR----------------->", ex)
             print("traceback---------------", traceback.print_exc())
+            raise ValidationError(ex)
