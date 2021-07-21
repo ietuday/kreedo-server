@@ -138,15 +138,19 @@ class UpdateSecretPinForSelectedChild(ListCreateAPIView):
             if child_detail_serilaizer.is_valid():
                 child_detail_serilaizer.save()
                 print("child_detail_serilaizer------>")
-                return Response(child_detail_serilaizer.data)
+                context = {'isSuccess': True, 'message': "Pin changed Successfully",
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
 
             else:
                 print("child_detail_serilaizer errors ------->",
                       child_detail_serilaizer.errors)
-                return Response(child_detail_serilaizer.errors)
+                context = {'isSuccess': False, 'message': "Child Not Found",
+                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
             print("ERROR----2", ex)
-            context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            context = {"isSuccess": False, "message": "Issue in Child Reset Pin", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
