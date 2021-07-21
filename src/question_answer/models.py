@@ -1,5 +1,6 @@
 from django.db import models
 from kreedo.core import TimestampAwareModel
+from users.models import*
 
 # Create your models here.
 
@@ -7,6 +8,7 @@ class QuestionAnswer(TimestampAwareModel):
     question = models.TextField(null=True,blank=True)
     answer = models.TextField(null=True, blank=True)
     pin = models.IntegerField(null=True, blank=True)
+    user= models.ManyToManyField(to='users.UserDetail', blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
