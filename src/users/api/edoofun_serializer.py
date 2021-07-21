@@ -65,6 +65,7 @@ class AccountUserSerializer(serializers.ModelSerializer):
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
     
+    
    
 
 """ User Role Serializer"""
@@ -380,7 +381,7 @@ class EdoofunParentDetailSerializer(serializers.ModelSerializer):
 
 """ Update secret pin Serializer """
 
-""" CHANGE PASSWORD """
+""" CHANGE PIN """
 class UserChangePinSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
@@ -432,3 +433,27 @@ class UserChangePinSerializer(serializers.ModelSerializer):
 
 
         
+""" ParentDetails Serializer """
+from child.models import*
+from child.api.edoofun_serializer import*
+class ParentDetailSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 3
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ParentDetailSerializer, self).to_representation(obj)
+        print("serialized_data",serialized_data['user_obj']['id'])
+        user_id = serialized_data['user_obj']['id']
+
+        child_qs = Child.objects.filter(parent=user_id)
+        if child_qs:
+            child_qs_serializer = ChildListParentSerializer(child_qs,many=True)
+            print("child_qs----",child_qs)
+            serialized_data['child_list'] = child_qs_serializer.data
+        # user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
+        return serialized_data
