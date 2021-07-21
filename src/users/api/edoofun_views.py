@@ -133,8 +133,7 @@ class GetAllAccounts(ListCreateAPIView):
             user_obj = UserDetail.objects.filter(role=roles)
             if user_obj:
 
-                user_obj_serializer = AccountUserSerializer(
-                    user_obj, many=True)
+                user_obj_serializer = AccountUserSerializer(user_obj, many=True)
 
                 context = {'isSuccess': True, 'message': "Accounts List",
                            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
@@ -213,4 +212,25 @@ class UpdateSecretPinForParent(ListCreateAPIView):
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            
+""" GetParentDetails """
+class GetParentDetails(ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            user_qs = UserDetail.objects.filter(user_obj=pk)
+            if user_qs:
+                user_qs_serializer = ParentDetailSerializer(user_qs, many=True)
+                context = {'isSuccess': True, 'message': "Parent Detail",'data': user_qs_serializer.data,
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "Parent Detail Not Found",
+                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+            print("EX", ex)
+            print("traceback", traceback)
+            context = {'isSuccess': False, "error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 

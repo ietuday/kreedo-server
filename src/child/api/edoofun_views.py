@@ -154,3 +154,31 @@ class UpdateSecretPinForSelectedChild(ListCreateAPIView):
             context = {"isSuccess": False, "message": "Issue in Child Reset Pin", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+""" GetChildListBasedOnParentID """
+class GetChildListBasedOnParentID(ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            print("@@@@@@@@@@@@@@@3",pk)
+            child_qs = Child.objects.filter(parent=pk)
+            if child_qs:
+                child_qs_serializer = ChildListParentSerializer(child_qs,many=True)
+                print("child_qs----",child_qs)  
+                context = {'isSuccess': True, 'message': "Child List based on ParentId",'data': child_qs_serializer.data,
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "Child List based on ParentId Not Found",
+                           'data': " ", "error":child_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
