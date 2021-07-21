@@ -115,36 +115,38 @@ class ChildListAssociatedToSectionID(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 """ Update Secret Pin For Selected Child """
+
+
 class UpdateSecretPinForSelectedChild(ListCreateAPIView):
-    def post(self,request):
+    def post(self, request):
         try:
-            print(self)
-            # child_detail = {
-            #     "child_id":request.data.get('child_id', None),
-            #     "parent_id":request.data.get('parent_id', None),
-            #     "old_pin":request.data.get('old_pin', None),
-            #     "new_pin":request.data.get('new_pin', None)
-            # }
-            
+            print(request.data)
+            child_detail = {
+                "child": request.data.get('child', None),
+                "parent_id": request.data.get('parent', None),
+                "old_pin": request.data.get('old_pin', None),
+                "new_pin": request.data.get('new_pin', None)
+            }
 
-            # context = super().get_serializer_context()
-            # context.update({"child_detail": child_detail})
-            # child_detail_serilaizer = UpdateSecretPinForChildSerializer(data=request.data, context=context)
-            
-            # if child_detail_serilaizer.is_valid():
-            #     print("child_detail_serilaizer------>")
+            context = super().get_serializer_context()
+            context.update({"child_detail": child_detail})
+            print("child_detail-----------", child_detail)
+            child_detail_serilaizer = UpdateSecretPinForChildSerializer(
+                data=request.data, context=context)
 
-            # else:
-            #     print("child_detail_serilaizer errors ------->", child_detail_serilaizer.errors)
+            if child_detail_serilaizer.is_valid():
+                child_detail_serilaizer.save()
+                print("child_detail_serilaizer------>")
+                return Response(child_detail_serilaizer.data)
 
-
-
+            else:
+                print("child_detail_serilaizer errors ------->",
+                      child_detail_serilaizer.errors)
+                return Response(child_detail_serilaizer.errors)
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
             print("ERROR----2", ex)
-            # context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-            #            "error": ex, "data": ""}
-            # return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
