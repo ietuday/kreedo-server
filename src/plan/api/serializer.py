@@ -138,16 +138,21 @@ class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
                 attendance_qs = Attendance.objects.get(attendance_date=self.context['attendance_detail']['attendance_date'],
                                                        academic_session=self.context['attendance_detail']['academic_session'])
 
+                print("attendance_qs",attendance_qs)
                 for i, d in enumerate(attendance_qs.childs):
-                    if child_id == d['child_id']:
-                        print("Existttttttttttttttttt")
+                    
+                    if str(child_id) in d['child_id']:
+                        
+                        print("Child id is present",str(child_id) )
                         serialized_data['is_present'] = d['present']
+                        return serialized_data
                     else:
                         serialized_data['is_present'] = False
+                        return serialized_data
 
             else:
                 serialized_data['is_present'] = False
-            return serialized_data
+            # return serialized_data
         except Exception as ex:
             print("ex", ex)
             print(traceback.print_exc())
