@@ -169,3 +169,14 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
             print("ERROR----------------->", ex)
             print("traceback---------------", traceback.print_exc())
             raise ValidationError(ex)
+
+
+
+
+
+class ChildListParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+        depth = 1
+

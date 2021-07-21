@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from rest_framework_jwt.views import obtain_jwt_token, verify_jwt_token, refresh_jwt_token
+
 
 admin.site.site_header = "Kreedo Administration"
 admin.site.site_title = "Kreedo Admin Portal"
@@ -24,6 +26,9 @@ admin.site.index_title = "Welcome to Kreedo Admin Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-token-auth', obtain_jwt_token),
+    path('api-token-verify', verify_jwt_token),
+    path('api-token-refresh/', refresh_jwt_token),
     path('users/', include('users.api.urls')),
     path('school/', include('schools.api.urls')),
     path('session/', include('session.api.urls')),
