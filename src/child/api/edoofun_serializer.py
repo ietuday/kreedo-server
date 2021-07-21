@@ -76,7 +76,8 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                                 print("Detail  Serializer--------",
                                       parent_detail_serializer.errors)
                         else:
-                            parent_list.append(parent_serializer.data['user_obj'])
+                            parent_list.append(
+                                parent_serializer.data['user_obj'])
                             print("User Exist")
                     else:
                         print("User Exist")
@@ -131,18 +132,29 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
-
-
 """ Update Secret Pin For Child Serializer """
+
+
 class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        field = ['secret_pin']
-    
+        fields = ['secret_pin']
 
-    def create(self,validated_data):
+    def create(self, validated_data):
         try:
-            print("Validated data",validated_data)
-            
+
+            child_id = self.context['child_detail']['child']
+
+            user_id = User.objects.get(
+                id=self.context['child_detail']['parent_id']).id
+            print("user_id , child ", user_id, child_id)
+            if Child.objects.filter(id=child_id, parent=user_id).exists():
+                print("@@@@@@", self.context['child_detail']['child'])
+            else:
+                print("Chilld not found")
+
+            return validated_data
+
         except Exception as ex:
-            print(ex)
+            print("ERROR----------------->", ex)
+            print("traceback---------------", traceback.print_exc())

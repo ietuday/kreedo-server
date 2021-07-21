@@ -1,3 +1,5 @@
+from child.api.serializer import*
+from child.models import*
 from session.api.serializer import*
 from rest_framework import serializers
 from ..models import*
@@ -114,6 +116,43 @@ class ChildPlanListSerializer(serializers.ModelSerializer):
         return serialized_data
 
 
+class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = ['child']
+        depth = 1
+
+    def to_representation(self, obj):
+        try:
+            serialized_data = super(
+                ChildPlanListByGradeSerializer, self).to_representation(obj)
+
+            child_data = serialized_data.get('child')
+            child_id = child_data.get('id')
+            child_activity_count = ActivityComplete.objects.filter(
+                child__id=child_id, is_completed=False).count()
+
+            serialized_data['activity_behind'] = child_activity_count
+            if Attendance.objects.filter(attendance_date=self.context['attendance_detail']['attendance_date'],
+                                         academic_session=self.context['attendance_detail']['academic_session']).exists():
+                attendance_qs = Attendance.objects.get(attendance_date=self.context['attendance_detail']['attendance_date'],
+                                                       academic_session=self.context['attendance_detail']['academic_session'])
+
+                for i, d in enumerate(attendance_qs.childs):
+                    if child_id == d['child_id']:
+                        print("Existttttttttttttttttt")
+                        serialized_data['is_present'] = d['present']
+                    else:
+                        serialized_data['is_present'] = False
+
+            else:
+                serialized_data['is_present'] = False
+            return serialized_data
+        except Exception as ex:
+            print("ex", ex)
+            print(traceback.print_exc())
+
+
 """ child plan activity Serializer """
 
 
@@ -147,8 +186,6 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         depth = 2
 
 
-
-
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
     academic_session = AcademicSessionListForChildSerializer()
 
@@ -158,18 +195,13 @@ class ChildPlanOfChildSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
-
-from child.models import*
-from child.api.serializer import*
-
 class ChildPlansChildSerializer(serializers.ModelSerializer):
     # child = SerializerMethodField()
     class Meta:
         model = ChildPlan
-        fields = ['id', 'child','is_active']
+        fields = ['id', 'child', 'is_active']
         depth = 1
-    
+
     # def to_representation(self, obj):
     #     print("#############", obj)
         # serialized_data = super(
@@ -181,6 +213,7 @@ class ChildPlansChildSerializer(serializers.ModelSerializer):
         #     child__id=child_id, is_completed=False).count()
         # serialized_data['activity_behind'] = child_activity_count
         # return serialized_data
+
 
 """ Plan activity List Serializer """
 

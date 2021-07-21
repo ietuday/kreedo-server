@@ -436,22 +436,30 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
 """ child List of class, section and subject """
 
+
 class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             subject = request.data.get('subject', None)
+            
             academic_session = AcademicSession.objects.filter(
                 grade=grade, section=section)
-            print("academic_session",academic_session)
-            print("academic_session",len(academic_session))
+       
+            attendance_detail = {
+                "academic_session":academic_session[0],
+                "attendance_date":request.data.get('attendance_date', None)
+            }
+            context = super().get_serializer_context()
+            context.update({"attendance_detail": attendance_detail})
+
 
             if len(academic_session) != 0:
                 child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
                 
-                child_serailizer = ChildPlanListSerializer(child_query, many=True)
+                child_serailizer = ChildPlanListByGradeSerializer(child_query,context= context, many=True)
 
             # context = {"message": "Child List According to grade",
             #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
