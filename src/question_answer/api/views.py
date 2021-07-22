@@ -117,19 +117,8 @@ class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
         try:
             question_answer = QuestionAnswer.objects.filter(user=pk)
             print(question_answer)
-            if len(question_answer) !=0:
-                for i in question_answer:
-                    print("question_answer",question_answer)
-                    i.question=request.data.get('question',None)
-                    i.save()
-                    print("SAVE")
-            else:
-
-
-                context = {'isSuccess': False, "error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+           
+           
         except Exception as ex:
             print(ex)
             context = {'isSuccess': False, "error": ex,
