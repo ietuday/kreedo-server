@@ -126,12 +126,12 @@ class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
                 ChildPlanListByGradeSerializer, self).to_representation(obj)
-
+            print("serialized_data",serialized_data)
             child_data = serialized_data.get('child')
             child_id = child_data.get('id')
             child_activity_count = ActivityComplete.objects.filter(
                 child__id=child_id, is_completed=False).count()
-
+            # pdb.set_trace()
             serialized_data['activity_behind'] = child_activity_count
             if Attendance.objects.filter(attendance_date=self.context['attendance_detail']['attendance_date'],
                                          academic_session=self.context['attendance_detail']['academic_session']).exists():
@@ -145,14 +145,14 @@ class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
                         
                         print("Child id is present",str(child_id) )
                         serialized_data['is_present'] = d['present']
-                        return serialized_data
+                        # return serialized_data
                     else:
                         serialized_data['is_present'] = False
-                        return serialized_data
+                        # return serialized_data
 
             else:
                 serialized_data['is_present'] = False
-            # return serialized_data
+            return serialized_data
         except Exception as ex:
             print("ex", ex)
             print(traceback.print_exc())
