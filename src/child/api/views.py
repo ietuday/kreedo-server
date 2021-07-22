@@ -447,20 +447,22 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             academic_session = AcademicSession.objects.filter(
                 grade=grade, section=section)
        
-            attendance_detail = {
-                "academic_session":academic_session[0],
-                "attendance_date":request.data.get('attendance_date', None)
-            }
-            context = super().get_serializer_context()
-            context.update({"attendance_detail": attendance_detail})
+            print("academic_session",academic_session)
 
 
             if len(academic_session) != 0:
+                attendance_detail = {
+                    "academic_session":academic_session[0],
+                    "attendance_date":request.data.get('attendance_date', None)
+                }
+                context = super().get_serializer_context()
+                context.update({"attendance_detail": attendance_detail})
+                print("context",context)
                 child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
-                
+                print("child_query",child_query)
                 child_serailizer = ChildPlanListByGradeSerializer(child_query,context= context, many=True)
-
+                print("child_serailizer.data",child_serailizer.data)
             # context = {"message": "Child List According to grade",
             #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
                 return Response(child_serailizer.data,status=status.HTTP_200_OK)
