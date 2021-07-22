@@ -7,7 +7,7 @@ from users.models import*
 class QuestionAnswer(TimestampAwareModel):
     question = models.TextField(null=True,blank=True)
     answer = models.TextField(null=True, blank=True)
-    pin = models.IntegerField(null=True, blank=True)
+    # pin = models.IntegerField(null=True, blank=True)
     user= models.ManyToManyField(to='users.UserDetail', blank=True)
     is_active = models.BooleanField(default=False)
 
@@ -17,7 +17,7 @@ class QuestionAnswer(TimestampAwareModel):
         ordering = ['-id']
     
     def __str__(self):
-        return str(self.id)
+        return str(self.question)
 
     def get_absolute_url(self):
         return reverse('QuestionAnswer_detail', kwargs={"pk": self.pk})
