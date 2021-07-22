@@ -57,7 +57,7 @@ class SkillListByConcept(ListCreateAPIView):
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
-                context = {'isSuccess': True, 'message': "Skill List by Concept ID Not foune",
+                context = {'isSuccess': True, 'message': "Skill List by Concept ID Not found",
                                 'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
 
