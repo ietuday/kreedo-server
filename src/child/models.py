@@ -143,11 +143,13 @@ class Attendance(TimestampAwareModel):
     childs = JSONField(blank=True, null=True)
     attendance_date = models.DateField(null=True)
     is_active = models.BooleanField(default=False)
+    
 
     class Meta:
         verbose_name = 'Attendance'
         verbose_name_plural = 'Attendances'
         ordering = ['-id']
+        unique_together = ['academic_session','attendance_date']
 
     def __str__(self):
         return str(self.id)
