@@ -125,8 +125,10 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
 
 
 class GetAllAccounts(ListCreateAPIView):
-    def get(self, request):
+    def post(self, request):
+
         try:
+            
             roles = Role.objects.get(name='School Account Owner')
             roles = roles.id
 

@@ -73,3 +73,11 @@ class ValidateAnswer(ListCreateAPIView):
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+""" GetSecretQuestionBasedOnParentID """
+# class GetSecretQuestionBasedOnParentID(ListCreateAPIView):
+    # def get
