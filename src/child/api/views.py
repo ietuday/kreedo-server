@@ -449,40 +449,44 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
        
             print("academic_session",academic_session)
 
-#  check academic session ? 
-
-#     pickup child id 
-#     if attendance not create:
-#         child_dict ={}
-
-#         academic_session = models.ForeignKey(
-#         to='session.AcademicSession', on_delete=models.PROTECT)
-#         marked_status = false
-#         childs = JSONField(blank=True, null=True)
-#         attendance_date = models.DateField(null=True)
-#         is_active = models.BooleanField(default=False)
-        
-
-
-
-            # if len(academic_session) != 0:
-            #     attendance_detail = {
-            #         "academic_session":academic_session[0],
-            #         "attendance_date":request.data.get('attendance_date', None)
-            #     }
-            #     context = super().get_serializer_context()
-            #     context.update({"attendance_detail": attendance_detail})
-            #     print("context",context)
-            #     child_query = ChildPlan.objects.filter(
-            #         academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
-            #     print("child_query",child_query)
-            #     child_serailizer = ChildPlanListByGradeSerializer(child_query,context= context, many=True)
-            #     print("child_serailizer.data",child_serailizer.data)
-            # # context = {"message": "Child List According to grade",
-            # #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
-            #     return Response(child_serailizer.data,status=status.HTTP_200_OK)
-            # else:
-            #     return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if len(academic_session) != 0:
+                print("academic_session------",academic_session)
+                attendace_qs =  Attendance.objects.filter(academic_session=academic_session[0].id,
+                attendance_date=request.data.get('attendance_date',None))
+                print("attendace_qs-------->",attendace_qs) 
+                if Attendance.objects.filter(attendance_date=request.data.get('attendance_date',None),academic_session=academic_session[0]).exists():
+                    print("IF----------------------")
+                    attendace_qs =  Attendance.objects.filter(attendance_date=request.data.get('attendance_date',None),
+                        academic_session=academic_session[0])[0]
+                    
+                    attendace_qs_serializer = AttendanceCreateSerializer(attendace_qs)
+                    print("AttendANCE CALLED")
+                    return Response(attendace_qs_serializer.data)
+                        
+                else:
+                    child_query = ChildPlan.objects.filter(
+                    academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
+                    print("child_query",child_query)
+                    childs =[]
+                    for i in child_query:
+                        child ={
+                            "child_id":i.child.id,
+                            "name":i.child.first_name,
+                            "present":False
+                        }
+                        childs.append(child)
+                    print("childs-----", childs)
+                        
+                    attendace_dict = {
+                        "academic_session":academic_session[0].id,
+                        "marked_status":False,
+                        "childs":childs,
+                        "attendance_date":request.data.get('attendance_date',None),
+                        "is_active":False
+                    }
+                    return Response(attendace_dict)
+            else:
+                return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             print("#############",ex)
             logger.info(ex)
