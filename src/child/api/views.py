@@ -449,25 +449,40 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
        
             print("academic_session",academic_session)
 
+#  check academic session ? 
 
-            if len(academic_session) != 0:
-                attendance_detail = {
-                    "academic_session":academic_session[0],
-                    "attendance_date":request.data.get('attendance_date', None)
-                }
-                context = super().get_serializer_context()
-                context.update({"attendance_detail": attendance_detail})
-                print("context",context)
-                child_query = ChildPlan.objects.filter(
-                    academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
-                print("child_query",child_query)
-                child_serailizer = ChildPlanListByGradeSerializer(child_query,context= context, many=True)
-                print("child_serailizer.data",child_serailizer.data)
-            # context = {"message": "Child List According to grade",
-            #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
-                return Response(child_serailizer.data,status=status.HTTP_200_OK)
-            else:
-                return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     pickup child id 
+#     if attendance not create:
+#         child_dict ={}
+
+#         academic_session = models.ForeignKey(
+#         to='session.AcademicSession', on_delete=models.PROTECT)
+#         marked_status = false
+#         childs = JSONField(blank=True, null=True)
+#         attendance_date = models.DateField(null=True)
+#         is_active = models.BooleanField(default=False)
+        
+
+
+
+            # if len(academic_session) != 0:
+            #     attendance_detail = {
+            #         "academic_session":academic_session[0],
+            #         "attendance_date":request.data.get('attendance_date', None)
+            #     }
+            #     context = super().get_serializer_context()
+            #     context.update({"attendance_detail": attendance_detail})
+            #     print("context",context)
+            #     child_query = ChildPlan.objects.filter(
+            #         academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
+            #     print("child_query",child_query)
+            #     child_serailizer = ChildPlanListByGradeSerializer(child_query,context= context, many=True)
+            #     print("child_serailizer.data",child_serailizer.data)
+            # # context = {"message": "Child List According to grade",
+            # #            "data": child_serailizer.data, "statusCode": status.HTTP_200_OK}
+            #     return Response(child_serailizer.data,status=status.HTTP_200_OK)
+            # else:
+            #     return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             print("#############",ex)
             logger.info(ex)

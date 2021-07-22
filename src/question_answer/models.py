@@ -11,6 +11,7 @@ class QuestionAnswer(TimestampAwareModel):
     user= models.ManyToManyField(to='users.UserDetail', blank=True)
     is_active = models.BooleanField(default=False)
 
+
     class Meta:
         verbose_name = 'QuestionAnswer'
         verbose_name_plural = 'QuestionAnswers'
