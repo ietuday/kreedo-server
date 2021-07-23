@@ -435,7 +435,7 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
 
 """ child List of class, section and subject """
-
+from activity.models import*
 
 class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
@@ -459,7 +459,7 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
                     attendace_qs =  Attendance.objects.filter(attendance_date=request.data.get('attendance_date',None),
                         academic_session=academic_session[0])[0]
                     
-                    attendace_qs_serializer = AttendanceCreateSerializer(attendace_qs)
+                    attendace_qs_serializer = AttendanceChildSerializer(attendace_qs)
                     print("AttendANCE CALLED")
                     return Response(attendace_qs_serializer.data)
                         
@@ -467,12 +467,16 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
                     child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
                     print("child_query",child_query)
+                    
                     childs =[]
                     for i in child_query:
+                        child_activity_count = ActivityComplete.objects.filter(
+                        child__id=i.child.id, is_completed=False).count()
                         child ={
                             "child_id":i.child.id,
                             "name":i.child.first_name,
-                            "present":False
+                            "present":False,
+                            "activity_behind":child_activity_count if child_activity_count else 0
                         }
                         childs.append(child)
                     print("childs-----", childs)
@@ -492,6 +496,7 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 from plan.api.serializer import*
 class AttendenceByAcademicSession(ListCreateAPIView):
