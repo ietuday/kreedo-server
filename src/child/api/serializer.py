@@ -1,3 +1,4 @@
+from activity.models import ActivityComplete
 import traceback
 from rest_framework import serializers
 from child.models import*
@@ -306,8 +307,30 @@ class AttendanceCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AttendanceChildSerializer(serializers.ModelSerializer):
+    # childs = serializers.JSONField(required=False)
+    class Meta:
+        model = Attendance
+        fields = '__all__'
+
+    def to_representation(self, obj):
+
+        serialized_data = super(
+            AttendanceChildSerializer, self).to_representation(obj)
+        print("serialized_data['childs']", serialized_data['childs'])
+
+        for i in serialized_data['childs']:
+            # i['activity_behind'] = 0
+            print("=== i", i['child_id'])
+            child_activity_count = ActivityComplete.objects.filter(
+                child__id=i['child_id'], is_completed=False).count()
+            i['activity_behind'] = child_activity_count if child_activity_count else 0
+        return serialized_data
+
+
 """ Attendance List Serializer """
-from activity.models import ActivityComplete
+
+
 class AttendanceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
@@ -318,27 +341,22 @@ class AttendanceListSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
                 AttendanceListSerializer, self).to_representation(obj)
-            print("serialized_data['childs']",serialized_data['childs'])
+            print("serialized_data['childs']", serialized_data['childs'])
             for child in serialized_data['childs']:
-               
-                if ActivityComplete.objects.filter(child=child['child_id'],period=self.context['period_detail']['period'],
-                                activity=self.context['period_detail']['activity']).exists():
-                    activity_qs = ActivityComplete.objects.filter(child=child['child_id'],period=self.context['period_detail']['period'],
-                                activity=self.context['period_detail']['activity'])
-                    if len(activity_qs)!=0:     
+
+                if ActivityComplete.objects.filter(child=child['child_id'], period=self.context['period_detail']['period'],
+                                                   activity=self.context['period_detail']['activity']).exists():
+                    activity_qs = ActivityComplete.objects.filter(child=child['child_id'], period=self.context['period_detail']['period'],
+                                                                  activity=self.context['period_detail']['activity'])
+                    if len(activity_qs) != 0:
                         child['is_completed'] = activity_qs[0].is_completed
                     else:
                         child['is_completed'] = False
                 else:
                     child['is_completed'] = False
-               
 
             return serialized_data
 
         except Exception as ex:
             print("ERROR", ex)
             print("traceback------", traceback.print_exc())
-
-
-
-
