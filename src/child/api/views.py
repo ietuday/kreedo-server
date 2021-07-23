@@ -467,28 +467,31 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
                     child_query = ChildPlan.objects.filter(
                     academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
                     print("child_query",child_query)
-                    
-                    childs =[]
-                    for i in child_query:
-                        child_activity_count = ActivityComplete.objects.filter(
-                        child__id=i.child.id, is_completed=False).count()
-                        child ={
-                            "child_id":i.child.id,
-                            "name":i.child.first_name,
-                            "present":False,
-                            "activity_behind":child_activity_count if child_activity_count else 0
+                    if len(child_query) !=0:
+                        childs =[]
+                        for i in child_query:
+                            child_activity_count = ActivityComplete.objects.filter(
+                            child__id=i.child.id, is_completed=False).count()
+                            child ={
+                                "child_id":i.child.id,
+                                "name":i.child.first_name,
+                                "present":False,
+                                "activity_behind":child_activity_count if child_activity_count else 0
+                            }
+                            childs.append(child)
+                        print("childs-----", childs)
+                            
+                        attendace_dict = {
+                            "academic_session":academic_session[0].id,
+                            "marked_status":False,
+                            "childs":childs,
+                            "attendance_date":request.data.get('attendance_date',None),
+                            "is_active":False
                         }
-                        childs.append(child)
-                    print("childs-----", childs)
-                        
-                    attendace_dict = {
-                        "academic_session":academic_session[0].id,
-                        "marked_status":False,
-                        "childs":childs,
-                        "attendance_date":request.data.get('attendance_date',None),
-                        "is_active":False
-                    }
-                    return Response(attendace_dict)
+                        return Response(attendace_dict)
+                    else:
+                        return Response("Academic Session according child not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             else:
                 return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:

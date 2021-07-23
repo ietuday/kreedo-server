@@ -119,8 +119,8 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
                        'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
             # return Response(ex, status=status.HTTP_400_BAD_REQUEST)
-
-
+from schools.models import*
+from schools.api.edoofun_serializer import*
 """Get All ACCOUNT """
 
 
@@ -128,22 +128,42 @@ class GetAllAccounts(ListCreateAPIView):
     def post(self, request):
 
         try:
-            
-            roles = Role.objects.get(name='School Account Owner')
-            roles = roles.id
-
-            user_obj = UserDetail.objects.filter(role=roles)
-            if user_obj:
-
-                user_obj_serializer = AccountUserSerializer(user_obj, many=True)
-
-                context = {'isSuccess': True, 'message': "Accounts List",
-                           'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+            print("@@@@@@@@@@@@",request.data )
+            if request.data['type'] == 'account_id':
+                print("account_id----")
+                user_role_qs = UserRole.objects.filter(user=request.data.get('account_id',None))
+                user_role_qs_serializer = SchoolUserRoleSerializers(user_role_qs, many=True)
+                
+                context = {'isSuccess': True, 'message': "School List by Account Id",
+                           'data': user_role_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            else:
-                context = {'isSuccess': False, 'message': "Accounts List Not Found",
-                           'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
-                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+            elif request.data['type'] == 'school_id':
+                print("35")
+                
+                school_qs = School.objects.filter(id = request.data.get('school_id',None))
+                print("school_qs",school_qs)
+                school_qs_serializer = SchoolListSerializer(school_qs, many=True)
+
+                context = {'isSuccess': True, 'message': "School Detail by School Id",
+                           'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            elif  request.data['type'] == 'all':
+                roles = Role.objects.get(name='School Account Owner')
+                roles = roles.id
+
+                user_obj = UserDetail.objects.filter(role=roles)
+                if user_obj:
+
+                    user_obj_serializer = AccountUserSerializer(user_obj, many=True)
+
+                    context = {'isSuccess': True, 'message': "Accounts List",
+                            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    context = {'isSuccess': False, 'message': "Accounts List Not Found",
+                            'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
+                    return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("@@@@@@@@", ex)
             print("TRACEBACK---", traceback.print_exc())

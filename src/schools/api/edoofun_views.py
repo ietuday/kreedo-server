@@ -39,3 +39,30 @@ class ActiveSchoolList(ListCreateAPIView):
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+
+
+
+
+class GetListOfAllSchools(ListCreateAPIView):
+    model = School
+    filterset_class = SchoolFilter
+
+    def get(self, request):
+        try:
+            school_qs = School.objects.all()
+            
+            if school_qs:
+                school_qs_serializer = SchoolListSerializer(school_qs, many=True)
+                context = {'isSuccess': True, 'message': "School List",
+                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                context = {'isSuccess': False, 'message': "School List Not Found",
+                            'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+           
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
