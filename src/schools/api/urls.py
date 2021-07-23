@@ -44,9 +44,9 @@ urlpatterns = [
      path('bulk-upload/add-grade',
           AddGrade.as_view(), name='AddGrade'),
 
-     path('edoofun/active_school_list',
+     path('edoofun/get_list_of_active_schools',
          ActiveSchoolList.as_view(), name='Get All School list'),
-     
+
      path('edoofun/get_list_of_all_schools',
          GetListOfAllSchools.as_view(), name='Get All School list'),
      
