@@ -54,7 +54,6 @@ urlpatterns = [
          AddSchoolGradeSubject.as_view(), name='Add School Grade Subject'),
     path('bulk-upload/add-user', AddUserData.as_view(), name='AddUserData'),
 
-
     path('edoofun/register_user',
          RegisterParent.as_view(), name='Register Parent'),
     path('edoofun/login_user_by_email_id',
@@ -67,6 +66,5 @@ urlpatterns = [
          UpdateSecretPinForParent.as_view(), name='Update Secret PIN For Parent'),
  path('edoofun/get_parent_details/<int:pk>',
          GetParentDetails.as_view(), name='Get Parent Details'),
-
 
 ]
