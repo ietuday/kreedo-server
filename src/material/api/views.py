@@ -50,7 +50,12 @@ class MaterialListCreate(GeneralClass, Mixins, ListCreateAPIView):
 class MaterialRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Material
     filterset_class = MaterialFilter
-    serializer_class = MaterialSerializer
+    serializer_class = MaterialSerializer 
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Activity Master Supporting Material List and Create  """
