@@ -48,8 +48,6 @@ urlpatterns = [
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 
 
-
-
     path('bulk-upload/add-account', AddAccount.as_view(), name='Add Account'),
     path('bulk-upload/add-school', AddSchool.as_view(), name='Add School'),
     path('bulk-upload/add-school-grade-subject',
