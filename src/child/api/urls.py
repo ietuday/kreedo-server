@@ -40,8 +40,8 @@ urlpatterns = [
           name='Child List Associated To SectionID'),
      path('edoofun/update_secret_pin_for_selected_child',
          UpdateSecretPinForSelectedChild.as_view(), name='Update Secret PIN For Child'),
-
-     path('edoofun/child_list_based_on_parent_id/<int:pk>', GetChildListBasedOnParentID.as_view(),
+         
+     path('edoofun/get_child_list_based_on_parent_id/<int:pk>', GetChildListBasedOnParentID.as_view(),
           name='Child List based on ParentID'),
 
 

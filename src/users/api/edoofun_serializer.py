@@ -457,3 +457,22 @@ class ParentDetailSerializer(serializers.ModelSerializer):
             serialized_data['child_list'] = child_qs_serializer.data
         # user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
         return serialized_data
+
+
+
+""" AccountListtSerializer List Serializer """
+class AccountListForSerializer(serializers.ModelSerializer):
+    user_obj = AuthUserSerializer()
+    
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 1
+
+class SchoolUserRoleSerializers(serializers.ModelSerializer):
+    user = AccountListForSerializer()
+    class Meta:
+        
+        model = UserRole
+        fields = ['user', 'school']
+        depth = 2
