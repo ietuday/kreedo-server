@@ -42,7 +42,6 @@ class ActiveSchoolList(ListCreateAPIView):
 
 
 
-
 class GetListOfAllSchools(ListCreateAPIView):
     model = School
     filterset_class = SchoolFilter
@@ -51,6 +50,7 @@ class GetListOfAllSchools(ListCreateAPIView):
         try:
             school_qs = School.objects.all()
             
+
             if school_qs:
                 school_qs_serializer = SchoolListSerializer(school_qs, many=True)
                 context = {'isSuccess': True, 'message': "School List",
@@ -58,6 +58,35 @@ class GetListOfAllSchools(ListCreateAPIView):
                 return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {'isSuccess': False, 'message': "School List Not Found",
+                            'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+           
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+
+
+
+""" Section Retrive Update delete """
+
+
+class GetSchoolDetailsBasedOnSchoolID(RetrieveUpdateDestroyAPIView):
+    model = School
+    filterset_class = SchoolFilter
+
+    def get(self, request, pk):
+        try:
+            school_qs = School.objects.filter(id=pk)
+        
+            if school_qs:
+                school_qs_serializer = SchoolDetailListSerializer(school_qs, many=True)
+                context = {'isSuccess': True, 'message': "School Detail by School Id",
+                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                context = {'isSuccess': False, 'message': "School Detail by School Id Not Found",
                             'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:

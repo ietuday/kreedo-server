@@ -48,7 +48,11 @@ urlpatterns = [
          ActiveSchoolList.as_view(), name='Get All School list'),
 
      path('edoofun/get_list_of_all_schools',
-         GetListOfAllSchools.as_view(), name='Get All School list'),
-     
+         GetListOfAllSchools.as_view(), name='Get All Active School list'),
+
+     path('edoofun/get_school_detail_based_on_school_id/<int:pk>',
+         GetSchoolDetailsBasedOnSchoolID.as_view(), name='Get School  DetailsBasedOn SchoolID'),
+
+
 
 ]

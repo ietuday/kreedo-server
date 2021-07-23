@@ -21,3 +21,13 @@ class SchoolListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+
+
+class SchoolDetailListSerializer(serializers.ModelSerializer):
+    license=  LicenseSerializer()
+    class Meta:
+        model = School
+        fields = '__all__'
+        depth = 1
+
+   
