@@ -121,13 +121,24 @@ class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
                 question_answer = QuestionAnswer.objects.filter(user=pk)
                 print("@@@@@@@", question_answer)
                 for question in question_answer:
-                    question.delete()
-                question_answer = QuestionAnswer.objects.create(user=pk,question=request.data.get('request', None))
-                question_answer.save()
-                context = {'isSuccess': True, "error": "",'message': "Question updated Successfully"
-                           ,"parent_id":pk,"statusCode": status.HTTP_200_OK, 'data': question_answer_serializer.data}
-                return Response(context, status=status.HTTP_200_OK)
-
+                    
+                    question.user.remove(pk)
+                    print("remove")
+                
+                question_detail = {
+                    "user":pk,
+                    "question":request.data.get('question',None)
+                }
+                question_answer_qs = QuestionAnswerSerializer(data=dict(question_detail))
+                if question_answer_qs.is_valid():
+                    question_answer_qs.save()
+                    context = {'isSuccess': True, "error": "",'message': "Question updated Successfully"
+                            ,"parent_id":pk,"statusCode": status.HTTP_200_OK,}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    context = {'isSuccess': False, "error": question_answer_qs.errors,
+                    "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
                 context = {'isSuccess': True, 'message': "User Not found",
                            'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
