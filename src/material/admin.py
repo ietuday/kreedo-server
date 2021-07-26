@@ -9,9 +9,9 @@ from import_export.admin import ImportExportModelAdmin
 
 @admin.register(Material)
 class MaterialAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'decription', 'photo', 'code', 'is_active']
-    search_fields = ['id', 'name', 'decription', 'photo', 'code', 'is_active']
-    list_filter = ['id', 'name', 'decription', 'photo', 'code', 'is_active']
+    list_display = ['id', 'name', 'description', 'photo', 'code', 'is_active']
+    search_fields = ['id', 'name', 'description', 'photo', 'code', 'is_active']
+    list_filter = ['id', 'name', 'description', 'photo', 'code', 'is_active']
 
 
 """ Activity Master Supporting  Material Admin """

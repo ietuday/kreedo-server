@@ -9,7 +9,7 @@ from .managers import*
 
 class Material(TimestampAwareModel):
     name = models.CharField(max_length=100)
-    decription = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
     code = models.CharField(max_length=200, null=True, blank=True)
     no_of_material = models.BooleanField(default=False)
