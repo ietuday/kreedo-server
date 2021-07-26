@@ -104,6 +104,7 @@ class GetListOfSchoolsBasedOnAccountID(RetrieveUpdateDestroyAPIView):
 
     def post(self, request):
         try:
+            
             school_qs = School.objects.filter(account_manager=request.data.get('account_id',None),
                          is_active=request.data.get('status',None))
         
