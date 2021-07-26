@@ -49,7 +49,6 @@ class Concept(TimestampAwareModel):
 
 """ Skill Model """
 
-
 class Skill(TimestampAwareModel):
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
