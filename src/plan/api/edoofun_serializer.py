@@ -5,7 +5,7 @@ from kreedo.conf.logger import CustomFormatter
 from users.api.edoofun_serializer import *
 import logging
 
-
+from session.api.edoofun_serializer import*
 """ Logging """
 
 logger = logging.getLogger(__name__)
@@ -20,3 +20,5 @@ class ChildPlanSectionListSerializer(serializers.ModelSerializer):
         model = ChildPlan
         fields = ['child']
         depth = 1
+
+
