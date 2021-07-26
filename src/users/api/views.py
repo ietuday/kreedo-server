@@ -298,8 +298,8 @@ class UserLogin(Mixins,CreateAPIView):
             else:
 
                 context = {'isSuccess': False, "message": user_data_serializer.errors['non_field_errors'][0],
-                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
-                return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                           "statusCode": status.HTTP_200_OK,'data':''}
+                return Response(context,status=status.HTTP_200_OK)
                 # return Response(user_data_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             context = {'isSuccess': False, 'message': "Something went wrong",
