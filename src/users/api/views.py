@@ -606,8 +606,10 @@ class AddUser(ListCreateAPIView):
                 "user_detail": 1,
                 "user_role": request.data.get('role', None)[0],
                 "reporting_to": request.data.get('reporting', None),
-                "is_active": "true"
+                "is_active": "true",
+                "school": request.data.get('school', None)
             }
+
             
             print("reporting_to----------->",reporting_to)
 
