@@ -44,7 +44,7 @@ urlpatterns = [
     path('user_role_retrive_update_delete/<int:pk>', UserRoleRetriveUpdateDestroy.as_view(),
          name='UserRoleRetriveUpdateDestroy'),
     path('user_list_by_school/<int:pk>',
-         UserListBySchoolID.as_view(), name='User List By School'), 
+         UserListBySchoolID.as_view(), name='User List By School'),
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 
 
@@ -60,11 +60,11 @@ urlpatterns = [
          LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD'),
     path('edoofun/get_all_account',
          GetAllAccounts.as_view(), name='Get All Accounts'),
-   path('edoofun/user_list_by_school/<int:pk>',
-         UserListBySchool.as_view(), name='User List By School'),
-   path('edoofun/update_secret_pin_for_parent',
+    path('edoofun/get_users_based_on_school_id/<int:pk>',
+         GetUsersBasedOnSchoolID.as_view(), name='Get User List Based on School Id'),
+    path('edoofun/update_secret_pin_for_parent',
          UpdateSecretPinForParent.as_view(), name='Update Secret PIN For Parent'),
- path('edoofun/get_parent_details/<int:pk>',
+    path('edoofun/get_parent_details/<int:pk>',
          GetParentDetails.as_view(), name='Get Parent Details'),
 
 ]

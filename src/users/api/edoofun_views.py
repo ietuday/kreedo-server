@@ -175,13 +175,14 @@ class GetAllAccounts(ListCreateAPIView):
 """  Get UsersBasedOnSchoolID """
 
 
-class UserListBySchool(ListCreateAPIView):
+class GetUsersBasedOnSchoolID(ListCreateAPIView):
     def get(self, request, pk):
         try:
-
-            user_role = UserRole.objects.filter(school=pk)
+            role_qs = Role.objects.get(name='School Account Owner').id
+            
+            user_role = UserRole.objects.filter(school=pk).exclude(role=role_qs)
             if user_role:
-                user_role_serializer = SchoolUserRoleSerializer(
+                user_role_serializer = UserListBySchoolSerializers(
                     user_role, many=True)
 
                 context = {'isSuccess': True, 'message': "User List By School",
@@ -189,7 +190,7 @@ class UserListBySchool(ListCreateAPIView):
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
-                context = {'isSuccess': True, 'message': "User List By School Not Found",
+                context = {'isSuccess': False, 'message': "User List By School Not Found",
                            'data': " ", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
 
@@ -256,3 +257,22 @@ class GetParentDetails(ListCreateAPIView):
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
  
+
+
+
+
+
+""" Get List Of Schools BasedOn AccountID """
+class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
+    model = UserRole
+    filterset_class = UserRoleFilter
+
+    def get(self, request, pk):
+        try:
+            user_school_qs = UserRole.objects.filter(user=pk).exclude(school__isnull =True)
+            
+            user_school_qs_serializer = SchoolListByUserSerializer(user_school_qs,many=True)
+            return Response(user_school_qs_serializer.data,status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

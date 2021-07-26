@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from .views import*
-
+from .edoofun_views import*
 
 urlpatterns = [
 
@@ -16,18 +16,19 @@ urlpatterns = [
          PlanActivityListCreate.as_view(), name='PlanActivityListCreate'),
     path('plan-activity_retrive_update_delete/<int:pk>', PlanActivityRetriveUpdateDestroy.as_view(),
          name='PlanActivityRetriveUpdateDestroy'),
-
-
     path('subject-school-grade-plan_list_create',
          SubjectSchoolGradePlanListCreate.as_view(), name='SubjectSchoolGradePlanListCreate'),
     path('subject-school-grade-plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
          name='SubjectSchoolGradePlanRetriveUpdateDestroy'),
-
-     path('child-activity',
+    path('child-activity',
          ChildActivity.as_view(), name='ChildActivity'),
 
-         
-     path('bulk-upload/add-plan',
+
+    path('bulk-upload/add-plan',
          AddPlan.as_view(), name='AddPlan'),
+
+
+    path('edoofun/get_child_list_associated_to_section_id',
+         GetChildListAssociatedToSectionID.as_view(), name='get child List By section'),
 
 ]

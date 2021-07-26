@@ -176,7 +176,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                         material_id = Material.objects.filter(id=material.id)
                         for m in material_id:
                             master_material_dict['name'] = m.name
-                            master_material_dict['decription'] = m.decription
+                            master_material_dict['description'] = m.description
                             master_material_dict['photo'] = m.photo
                             master_material_list.append(master_material_dict)
                             master_material_dict = {}
@@ -189,7 +189,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                         material_id = Material.objects.filter(id=material.id)
                         for m in material_id:
                             supporting_master_material_dict['name'] = m.name
-                            supporting_master_material_dict['decription'] = m.decription
+                            supporting_master_material_dict['description'] = m.description
                             supporting_master_material_dict['photo'] = m.photo
                             supporting_master_material_list.append(
                                 supporting_master_material_dict)
