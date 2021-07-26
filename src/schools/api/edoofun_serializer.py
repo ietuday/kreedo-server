@@ -15,6 +15,7 @@ class LicenseSerializer(serializers.ModelSerializer):
 
 class SchoolListSerializer(serializers.ModelSerializer):
     license=  LicenseSerializer()
+    # account_manager = AccountListForSerializer()
     class Meta:
         model = School
         fields = '__all__'
@@ -23,8 +24,8 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 
 
-class SchoolDetailListSerializer(serializers.ModelSerializer):
-    license=  LicenseSerializer()
+class SchoolDetailSerializer(serializers.ModelSerializer):
+    account_manager = AccountListForSerializer()
     class Meta:
         model = School
         fields = '__all__'

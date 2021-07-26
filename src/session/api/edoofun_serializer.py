@@ -28,5 +28,13 @@ class SectionListBySchoolSerializer(serializers.ModelSerializer):
 
 
 
+# class AcademicSessionListForChildSerializer(serializers.ModelSerializer):
+#     class_teacher = UserDetailListSerializer()
+
+#     class Meta:
+#         model = AcademicSession
+#         fields = '__all__'
+#         depth = 1
+
 
 
