@@ -476,3 +476,12 @@ class SchoolUserRoleSerializers(serializers.ModelSerializer):
         model = UserRole
         fields = ['user', 'school']
         depth = 2
+
+
+class UserListBySchoolSerializers(serializers.ModelSerializer):
+    user = AccountListForSerializer()
+    class Meta:
+        
+        model = UserRole
+        fields = ['user']
+        depth = 1
