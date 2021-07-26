@@ -20,7 +20,7 @@ from rest_framework import status
 """ get Section based on school """
 
 
-class SectionListBySchool(ListCreateAPIView):
+class GetListOfSectionsBasedOnSchoolID(ListCreateAPIView):
     def get(self, request, pk):
         try:
             section_qs = AcademicSession.objects.filter(school=pk)
