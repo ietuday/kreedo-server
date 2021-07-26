@@ -43,7 +43,7 @@ urlpatterns = [
          
      path('edoofun/get_child_list_based_on_parent_id/<int:pk>', GetChildListBasedOnParentID.as_view(),
           name='Child List based on ParentID'),
-
-
+     path('get_child_detail_based_on_child_id/<int:pk>', ChildDetailRetriveUpdateDestroy.as_view(),
+          name='Child List based on ParentID'),
 
 ]

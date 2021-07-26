@@ -10,7 +10,8 @@ import logging
 from kreedo.conf.logger import*
 import pdb
 from users.models import*
-
+from session.api.serializer import*
+from plan.api.edoofun_serializer import*
 
 """ logger """
 
@@ -179,4 +180,42 @@ class ChildListParentSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
         depth = 1
+
+
+
+
+
+class ChildDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Child
+        fields = '__all__'
+        # depth= 2
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildDetailSerializer, self).to_representation(obj)
+
+        child_id = serialized_data.get('id')
+
+        parent_list = serialized_data.get('parent')
+
+        print("$$$$$$$$$$", parent_list)
+        user_qs = UserDetail.objects.filter(user_obj__in=parent_list)
+        user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
+
+        serialized_data['parents'] = user_qs_serializer.data
+
+        child_id_qs = ChildPlan.objects.filter(child=child_id)
+        # if child_id_qs:
+        #     print("child_id_qs----", child_id_qs)
+        #     child_id_serializer = ChildPlanChildSerializer(
+        #         child_id_qs, many=True)
+        #     serialized_data['academic_session_data'] = child_id_serializer.data
+
+        # else:
+        #     serialized_data['academic_session_data'] = ""
+    
+        
+        return serialized_data
 
