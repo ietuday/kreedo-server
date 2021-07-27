@@ -2,6 +2,7 @@ from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
 from ..models import*
+import pdb
 
 
 """ Grade Serializer """
@@ -315,3 +316,14 @@ class SubjectBySchoolSerializer(serializers.ModelSerializer):
         model = SchoolGradeSubject
         fields = ['subject']
         depth = 1
+
+
+class AccountManagerAssignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ['account_manager']
+
+    def validate(self,validated_data):
+        instance = self.instance
+        instance = super(AccountManagerAssignSerializer,self).update(instance,validated_data)
+        return instance
