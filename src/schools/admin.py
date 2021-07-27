@@ -42,7 +42,7 @@ class LicenseAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 @admin.register(School)
 class SchoolAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'name', 'logo', 'address', 'type',
-                    'is_active']
+                    'is_active','account_manager']
     search_fields = ['id', 'name', 'logo', 'address', 'type',
                      'is_active']
     list_filter = ['id', 'name', 'logo', 'address', 'type',
