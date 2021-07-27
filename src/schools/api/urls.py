@@ -53,8 +53,8 @@ urlpatterns = [
     path('edoofun/get_school_detail_based_on_school_id/<int:pk>',
          GetSchoolDetailsBasedOnSchoolID.as_view(), name='Get School  DetailsBasedOn SchoolID'),
 
-# GetListOfSchoolsBasedOnAccountID
- path('edoofun/get_list_of_schools_based_on_account_id',
+
+    path('edoofun/get_list_of_schools_based_on_account_id',
          GetListOfSchoolsBasedOnAccountID.as_view(), name='Get All Active School list'),
 
 ]
