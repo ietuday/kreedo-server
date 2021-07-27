@@ -651,7 +651,7 @@ class AddGrade(ListCreateAPIView):
 """ Assiginig Account Manager to School."""
 
 
-class AssignAccountManager(Mixins,ListCreateAPIView):
+class AssignAccountManager(GeneralClass,Mixins,ListCreateAPIView):
     model = School
     serializer_class = AccountManagerAssignSerializer
 
@@ -669,14 +669,14 @@ class AssignAccountManager(Mixins,ListCreateAPIView):
                     continue
                 context = {"isSuccess": False, "message": "Failed to Assign School to User.",
                 "error": "", "data": None}
-                return Response(context, status=status.HTTP_200_OK)         
+                return Response(school_serializer.errors, status=status.HTTP_200_OK)         
             else:
                 context = {"isSuccess": True, "message": "Schools Assigned Successfully",
                     "error": "", "data": None}
-                return Response(context, status=status.HTTP_200_OK)
+                return Response("Schools Assigned Successfully", status=status.HTTP_200_OK)
             
         except Exception as ex:
             context = {
                 "isSuccess": False, "message": f"{ex}", "error": "", "data": ""}
-            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
