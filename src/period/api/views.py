@@ -113,99 +113,102 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
             period_list_qs = Period.objects.filter(
                 teacher=teacher, start_date = request.data.get('start_date'))
 
-            periods_lists = []
-            dict = {}
-            for class_period in period_list_qs:
-                dict['period_id'] = class_period.id
-                dict['name'] = class_period.name
-                dict['description'] = class_period.description
-                dict['room_no'] = class_period.room_no.room_no
-                dict['start_time'] = class_period.start_time.strftime(
-                    "%H:%M:%S")
-                dict['end_time'] = class_period.end_time.strftime("%H:%M:%S")
-                dict['is_complete'] = class_period.is_complete
-                dict['is_active'] = class_period.is_active
-                dict['type'] = class_period.type
-                academic_session = class_period.academic_session.all()
-                acad_session = AcademicSession.objects.get(
-                    id=academic_session[0].id)
-                dict['grade'] = acad_session.grade.name
-                dict['grade_id'] = acad_session.grade.id
-                dict['section'] = acad_session.section.name
-                dict['section_id'] = acad_session.section.id
-                dict['subject'] = class_period.subject.name
-                dict['subject_id'] = class_period.subject.id
-                activity_list = class_period.subject.activity.all()
-                activitys_list = []
-                activitys_dict = {}
-                for activity_obj in activity_list:
-                    activity_obj_id = Activity.objects.filter(
-                        id=activity_obj.id)
-                    for active in activity_obj_id:
-                        activitys_dict['type'] = active.type
-                        activitys_list.append(activitys_dict)
-
-                dict['activity_type'] = activitys_dict.get('type')
-                activity_missed = ActivityComplete.objects.filter(
-                    period=class_period.id, is_completed=False)
-                dict['activity_behind_count'] = activity_missed.count()
-                missed_activity_list = []
-                missed_activity_dict = {}
-                for miss_activity in activity_missed:
-                    missed_activity_dict['id'] = miss_activity.activity.id
-                    missed_activity_dict['name'] = miss_activity.activity.name
-                    missed_activity_dict['type'] = miss_activity.activity.type
-                    missed_activity_dict['objective'] = miss_activity.activity.objective
-                    missed_activity_dict['description'] = miss_activity.activity.description
-                    activity_asset = ActivityAsset.objects.filter(
-                        activity=miss_activity.activity.id)
-                    activity_asset_list = []
-                    activity_asset_dict = {}
-                    for asset in activity_asset:
-                        activity_asset_dict['activity_id'] = asset.activity.id
-                        activity_asset_dict['type'] = asset.type
-                        activity_asset_dict['activity_data'] = asset.activity_data
-                        activity_asset_dict['title'] = asset.title
-                        activity_asset_dict['description'] = asset.description
-                        activity_asset_list.append(activity_asset_dict)
-
-                    master_material = miss_activity.activity.master_material.all()
-                    master_material_list = []
-                    master_material_dict = {}
-                    for material in master_material:
-                        material_id = Material.objects.filter(id=material.id)
-                        for m in material_id:
-                            master_material_dict['name'] = m.name
-                            master_material_dict['decription'] = m.decription
-                            master_material_dict['photo'] = m.photo
-                            master_material_list.append(master_material_dict)
-                            master_material_dict = {}
-
-                    missed_activity_dict['master_material'] = master_material_list
-                    supporting_material = miss_activity.activity.supporting_material.all()
-                    supporting_master_material_list = []
-                    supporting_master_material_dict = {}
-                    for material in supporting_material:
-                        material_id = Material.objects.filter(id=material.id)
-                        for m in material_id:
-                            supporting_master_material_dict['name'] = m.name
-                            supporting_master_material_dict['decription'] = m.decription
-                            supporting_master_material_dict['photo'] = m.photo
-                            supporting_master_material_list.append(
-                                supporting_master_material_dict)
-                            supporting_master_material_dict = {}
-                    missed_activity_dict['supporting_material'] = supporting_master_material_list
-                    missed_activity_dict['activity_asset'] = activity_asset_list
-                    missed_activity_list.append(missed_activity_dict)
-                    missed_activity_dict = {}
-                dict['missed_activity'] = missed_activity_list
-
-                periods_lists.append(dict)
+            if len(period_list_qs) !=0:
+                periods_lists = []
                 dict = {}
+                for class_period in period_list_qs:
+                    dict['period_id'] = class_period.id
+                    dict['name'] = class_period.name
+                    dict['description'] = class_period.description
+                    dict['room_no'] = class_period.room_no.room_no
+                    dict['start_time'] = class_period.start_time.strftime(
+                        "%H:%M:%S")
+                    dict['end_time'] = class_period.end_time.strftime("%H:%M:%S")
+                    dict['is_complete'] = class_period.is_complete
+                    dict['is_active'] = class_period.is_active
+                    dict['type'] = class_period.type
+                    academic_session = class_period.academic_session.all()
+               
+                    dict['academic_session'] = academic_session[0].id
+                    acad_session = AcademicSession.objects.get(
+                        id=academic_session[0].id)
+                    dict['grade'] = acad_session.grade.name
+                    dict['grade_id'] = acad_session.grade.id
+                    dict['section'] = acad_session.section.name
+                    dict['section_id'] = acad_session.section.id
+                    dict['subject'] = class_period.subject.name
+                    dict['subject_id'] = class_period.subject.id
 
-            # context = {"message": "Class List",'isSuccess': True,
-            #            "data": periods_lists, "statusCode": status.HTTP_200_OK}
-            return Response(periods_lists, status=status.HTTP_200_OK)
+                    activity_list = class_period.subject.activity.all()
+                    activitys_list = []
+                    activitys_dict = {}
+                    for activity_obj in activity_list:
+                        activity_obj_id = Activity.objects.filter(
+                            id=activity_obj.id)
+                        for active in activity_obj_id:
+                            activitys_dict['type'] = active.type
+                            activitys_list.append(activitys_dict)
+
+                    dict['activity_type'] = activitys_dict.get('type')
+                    activity_missed = ActivityComplete.objects.filter(
+                        period=class_period.id, is_completed=False)
+                    dict['activity_behind_count'] = activity_missed.count()
+                    missed_activity_list = []
+                    missed_activity_dict = {}
+                    for miss_activity in activity_missed:
+                        missed_activity_dict['id'] = miss_activity.activity.id
+                        missed_activity_dict['name'] = miss_activity.activity.name
+                        missed_activity_dict['type'] = miss_activity.activity.type
+                        missed_activity_dict['objective'] = miss_activity.activity.objective
+                        missed_activity_dict['description'] = miss_activity.activity.description
+                        activity_asset = ActivityAsset.objects.filter(
+                            activity=miss_activity.activity.id)
+                        activity_asset_list = []
+                        activity_asset_dict = {}
+                        for asset in activity_asset:
+                            activity_asset_dict['activity_id'] = asset.activity.id
+                            activity_asset_dict['type'] = asset.type
+                            activity_asset_dict['activity_data'] = asset.activity_data
+                            activity_asset_dict['title'] = asset.title
+                            activity_asset_dict['description'] = asset.description
+                            activity_asset_list.append(activity_asset_dict)
+
+                        master_material = miss_activity.activity.master_material.all()
+                        master_material_list = []
+                        master_material_dict = {}
+                        for material in master_material:
+                            material_id = Material.objects.filter(id=material.id)
+                            for m in material_id:
+                                master_material_dict['name'] = m.name
+                                master_material_dict['description'] = m.description
+                                master_material_dict['photo'] = m.photo
+                                master_material_list.append(master_material_dict)
+                                master_material_dict = {}
+
+                        missed_activity_dict['master_material'] = master_material_list
+                        supporting_material = miss_activity.activity.supporting_material.all()
+                        supporting_master_material_list = []
+                        supporting_master_material_dict = {}
+                        for material in supporting_material:
+                            material_id = Material.objects.filter(id=material.id)
+                            for m in material_id:
+                                supporting_master_material_dict['name'] = m.name
+                                supporting_master_material_dict['description'] = m.description
+                                supporting_master_material_dict['photo'] = m.photo
+                                supporting_master_material_list.append(
+                                    supporting_master_material_dict)
+                                supporting_master_material_dict = {}
+                        missed_activity_dict['supporting_material'] = supporting_master_material_list
+                        missed_activity_dict['activity_asset'] = activity_asset_list
+                        missed_activity_list.append(missed_activity_dict)
+                        missed_activity_dict = {}
+                    dict['missed_activity'] = missed_activity_list
+
+                    periods_lists.append(dict)
+                    dict = {}
+                return Response(periods_lists, status=status.HTTP_200_OK)
+            else:
+                return Response("Period list not found",status=status.HTTP_404_NOT_FOUND )
 
         except Exception as ex:
             logger.debug(ex)

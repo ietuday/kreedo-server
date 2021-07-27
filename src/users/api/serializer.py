@@ -846,7 +846,7 @@ class AddUserSerializer(serializers.ModelSerializer):
                     user_role = {
                                 "user": user_detail_serializer.data['user_obj'],
                                 "role": role,
-                                "school": ""
+                                "school": self.context['reporting_to']['school']
                             }
                     print("user_role------------>",user_role)
                     user_role_serializer = UserRoleSerializer(

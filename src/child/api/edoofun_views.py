@@ -182,3 +182,35 @@ class GetChildListBasedOnParentID(ListCreateAPIView):
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+
+""" GetChildDetailsBasedOnChildID  """
+class GetChildDetailsBasedOnChildID(RetrieveUpdateDestroyAPIView):
+    model = Child
+    filterset_class = ChildFilter
+
+
+    def get(self, request, pk):
+        try:
+            print("@@@@@@@@@@@@@@@3",pk)
+            child_qs = Child.objects.filter(id=pk)
+            if child_qs:
+                child_qs_serializer = ChildDetailSerializer(child_qs,many=True)
+                print("child_qs----",child_qs)  
+                context = {'isSuccess': True, 'message': "Child Detail based on Child Id",'data': child_qs_serializer.data,
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "Child Detail based on Child Id Not Found",
+                           'data': " ", "error":child_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            context = {"isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
