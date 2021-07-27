@@ -67,9 +67,33 @@ class SkillListByConcept(ListCreateAPIView):
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# GetConceptListBasedOnSubjectID
 
+# GetChildListAssociatedToLicenseID
 
+from activity.models import*
 
+# IsPlatformUser
+class GetConceptListBasedOnSubjectID(ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            subject_qs = Activity.objects.filter(subject__in=pk)
+            print("Subject-----",subject_qs)
+            if subject_qs:
+                skill_qs_serializer = SkillSerializer(subject_qs, many=True)
 
+                context = {'isSuccess': True, 'message': "Skill List by Concept ID",
+                                'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                
+            else:
+                context = {'isSuccess': True, 'message': "Skill List by Concept ID Not found",
+                                'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

@@ -60,9 +60,13 @@ class Child(TimestampAwareModel):
     registered_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by', null=True, blank=True)
     reason_for_discontinue = models.TextField(null=True, blank=True)
-    school_name = models.CharField(max_length=100, null=True, blank=True)
-    class_teacher = models.CharField(max_length=100, null=True, blank=True)
-    account_manager = models.CharField(max_length=100, null=True, blank=True)
+    school =  models.ForeignKey(
+        to='schools.School', on_delete=models.PROTECT,null=True, blank=True)
+    class_teacher =  models.ForeignKey(
+        to='users.UserDetail', on_delete=models.PROTECT,null=True, related_name='child_class_teacher',blank=True)
+    account_manager =  models.ForeignKey(
+        to='users.UserDetail', on_delete=models.PROTECT,related_name='child_account_manager',null=True, blank=True)
+    
     is_active = models.BooleanField(default=False)
     secret_pin = models.CharField(max_length=50, default='0000')
 
