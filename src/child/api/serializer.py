@@ -58,7 +58,7 @@ class ChildCreateSerializer(serializers.ModelSerializer):
         try:
 
             validated_data = self.context['child_detail']
-
+            print("validated_data", validated_data)
             child = super(ChildCreateSerializer, self).create(validated_data)
 
             parents_detail = self.context['parent_detail']['parents']

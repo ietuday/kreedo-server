@@ -75,8 +75,11 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                "school": request.data.get('school', None)
+                # "school": School.objects.filter(id=request.data.get('school', None))[0].id
             }
+            # print(request.data.get('school', None))
+            # print("###########",School.objects.filter(id=request.data.get('school', None))[0])
+            # print(child_detail) 
             
             parent_detail = {
                 "parents": request.data.get('parents', None)
@@ -89,8 +92,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
                 "subjects": request.data.get('subjects', None)
 
-            }
-
+            } 
+ 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
@@ -114,6 +117,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)
+            print("traceback----", traceback.print_exc())
             return Response(ex)
 
 

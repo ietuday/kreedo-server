@@ -142,7 +142,7 @@ class School(TimestampAwareModel):
         ordering = ['-id']
 
     def __str__(self):
-        return str(self.name)
+        return str(self.id)
 
     def get_absolute_url(self):
         return reverse('School_detail', kwargs={"pk": self.pk})
