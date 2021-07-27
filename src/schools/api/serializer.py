@@ -24,9 +24,7 @@ class GradeListSerializer(serializers.ModelSerializer):
             GradeListSerializer, self).to_representation(obj)
 
         grade_id = serialized_data.get('id')
-        print("grade_id",grade_id)
-        section_qs = Section.objects.filter(grade=str(grade_id))
-        print(section_qs)
+        section_qs = Section.objects.filter(grade=grade_id)
         section_qs_serializer = SectionSerializer(section_qs, many=True)
         serialized_data['sections'] = section_qs_serializer.data
 
