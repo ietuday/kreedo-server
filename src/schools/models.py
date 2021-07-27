@@ -132,6 +132,8 @@ class School(TimestampAwareModel):
     license = models.ForeignKey(
         'License', on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    account_manager = models.ForeignKey(
+        to='users.UserDetail', on_delete=models.PROTECT,null=True, blank=True)
     objects = SchoolManager
 
     class Meta:

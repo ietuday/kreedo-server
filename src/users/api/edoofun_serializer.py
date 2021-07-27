@@ -455,7 +455,6 @@ class ParentDetailSerializer(serializers.ModelSerializer):
             child_qs_serializer = ChildListParentSerializer(child_qs,many=True)
             print("child_qs----",child_qs)
             serialized_data['child_list'] = child_qs_serializer.data
-        # user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
         return serialized_data
 
 
@@ -485,3 +484,14 @@ class UserListBySchoolSerializers(serializers.ModelSerializer):
         model = UserRole
         fields = ['user']
         depth = 1
+
+
+
+""" User Detail List Serializer """
+class UserDetailListSerializer(serializers.ModelSerializer):
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        # depth = 1
+    
