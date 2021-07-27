@@ -282,29 +282,30 @@ class EmailConfirmVerify(Mixins, GeneralClass,ListAPIView):
 """ Login """
 
 
-class UserLogin(Mixins, GeneralClass,CreateAPIView):
+class UserLogin(Mixins,CreateAPIView):
     model = User
 
     def post(self, request):
         try:
-
+            # pdb.set_trace()
             user_data_serializer = UserLoginSerializer(data=request.data)
             if user_data_serializer.is_valid():
-                # context = {'isSuccess': True, 'message': "Login Successfull",
-                #            'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
-                # return Response(context, status=status.HTTP_200_OK)
-                return Response(user_data_serializer.data,status=status.HTTP_200_OK)
+                print("####################")
+                context = {'isSuccess': True, 'message': "Login Successfull",
+                           'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response(user_data_serializer.data,status=status.HTTP_200_OK)
             else:
 
-                # context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
-                #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
-                # return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                return Response(user_data_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                context = {'isSuccess': False, "message": user_data_serializer.errors['non_field_errors'][0],
+                           "statusCode": status.HTTP_200_OK,'data':''}
+                return Response(context,status=status.HTTP_200_OK)
+                # return Response(user_data_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            # context = {'isSuccess': False, 'message': "Something went wrong",
-            #            'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
-            # return Response(context,status=status.HTTP_400_BAD_REQUEST)
-            return Response(ex,status=status.HTTP_400_BAD_REQUEST)
+            context = {'isSuccess': False, 'message': "Something went wrong",
+                       'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
+            return Response(context,status=status.HTTP_400_BAD_REQUEST)
+            # return Response(ex,status=status.HTTP_400_BAD_REQUEST)
 
 
 
