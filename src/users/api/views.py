@@ -482,7 +482,7 @@ class GenerateOTP(ListAPIView):
                 )
 
             print("RESPONSE-----", response)
-
+           
             if response['ResponseMetadata']['HTTPStatusCode'] != 200:
                 context = {"isSuccess": False, "message": "Unable to send OTP",
                     "error": " AWS SNS is Unable to send OTP"}
