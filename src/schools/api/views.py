@@ -22,7 +22,7 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 
 from rest_framework.response import Response
 from rest_framework import status
-
+import pdb
 
 
 # Create your views here.
@@ -645,3 +645,38 @@ class AddGrade(ListCreateAPIView):
             context = {
                 "isSuccess": False, "message": "Error on adding grade", "error": "", "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+""" Assiginig Account Manager to School."""
+
+
+class AssignAccountManager(GeneralClass,Mixins,ListCreateAPIView):
+    model = School
+    serializer_class = AccountManagerAssignSerializer
+
+    def post(self,request):
+        try:
+            schools = request.data.get("schools",None)
+            account_manager = request.data.get('account_manager',None)
+            for school_pk in schools:
+                data = {
+                        'account_manager':account_manager
+                        }
+                school = School.objects.get(pk=school_pk)
+                school_serializer = AccountManagerAssignSerializer(school,data=data)
+                if school_serializer.is_valid():
+                    continue
+                context = {"isSuccess": False, "message": "Failed to Assign School to User.",
+                "error": "", "data": None}
+                return Response(school_serializer.errors, status=status.HTTP_200_OK)         
+            else:
+                context = {"isSuccess": True, "message": "Schools Assigned Successfully",
+                    "error": "", "data": None}
+                return Response("Schools Assigned Successfully", status=status.HTTP_200_OK)
+            
+        except Exception as ex:
+            context = {
+                "isSuccess": False, "message": f"{ex}", "error": "", "data": ""}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
