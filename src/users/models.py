@@ -109,6 +109,7 @@ class UserDetail(TimestampAwareModel):
     joining_date = models.DateField(null=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
     secret_pin = models.CharField(max_length=50, default='0000')
+    is_platform_user =  models.BooleanField(default=False)
     objects = UserDetailManager
 
     class Meta:
