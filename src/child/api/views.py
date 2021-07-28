@@ -66,6 +66,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
+            school = request.data.get('school', None)
             child_detail = {
                 "photo": request.data.get('photo', None),
                 "first_name": request.data.get('first_name', None),
@@ -75,7 +76,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                # "school": School.objects.filter(id=request.data.get('school', None))[0].id
+                "registered_by": request.user
+                # "school": school
             }
             # print(request.data.get('school', None))
             # print("###########",School.objects.filter(id=request.data.get('school', None))[0])
