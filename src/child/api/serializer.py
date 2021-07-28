@@ -37,7 +37,8 @@ class BlockCreateSerializer(serializers.ModelSerializer):
 class ChildCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
-        exclude = ['parent']
+        # exclude = ['parent']
+        fields = '__all__'
 
     # def to_representation(self, instance):
     #     try:
@@ -360,3 +361,154 @@ class AttendanceListSerializer(serializers.ModelSerializer):
         except Exception as ex:
             print("ERROR", ex)
             print("traceback------", traceback.print_exc())
+
+
+class ChildParentCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Child
+        exclude = ['parent']
+
+
+    def create(self, validated_data):
+        try:
+            print("validated_data",validated_data)
+            # return Child.objects.create(**validated_data)
+            registered_by = validated_data.pop('registered_by')
+            school = validated_data.pop('school')
+            print("validated_data",validated_data)
+
+            child_instance = Child.objects.create(**validated_data)
+            child_instance.registered_by = registered_by
+            child_instance.school = school
+            child_instance.save()
+            # return child_instance
+            
+            parents_detail = self.context['parent_detail']['parents']
+
+            parent_list = []
+            for parent in parents_detail:
+
+                try:
+
+                    parent_serializer = ParentSerializer(data=dict(parent))
+                    if parent_serializer.is_valid():
+                        parent_serializer.save()
+                        parent_data = {
+                            "user_obj": parent_serializer.data['id'],
+                            "relationship_with_child": parent['relationship_with_child'],
+                            "phone": parent['phone'],
+                            "gender": parent['gender'],
+                            "photo": parent['photo']
+
+                        }
+                        parent_detail_serializer = ParentDetailSerializer(
+                            data=dict(parent_data))
+
+                        if parent_detail_serializer.is_valid():
+
+                            parent_detail_serializer.save()
+
+                            parent_id = parent_detail_serializer.data['user_obj']
+                            parent_list.append(parent_id)
+
+                            # self.context.update({"parent_detail_serializer_data": parent_detail_serializer.data})
+                        else:
+                            raise ValidationError(
+                                parent_detail_serializer.errors)
+
+                    else:
+                        raise ValidationError(parent_serializer.errors)
+
+                except Exception as ex:
+                    logger.debug(ex)
+                    logger.info(ex)
+
+                    raise ValidationError(ex)
+
+            validated_data['parent'] = parent_list
+
+            child_instance.parent.set(validated_data['parent'])
+
+            child_instance.save()
+
+            acad_session = self.context['academic_session_detail']['academic_session']
+            section = self.context['academic_session_detail']['section']
+            grade = self.context['academic_session_detail']['grade']
+            class_teacher = self.context['academic_session_detail']['class_teacher']
+
+            acadmic_ids = AcademicSession.objects.filter(id=acad_session,
+                                                         grade=grade, section=section, class_teacher=class_teacher)
+                                                        #  .values('id')[0]['id']
+            if acadmic_ids:
+                child_id = child_instance.id
+                academic_session_detail = {
+                    "child": child_id,
+                    "academic_session": acadmic_ids,
+                    "subjects": self.context['academic_session_detail']['subjects'],
+                    "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
+                }
+                """  create child plan """
+                try:
+
+                    child_plan_serializer = ChildPlanCreateSerailizer(
+                        data=dict(academic_session_detail))
+                    if child_plan_serializer.is_valid():
+                        child_plan_serializer.save()
+
+                        # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
+
+                    else:
+                        raise ValidationError(child_plan_serializer.errors)
+                except Exception as ex:
+                    logger.debug(ex)
+                    logger.info(ex)
+                    raise ValidationError(ex)
+                return child_instance
+                """ create block """
+                try:
+                    academic_session = AcademicSession.objects.get(id=acad_session,
+                                                                grade=grade, section=section, class_teacher=class_teacher)
+
+                    start_date = academic_session.session_from
+                    end_date = academic_session.session_till
+                    """ calculate working days """
+                    working_days = calculate_working_days(start_date, end_date)
+
+                    """ calculate blocks"""
+                    blocks = calculate_blocks(working_days)
+
+                    for block in range(1, blocks+1):
+
+                        block_detail = {
+                            "block_no": "Block" + " " + str(block),
+                            "child_plan": child_plan_serializer.data['id'],
+                            "activity": random_activity(academic_session)
+                        }
+
+                        blockCreateSerializer = BlockCreateSerializer(
+                            data=block_detail)
+
+                        if blockCreateSerializer.is_valid():
+                            blockCreateSerializer.save()
+
+                        else:
+                            raise ValidationError(BlockCreateSerializer.errors)
+
+            
+
+                except Exception as ex:
+                    print("$$$$$$$$$", ex)
+                    logger.debug(ex)
+                    raise ValidationError(ex)
+
+            return child_instance
+        except Exception as ex:
+            print("@#######", ex)
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
+
+        
+
+
