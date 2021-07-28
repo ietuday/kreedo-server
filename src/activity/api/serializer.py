@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from activity.models import*
-
+import pdb
+from material.api.serializer import *
 
 """ Activity List Serializer """
 
@@ -16,6 +17,13 @@ class ActivityCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = '__all__'
+
+""" Activity Update Serializer"""
+class ActivityUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+    
 
 
 """ Activity Asset List Serializer"""
@@ -38,6 +46,18 @@ class ActivityAssetCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityAsset
         fields = '__all__'
+
+
+""" Activity Asset Update Serializer"""
+
+
+class ActivityAssetUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityAsset
+        fields = '__all__'
+
+
+
 
 
 """ Activity  Complete List Serializer"""
