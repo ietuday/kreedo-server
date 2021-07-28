@@ -72,7 +72,7 @@ class GetListOfAllSchools(ListCreateAPIView):
 
 
 class GetSchoolDetailsBasedOnSchoolID(RetrieveUpdateDestroyAPIView):
-    model = School
+    model = School 
     filterset_class = SchoolFilter
 
     def get(self, request, pk):
