@@ -24,12 +24,10 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
+from .serializer import*
 class SchoolDetailSerializer(serializers.ModelSerializer):
     account_manager = AccountListForSerializer()
-    license= LicenseSerializer()
+    license=  LicenseSerializer()
     class Meta:
         model = School
         fields = '__all__'
@@ -51,4 +49,3 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
 
 
 
-   

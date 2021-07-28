@@ -82,6 +82,7 @@ class GetSchoolDetailsBasedOnSchoolID(RetrieveUpdateDestroyAPIView):
             if school_qs:
                 school_qs_serializer = SchoolDetailSerializer(
                     school_qs, many=True)
+
                 context = {'isSuccess': True, 'message': "School Detail by School Id",
                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
