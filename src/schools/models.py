@@ -38,6 +38,7 @@ School_Type_Choice = [
 
 class Grade(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blanck=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -55,6 +56,7 @@ class Grade(TimestampAwareModel):
 class Section(TimestampAwareModel):
     grade = models.ForeignKey(
         'Grade', on_delete=models.PROTECT, null=True, blank=True)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blanck=True)
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=False)
 
