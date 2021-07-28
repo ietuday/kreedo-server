@@ -465,8 +465,20 @@ class AccountListForSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserDetail
-        exclude = ('activation_key', 'activation_key_expires')
+        exclude = ('activation_key', 'activation_key_expires','address')
         depth = 1
+
+
+
+""" AccountListtSerializer List Serializer """
+class LicenceForSerializer(serializers.ModelSerializer):
+    user_obj = AuthUserSerializer()
+    
+    class Meta:
+        model = UserDetail
+        fields = ['user_obj','phone']
+        depth = 1
+
 
 class SchoolUserRoleSerializers(serializers.ModelSerializer):
     user = AccountListForSerializer()

@@ -23,12 +23,57 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 
 
-
+from .serializer import*
 class SchoolDetailSerializer(serializers.ModelSerializer):
     account_manager = AccountListForSerializer()
+    license=  LicenseSerializer()
     class Meta:
         model = School
         fields = '__all__'
         depth = 1
 
-   
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolDetailSerializer, self).to_representation(obj)
+        print("serialized_data", serialized_data.get('id'))
+        resultant_dict = {}
+        grade_qs = SchoolGradeSubject.objects.filter(
+        school=serialized_data.get('id')).values('grade')
+      
+        if grade_qs:
+            grade_list = list(
+            set(val for dic in grade_qs for val in dic.values()))
+
+            grade_qs = Grade.objects.filter(id__in=grade_list)
+
+            grade_qs_serializer = GradeDetailSerializer(grade_qs, many=True)
+
+            serialized_data['classes'] = grade_qs_serializer.data
+        return serialized_data
+
+
+
+class GradeDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+        
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            GradeDetailSerializer, self).to_representation(obj)
+
+        grade_id = serialized_data.get('id')
+        section_qs = Section.objects.filter(grade=grade_id)
+        section_qs_serializer = SectionDetailSerializer(section_qs, many=True)
+        serialized_data['sections'] = section_qs_serializer.data
+
+        return  serialized_data['sections'] 
+
+
+
+class SectionDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = '__all__'
+        depth = 1
