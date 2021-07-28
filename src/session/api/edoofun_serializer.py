@@ -2,9 +2,8 @@ from rest_framework import serializers
 from ..models import *
 from django.core.exceptions import ValidationError
 from kreedo.conf.logger import CustomFormatter
-from users.api.edoofun_serializer import *
 import logging
-
+from users.api.edoofun_serializer import*
 
 """ Logging """
 
@@ -28,13 +27,13 @@ class SectionListBySchoolSerializer(serializers.ModelSerializer):
 
 
 
-# class AcademicSessionListForChildSerializer(serializers.ModelSerializer):
-#     class_teacher = UserDetailListSerializer()
+class AcademicSessionGradeSerializer(serializers.ModelSerializer):
+    # class_teacher = LicenceForSerializer()
 
-#     class Meta:
-#         model = AcademicSession
-#         fields = '__all__'
-#         depth = 1
+    class Meta:
+        model = AcademicSession
+        fields = '__all__'
+        depth = 1
 
 
 

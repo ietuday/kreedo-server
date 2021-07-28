@@ -24,6 +24,7 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 
 from .serializer import*
+from session.api.edoofun_serializer import*
 class SchoolDetailSerializer(serializers.ModelSerializer):
     account_manager = AccountListForSerializer()
     license=  LicenseSerializer()
@@ -37,16 +38,13 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
             SchoolDetailSerializer, self).to_representation(obj)
         print("serialized_data", serialized_data.get('id'))
         resultant_dict = {}
-        grade_qs = SchoolGradeSubject.objects.filter(
-        school=serialized_data.get('id')).values('grade')
-      
+        grade_qs = AcademicSession.objects.filter(
+        school=serialized_data.get('id'))
+        print("grade_qs",grade_qs)
         if grade_qs:
-            grade_list = list(
-            set(val for dic in grade_qs for val in dic.values()))
+            
 
-            grade_qs = Grade.objects.filter(id__in=grade_list)
-
-            grade_qs_serializer = GradeDetailSerializer(grade_qs, many=True)
+            grade_qs_serializer = SectionListBySchoolSerializer(grade_qs, many=True)
 
             serialized_data['classes'] = grade_qs_serializer.data
         return serialized_data
