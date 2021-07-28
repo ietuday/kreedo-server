@@ -61,7 +61,7 @@ class Child(TimestampAwareModel):
         to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by', null=True, blank=True)
     reason_for_discontinue = models.TextField(null=True, blank=True)
     school =  models.ForeignKey(
-        to='schools.School', on_delete=models.PROTECT, related_name='child_school')
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True, related_name='child_school')
     class_teacher =  models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT,null=True, related_name='child_class_teacher',blank=True)
     account_manager =  models.ForeignKey(
