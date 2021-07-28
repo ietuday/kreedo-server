@@ -77,17 +77,22 @@ from activity.models import*
 class GetConceptListBasedOnSubjectID(ListCreateAPIView):
     def get(self, request, pk):
         try:
-            subject_qs = Activity.objects.filter(subject__in=pk)
-            print("Subject-----",subject_qs)
-            if subject_qs:
-                skill_qs_serializer = SkillSerializer(subject_qs, many=True)
+            activity_qs = Activity.objects.filter(subject=pk)
+            print("activity_qs-----",activity_qs)
+            if activity_qs:
+                skill_qs_serializer = SkillConceptSerializer(Skill.objects.filter(activity__in=activity_qs), many=True)
+                print("skill_qs_serializer",skill_qs_serializer.data)
+                result = []
+                for data in skill_qs_serializer.data:
+                    if data['concept'] not in result: 
+                        result.append(data['concept'])
 
-                context = {'isSuccess': True, 'message': "Skill List by Concept ID",
-                                'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                context = {'isSuccess': True, 'message': "Get Concept List Based On SubjectID",
+                                'data': result, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
                 
             else:
-                context = {'isSuccess': True, 'message': "Skill List by Concept ID Not found",
+                context = {'isSuccess': False, 'message': "Concept Not found",
                                 'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
 
