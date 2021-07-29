@@ -24,6 +24,21 @@ handler.setFormatter(CustomFormatter())
 
 logger.addHandler(handler)
 
+
+class ChildPlanCreateSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = ['child', 'academic_session',
+                  'subjects', 'curriculum_start_date']
+
+
+
+class ChildPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = ['academic_session']
+        depth = 2
+
 """ block Create Serailizer """
 
 
@@ -207,6 +222,7 @@ class ChildListSerializer(serializers.ModelSerializer):
         child_id = serialized_data.get('id')
 
         child_id_qs = ChildPlan.objects.filter(child__id=child_id)
+        print("child_id_qschild_id_qschild_id_qschild_id_qs",child_id_qs)
         if child_id_qs:
             child_id_serializer = ChildPlanSerializer(
                 child_id_qs, many=True)
@@ -364,11 +380,7 @@ class AttendanceListSerializer(serializers.ModelSerializer):
             print("ERROR", ex)
             print("traceback------", traceback.print_exc())
 
-class ChildPlanCreateSerailizer(serializers.ModelSerializer):
-    class Meta:
-        model = ChildPlan
-        fields = ['child', 'academic_session',
-                  'subjects', 'curriculum_start_date']
+
 
 
 class ChildParentCreateSerializer(serializers.ModelSerializer):
