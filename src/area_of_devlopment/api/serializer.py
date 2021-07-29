@@ -1,14 +1,29 @@
 from rest_framework import serializers
 from area_of_devlopment.models import*
 
-""" Area of Devlopment Serializer """
+""" Area of Devlopment Create Serializer """
 
-
-class AreaOfDevlopmentSerializer(serializers.ModelSerializer):
+class AreaOfDevlopmentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AreaOfDevlopment
         fields = '__all__'
 
+
+""" Area of Devlopment List Serializer """
+
+class AreaOfDevlopmentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AreaOfDevlopment
+        fields = '__all__'
+        depth = 1
+
+
+""" Area of Devlopment Update Serializer """
+
+class AreaOfDevlopmentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AreaOfDevlopment
+        fields = '__all__'
 
 """ Conept List Serializer """
 

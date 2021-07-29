@@ -51,7 +51,7 @@ class Activity(TimestampAwareModel):
     # skill = models.ManyToManyField(to='area_of_devlopment.Skill', relatedblank=True)
     master_material = models.ManyToManyField(to='material.Material')
     supporting_material = models.ManyToManyField(
-        to='material.Material', related_name='activity_supporting_material')
+        to='material.Material', related_name='activity_supporting_material',blank=True)
     created_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
