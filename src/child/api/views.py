@@ -60,6 +60,45 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
 
+    def get_queryset(self):
+        try:
+            grade = self.request.GET.get('grade', '')
+            section = self.request.GET.get('section', '')
+            if grade:
+                acad_session_qs = AcademicSession.objects.filter(grade=grade)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            elif section:
+                acad_session_qs = AcademicSession.objects.filter(section=section)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            elif grade and section:
+                acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            else: 
+                return super().get_queryset()
+
+
+        except Exception as ex:
+            print(traceback.print_exc())
+            # logger.info(ex)
+            # logger.debug(ex)
+            # return Response(ex)
+        
+    
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildListSerializer
