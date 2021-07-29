@@ -79,7 +79,7 @@ class GradeRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 
 class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
-    model = Section
+    model = Section 
     filterset_class = SectionFilter
 
     def get_serializer_class(self):
@@ -87,7 +87,7 @@ class SectionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SectionListSerializer
         if self.request.method == 'POST':
             return SectionCreateSerializer
-
+    
 
 """ Section Retrive Update delete """
 

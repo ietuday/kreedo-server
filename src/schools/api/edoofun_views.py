@@ -72,7 +72,7 @@ class GetListOfAllSchools(ListCreateAPIView):
 
 
 class GetSchoolDetailsBasedOnSchoolID(RetrieveUpdateDestroyAPIView):
-    model = School
+    model = School 
     filterset_class = SchoolFilter
 
     def get(self, request, pk):
@@ -80,8 +80,9 @@ class GetSchoolDetailsBasedOnSchoolID(RetrieveUpdateDestroyAPIView):
             school_qs = School.objects.filter(id=pk)
 
             if school_qs:
-                school_qs_serializer = SchoolDetailListSerializer(
+                school_qs_serializer = SchoolDetailSerializer(
                     school_qs, many=True)
+
                 context = {'isSuccess': True, 'message': "School Detail by School Id",
                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)

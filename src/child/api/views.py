@@ -60,12 +60,56 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
 
+    def get_queryset(self):
+        try:
+            grade = self.request.GET.get('grade', '')
+            section = self.request.GET.get('section', '')
+
+            if grade and section:
+                acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            elif grade:
+                acad_session_qs = AcademicSession.objects.filter(grade=grade)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            elif section:
+                acad_session_qs = AcademicSession.objects.filter(section=section)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            else: 
+                return super().get_queryset()
+
+
+        except Exception as ex:
+            print(traceback.print_exc())
+            # logger.info(ex)
+            # logger.debug(ex)
+            # return Response(ex)
+        
+    
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildListSerializer
 
     def post(self, request):
         try:
+            school = int(request.data.get('school', None))
+            print(school)
+            # school = School.objects.filter(id = school)[0].id
+            # user = UserDetail.objects.filter(user_obj = request.user.id)[0].user_obj
             child_detail = {
                 "photo": request.data.get('photo', None),
                 "first_name": request.data.get('first_name', None),
@@ -75,8 +119,24 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                "school": request.data.get('school', None)
+                "registered_by": request.user,
+                "school": School.objects.filter(id = request.data.get('school', None))[0].id
+
             }
+            print(school, child_detail)
+
+            # child_serilalizer = ChildUpdateSerializer(data = child_detail)
+            # if child_serilalizer.is_valid():
+            #     child_serilalizer.save()
+            #     return Response(child_serilalizer.data)
+            # else:
+            #      return Response(child_serilalizer.errors)
+            
+
+            # return Response(child_serilalizer.data)
+            # print(request.data.get('school', None))
+            # print("###########",School.objects.filter(id=request.data.get('school', None))[0])
+            # print(child_detail) 
             
             parent_detail = {
                 "parents": request.data.get('parents', None)
@@ -89,16 +149,20 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
                 "subjects": request.data.get('subjects', None)
 
-            }
-
+            } 
+ 
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
-                {"child_detail": child_detail, "parent_detail": parent_detail,
-                 "academic_session_detail": academic_session_detail})
+                {"child_detail": child_detail,
+                 "parent_detail": parent_detail,
+                 "academic_session_detail": academic_session_detail
+                #  "school_detail": school_detail
+                }
+                )
             try:
 
-                child_detail_serializer = ChildCreateSerializer(
+                child_detail_serializer = ChildParentCreateSerializer(
                     data=dict(child_detail), context=context)
                 if child_detail_serializer.is_valid():
                     child_detail_serializer.save()
@@ -114,6 +178,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.info(ex)
             logger.debug(ex)
+            print("traceback----", traceback.print_exc())
             return Response(ex)
 
 

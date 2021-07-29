@@ -38,6 +38,7 @@ School_Type_Choice = [
 
 class Grade(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -55,6 +56,7 @@ class Grade(TimestampAwareModel):
 class Section(TimestampAwareModel):
     grade = models.ForeignKey(
         'Grade', on_delete=models.PROTECT, null=True, blank=True)
+    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=False)
 
@@ -142,7 +144,7 @@ class School(TimestampAwareModel):
         ordering = ['-id']
 
     def __str__(self):
-        return str(self.name)
+        return str(self.id)
 
     def get_absolute_url(self):
         return reverse('School_detail', kwargs={"pk": self.pk})

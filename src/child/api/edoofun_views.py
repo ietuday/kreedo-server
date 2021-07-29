@@ -214,3 +214,34 @@ class GetChildDetailsBasedOnChildID(RetrieveUpdateDestroyAPIView):
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+"""  GetChildListAssociatedToLicenseID """
+
+class GetChildListAssociatedToLicenseID(ListCreateAPIView):
+    def post(self, request):
+        try:
+            child_qs = Child.objects.filter(school=request.data.get('school',None),
+            school__license = request.data.get('license',None))
+            print("@@@@@@@@@@", child_qs)
+            if len(child_qs) !=0:
+                child_qs_serializer = ChildListbylicenseSerializer(child_qs,many=True)
+                print("child_qs----",child_qs)  
+                context = {'isSuccess': True, 'message': "Child List associated to License Id",'data': child_qs_serializer.data,
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "Child List associated to License Id Not Found",
+                           'data': " ", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            context = {"isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
