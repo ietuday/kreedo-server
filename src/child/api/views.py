@@ -64,7 +64,16 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
         try:
             grade = self.request.GET.get('grade', '')
             section = self.request.GET.get('section', '')
-            if grade:
+
+            if grade and section:
+                acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+                print("acad_session_qs",acad_session_qs)
+                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+                print("child_plan_qs",child_plan_qs)
+                child_qs = Child.objects.filter(id__in=child_plan_qs)
+                print("child_qs",child_qs)
+                return child_qs
+            elif grade:
                 acad_session_qs = AcademicSession.objects.filter(grade=grade)
                 print("acad_session_qs",acad_session_qs)
                 child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
@@ -74,14 +83,6 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 return child_qs
             elif section:
                 acad_session_qs = AcademicSession.objects.filter(section=section)
-                print("acad_session_qs",acad_session_qs)
-                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
-                print("child_plan_qs",child_plan_qs)
-                child_qs = Child.objects.filter(id__in=child_plan_qs)
-                print("child_qs",child_qs)
-                return child_qs
-            elif grade and section:
-                acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
                 print("acad_session_qs",acad_session_qs)
                 child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
                 print("child_plan_qs",child_plan_qs)
