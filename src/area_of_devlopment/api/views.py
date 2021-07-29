@@ -48,20 +48,35 @@ logger.info("UTILS CAlled ")
 class AreaOfDevlopmentListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = AreaOfDevlopment
     filterset_class = AreaOfDevlopmentFilter
-    serializer_class = AreaOfDevlopmentSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AreaOfDevlopmentListSerializer
+        if self.request.method == 'PUT':
+            return AreaOfDevlopmentCreateSerializer
 
 
 """ Area of Devlopment Update and Delete """
 
-
 class AreaOfDevlopmentRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = AreaOfDevlopment
     filterset_class = AreaOfDevlopmentFilter
-    serializer_class = AreaOfDevlopmentSerializer
+    serializer_class = AreaOfDevlopmentListSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AreaOfDevlopmentListSerializer
+        if self.request.method == 'PUT':
+            return AreaOfDevlopmentUpdateSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 
 """ Concept List and Create """
-
 
 class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Concept
@@ -76,7 +91,6 @@ class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 """ Retrive update and delete Concept """
 
-
 class ConceptRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Concept
     filterset_class = ConceptFilter
@@ -89,9 +103,13 @@ class ConceptRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
         if self.request.method == 'DELETE':
             return ConceptListSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
 
 """ Skill List and Create """
-
 
 class SkillListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Skill
@@ -104,8 +122,8 @@ class SkillListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SkillCreateSerializer
 
 
-""" Skill Update And Retrive """
 
+""" Skill Update And Retrive """
 
 class SkillRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Skill
@@ -118,6 +136,11 @@ class SkillRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             return SkillCreateSerializer
         if self.request.method == 'DELETE':
             return SkillListSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Cocept and Skill Bulk Upload """

@@ -39,6 +39,15 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
+class ChildPlanOfChildSerializer(serializers.ModelSerializer):
+    academic_session = AcademicSessionListForChildSerializer()
+
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+        # depth = 1
+
+
 """ block Create Serailizer """
 
 
