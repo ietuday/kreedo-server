@@ -219,3 +219,14 @@ class ChildDetailSerializer(serializers.ModelSerializer):
         
         return serialized_data
 
+
+
+""" Child list by License Serializer """
+
+class ChildListbylicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+        depth = 1
+
+

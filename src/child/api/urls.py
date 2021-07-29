@@ -46,4 +46,7 @@ urlpatterns = [
      path('get_child_detail_based_on_child_id/<int:pk>', ChildDetailRetriveUpdateDestroy.as_view(),
           name='Child List based on ParentID'),
 
+     path('edoofun/child_list_associated_to_license_id', GetChildListAssociatedToLicenseID.as_view(),
+          name='Child List Associated To LicenseID'),
+
 ]

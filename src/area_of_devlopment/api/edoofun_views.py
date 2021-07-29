@@ -69,7 +69,6 @@ class SkillListByConcept(ListCreateAPIView):
 
 # GetConceptListBasedOnSubjectID
 
-# GetChildListAssociatedToLicenseID
 
 from activity.models import*
 
