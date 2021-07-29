@@ -287,9 +287,12 @@ class WeekOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             week_off_qs = SchoolWeakOff.objects.filter(academic_session=pk)
-            week_off_qs_serializer = SchoolWeakOffListSerializer(
-                week_off_qs, many=True)
-            return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
+            if week_off_qs:
+                week_off_qs_serializer = SchoolWeakOffListSerializer(
+                week_off_qs[0])
+                return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
 
