@@ -1,3 +1,4 @@
+from traceback import print_exc
 from child.api.serializer import*
 from child.models import*
 from session.api.serializer import*
@@ -71,6 +72,7 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print("create called")
             plan_activity = self.context.pop('plan_activity_dict')
             plan = super(PlanCreateSerailizer, self).create(validated_data)
 
@@ -90,6 +92,8 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
                 raise ValidationError(plan_activity_serializer.errors)
             return plan
         except Exception as ex:
+            print("%%%%%%%%%%%%",ex)
+            print("line no",traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
             return ValidationError(ex)
