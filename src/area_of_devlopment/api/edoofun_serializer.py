@@ -15,3 +15,10 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = '__all__'
         depth=1
+
+
+class SkillConceptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = ['concept']
+        depth=1

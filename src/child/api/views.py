@@ -66,6 +66,10 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
+            school = int(request.data.get('school', None))
+            print(school)
+            # school = School.objects.filter(id = school)[0].id
+            # user = UserDetail.objects.filter(user_obj = request.user.id)[0].user_obj
             child_detail = {
                 "photo": request.data.get('photo', None),
                 "first_name": request.data.get('first_name', None),
@@ -75,8 +79,21 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                # "school": School.objects.filter(id=request.data.get('school', None))[0].id
+                "registered_by": request.user,
+                "school": School.objects.filter(id = request.data.get('school', None))[0].id
+
             }
+            print(school, child_detail)
+
+            # child_serilalizer = ChildUpdateSerializer(data = child_detail)
+            # if child_serilalizer.is_valid():
+            #     child_serilalizer.save()
+            #     return Response(child_serilalizer.data)
+            # else:
+            #      return Response(child_serilalizer.errors)
+            
+
+            # return Response(child_serilalizer.data)
             # print(request.data.get('school', None))
             # print("###########",School.objects.filter(id=request.data.get('school', None))[0])
             # print(child_detail) 
@@ -97,11 +114,15 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
-                {"child_detail": child_detail, "parent_detail": parent_detail,
-                 "academic_session_detail": academic_session_detail})
+                {"child_detail": child_detail,
+                 "parent_detail": parent_detail,
+                 "academic_session_detail": academic_session_detail
+                #  "school_detail": school_detail
+                }
+                )
             try:
 
-                child_detail_serializer = ChildCreateSerializer(
+                child_detail_serializer = ChildParentCreateSerializer(
                     data=dict(child_detail), context=context)
                 if child_detail_serializer.is_valid():
                     child_detail_serializer.save()
