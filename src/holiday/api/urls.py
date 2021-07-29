@@ -22,8 +22,8 @@ urlpatterns = [
     path('holiday_list_by_date_and_type',
          HolidayListByType.as_view(), name='HolidayListByType'),
 
-    path('week_off_by_academic_session/<int:pk>', SchoolWeakOffByAcademicSession.as_view(),
-         name='SchoolWeakOffByAcademicSession'),
+#     path('week_off_by_academic_session/<int:pk>', SchoolWeakOffByAcademicSession.as_view(),
+#          name='SchoolWeakOffByAcademicSession'),
 
     path('week_off_by_academic_calender/<int:pk>', WeekOffByAcademicCalender.as_view(),
          name='WeekOffByAcademicCalender'),

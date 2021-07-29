@@ -149,7 +149,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                             activitys_dict['type'] = active.type
                             activitys_list.append(activitys_dict)
 
-                    dict['activity_type'] = activitys_dict.get('type')
+                    dict['activity_type'] = class_period.subject.type
                     activity_missed = ActivityComplete.objects.filter(
                         period=class_period.id, is_completed=False)
                     dict['activity_behind_count'] = activity_missed.count()
