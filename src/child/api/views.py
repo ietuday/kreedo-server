@@ -120,7 +120,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
                 "registered_by": request.user,
-                "school": School.objects.filter(id = request.data.get('school', None))[0].id
+                "school": School.objects.filter(id = request.data.get('school', None))[0].id,
+                "is_active":  request.data.get('is_active', False)
 
             }
             print(school, child_detail)
