@@ -36,17 +36,6 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
 
     def to_representation(self, obj):
         serialized_data = super(
-<<<<<<< HEAD
-            SchoolDetailSerializer, self).to_representation(obj)
-        resultant_dict = {}
-        grade_qs = AcademicSession.objects.filter(
-        school=serialized_data.get('id'))
-        
-        
-        if grade_qs:
-            
-
-=======
         SchoolDetailSerializer, self).to_representation(obj)
         resultant_dict = {}
         grade_qs = AcademicSession.objects.filter(
@@ -54,7 +43,6 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
 
         print("###############",grade_qs)
         if grade_qs:
->>>>>>> 1e018a60399e1282bfde29b49b697686490e8727
             grade_qs_serializer = SectionListBySchoolSerializer(grade_qs, many=True)
 
             serialized_data['classes'] = grade_qs_serializer.data
