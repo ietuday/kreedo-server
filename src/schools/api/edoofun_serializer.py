@@ -25,6 +25,7 @@ class SchoolListSerializer(serializers.ModelSerializer):
 
 
 from .serializer import*
+from session.api.edoofun_serializer import*
 class SchoolDetailSerializer(serializers.ModelSerializer):
     account_manager = AccountListForSerializer()
     license=  LicenseSerializer()
