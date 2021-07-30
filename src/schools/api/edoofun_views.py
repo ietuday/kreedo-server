@@ -47,12 +47,13 @@ class GetListOfAllSchools(ListCreateAPIView):
     model = School
     filterset_class = SchoolFilter
 
-    def get(self, request):
+    def post(self, request):
         try:
+            
             school_qs = School.objects.all()
 
             if school_qs:
-                school_qs_serializer = SchoolListSerializer(
+                school_qs_serializer = EdoofunSchoolListSerializer(
                     school_qs, many=True)
                 context = {'isSuccess': True, 'message': "School List",
                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}

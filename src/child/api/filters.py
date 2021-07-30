@@ -9,6 +9,10 @@ class ChildFilter(filters.FilterSet):
         field_name='last_name', lookup_expr='icontains')
     first_name = filters.CharFilter(
         field_name='first_name', lookup_expr='icontains')
+    grade = filters.CharFilter(
+        field_name='child_plan__academic_session__grade__id')
+    section = filters.CharFilter(
+        field_name='child_plan__academic_session__section__id')
 
     class Meta:
         model = Child
@@ -24,8 +28,8 @@ class ChildDetailFilter(filters.FilterSet):
         fields = ['child']
 
 
-
 """ ChildSession Filter """
+
 
 class ChildSessionFilter(filters.FilterSet):
     class Meta:
