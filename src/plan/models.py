@@ -43,7 +43,7 @@ Previous_Session_Choice = [
 """ Plan Model """
 
 
-class   Plan(TimestampAwareModel):
+class Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     type = models.CharField(
         max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
@@ -129,7 +129,7 @@ class ChildPlan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     range_of_working_days = models.IntegerField(null=True, blank=True)
     child = models.ForeignKey(
-        to='child.Child', on_delete=models.PROTECT, null=True, blank=True)
+        to='child.Child', on_delete=models.PROTECT, related_name='child_plan', null=True, blank=True)
     subject_school_grade_plan = models.ForeignKey(
         'SubjectSchoolGradePlan', on_delete=models.PROTECT, null=True, blank=True)
     academic_session = models.ForeignKey(
