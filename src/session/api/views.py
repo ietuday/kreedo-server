@@ -289,7 +289,7 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
 
-            academic_calender_qs = SchoolCalendar.objects.filter(school=pk)
+            academic_calender_qs = AcademicCalender.objects.filter(school=pk)
 
             academic_calender_serializer = AcademicCalenderBySchoolSerializer(
                 academic_calender_qs, many=True)
