@@ -3,8 +3,10 @@ from .views import*
 
 
 urlpatterns = [
-    path('period-template_list_create',
-         PeriodTemplateListCreate.as_view(), name='PeriodTemplateListCreate'),
+    path('period_template_create',
+         PeriodTemplateCreate.as_view(), name='PeriodTemplateCreate'),
+    path('period_template_list',
+         PeriodTemplateList.as_view(), name='PeriodTemplateList'),
     path('period-template_retrive_update_delete/<int:pk>', PeriodTemplateRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateRetriveUpdateDestroy'),
 

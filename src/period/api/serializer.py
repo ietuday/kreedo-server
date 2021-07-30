@@ -15,6 +15,7 @@ class PeriodTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplate
         fields = '__all__'
+    
 
 
 class PeriodTemplateListSerializer(serializers.ModelSerializer):
