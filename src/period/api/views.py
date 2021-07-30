@@ -42,7 +42,7 @@ class PeriodTemplateCreate(Mixins, CreateAPIView):
     filterset_class = PeriodTemplateFilter
     serializer_class = PeriodTemplateSerializer
 
-
+ 
     def post(self, request):
 
         try:
@@ -54,14 +54,14 @@ class PeriodTemplateCreate(Mixins, CreateAPIView):
             period_temp_qs = PeriodTemplate.objects.filter(name=period_template_data.get('name'))
             if period_temp_qs:
                 context = {"isSuccess": False, "message": "PeriodTemplate with this name already exists.",
-                    "error": "", "data": None}
+                    "statusCode": status.HTTP_200_OK, "data": None}
                 return Response(context, status=status.HTTP_200_OK)
             else:
                 period_template_serializer = PeriodTemplateSerializer(data=period_template_data)
                 if period_template_serializer.is_valid():
                     period_template_serializer.save()
                     context = {"isSuccess": True, "message": "PeriodTemplate added successfully",
-                        "error": "", "data": period_template_serializer.data}
+                        "statusCode": status.HTTP_200_OK, "data": period_template_serializer.data}
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     context = {"isSuccess": False, "message": "Something went wrong",
