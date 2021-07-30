@@ -53,7 +53,7 @@ class SchoolDetailSerializer(serializers.ModelSerializer):
 
 class EdoofunSchoolListSerializer(serializers.ModelSerializer):
     license=  LicenseSerializer()
-    # account_manager = AccountListForSerializer()
+    account_manager = AccountListForSerializer()
     class Meta:
         model = School
         fields = '__all__'
