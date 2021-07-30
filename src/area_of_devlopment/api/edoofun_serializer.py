@@ -22,3 +22,11 @@ class SkillConceptSerializer(serializers.ModelSerializer):
         model = Skill
         fields = ['concept']
         depth=1
+
+
+
+class SkillListForChildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = '__all__'
+        

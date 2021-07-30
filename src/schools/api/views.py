@@ -648,7 +648,7 @@ class AddGrade(ListCreateAPIView):
 
 
 
-""" Assiginig Account Manager to School."""
+""" Assigning Account Manager to School."""
 
 
 class AssignAccountManager(GeneralClass,Mixins,ListCreateAPIView):

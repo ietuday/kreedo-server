@@ -243,5 +243,35 @@ class GetChildListAssociatedToLicenseID(ListCreateAPIView):
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+from area_of_devlopment.api.edoofun_serializer import*
 
+""" GetSkillsAssociatedToChildId """
+class GetSkillsAssociatedToChildId(ListCreateAPIView):
+    def get(self, request,pk):
+        try:
+            child_qs = ChildPlan.objects.filter(child=pk).values('subjects')
+            print("child_qs------",child_qs)
+            activity_qs = Subject.objects.filter(id__in= child_qs).values('activity')
+            print("activity_qs",activity_qs)
+            skill_qs = Skill.objects.filter(activity__in=activity_qs)
+            print("SKILLL---------------", skill_qs)
+            if len(skill_qs) != 0:
+                skill_qs_serializer = SkillListForChildSerializer(skill_qs, many=True)
+                context = {'isSuccess': True, 'message': "Skills Associated To Child Id",'data': skill_qs_serializer.data,
+                            "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "Skills Associated To Child Id Not Found",
+                           'data': " ", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+
+
+        except Exception as ex:
+            print("Traceback------", traceback.print_exc())
+            print("ERROR----2", ex)
+            context = {"isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       "error": ex, "data": ""}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

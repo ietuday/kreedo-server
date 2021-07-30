@@ -48,5 +48,8 @@ urlpatterns = [
 
      path('edoofun/child_list_associated_to_license_id', GetChildListAssociatedToLicenseID.as_view(),
           name='Child List Associated To LicenseID'),
+ path('edoofun/get_skill_associate_to_child_id/<int:pk>', GetSkillsAssociatedToChildId.as_view(),
+          name='Get Skills Associated To ChildId'),
+
 
 ]
