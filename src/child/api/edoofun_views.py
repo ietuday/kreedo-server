@@ -250,11 +250,8 @@ class GetSkillsAssociatedToChildId(ListCreateAPIView):
     def get(self, request,pk):
         try:
             child_qs = ChildPlan.objects.filter(child=pk).values('subjects')
-            print("child_qs------",child_qs)
             activity_qs = Subject.objects.filter(id__in= child_qs).values('activity')
-            print("activity_qs",activity_qs)
             skill_qs = Skill.objects.filter(activity__in=activity_qs)
-            print("SKILLL---------------", skill_qs)
             if len(skill_qs) != 0:
                 skill_qs_serializer = SkillListForChildSerializer(skill_qs, many=True)
                 context = {'isSuccess': True, 'message': "Skills Associated To Child Id",'data': skill_qs_serializer.data,
