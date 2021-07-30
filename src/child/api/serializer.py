@@ -479,6 +479,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                     "academic_session": acadmic_ids[0].id,
                     "subjects": self.context['academic_session_detail']['subjects'],
                     "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date'],
+                    "kreedo_previous_session": self.context['academic_session_detail']['kreedo_previous_session'],
                     "is_active": True
                 }
                 """  create child plan """
