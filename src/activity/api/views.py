@@ -67,7 +67,12 @@ class ActivityRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAP
         if self.request.method == 'GET':
             return ActivityListSerializer
         if self.request.method == 'PUT':
-            return ActivityCreateSerializer
+            return ActivityUpdateSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Activity Asset List And create """
@@ -96,7 +101,12 @@ class ActivityAssetRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
         if self.request.method == 'GET':
             return ActivityAssetListSerializer
         if self.request.method == 'PUT':
-            return ActivityAssetCreateSerializer
+            return ActivityAssetUpdateSerializer
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 
 """ Activity  CompleteList and Create """
