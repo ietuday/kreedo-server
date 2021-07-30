@@ -7,13 +7,13 @@ urlpatterns = [
          PeriodTemplateCreate.as_view(), name='PeriodTemplateCreate'),
     path('period_template_list',
          PeriodTemplateList.as_view(), name='PeriodTemplateList'),
-    path('period-template_retrive_update_delete/<int:pk>', PeriodTemplateRetriveUpdateDestroy.as_view(),
+    path('period_template_retrive_update_delete/<int:pk>', PeriodTemplateRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateRetriveUpdateDestroy'),
 
-    path('period-template-detail_list_create',
+    path('period_template_detail_list_create',
          PeriodTemplateDetailListCreate.as_view(), name='PeriodTemplateDetailListCreate'),
 
-    path('period-template-detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
+    path('period_template_detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
 
     path('period_list_create',
