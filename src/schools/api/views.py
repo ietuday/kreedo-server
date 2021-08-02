@@ -464,17 +464,24 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     serializer_class = AcademicSessionListSerializer
     def post(self, request):
         try:
+            academic_cal = AcademicCalender.objects.filter(pk=request.data.get('academic_calender', None))[0]
+            grade = Grade.objects.filter(pk=request.data.get('grade', None))[0]
+            section = Section.objects.filter(pk=request.data.get('section', None))[0]
             
-            academic_id = AcademicSession.objects.filter(academic_calender=request.data.get('academic_calender', None)
-                        ,grade = request.data.get('grade', None), section = request.data.get('section', None))
+            academic_id = AcademicSession.objects.filter(academic_calender=academic_cal
+                        ,grade = grade, section = section)
             print("academic_id-----",academic_id)
+            
             if academic_id:
+                print("1")
                 for academic in academic_id:
-       
+                    print("2")
                     if academic_id:
+                        print("3")
                         subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic.id)
+                        
                         if subject_qs:
-
+                            print("4")
                             subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
                             return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
                         else:
