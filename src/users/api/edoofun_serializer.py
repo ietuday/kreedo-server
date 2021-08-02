@@ -64,6 +64,22 @@ class AccountUserSerializer(serializers.ModelSerializer):
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
+
+    def to_representation(self, obj):
+        try:
+            serialized_data = super(
+                AccountUserSerializer, self).to_representation(obj)
+            print("serialized_data",serialized_data)
+            child_data = serialized_data.get('role')
+           
+            # user_qs = UserRole.objects.filter(user=serialized_data.get('user_obj')('id'))
+            # print("%%%%%%%%%%%",user_qs)
+
+            return serialized_data
+        except Exception as ex:
+            print("ex", ex)
+            raise ValidationError(ex)
+
     
     
    
@@ -142,19 +158,15 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                 raise ValidationError("Failed to Genrate Password")
 
             try:
-                if User.objects.filter(email=validated_data['email']).exists():
-                    # raise ValidationError("Email is already Exists")
-                    user_obj_id = User.objects.filter(
-                        email=validated_data['email'])[0].id
+                if User.objects.filter(email=validated_data['email'],first_name=validated_data['first_name'],last_name= validated_data['last_name']).exists():
+                    print("EXIST@@@@@@@@@@@@@@@@@@@")
 
-                    phone_no = self.context['user_detail_data']['phone']
+                    raise ValidationError("User is already exists.")
 
-                    if UserDetail.objects.filter(user_obj=user_obj_id, phone=phone_no).exists():
-                        raise ValidationError("provide corrrect regsitered no")
                 elif UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
                     raise ValidationError(
                         "Phone already regsitered for another user provide different number.")
-
+                
                 else:
 
                     """ Create User """
@@ -175,6 +187,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
                         self.context.update(
                             {"user_detail": user_detail_serializer.data})
+                        print("USER DETAIL SAVE")
                         
 
                     else:
@@ -189,11 +202,10 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                         data=dict(user_role))
                     if user_role_serializer.is_valid():
                         user_role_serializer.save()
-                        self.context.update({
-                            "user_role": user_role_serializer.data
-                        })
+                        print("USER ROLE SAVE")
                     else:
                         raise ValidationError(user_role_serializer.errors)
+                    print("@@@@@@@@USER-----", user)
                     return user
 
             except Exception as ex:
