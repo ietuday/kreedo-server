@@ -127,7 +127,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
     class Meta:
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
-        ordering = ['-id']
+        ordering = ['id']
         unique_together = ('room','start_time','end_time','day')
 
     def __str__(self):
