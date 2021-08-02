@@ -336,7 +336,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 try:
                     if child_plan_qs:
                         child_plan_serializer = ChildPlanUpdateSerailizer(
-                            child_plan_qs, data=dict(child_plan_detail), partial=True)
+                            child_plan_qs[0], data=dict(child_plan_detail), partial=True)
                         if child_plan_serializer.is_valid():
                             child_plan_serializer.save()
                             return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
