@@ -192,12 +192,12 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildSerializer
-        if self. request.method == 'PATCH':
-            return ChildSerializer
-        if self.request.method == 'PUT':
-            return ChildSerializer
+        # if self. request.method == 'PATCH':
+        #     return ChildSerializer
+        # if self.request.method == 'PUT':
+        #     return ChildSerializer
     
-    def patch(self, request, pk):
+    def put(self, request, pk):
         try:
             child_detail = {
                 "photo": request.data.get('photo', None),
@@ -300,6 +300,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 
                     except Exception as ex:
+                        print(traceback.print_exc())
                         logger.debug(ex)
                         logger.info(ex)
                         raise ValidationError(ex)
@@ -316,32 +317,36 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,grade=grade, section=section, class_teacher=class_teacher).values('id')
                 print("acadmic_ids",acadmic_ids)
                 if len(acadmic_ids) is 0:
-                    acadmic_ids = []
+                    acadmic_ids = [] 
                     return Response("acadmic_ids not found", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
                     print("@@@@@@@@@@")
                     acadmic_ids = acadmic_ids[0]['id']
-                academic_session_detail = {
+                child_plan_detail = {
                     "child":pk,
                     "academic_session": acadmic_ids,
                     "subjects": academic_session_detail['subjects'],
-                    "curriculum_start_date": academic_session_detail['curriculum_start_date']
+                    "curriculum_start_date": academic_session_detail['curriculum_start_date'],
+                    "kreedo_previous_session": request.data.get('kreedo_previous_session', "No")
                 }
-                print("academic_session_detail",academic_session_detail)
+                print("academic_session_detail",child_plan_detail)
                 child_plan_qs = ChildPlan.objects.filter(academic_session = request.data.get('academic_session_data', None),child=child_qs.id)
                 """  update child plan """
                 print("child_plan_qs",child_plan_qs)
                 try:
+                    if child_plan_qs:
+                        child_plan_serializer = ChildPlanUpdateSerailizer(
+                            child_plan_qs, data=dict(child_plan_detail), partial=True)
+                        if child_plan_serializer.is_valid():
+                            child_plan_serializer.save()
+                            return Response("Child Update Successfully",status=status.HTTP_200_OK)
+                        # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
-                    child_plan_serializer = ChildPlanCreateSerailizer(
-                        child_plan_qs, data=dict(academic_session_detail), partial=True)
-                    if child_plan_serializer.is_valid():
-                        child_plan_serializer.save()
+                        else:
+                            print("@@@@@@@",child_plan_serializer.errors)
+                            raise ValidationError(child_plan_serializer.errors)
+                    else: 
                         return Response("Child Update Successfully",status=status.HTTP_200_OK)
-                    # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
-
-                    else:
-                        raise ValidationError(child_plan_serializer.errors)
                 except Exception as ex:
                     print("ex",ex)
                     logger.debug(ex)
