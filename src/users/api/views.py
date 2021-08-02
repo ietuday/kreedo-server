@@ -492,7 +492,7 @@ class GenerateOTP(ListAPIView):
             date_time = datetime.datetime.now()
 
             hashed_otp_combo = pbkdf2_sha256.hash(
-            str(random_number) + str(date_time) + str(user_obj.id))
+            str(random_number) + str(date_time) + str(user_obj.user_obj))
             print("hashed_otp_combo----", hashed_otp_combo)
             data = {
             "otp": hashed_otp_combo[14:],
@@ -534,9 +534,9 @@ class OTPVerification(ListAPIView):
 
             # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
             pbkdf2_sha256.hash(
-            str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
+            str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj))
 
-            if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id), "$pbkdf2-sha256" + request.data['otp']):
+            if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj), "$pbkdf2-sha256" + request.data['otp']):
                 activation_key = urlsafe_base64_encode(force_bytes(user_obj.user_obj.pk)).decode(
                 'utf8') + '-' + default_token_generator.make_token(user_obj.user_obj)
                 link = os.environ.get(
