@@ -45,6 +45,7 @@ class Renderer(renderers.JSONRenderer, LimitOffsetPagination):
                 this we use when we have 'detail' in data and for DELETE method. 
                 find way to integrate both this three in one if statements.
             """
+            
             response = get_response(data, response_obj, message)
 
             try:
