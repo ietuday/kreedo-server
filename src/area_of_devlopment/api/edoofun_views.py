@@ -101,3 +101,68 @@ class GetConceptListBasedOnSubjectID(ListCreateAPIView):
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+
+
+
+
+
+
+
+
+""" Skill List and Create """
+
+class GetSkillList(ListCreateAPIView):
+    model = Skill
+    filterset_class = SkillFilter
+
+    def get(self, request):
+        try:
+            skill_qs = Skill.objects.all()
+            print("skill_qs-----",skill_qs)
+            if len(skill_qs)!=0:
+                skill_qs_serializer = EdooFunSkillListSerializer(skill_qs, many=True)
+                print("skill_qs_serializer",skill_qs_serializer.data)
+                
+                context = {'isSuccess': True, 'message': "Skill List",
+                                'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                
+            else:
+                context = {'isSuccess': False, 'message': "Skill List Not found",
+                                'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GetSkillDetailBasedOnSkillId(ListCreateAPIView):
+    model = Skill
+    filterset_class = SkillFilter
+
+    def get(self, request, pk):
+        try:
+            skill_qs = Skill.objects.filter(id=pk)
+            print("skill_qs-----",skill_qs)
+            if len(skill_qs)!=0:
+                skill_qs_serializer = EdooFunSkillListSerializer(skill_qs, many=True)
+                print("skill_qs_serializer",skill_qs_serializer.data)
+                
+                context = {'isSuccess': True, 'message': "Skill List",
+                                'data': skill_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                
+            else:
+                context = {'isSuccess': False, 'message': "Skill List Not found",
+                                'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+ 

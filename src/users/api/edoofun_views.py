@@ -58,7 +58,8 @@ class RegisterParent(ListCreateAPIView):
                 "photo": request.data.get('photo', None),
                 "phone": request.data.get('phone', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
-                "role": [role_id]
+                "role": [role_id],
+                "is_platform_user":request.data.get('is_platform_user',None)
             }
 
             print("user_detail_data----------", user_detail_data)
