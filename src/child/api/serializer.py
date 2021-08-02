@@ -39,6 +39,15 @@ class ChildPlanSerializer(serializers.ModelSerializer):
         fields = ['academic_session']
         depth = 2
 
+class ChildPlanOfChildSerializer(serializers.ModelSerializer):
+    academic_session = AcademicSessionListForChildSerializer()
+
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+        # depth = 1
+
+
 """ block Create Serailizer """
 
 
@@ -469,7 +478,9 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                     "child": child_id,
                     "academic_session": acadmic_ids[0].id,
                     "subjects": self.context['academic_session_detail']['subjects'],
-                    "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date']
+                    "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date'],
+                    "kreedo_previous_session": self.context['academic_session_detail']['kreedo_previous_session'],
+                    "is_active": True
                 }
                 """  create child plan """
                 try:
@@ -478,9 +489,34 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                         data=dict(academic_session_detail))
                     if child_plan_serializer.is_valid():
                         child_plan_serializer.save()
+                        acad_session_qs = AcademicCalender.objects.filter(id=acad_session)
+                        child_session = [
+                            {
+                                "child": child_id,
+                                "session_name": acad_session_qs[0].session_name,
+                                "session_type": "Individual",
+                                "academic_session": acadmic_ids[0].id,
+                                "start_date": acad_session_qs[0].start_date,
+                                "end_date": acad_session_qs[0].end_date,
+                                "is_active": True
+                            },
+                            {
+                                "child": child_id,
+                                "session_name": acad_session_qs[0].session_name,
+                                "session_type": "Group",
+                                "academic_session": acadmic_ids[0].id,
+                                "start_date": acad_session_qs[0].start_date,
+                                "end_date": acad_session_qs[0].end_date,
+                                "is_active": True
+                            }
+                        ]
 
-                        # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
-
+                        child_session_serilizer = ChildSessionCreateSerializer(data=child_session, many=True) 
+                        if child_session_serilizer.is_valid():
+                            child_session_serilizer.save()
+                            print(child_session_serilizer.data)           
+                        else: 
+                            print(child_session_serilizer.errors)
                     else:
                         raise ValidationError(child_plan_serializer.errors)
                 except Exception as ex:

@@ -129,7 +129,7 @@ class SectionListOfAcademicSessionSerializer(serializers.ModelSerializer):
 
 class AcademicCalenderBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SchoolCalendar
+        model = AcademicCalender
         fields = '__all__'
         # depth = 1
 

@@ -31,12 +31,48 @@ logger.addHandler(handler)
 logger.info("VIEW CAlled ")
 
 """ Period Template List and Create """
-
-
-class PeriodTemplateListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class PeriodTemplateList(GeneralClass, Mixins, ListAPIView):
     model = PeriodTemplate
     filterset_class = PeriodTemplateFilter
     serializer_class = PeriodTemplateSerializer
+
+
+class PeriodTemplateCreate(Mixins, CreateAPIView):
+    model = PeriodTemplate
+    filterset_class = PeriodTemplateFilter
+    serializer_class = PeriodTemplateSerializer
+
+ 
+    def post(self, request):
+
+        try:
+            period_template_data = {
+                "name": request.data.get('name', None),
+                "school": request.data.get('school', None),
+                "is_active": request.data.get('is_active', False)
+            }
+            period_temp_qs = PeriodTemplate.objects.filter(name=period_template_data.get('name'))
+            if period_temp_qs:
+                context = {"isSuccess": False, "message": "PeriodTemplate with this name already exists.",
+                    "statusCode": status.HTTP_200_OK, "data": None}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                period_template_serializer = PeriodTemplateSerializer(data=period_template_data)
+                if period_template_serializer.is_valid():
+                    period_template_serializer.save()
+                    context = {"isSuccess": True, "message": "PeriodTemplate added successfully",
+                        "statusCode": status.HTTP_200_OK, "data": period_template_serializer.data}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    context = {"isSuccess": False, "message": "Something went wrong",
+                        "error": period_template_serializer.errors, "data": None}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 """ Period Template Retrive Update """
@@ -282,15 +318,15 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
 
     def post(self, request):
         try:
-
             grade_list = request.data.get('grade_list')
-            print(grade_list)
             for grade in grade_list:
-            
-                academic_qs = AcademicSession.objects.filter(grade=grade['grade'], section=grade['section'], school_calender=grade['academic_calender'])[0]
-         
-                grade['academic_session']=academic_qs.id
 
+                academic_qs = AcademicSession.objects.filter(grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])
+                if academic_qs:
+                    grade['academic_session']=academic_qs[0].id
+                else:
+                    return Response("AcademicSession not found",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
             period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
                 data=request.data.get('grade_list'),many=True)
 
@@ -302,6 +338,7 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
 
         except Exception as ex:
             logger.debug(ex)
+            print(traceback.print_exc())
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -456,7 +493,7 @@ class PeriodTemplateDetailByPeriodTemplate(GeneralClass, Mixins,ListCreateAPIVie
     def get(self,request,pk):
         try:
             period_template = PeriodTemplate.objects.filter(id=pk)
-            period_template_serializer = PeriodTemplateListSerializer(period_template,many=True)
+            period_template_serializer = PeriodTemplateListSerializer(period_template[0])
             return Response(period_template_serializer.data,status=status.HTTP_200_OK)
             
         except Exception as ex:

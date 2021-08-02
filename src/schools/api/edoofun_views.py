@@ -47,20 +47,44 @@ class GetListOfAllSchools(ListCreateAPIView):
     model = School
     filterset_class = SchoolFilter
 
-    def get(self, request):
+    def post(self, request):
         try:
-            school_qs = School.objects.all()
+            if request.data['type'] == 'account':
+                school_qs = School.objects.filter(account_manager=request.data.get('account',None))
+                school_qs_serializer = EdoofunSchoolListSerializer(
+                    school_qs, many=True)
+                context = {'isSuccess': True, 'message': "School List by Account Id",
+                           'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            elif request.data['type'] == 'status':
+                school_qs = School.objects.filter(is_active=request.data.get('is_active',None))
+                school_qs_serializer = EdoofunSchoolListSerializer(
+                    school_qs, many=True)
+                context = {'isSuccess': True, 'message': "School List according to status",
+                           'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
 
-            if school_qs:
-                school_qs_serializer = SchoolListSerializer(
+            elif request.data['type'] == 'account_and_status':
+                school_qs = School.objects.filter(account_manager=request.data.get('account',None),is_active=request.data.get('is_active'))
+                school_qs_serializer = EdoofunSchoolListSerializer(
                     school_qs, many=True)
                 context = {'isSuccess': True, 'message': "School List",
                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            else:
-                context = {'isSuccess': False, 'message': "School List Not Found",
-                           'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
-                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+            elif request.data['type'] == 'all':
+                school_qs = School.objects.all()
+
+                if len(school_qs)!=0:
+                    school_qs_serializer = EdoofunSchoolListSerializer(
+                        school_qs, many=True)
+                    context = {'isSuccess': True, 'message': "School List",
+                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    context = {'isSuccess': False, 'message': "School List Not Found",
+                            'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                    return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
 
             context = {'isSuccess': False, "error": ex,

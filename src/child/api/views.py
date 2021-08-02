@@ -60,44 +60,44 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
 
-    def get_queryset(self):
-        try:
-            grade = self.request.GET.get('grade', '')
-            section = self.request.GET.get('section', '')
+    # def get_queryset(self):
+    #     try:
+    #         grade = self.request.GET.get('grade', '')
+    #         section = self.request.GET.get('section', '')
 
-            if grade and section:
-                acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
-                print("acad_session_qs",acad_session_qs)
-                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
-                print("child_plan_qs",child_plan_qs)
-                child_qs = Child.objects.filter(id__in=child_plan_qs)
-                print("child_qs",child_qs)
-                return child_qs
-            elif grade:
-                acad_session_qs = AcademicSession.objects.filter(grade=grade)
-                print("acad_session_qs",acad_session_qs)
-                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
-                print("child_plan_qs",child_plan_qs)
-                child_qs = Child.objects.filter(id__in=child_plan_qs)
-                print("child_qs",child_qs)
-                return child_qs
-            elif section:
-                acad_session_qs = AcademicSession.objects.filter(section=section)
-                print("acad_session_qs",acad_session_qs)
-                child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
-                print("child_plan_qs",child_plan_qs)
-                child_qs = Child.objects.filter(id__in=child_plan_qs)
-                print("child_qs",child_qs)
-                return child_qs
-            else: 
-                return super().get_queryset()
+    #         if grade and section:
+    #             acad_session_qs = AcademicSession.objects.filter(grade=grade, section=section)
+    #             print("acad_session_qs",acad_session_qs)
+    #             child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+    #             print("child_plan_qs",child_plan_qs)
+    #             child_qs = Child.objects.filter(id__in=child_plan_qs)
+    #             print("child_qs",child_qs)
+    #             return child_qs
+    #         elif grade:
+    #             acad_session_qs = AcademicSession.objects.filter(grade=grade)
+    #             print("acad_session_qs",acad_session_qs)
+    #             child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+    #             print("child_plan_qs",child_plan_qs)
+    #             child_qs = Child.objects.filter(id__in=child_plan_qs)
+    #             print("child_qs",child_qs)
+    #             return child_qs
+    #         elif section:
+    #             acad_session_qs = AcademicSession.objects.filter(section=section)
+    #             print("acad_session_qs",acad_session_qs)
+    #             child_plan_qs = ChildPlan.objects.filter(academic_session__in=acad_session_qs).values('child')
+    #             print("child_plan_qs",child_plan_qs)
+    #             child_qs = Child.objects.filter(id__in=child_plan_qs)
+    #             print("child_qs",child_qs)
+    #             return child_qs
+    #         else: 
+    #             return super().get_queryset()
 
 
-        except Exception as ex:
-            print(traceback.print_exc())
-            # logger.info(ex)
-            # logger.debug(ex)
-            # return Response(ex)
+    #     except Exception as ex:
+    #         print(traceback.print_exc())
+    #         # logger.info(ex)
+    #         # logger.debug(ex)
+    #         # return Response(ex)
         
     
     def get_serializer_class(self):
@@ -120,7 +120,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
                 "registered_by": request.user,
-                "school": School.objects.filter(id = request.data.get('school', None))[0].id
+                "school": School.objects.filter(id = request.data.get('school', None))[0].id,
+                "is_active":  request.data.get('is_active', False)
 
             }
             print(school, child_detail)
@@ -147,8 +148,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "grade": request.data.get('grade', None),
                 "class_teacher": request.data.get('class_teacher', None),
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
-                "subjects": request.data.get('subjects', None)
-
+                "subjects": request.data.get('subjects', []),
+                "kreedo_previous_session": request.data.get('kreedo_previous_session',"No"),
             } 
  
             """  Pass dictionary through Context """
