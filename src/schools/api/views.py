@@ -473,27 +473,20 @@ class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
             print("academic_id-----",academic_id)
             
             if academic_id:
-                print("1")
-                for academic in academic_id:
-                    print("2")
-                    if academic_id:
-                        print("3")
-                        subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic.id)
-                        
-                        if subject_qs:
-                            print("4")
-                            subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
-                            return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
-                        else:
-                            data=[]    
-                            return Response(data,status=status.HTTP_200_OK)
+                    academic = academic_id[0]    
+                    subject_qs = SectionSubjectTeacher.objects.filter(academic_session=academic)
+                    if subject_qs:
+                        print("4")
+                        subject_qs_serializer = SectionSubjectTeacherListSerializer(subject_qs, many=True)
+                        return Response(subject_qs_serializer.data , status=status.HTTP_200_OK)
                     else:
-                        data=[]
+                        data=[]    
                         return Response(data,status=status.HTTP_200_OK)
             else:
+                data = []
+                return Response("Academic Session is not Avaliable",status=status.HTTP_404_NOT_FOUND)
 
-                data=[]
-                return Response(data,status=status.HTTP_200_OK)
+        
         except Exception as ex:
             print("Error--------", ex)
             logger.debug(ex)
