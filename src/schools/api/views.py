@@ -13,6 +13,7 @@ from .serializer import*
 from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
+from session.api.serializer import *
 """
     REST LIBRARY IMPORT
 """
@@ -459,6 +460,8 @@ class SubjectAndRoomBySchool(GeneralClass,Mixins,ListCreateAPIView):
 
 """ Subject list by SectionSubjectTeacher """
 class SubjectByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
+    model = AcademicSession
+    serializer_class = AcademicSessionListSerializer
     def post(self, request):
         try:
             
