@@ -30,3 +30,10 @@ class SkillListForChildSerializer(serializers.ModelSerializer):
         model = Skill
         fields = '__all__'
         
+
+
+class EdooFunSkillListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = '__all__'
+        depth = 1

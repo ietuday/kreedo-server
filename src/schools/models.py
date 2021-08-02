@@ -124,6 +124,7 @@ class License(TimestampAwareModel):
 """School Model"""
 
 
+
 class School(TimestampAwareModel):
     name = models.CharField(max_length=50)
     type = models.CharField(
