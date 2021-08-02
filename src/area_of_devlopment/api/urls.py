@@ -33,6 +33,9 @@ urlpatterns = [
      path('edoofun/get_skill_list_based_on_skill_id/<int:pk>',
           GetSkillDetailBasedOnSkillId.as_view(), name='Get skill Detail Based on Skill ID'),
 
+     path('edoofun/get_concept_list',
+          GetConceptList.as_view(), name='Concept List'),
+
 
 
 

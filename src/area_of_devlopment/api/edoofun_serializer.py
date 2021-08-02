@@ -37,3 +37,11 @@ class EdooFunSkillListSerializer(serializers.ModelSerializer):
         model = Skill
         fields = '__all__'
         depth = 1
+
+
+
+class EdooFunConceptListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Concept
+        fields = '__all__'
+        depth = 1

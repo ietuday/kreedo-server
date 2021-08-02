@@ -181,7 +181,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
             print("traceback----", traceback.print_exc())
             return Response(ex)
-
+import pdb
 
 """ Child Retrive , Update ,Destroy  """
 class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
@@ -192,12 +192,12 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildSerializer
-        if self. request.method == 'PATCH':
-            return ChildSerializer
-        if self.request.method == 'PUT':
-            return ChildSerializer
+        # if self. request.method == 'PATCH':
+        #     return ChildSerializer
+        # if self.request.method == 'PUT':
+        #     return ChildSerializer
     
-    def patch(self, request, pk):
+    def put(self, request, pk):
         try:
             child_detail = {
                 "photo": request.data.get('photo', None),
@@ -222,18 +222,21 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 "subjects": request.data.get('subjects', None)
 
             }
-
+            
             child_qs = Child.objects.filter(id=pk)[0]
-            print(parent_detail['parents'])
+            # pdb.set_trace()
+            # print(parent_detail['parents'])
             child_qs_serializer = ChildUpdateSerializer(child_qs,data=dict(child_detail), partial=True)
             if child_qs_serializer.is_valid():
                 child_qs_serializer.save()
                 parents_detail = parent_detail['parents']
                 # pdb.set_trace()
+                print("parents_detail",parents_detail)
                 parent_list = []
                 for parent in parents_detail:
 
                     try:
+                    
                         if parent['id'] is None:
                             parent_serializer = ParentSerializer(data=dict(parent))
                             if parent_serializer.is_valid():
@@ -297,6 +300,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
 
 
                     except Exception as ex:
+                        print(traceback.print_exc())
                         logger.debug(ex)
                         logger.info(ex)
                         raise ValidationError(ex)
@@ -310,34 +314,41 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 grade = academic_session_detail['grade']
                 class_teacher = academic_session_detail['class_teacher']
 
-                acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,
-                                                         grade=grade, section=section, class_teacher=class_teacher).values('id')
-            
+                acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,grade=grade, section=section, class_teacher=class_teacher).values('id')
+                print("acadmic_ids",acadmic_ids)
                 if len(acadmic_ids) is 0:
-                    acadmic_ids = []
+                    acadmic_ids = [] 
                     return Response("acadmic_ids not found", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
+                    print("@@@@@@@@@@")
                     acadmic_ids = acadmic_ids[0]['id']
-                academic_session_detail = {
+                child_plan_detail = {
                     "child":pk,
                     "academic_session": acadmic_ids,
                     "subjects": academic_session_detail['subjects'],
-                    "curriculum_start_date": academic_session_detail['curriculum_start_date']
+                    "curriculum_start_date": academic_session_detail['curriculum_start_date'],
+                    "kreedo_previous_session": request.data.get('kreedo_previous_session', "No")
                 }
-                child_plan_qs = ChildPlan.objects.filter(id= request.data.get('academic_session_data', None))
+                print("academic_session_detail",child_plan_detail)
+                child_plan_qs = ChildPlan.objects.filter(academic_session = request.data.get('academic_session_data', None),child=child_qs.id)
                 """  update child plan """
+                print("child_plan_qs",child_plan_qs)
                 try:
+                    if child_plan_qs:
+                        child_plan_serializer = ChildPlanUpdateSerailizer(
+                            child_plan_qs, data=dict(child_plan_detail), partial=True)
+                        if child_plan_serializer.is_valid():
+                            child_plan_serializer.save()
+                            return Response("Child Update Successfully",status=status.HTTP_200_OK)
+                        # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
-                    child_plan_serializer = ChildPlanCreateSerailizer(
-                        child_plan_qs, data=dict(academic_session_detail), partial=True)
-                    if child_plan_serializer.is_valid():
-                        child_plan_serializer.save()
-
-                    # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
-
-                    else:
-                        raise ValidationError(child_plan_serializer.errors)
+                        else:
+                            print("@@@@@@@",child_plan_serializer.errors)
+                            raise ValidationError(child_plan_serializer.errors)
+                    else: 
+                        return Response("Child Update Successfully",status=status.HTTP_200_OK)
                 except Exception as ex:
+                    print("ex",ex)
                     logger.debug(ex)
                     logger.info(ex)
                     raise ValidationError(ex)
@@ -348,6 +359,8 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 raise ValidationError(child_qs_serializer.errors)
 
         except Exception as ex:
+            print("EX", ex)
+            print("@@@@@@@@@",traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)

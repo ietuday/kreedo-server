@@ -102,13 +102,6 @@ class GetConceptListBasedOnSubjectID(ListCreateAPIView):
 
 
 
-
-
-
-
-
-
-
 """ Skill List and Create """
 
 class GetSkillList(ListCreateAPIView):
@@ -137,7 +130,7 @@ class GetSkillList(ListCreateAPIView):
                         "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+""" skill by skill id """
 class GetSkillDetailBasedOnSkillId(ListCreateAPIView):
     model = Skill
     filterset_class = SkillFilter
@@ -165,4 +158,33 @@ class GetSkillDetailBasedOnSkillId(ListCreateAPIView):
             return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
- 
+
+
+""" Concept List and Create """
+
+class GetConceptList(ListCreateAPIView):
+    model = Concept
+    filterset_class = ConceptFilter
+
+    def get(self, request):
+        try:
+            Concept_qs = Concept.objects.all()
+            print("Concept_qs-----",Concept_qs)
+            if len(Concept_qs)!=0:
+                Concept_qs_serializer = EdooFunConceptListSerializer(Concept_qs, many=True)
+                print("Concept_qs_serializer",Concept_qs_serializer.data)
+                
+                context = {'isSuccess': True, 'message': "Concept List",
+                                'data': Concept_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                
+            else:
+                context = {'isSuccess': False, 'message': "Concept List Not found",
+                                'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            context = {'isSuccess': False, "error": ex,
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,'data':''}
+            return Response(context,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
