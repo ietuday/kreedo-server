@@ -93,7 +93,7 @@ class GetConceptListBasedOnSubjectID(ListCreateAPIView):
             else:
                 context = {'isSuccess': False, 'message': "Concept Not found",
                                 'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
-                return Response(context, status=status.HTTP_404_NOT_FOUND)
+                return Response(context, status=status.HTTP__NOT_FOUND)
 
         except Exception as ex:
             context = {'isSuccess': False, "error": ex,
