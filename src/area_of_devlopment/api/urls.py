@@ -26,5 +26,15 @@ urlpatterns = [
 
      path('edoofun/get_concept_list_based_on_subject_id/<int:pk>',
           GetConceptListBasedOnSubjectID.as_view(), name='Get Concept List Based On SubjectID'),
+
+     path('edoofun/get_skill_list',
+          GetSkillList.as_view(), name='Skill List'),
+
+     path('edoofun/get_skill_list_based_on_skill_id/<int:pk>',
+          GetSkillDetailBasedOnSkillId.as_view(), name='Get skill Detail Based on Skill ID'),
+
+
+
+
           
 ]
