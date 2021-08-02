@@ -92,7 +92,7 @@ class Period(TimestampAwareModel):
     class Meta:
         verbose_name = 'Period'
         verbose_name_plural = 'Periods'
-        ordering = ['-id']
+        ordering = ['id']
         # unique_together = ('start_time', 'end_time','room_no')
 
     def __str__(self):
@@ -118,7 +118,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
     end_time = models.TimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
-    days = models.CharField(
+    day = models.CharField(
         max_length=50, choices=Days_Choice)
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
@@ -128,7 +128,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
         ordering = ['-id']
-        unique_together = ('room','start_time','end_time')
+        unique_together = ('room','start_time','end_time','day')
 
     def __str__(self):
         return str(self.id)
