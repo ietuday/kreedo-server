@@ -1519,3 +1519,21 @@ class AddUserData(ListCreateAPIView):
             context = {"isSuccess": False, "message": "Issue User",
             "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# class SchoolAccountListCreate(GeneralClass,Mixins,ListCreateAPIView):
+#     model = User
+#     serializer_class = AddUserSerializer
+
+
+#     def post(self,request):
+#         try:
+#             user_details_data = {
+#                 'first_name':request.data.get('first_name',None),
+#                 'last_name':request.data.get('last_name',None),
+
+#             }
+
+#         except Exception as ex:
+#             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
