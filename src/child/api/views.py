@@ -310,7 +310,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 grade = academic_session_detail['grade']
                 class_teacher = academic_session_detail['class_teacher']
 
-                acadmic_ids = AcademicSession.objects.filter(id=acad_session,
+                acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,
                                                          grade=grade, section=section, class_teacher=class_teacher).values('id')
             
                 if len(acadmic_ids) is 0:
