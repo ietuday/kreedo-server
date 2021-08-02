@@ -148,8 +148,8 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "grade": request.data.get('grade', None),
                 "class_teacher": request.data.get('class_teacher', None),
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
-                "subjects": request.data.get('subjects', None)
-
+                "subjects": request.data.get('subjects', []),
+                "kreedo_previous_session": request.data.get('kreedo_previous_session',"No"),
             } 
  
             """  Pass dictionary through Context """

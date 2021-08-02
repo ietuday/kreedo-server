@@ -140,7 +140,7 @@ class ChildPlan(TimestampAwareModel):
     class_teacher = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     kreedo_previous_session = models.CharField(
-        max_length=50,  choices=Previous_Session_Choice, default="NO")
+        max_length=50,  choices=Previous_Session_Choice, default="No")
     curriculum_start_date = models.DateField(null=True, blank=True)
 
     published = models.BooleanField(default=False)
