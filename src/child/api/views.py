@@ -339,14 +339,14 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                             child_plan_qs, data=dict(child_plan_detail), partial=True)
                         if child_plan_serializer.is_valid():
                             child_plan_serializer.save()
-                            return Response("Child Update Successfully",status=status.HTTP_200_OK)
+                            return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
                         # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
                         else:
                             print("@@@@@@@",child_plan_serializer.errors)
                             raise ValidationError(child_plan_serializer.errors)
                     else: 
-                        return Response("Child Update Successfully",status=status.HTTP_200_OK)
+                        return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
                 except Exception as ex:
                     print("ex",ex)
                     logger.debug(ex)
