@@ -65,18 +65,14 @@ class AccountUserSerializer(serializers.ModelSerializer):
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
 
-
+    """ no of license add """
     def to_representation(self, obj):
         serialized_data = super(
             AccountUserSerializer, self).to_representation(obj)
-        print("serialized_data Role",serialized_data['role'])
         user_id = serialized_data['user_obj']['id']
-        print("user_id----------",user_id)
         role_id = [entry['id'] for entry in serialized_data['role']]
-        print("ROLE----", role_id)
 
         user_role = UserRole.objects.filter(user=user_id, role=role_id[0], school__isnull=False).count()
-        print("USER Role", user_role)
         if user_role:
             serialized_data['no_of_license']=user_role
 
