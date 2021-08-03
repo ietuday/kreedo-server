@@ -114,7 +114,20 @@ class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'POST':
             return PeriodTemplateDetailCreateSerializer
+        
+    def post(self,request):
+        try:
+            period_temp_serializer = PeriodTemplateDetailCreateSerializer(data=request.data)
+            if period_temp_serializer.is_valid():
+                period_temp_serializer.save()
+                return Response(period_temp_serializer.data,status=status.HTTP_200_OK)
+            return Response(period_temp_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        except Exception as ex:
+            print("@@@",ex)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+          
 
 """ Period Template Detail Retrive Update """
 

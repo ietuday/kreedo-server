@@ -1,3 +1,4 @@
+from django.core import validators
 from django.db import models
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
@@ -101,9 +102,18 @@ class Period(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('Period_detail', kwargs={"pk": self.pk})
 
+import pdb
+def valid_time_slot(value):
+    print(value)
+    val = value.strftime('%H:%M')
+    # pdb.set_trace()
+    return val
+
+    
+
+
 
 """ Period Template Detail """
-
 
 class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
@@ -114,8 +124,10 @@ class PeriodTemplateDetail(TimestampAwareModel):
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
         to='schools.Room', on_delete=models.PROTECT, null=True, blank=True)
-    start_time = models.TimeField(null=True)
-    end_time = models.TimeField(null=True)
+    start_date = models.DateField(null=True,blank=True)
+    end_date = models.DateField(null=True,blank=True)
+    start_time = models.TimeField(null=True,validators = [valid_time_slot])
+    end_time = models.TimeField(null=True,validators = [valid_time_slot])
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
     day = models.CharField(
@@ -124,6 +136,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
+ 
+            
     class Meta:
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
