@@ -65,20 +65,22 @@ class AccountUserSerializer(serializers.ModelSerializer):
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
 
-    def to_representation(self, obj):
-        try:
-            serialized_data = super(
-                AccountUserSerializer, self).to_representation(obj)
-            print("serialized_data",serialized_data)
-            child_data = serialized_data.get('role')
-           
-            # user_qs = UserRole.objects.filter(user=serialized_data.get('user_obj')('id'))
-            # print("%%%%%%%%%%%",user_qs)
 
-            return serialized_data
-        except Exception as ex:
-            print("ex", ex)
-            raise ValidationError(ex)
+    def to_representation(self, obj):
+        serialized_data = super(
+            AccountUserSerializer, self).to_representation(obj)
+        print("serialized_data Role",serialized_data['role'])
+        user_id = serialized_data['user_obj']['id']
+        print("user_id----------",user_id)
+        role_id = [entry['id'] for entry in serialized_data['role']]
+        print("ROLE----", role_id)
+
+        user_role = UserRole.objects.filter(user=user_id, role=role_id[0], school__isnull=False).count()
+        print("USER Role", user_role)
+        if user_role:
+            serialized_data['no_of_license']=user_role
+
+        return serialized_data
 
     
     
