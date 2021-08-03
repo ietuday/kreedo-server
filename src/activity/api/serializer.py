@@ -12,6 +12,7 @@ class ActivityListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+
 """ Activity Create Serializer """
 class ActivityCreateSerializer(serializers.ModelSerializer):
     class Meta:

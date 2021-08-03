@@ -154,6 +154,24 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateDetail
         fields = '__all__'
+    
+    def validate(self,validated_data):
+            start_time = validated_data['start_time']
+            end_time = validated_data['end_time']
+            period_temp_qs = PeriodTemplateDetail.objects.filter(room=validated_data['room'],
+                                                                    start_date=validated_data['start_date'],
+                                                                    end_date=validated_data['end_date'],
+                                                        )
+            print(period_temp_qs)   
+            for period in period_temp_qs:
+                if start_time <= period.start_time and period.end_time<start_time:
+                    raise ValidationError("Period With This Time Exists")
+            else:
+                # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
+                return validated_data
+        # except Exception as ex:
+        #     raise ValidationError(ex)
+    
 
 
 """ PeriodTemplateToGrade List Serializer """
