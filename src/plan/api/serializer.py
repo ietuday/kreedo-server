@@ -188,6 +188,12 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
                   'subjects', 'curriculum_start_date']
 
 
+class ChildPlanUpdateSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildPlan
+        fields = '__all__'
+
+
 class ChildPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
