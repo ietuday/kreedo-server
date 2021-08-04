@@ -114,7 +114,7 @@ def weakoff_list(grade_dict):
     except Exception as ex:
         logger.debug(ex)
         logger.info(ex)
-        raise ValidationError(ex)
+        raise ex
 
 
 def total_working_days(grade_dict, count_weekday):
@@ -149,7 +149,7 @@ def create_period(grade_dict):
                     
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
-                            academic_session=grade_dict['acad_session'], days=day_according_to_date.upper())
+                            academic_session=grade_dict['acad_session'], day=day_according_to_date.upper())
                         print("@@@@@@@@@@@@",period_list)
                         period_dict = {}
 

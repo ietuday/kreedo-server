@@ -38,6 +38,7 @@ class PeriodTemplateDetailFilter(filters.FilterSet):
 
 """ PeriodTemplateToGrade Filter """
 class PeriodTemplateToGradeFilter(filters.FilterSet):
+    section_name = filters.CharFilter(field_name='academic_session__section__name',lookup_expr='icontains')
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
