@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from activity.models import*
 from ..models import*
 from session.models import*
+from holiday.models import *
+from holiday.api.serializer import *
 
 
 """ Period Template Serializer """
@@ -16,7 +18,6 @@ class PeriodTemplateSerializer(serializers.ModelSerializer):
         model = PeriodTemplate
         fields = '__all__'
     
-
 
 class PeriodTemplateListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -145,6 +146,19 @@ class PeriodTemplateDetailListSerializer(serializers.ModelSerializer):
         model = PeriodTemplateDetail
         fields = '__all__'
         depth = 1
+    
+    def to_representation(self, instance):
+        instance = super(PeriodTemplateDetailListSerializer,
+                                                self).to_representation(instance)
+        start_time = instance['start_time']
+        end_time = instance['end_time']
+        strt_time_list = start_time.split(':')
+        formated_strt_time = ":".join(strt_time_list[0:2])
+        end_time_list = end_time.split(':')
+        formated_end_time = ":".join(end_time_list[:2])
+        instance['start_time'] = formated_strt_time
+        instance['end_time'] = formated_end_time
+        return instance
 
 
 """ Period Template Detail Create Serializer """
@@ -155,26 +169,23 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
         model = PeriodTemplateDetail
         fields = '__all__'
     
-    def validate(self,validated_data):
-            start_time = validated_data['start_time']
-            end_time = validated_data['end_time']
-            period_temp_qs = PeriodTemplateDetail.objects.filter(room=validated_data['room'],
-                                                                   day=validated_data['day'],
-                                                                   start_time__gte=start_time,
-                                                                #    end_time__lt=  start_time  
-                                                                academic_session = validated_data['academic_session']
-                                                        )
-            print(period_temp_qs) 
-            # pdb.set_trace()  
-            for period in period_temp_qs:
-                # pdb.set_trace()
-                if start_time <= period.start_time and period.end_time<start_time:
-                    raise ValidationError("Period With This Time Exists")
-            else:
-                # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
-                return validated_data
-        # except Exception as ex:
-        #     raise ValidationError(ex)
+    # def validate(self,validated_data):
+    #         start_time = validated_data['start_time']
+    #         end_time = validated_data['end_time']
+    #         period_temp_qs = PeriodTemplateDetail.objects.filter(room=validated_data['room'],
+    #                                                                day=validated_data['day'],
+    #                                                             #    start_time__range=(start_time,end_time)
+    #                                                             # #    end_time__lt=start_time  
+                                                                
+    #                                                     )
+    #         print(period_temp_qs) 
+    #         pdb.set_trace()
+    #         for period in
+    #             raise ValidationError("Period With This Time Exists")
+    #         else:
+    #             # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
+    #             return validated_data
+    
     
 
 
@@ -186,6 +197,21 @@ class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
         model = PeriodTemplateToGrade
         fields = '__all__'
         depth = 2
+
+    
+    # def to_representation(self, instance):
+    #     instance = super(PeriodTemplateToGradeListSerializer,
+    #                          self).to_representation(instance)
+
+    #     start_date = instance['start_date']
+    #     end_date = instance['end_date']
+    #     academic_session = instance['academic_session']['id']
+    #     calendar_data = SchoolHoliday.objects.filter(academic_session=academic_session,
+    #     holiday_from__gte=start_date, holiday_till__gte=end_date, is_active=True)
+    #     print("Calendar", calendar_data)
+    #     calendar_data_qs = SchoolHolidayListSerializer(calendar_data, many=True)
+    #     instance['holidays_list'] = calendar_data_qs.data
+    #     return instance
 
 
 """ PeriodTemplateToGrade Create Serializer """

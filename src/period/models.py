@@ -102,6 +102,8 @@ class Period(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('Period_detail', kwargs={"pk": self.pk})
 
+    
+
 import pdb
 def valid_time_slot(value):
     print(value)
@@ -126,8 +128,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
         to='schools.Room', on_delete=models.PROTECT, null=True, blank=True)
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
-    start_time = models.TimeField(null=True,validators = [valid_time_slot])
-    end_time = models.TimeField(null=True,validators = [valid_time_slot])
+    start_time = models.TimeField(null=True)
+    end_time = models.TimeField(null=True)
     type = models.CharField(
         max_length=50, choices=Period_Type_Choice)
     day = models.CharField(
