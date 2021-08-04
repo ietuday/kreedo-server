@@ -5,8 +5,6 @@ import logging
 from ..models import*
 
 
-
-
 """ Skill List Serializer """
 
 
@@ -14,22 +12,20 @@ class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = '__all__'
-        depth=1
+        depth = 1
 
 
 class SkillConceptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = ['concept']
-        depth=1
-
+        depth = 1
 
 
 class SkillListForChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = '__all__'
-        
 
 
 class EdooFunSkillListSerializer(serializers.ModelSerializer):
@@ -37,7 +33,6 @@ class EdooFunSkillListSerializer(serializers.ModelSerializer):
         model = Skill
         fields = '__all__'
         depth = 1
-
 
 
 class EdooFunConceptListSerializer(serializers.ModelSerializer):

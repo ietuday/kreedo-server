@@ -43,6 +43,10 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print("validated_data---------", validated_data)
+            child_instance = Child.objects.create(**validated_data)
+            child_instance.save()
+            # return child_instance
 
             parents_detail = self.context['parent_detail']['parents']
 
@@ -79,51 +83,46 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                         else:
                             parent_list.append(
                                 parent_serializer.data['user_obj'])
-                            print("User Exist")
+                            print("User Exist1", parent_list)
+
                     else:
-                        print("User Exist")
+                        print("User Exist2")
                 except Exception as ex:
                     logger.debug(ex)
                     logger.info(ex)
 
                     raise ValidationError(ex)
+            validated_data['parent'] = parent_list
 
-            self.context['child_detail']['parent'] = parent_list
-            validated_data = self.context['child_detail']
+            child_instance.parent.set(validated_data['parent'])
 
-            child = super(ChildRegisterSerializer, self).create(validated_data)
-            print("child Created")
-            child.save()
-            return child
-            # section = self.context['academic_session_detail']['section']
-            # grade = self.context['academic_session_detail']['grade']
+            child_instance.save()
+            return child_instance
 
-            # acadmic_ids = AcademicSession.objects.filter(
-            #     grade=grade, section=section)
-            # if len(acadmic_ids) != 0:
-            #     child_id = child.id
-            #     academic_session_detail = {
-            #         "child": child_id,
-            #         "academic_session": acadmic_ids,
-            #     }
-            #     """  create child plan """
+            # self.context['child_detail']['parent'] = parent_list
+            # validated_data = self.context['child_detail']
 
-            #     try:
+            # print("validated_data-----------",
+            #       self.context['school_detail']['school'])
+            # school = validated_data.pop('school')
 
-            #         child_plan_serializer = ChildPlanCreateSerailizer(
-            #             data=dict(academic_session_detail))
-            #         if child_plan_serializer.is_valid():
-            #             child_plan_serializer.save()
+            # class_teacher = validated_data.pop('class_teacher')
+            # account_manager = validated_data.pop('account_manager')
+            # parents = validated_data.pop('parent')
+            # print("%%%%%%%%%%%%", parents, account_manager,class_teacher,school)
 
-            #         else:
-            #             raise ValidationError(child_plan_serializer.errors)
-            #     except Exception as ex:
-            #         print("@@@@@@@@@@@@@@", ex)
-            #         logger.debug(ex)
-            #         logger.info(ex)
-            #         raise ValidationError(ex)
-            # else:
-            #     print("Child plan not created")
+            # child_instance = Child.objects.create(**validated_data)
+            # child_instance.school = self.context['school_detail']['school']
+            # # child_instance.parent.set(parent_list)
+            # # child_instance.class_teacher=class_teacher
+            # # child_instance.account_manager=account_manager
+
+            # child_instance.save()
+
+            # child = super(ChildRegisterSerializer, self).create(validated_data)
+            # print("child Created")
+            # child.save()
+            # return child_instance
 
         except Exception as ex:
             print("serializer error", ex)
@@ -140,28 +139,31 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = ['secret_pin']
-    
+
     def to_representation(self, instance):
-        instance = super(UpdateSecretPinForChildSerializer, self).to_representation(instance)
+        instance = super(UpdateSecretPinForChildSerializer,
+                         self).to_representation(instance)
         instance['data'] = self.context['data']
         return instance
 
     def create(self, validated_data):
         try:
-            print("validated_data['new_pin']---------->", self.context['child_detail']['new_pin'])
+            print("validated_data['new_pin']---------->",
+                  self.context['child_detail']['new_pin'])
             child_id = self.context['child_detail']['child']
 
             user_id = User.objects.get(
                 id=self.context['child_detail']['parent_id']).id
             print("user_id , child ", user_id, child_id)
-            if Child.objects.filter(id=child_id, parent=user_id,secret_pin=self.context['child_detail']['old_pin']).exists():
+            if Child.objects.filter(id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin']).exists():
                 print("@@@@@@", self.context['child_detail']['child'])
-                child_qs = Child.objects.get(id=child_id, parent=user_id,secret_pin=self.context['child_detail']['old_pin'])
-                print('child_qs',child_qs)
+                child_qs = Child.objects.get(
+                    id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin'])
+                print('child_qs', child_qs)
                 child_qs.secret_pin = self.context['child_detail']['new_pin']
                 child_qs.save()
                 data = "PIN has been reset."
-                self.context.update({"data":data})
+                self.context.update({"data": data})
                 return validated_data
             else:
                 raise ValidationError("Child not found")
@@ -172,17 +174,11 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
-
-
-
 class ChildListParentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = '__all__'
         depth = 1
-
-
-
 
 
 class ChildDetailSerializer(serializers.ModelSerializer):
@@ -215,18 +211,15 @@ class ChildDetailSerializer(serializers.ModelSerializer):
 
         # else:
         #     serialized_data['academic_session_data'] = ""
-    
-        
+
         return serialized_data
 
 
-
 """ Child list by License Serializer """
+
 
 class ChildListbylicenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = '__all__'
         depth = 1
-
-

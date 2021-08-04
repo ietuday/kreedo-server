@@ -18,7 +18,7 @@ from schools.models import*
 from users.api.serializer import*
 from rest_framework import status
 from datetime import date
-
+from users.models import*
 """ import Logger """
 
 from kreedo.conf import logger
@@ -44,17 +44,22 @@ logger.info("UTILS CAlled ")
 
 class RegisterChild(ListCreateAPIView):
     def post(self, request):
+        teacher_id = request.data.get('class_teacher', None)
+        teacher_id = User.objects.filter(id=teacher_id)[0].id
+        print("teacher_id", teacher_id)
         try:
             child_detail = {
                 "photo": request.data.get('photo', None),
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
                 "date_of_birth": request.data.get('date_of_birth', None),
+                "school": request.data.get('school_name', None),
                 "class_teacher": request.data.get('class_teacher', None),
-                "school_name": request.data.get('school_name', None),
                 "account_manager": request.data.get('account_manager', None),
-                "parent": ""
+                "parent": "",
+                "is_active":True
             }
+           
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
@@ -62,33 +67,44 @@ class RegisterChild(ListCreateAPIView):
                 "section": request.data.get('section', None),
                 "grade": request.data.get('grade', None)
             }
-
-            """  Pass dictionary through Context """
-            context = super().get_serializer_context()
-            context.update(
-                {"child_detail": child_detail, "parent_detail": parent_detail,
-                 "academic_session_detail": academic_session_detail})
-
-            try:
-
-                child_detail_serializer = ChildRegisterSerializer(
-                    data=dict(child_detail), context=context)
-                if child_detail_serializer.is_valid():
-                    child_detail_serializer.save()
-
-                    context = {"isSuccess": True, "message": "Child register successfully", "status": status.HTTP_200_OK,
-                               "error": "", "data": child_detail_serializer.data}
-                    return Response(context, status=status.HTTP_200_OK)
-                else:
-                    context = {"isSuccess": True, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                               "error": child_detail_serializer.errors, "data": ""}
+            print("request.data.get('parents', None)",request.data.get('parents', None))
+            for parent in request.data.get('parents', None):
+                
+                user_obj = UserDetail.objects.filter(phone= parent['phone'])
+                if Child.objects.filter(first_name=request.data.get('first_name', None),last_name=request.data.get('last_name', None),
+                            parent__in=user_obj).exists():
+                    context = {"isSuccess": False, "message": "Child already Exist", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                     "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    print("@@@@@@@Child")
+                else:
 
-            except Exception as ex:
-                print("ERROR---1", ex)
-                context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                           "error": ex, "data": ""}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    """  Pass dictionary through Context """
+                    context = super().get_serializer_context()
+                    context.update(
+                        {"child_detail": child_detail, "parent_detail": parent_detail,
+                        "academic_session_detail": academic_session_detail})
+
+                    try:
+
+                        child_detail_serializer = ChildRegisterSerializer(
+                            data=dict(child_detail), context=context)
+                        if child_detail_serializer.is_valid():
+                            child_detail_serializer.save()
+
+                            context = {"isSuccess": True, "message": "Child register successfully", "status": status.HTTP_200_OK,
+                                    "error": "", "data": child_detail_serializer.data}
+                            return Response(context, status=status.HTTP_200_OK)
+                        else:
+                            context = {"isSuccess": True, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                    "error": child_detail_serializer.errors, "data": ""}
+                            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                    except Exception as ex:
+                        print("ERROR---1", ex)
+                        context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                "error": ex, "data": ""}
+                        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
