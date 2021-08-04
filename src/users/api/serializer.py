@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from ..models import*
 from address.api.serializer import AddressSerializer
+
 from .utils import*
 import traceback
 import logging
@@ -117,6 +118,17 @@ class UserDetailListForSectionSubjectSerializer(serializers.ModelSerializer):
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 1
+
+
+""" User Role Serializer"""
+
+
+class SchoolUserRoleSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 2
 
 """ Reporting To  Serializer """
 
@@ -708,15 +720,7 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
 
 
 
-""" User Role Serializer"""
 
-
-class SchoolUserRoleSerializers(serializers.ModelSerializer):
-    user = UserDetailListForSectionSubjectSerializer()
-    class Meta:
-        model = UserRole
-        fields = '__all__'
-        depth = 2
 
 
 
@@ -724,7 +728,7 @@ class SchoolUserRoleSerializers(serializers.ModelSerializer):
 """ Logged In User Serializer """
 
 class LoggedInUserSerializer(serializers.ModelSerializer):
-
+    
     user_obj = AuthUserSerializer()
     class Meta:
         model = UserDetail
@@ -732,6 +736,7 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
         depth = 3
     
     def to_representation(self, obj):
+        from session.api.serializer import AcademicSessionListSerializer
         serialized_data = super(
             LoggedInUserSerializer, self).to_representation(obj)
         user_obj_id =serialized_data.get('user_obj')
@@ -742,7 +747,9 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
             user_role_data_serializer = UserRoleListSerializer(
                 user_role_data, many=True)
             serialized_data['user_role_data'] = user_role_data_serializer.data
-        
+        if AcademicSession.objects.filter(class_teacher=user_id).exists():
+            acadamic_session_serializer = AcademicSessionListSerializer(AcademicSession.objects.filter(class_teacher=user_id), many=True)
+            serialized_data['class_teacher_data'] = acadamic_session_serializer.data
         return serialized_data
 
 
