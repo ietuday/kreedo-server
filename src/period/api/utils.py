@@ -173,6 +173,7 @@ def create_period(grade_dict):
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
                             if p_qs == 0:
+                                # print()
                                 period_serializer = PeriodCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
