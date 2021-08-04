@@ -31,7 +31,7 @@ Period_Type_Choice = [
     (Regular_Assessment, 'Regular Assessment'),
     (Regular, 'Regular'),
     (Remedial, 'Remedial'),
-    (Remedial Assessment, 'Remedial Assessment')
+    (Remedial_Assessment, 'Remedial Assessment')
 ]
 
 Days_Choice = [
