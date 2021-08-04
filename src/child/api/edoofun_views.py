@@ -83,7 +83,7 @@ class RegisterChild(ListCreateAPIView):
                     context = super().get_serializer_context()
                     context.update(
                         {"child_detail": child_detail, "parent_detail": parent_detail,
-                        "academic_session_detail": academic_session_detail,"school_detail":school_detail})
+                        "academic_session_detail": academic_session_detail})
 
                     try:
 
