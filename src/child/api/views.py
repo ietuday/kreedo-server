@@ -485,9 +485,10 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             subject = request.data.get('subject', None)
+            school = request.data.get('school', None)
             
             academic_session = AcademicSession.objects.filter(
-                grade=grade, section=section)
+                grade=grade, section=section, school=school)
        
             print("academic_session",academic_session)
 
