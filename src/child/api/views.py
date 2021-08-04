@@ -572,7 +572,7 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 if len(attendence_qs)is not 0:
                     print("attendence_qs",attendence_qs)
                     
-                    attendanceListSerializer = AttendanceListSerializer(attendence_qs[0],context=context)
+                    attendanceListSerializer = AttendanceListSerializer(attendence_qs[0],context=context, many=True)
                     context = {"isSuccess": True, "message": "Child List",
                     "error": "", "data": attendanceListSerializer.data}
                     return Response(context, status=status.HTTP_200_OK)

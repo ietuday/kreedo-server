@@ -28,10 +28,10 @@ sunday = "SUNDAY"
 
 
 Period_Type_Choice = [
-    (Regular_Assessment_Period, 'Regular Assessment Period'),
-    (Regular_Period, 'Regular Period'),
-    (Remedial_Period, 'Remedial Period'),
-    (Remedial_Assessment, 'Remedial Assessment')
+    (Regular_Assessment, 'Regular Assessment'),
+    (Regular, 'Regular'),
+    (Remedial, 'Remedial'),
+    (Remedial, 'Remedial Assessment')
 ]
 
 Days_Choice = [
