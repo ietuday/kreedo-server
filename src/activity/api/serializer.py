@@ -11,6 +11,30 @@ class ActivityListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+    def to_representation(self, instance):
+        print(instance)
+        serialized_data = super(
+            ActivityListSerializer, self).to_representation(instance)
+        context = self.context
+        if 'child' in context:  
+            activity = Activity.objects.get(pk=serialized_data['id'])
+            activity_complete = activity.activity_complete.filter(child=context['child'])
+
+            if len(activity_complete) > 0:
+                serialized_data['is_persent'] = True
+                if activity_complete[0].is_completed:
+                    serialized_data['is_completed'] = True
+                else:
+                    serialized_data['is_completed'] = False
+               
+            else:
+                serialized_data['is_present'] = False
+                serialized_data['is_completed'] = False
+            return serialized_data
+        else:
+            return serialized_data  
+          
+
 
 
 """ Activity Create Serializer """

@@ -103,7 +103,7 @@ class ActivityComplete(TimestampAwareModel):
     child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
     period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT)
     activity = models.ForeignKey(
-        to='activity.Activity', on_delete=models.PROTECT)
+        to='activity.Activity', on_delete=models.PROTECT,related_name='activity_complete')
     is_completed = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
