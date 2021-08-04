@@ -154,7 +154,7 @@ class AddConceptSkill(ListCreateAPIView):
             for i, f in enumerate(df, start=1):
                 f['activity']= ast.literal_eval(f['activity'])
                 f['remed_activity']= ast.literal_eval(f['remed_activity'])
-                if not m.isnan(f['id']) and f['isDeleted'] == False:
+                if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
                     concept_qs.name = f['concept_name']
@@ -171,7 +171,7 @@ class AddConceptSkill(ListCreateAPIView):
                     skill_qs.save()
                     # added_conept_skill.append(concept_qs)
                     added_conept_skill.append(skill_qs)
-                elif not m.isnan(f['id']) and f['isDeleted'] == True:
+                elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
                     skill_qs = Skill.objects.filter(id=f['skill_id'],concept=concept_qs['id'])
