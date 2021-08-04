@@ -12,9 +12,9 @@ from schools.models import*
 
 
 """  Relationship Choice """
-Regular_Assessment_Period = 'Regular Assessment Period'
-Regular_Period = 'Regular Period'
-Remedial_Period = 'Remedial Period'
+Regular_Assessment = 'Regular Assessment'
+Regular = 'Regular'
+Remedial = 'Remedial'
 Remedial_Assessment = 'Remedial Assessment'
 
 """ Days Choices """
