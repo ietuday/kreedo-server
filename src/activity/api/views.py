@@ -54,6 +54,28 @@ class ActivityListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return ActivityCreateSerializer
 
+class ActivityListBySubject(GeneralClass,Mixins,CreateAPIView):
+    model = Activity
+    filterset_class = ActivityFilter
+
+    def post(self,request):
+        try:
+            subject = request.data.get('subject',None)
+            child = request.data.get('child',None)
+
+            context = self.get_serializer_context()
+            context['child'] = child
+            activity_list = Activity.objects.filter(subject=subject)
+            print('list',activity_list)
+            activity_serializer = ActivityListSerializer(activity_list,many=True,context=context)
+            
+            return Response(activity_serializer.data,status.HTTP_200_OK)
+                    
+        except Exception as ex:
+            print(ex)
+            return Response(ex)
+
+
 
 """ Activity Retrive Update and delete"""
 
