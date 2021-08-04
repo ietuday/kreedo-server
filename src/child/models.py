@@ -56,16 +56,16 @@ class Child(TimestampAwareModel):
     place_of_birth = models.CharField(max_length=100, null=True, blank=True)
     blood_group = models.CharField(max_length=100, null=True, blank=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
-    parent = models.ManyToManyField(to='users.UserDetail', blank=True)
+    parent = models.ManyToManyField(to='users.UserDetail',related_name='parent' , blank=True)
     registered_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, related_name='registered_by', null=True, blank=True)
     reason_for_discontinue = models.TextField(null=True, blank=True)
     school =  models.ForeignKey(
-        to='schools.School', on_delete=models.PROTECT, null=True, blank=True, related_name='child_school')
+        to='schools.School', on_delete=models.PROTECT, null=True, blank=True, related_name='school')
     class_teacher =  models.ForeignKey(
-        to='users.UserDetail', on_delete=models.PROTECT,null=True, related_name='child_class_teacher',blank=True)
+        to='users.UserDetail', on_delete=models.PROTECT,null=True, related_name='class_teacher',blank=True)
     account_manager =  models.ForeignKey(
-        to='users.UserDetail', on_delete=models.PROTECT,related_name='child_account_manager',null=True, blank=True)
+        to='users.UserDetail', on_delete=models.PROTECT,related_name='account_manager',null=True, blank=True)
     
     is_active = models.BooleanField(default=False)
     secret_pin = models.CharField(max_length=50, default='0000')
