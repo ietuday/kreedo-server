@@ -24,6 +24,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = ['id','question','is_active']
 
 
+
+class QuestionCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionAnswer
+        fields = '__all__'
+
+
 """ Question answer Serializer """
 
 class GetSecretQuestionBasedOnParentIDSerializer(serializers.ModelSerializer):
