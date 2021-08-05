@@ -533,3 +533,37 @@ class UserDetailListSerializer(serializers.ModelSerializer):
         exclude = ('activation_key', 'activation_key_expires')
         # depth = 1
     
+
+
+""" Logged In User Serializer """
+from child.models import*
+from child.api.edoofun_serializer import*
+from question_answer.models import*
+from question_answer.api.serializer import*
+
+class LoggedInUserDetailSerializer(serializers.ModelSerializer):
+    
+    user_obj = AuthUserSerializer()
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 3
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            LoggedInUserDetailSerializer, self).to_representation(obj)
+        user_obj_id =serialized_data.get('user_obj')
+        
+        user_id = user_obj_id.get('id')
+        if Child.objects.filter(parent=user_id).exists():
+            child_qs = Child.objects.filter(parent=user_id)
+            child_qs_seriliazer = ChildListForParentSerializer(child_qs, many=True)
+            serialized_data['childs'] = child_qs_seriliazer.data
+
+        if QuestionAnswer.objects.filter(user=user_id).exists():
+            question_answer_qs = QuestionAnswer.objects.filter(user=user_id)
+            question_answer_qs_serializer = QuestionSerializer(question_answer_qs,many=True)
+            serialized_data['secret_question']=question_answer_qs_serializer.data
+        
+  
+        return serialized_data
