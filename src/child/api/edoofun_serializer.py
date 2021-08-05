@@ -223,3 +223,11 @@ class ChildListbylicenseSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
         depth = 1
+
+
+
+class ChildListForParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+        # depth = 1
