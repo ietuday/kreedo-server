@@ -277,3 +277,28 @@ class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+""" Log in user detail """
+
+@permission_classes((IsAuthenticated,))
+class LoggedInUser(ListAPIView):
+    def get(self, request):
+        try:
+
+            logged_user = request.user
+            user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
+            user_data = LoggedInUserDetailSerializer(user_obj_detail)
+            # return Response(user_data.data)
+            context = {'isSuccess': True, 'message': "Parent Detail",'data': user_data.data,
+                            "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
+        except Exception as ex:
+            print("ERROR-------", ex)
+            print("traceback", traceback)
+            context = {'isSuccess': False, "error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
