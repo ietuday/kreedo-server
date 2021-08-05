@@ -100,7 +100,7 @@ class GetSecretQuestionBasedOnParentID(ListCreateAPIView):
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
-                context = {'isSuccess': False, "error": ex,
+                context = {'isSuccess': False, "error": "Question not found by ParentID",
                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:

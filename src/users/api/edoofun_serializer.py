@@ -23,6 +23,7 @@ from django.core.exceptions import ValidationError
 
 from kreedo.conf import logger
 from kreedo.conf.logger import CustomFormatter
+from question_answer.api.serializer import*
 import logging
 
 """ Logger Function """
@@ -194,7 +195,8 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                     user_role = {
                         "user": user_detail_serializer.data['user_obj'],
                         "role": Role.objects.filter(name="Primary")[0].id,
-                        "school": ""
+                        "school": "",
+                        "is_active":True
                     }
                     user_role_serializer = UserRoleSerializer(
                         data=dict(user_role))
@@ -204,6 +206,20 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                     else:
                         raise ValidationError(user_role_serializer.errors)
                     print("@@@@@@@@USER-----", user)
+
+                    user_question = {
+                        "question":"",
+                        "answer":"",
+                        "user":[user.id],
+                        "is_active":True
+                    }
+                    print("user_question---",user_question)
+                    user_question_serializer =QuestionCreateSerializer(data=dict(user_question))
+                    if user_question_serializer.is_valid():
+                        user_question_serializer.save()
+                        print("CREATe")
+                    else:
+                        print("Question Serializer", user_question_serializer.errors)
                     return user
 
             except Exception as ex:
