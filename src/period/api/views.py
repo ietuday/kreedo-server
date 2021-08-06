@@ -438,10 +438,10 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
             """ Count Working Days """
             working_days = total_working_days(grade_dict, count_weekday)
             print("working_days---->", working_days)
-            """ Period Creation """
+            # """ Period Creation """
             period_reponse = create_period(grade_dict)
-            print("period Response------->", period_reponse)
-            return Response(period_reponse,status=status.HTTP_200_OK)
+            # print("period Response------->", period_reponse)
+            # return Response(period_reponse,status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERRROR", ex)
