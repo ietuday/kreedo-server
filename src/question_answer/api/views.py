@@ -112,7 +112,7 @@ class GetSecretQuestionBasedOnParentID(ListCreateAPIView):
 
 """ UpdateSecretQuestionBasedOnParentID """
 
-
+import traceback
 class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
     def put(self, request, pk):
         try:
@@ -126,17 +126,23 @@ class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
                     print("remove")
                 
                 question_detail = {
-                    "user":pk,
-                    "question":request.data.get('question',None)
+                    "user":[pk],
                 }
-                question_answer_qs = QuestionAnswerSerializer(data=dict(question_detail))
-                if question_answer_qs.is_valid():
-                    question_answer_qs.save()
+                user_question_answer = QuestionAnswer.objects.filter(id=request.data.get('question',None))
+                print("@@@@@@@@@", user_question_answer)
+                
+
+
+                question_answer_qs_serilaizer = QuestionCreateSerializer(user_question_answer,data=question_detail,partial=True)
+                if question_answer_qs_serilaizer.is_valid():
+                    question_answer_qs_serilaizer.save()
+                    print("UPDATE")
                     context = {'isSuccess': True, "error": "",'message': "Question updated Successfully"
                             ,"parent_id":pk,"statusCode": status.HTTP_200_OK,}
                     return Response(context, status=status.HTTP_200_OK)
                 else:
-                    context = {'isSuccess': False, "error": question_answer_qs.errors,
+                    print("question_answer_qs_serilaizer.errors",question_answer_qs_serilaizer.errors)
+                    context = {'isSuccess': False, "error": question_answer_qs_serilaizer.errors,
                     "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
@@ -146,6 +152,7 @@ class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
 
         except Exception as ex:
             print(ex)
+            print("TRACEBACK", traceback.print_exc())
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
