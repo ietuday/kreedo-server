@@ -22,8 +22,12 @@ class ActivityListSerializer(serializers.ModelSerializer):
 
             if len(activity_complete) > 0:
                 serialized_data['is_persent'] = True
+<<<<<<< HEAD
                 
                 if activity_complete[0].is_completed:
+=======
+                if activity_complete[0].is_completed == True:
+>>>>>>> 1527170dce7756d555191f5019b2be6a653d7b2c
                     serialized_data['is_completed'] = True
                 else:
                     serialized_data['is_completed'] = False
