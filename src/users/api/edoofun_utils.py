@@ -92,11 +92,6 @@ def authenticate_username(username, old_password):
         logger.info(ex)
         raise ValidationError("User not Authorized")
 
-
-
-
-
-
 """ Validate Email and Password """
 
 
