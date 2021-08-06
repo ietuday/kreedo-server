@@ -249,3 +249,19 @@ class SchoolCalendarCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolCalendar
         fields = '__all__'
+
+class AcademicSessionGroupBySection(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = ['section']
+        depth = 1
+
+    # def to_representation(self, obj):
+    #    serialized_data = super(
+    #    AcademicSessionGroupByGrade, self).to_representation(obj)
+    #    print(serialized_data)
+    #    for acad in seri
+    #    return serialized_data
+
+
+
