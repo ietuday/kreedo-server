@@ -52,13 +52,15 @@ class RegisterParent(ListCreateAPIView):
                 "last_name": request.data.get('last_name', None),
                 "email": request.data.get('email', None)
             }
-            role_id = Role.objects.filter(name="Primary")[0].id
+            role_id = Role.objects.filter(name="Parent")[0].id
+            type_id = UserType.objects.filter(name='School Users-Parent')[0].id
             print("role-------", role_id)
             user_detail_data = {
                 "photo": request.data.get('photo', None),
                 "phone": request.data.get('phone', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
                 "role": [role_id],
+                "type":type_id,
                 "is_platform_user":request.data.get('is_platform_user',None)
             }
 
@@ -114,12 +116,11 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
                 context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                # return Response(user_data_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
             context = {'isSuccess': False, 'message': "Something went wrong",
                        'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
-            # return Response(ex, status=status.HTTP_400_BAD_REQUEST)
+            
 from schools.models import*
 from schools.api.edoofun_serializer import*
 """Get All ACCOUNT """
@@ -131,7 +132,6 @@ class GetAllAccounts(ListCreateAPIView):
         try:
             print("@@@@@@@@@@@@",request.data )
             if request.data['type'] == 'account_id':
-                print("account_id----")
                 user_role_qs = UserRole.objects.filter(user=request.data.get('account_id',None))
                 user_role_qs_serializer = SchoolUserRoleSerializers(user_role_qs, many=True)
                 
@@ -291,7 +291,6 @@ class LoggedInUser(ListAPIView):
             logged_user = request.user
             user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
             user_data = LoggedInUserDetailSerializer(user_obj_detail)
-            # return Response(user_data.data)
             context = {'isSuccess': True, 'message': "Parent Detail",'data': user_data.data,
                             "statusCode": status.HTTP_200_OK}
             return Response(context, status=status.HTTP_200_OK)

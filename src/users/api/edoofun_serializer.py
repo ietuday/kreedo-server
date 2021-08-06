@@ -531,7 +531,7 @@ class UserDetailListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
-        # depth = 1
+  
     
 
 
