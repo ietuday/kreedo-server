@@ -500,6 +500,7 @@ class PerioListAccordingDate(GeneralClass,Mixins,ListCreateAPIView):
           
             logger.info(ex)
             logger.debug(ex)
+            print("error",ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

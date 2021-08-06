@@ -205,3 +205,12 @@ def check_date_day(date):
                 'Thursday', 'Friday', 'Saturday', 'Sunday']
     day = datetime.strptime(date, '%Y-%m-%d').weekday()
     return day_name[day]
+
+
+def get_seconds_removed(time):
+    if time:
+        time_list = time.split(":")
+        time = ":".join(time_list[:2])
+        return time
+    else:
+        return time
