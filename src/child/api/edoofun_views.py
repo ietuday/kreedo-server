@@ -133,8 +133,9 @@ class ChildListAssociatedToSectionID(ListCreateAPIView):
 
 """ Update Secret Pin For Selected Child """
 
-
+# @permission_classes((IsAuthenticated,))
 class UpdateSecretPinForSelectedChild(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         try:
             print(request.data)
@@ -142,7 +143,8 @@ class UpdateSecretPinForSelectedChild(ListCreateAPIView):
                 "child": request.data.get('child', None),
                 "parent_id": request.data.get('parent', None),
                 "old_pin": request.data.get('old_pin', None),
-                "new_pin": request.data.get('new_pin', None)
+                "new_pin": request.data.get('new_pin', None),
+                "logged_user": request.user
             }
 
             context = super().get_serializer_context()

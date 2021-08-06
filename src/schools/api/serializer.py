@@ -1,8 +1,10 @@
+from period.models import PeriodTemplate
 from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
 from ..models import*
 import pdb
+from session.api.serializer import *
 
 
 """ Grade Serializer """
@@ -22,12 +24,26 @@ class GradeListSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             GradeListSerializer, self).to_representation(obj)
-
+        context=self.context
         grade_id = serialized_data.get('id')
         section_qs = Section.objects.filter(grade=grade_id)
         section_qs_serializer = SectionSerializer(section_qs, many=True)
-        serialized_data['sections'] = section_qs_serializer.data
-
+        section_data = section_qs_serializer.data
+        for section in section_data:
+            academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+                                                school=context['school'],
+                                                grade=grade_id,
+                                                section=section['id'],
+                                                is_applied=True)
+            # pdb.set_trace()
+            if academic_session:
+                academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
+                academic_session_data = academic_session_serializer.data
+                section['template']  = academic_session_data['period_template']
+                # pdb.set_trace()
+            else:
+                section['template']  = {}
+        serialized_data['sections'] = section_data
         return serialized_data
 
 

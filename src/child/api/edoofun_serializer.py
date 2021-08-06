@@ -148,29 +148,29 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("validated_data['new_pin']---------->",
-                  self.context['child_detail']['new_pin'])
+            
             child_id = self.context['child_detail']['child']
-
-            user_id = User.objects.get(
-                id=self.context['child_detail']['parent_id']).id
-            print("user_id , child ", user_id, child_id)
-            if Child.objects.filter(id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin']).exists():
-                print("@@@@@@", self.context['child_detail']['child'])
-                child_qs = Child.objects.get(
-                    id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin'])
-                print('child_qs', child_qs)
-                child_qs.secret_pin = self.context['child_detail']['new_pin']
-                child_qs.save()
-                data = "PIN has been reset."
-                self.context.update({"data": data})
-                return validated_data
+          
+            user_id = self.context['child_detail']['logged_user']
+            user_obj_detail = UserDetail.objects.get(pk=user_id.id)
+            if user_obj_detail:
+                user_id = User.objects.get(
+                    id=self.context['child_detail']['parent_id']).id
+                if Child.objects.filter(id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin']).exists():
+                    child_qs = Child.objects.get(
+                        id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin'])
+                
+                    child_qs.secret_pin = self.context['child_detail']['new_pin']
+                    child_qs.save()
+                    data = "PIN has been reset."
+                    self.context.update({"data": data})
+                    return validated_data
+                else:
+                    raise ValidationError("Child not found")
             else:
-                raise ValidationError("Child not found")
-
+                ValidationError("InValid Signature")
         except Exception as ex:
-            print("ERROR----------------->", ex)
-            print("traceback---------------", traceback.print_exc())
+          
             raise ValidationError(ex)
 
 
@@ -223,3 +223,11 @@ class ChildListbylicenseSerializer(serializers.ModelSerializer):
         model = Child
         fields = '__all__'
         depth = 1
+
+
+
+class ChildListForParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Child
+        fields = '__all__'
+        # depth = 1
