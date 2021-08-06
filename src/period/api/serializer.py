@@ -173,14 +173,16 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
             # period_temp_qs = PeriodTemplateDetail.objects.filter( 
-            #                                               Q(Q(end_time__range=(start_time,end_time) | Q(end_time__gt=end_time),start_time__gte=start_time) |
-            #                                               Q(Q(end_time__gt=start_time) | Q(end_time__gt=end_time) | Q(end_time__range=(start_time,end_time)),start_time__lt=start_time),
-            #                                                 # start_time__gte=start_time,
-            #                                                         room=validated_data['room'],
-            #                                                        day=validated_data['day'],
+            #                                               Q(start_time__range=(start_time,end_time))|
+            #                                               Q(end_time__gt=end_time)|
+            #                                               Q(end_time__gte=start_time,end_time__lt=end_time),
+            #                                                 room=validated_data['room'],
+            #                                                 day=validated_data['day'],
                                                                        
             #                                             )
-           
+
+            # print(period_temp_qs)
+            # pdb.set_trace()
             period_temp_qs = []
             if period_temp_qs:
                 raise ValidationError("Period With This Time Exists")

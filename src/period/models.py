@@ -144,7 +144,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
         ordering = ['id']
-        unique_together = ('room','start_time','end_time','day')
+        unique_together = ('period_template','room','start_time','end_time','day')
 
     def __str__(self):
         return str(self.id)
