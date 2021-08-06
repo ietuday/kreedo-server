@@ -423,12 +423,18 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                     parent_serializer = ParentSerializer(data=dict(parent))
                     if parent_serializer.is_valid():
                         parent_serializer.save()
+                        role_id = Role.objects.filter(
+                                    name="Parent")[0].id
+                        type_id = UserType.objects.filter(
+                            name='School Users-Parent')[0].id
                         parent_data = {
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
                             "phone": parent['phone'],
                             "gender": parent['gender'],
-                            "photo": parent['photo']
+                            "photo": parent['photo'],
+                            "role": [role_id],
+                            "type":type_id
 
                         }
                         parent_detail_serializer = ParentDetailSerializer(

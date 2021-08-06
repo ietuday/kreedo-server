@@ -52,13 +52,15 @@ class RegisterParent(ListCreateAPIView):
                 "last_name": request.data.get('last_name', None),
                 "email": request.data.get('email', None)
             }
-            role_id = Role.objects.filter(name="Primary")[0].id
+            role_id = Role.objects.filter(name="Parent")[0].id
+            type_id = UserType.objects.filter(name='School Users-Parent')[0].id
             print("role-------", role_id)
             user_detail_data = {
                 "photo": request.data.get('photo', None),
                 "phone": request.data.get('phone', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
                 "role": [role_id],
+                "type":type_id,
                 "is_platform_user":request.data.get('is_platform_user',None)
             }
 
