@@ -58,6 +58,7 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         depth = 1
 
     def to_representation(self, obj):
+        from schools.api.serializer import AcademicSessionSectionSubjectTeacherListSerializer
         serialized_data = super(
             AcademicSessionListSerializer, self).to_representation(obj)
 
