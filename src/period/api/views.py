@@ -169,7 +169,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                     dict['period_id'] = class_period.id
                     dict['name'] = class_period.name
                     dict['description'] = class_period.description
-                    dict['room_no'] = class_period.room_no.room_no
+                    dict['room'] = class_period.room.room_no
                     dict['start_time'] = class_period.start_time.strftime(
                         "%H:%M:%S")
                     dict['end_time'] = class_period.end_time.strftime("%H:%M:%S")

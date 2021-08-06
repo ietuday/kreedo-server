@@ -75,7 +75,7 @@ class Period(TimestampAwareModel):
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
                                 related_name='period_subject', null=True, blank=True)
     room = models.ForeignKey(
-        to='schools.Room', on_delete=models.PROTECT, related_name='period_room_no', null=True, blank=True)
+        to='schools.Room', on_delete=models.PROTECT, related_name='period_room', null=True, blank=True)
     academic_session = models.ManyToManyField(
         to='session.AcademicSession', blank=True)
     description = models.TextField(null=True, blank=True)
