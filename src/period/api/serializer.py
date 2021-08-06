@@ -8,7 +8,7 @@ from ..models import*
 from session.models import*
 from holiday.models import *
 from holiday.api.serializer import *
-
+from django.db.models import Q
 
 """ Period Template Serializer """
 
@@ -169,22 +169,23 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
         model = PeriodTemplateDetail
         fields = '__all__'
     
-    # def validate(self,validated_data):
-    #         start_time = validated_data['start_time']
-    #         end_time = validated_data['end_time']
-    #         period_temp_qs = PeriodTemplateDetail.objects.filter(room=validated_data['room'],
-    #                                                                day=validated_data['day'],
-    #                                                             #    start_time__range=(start_time,end_time)
-    #                                                             # #    end_time__lt=start_time  
-                                                                
-    #                                                     )
-    #         print(period_temp_qs) 
-    #         pdb.set_trace()
-    #         for period in
-    #             raise ValidationError("Period With This Time Exists")
-    #         else:
-    #             # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
-    #             return validated_data
+    def validate(self,validated_data):
+            start_time = validated_data['start_time']
+            end_time = validated_data['end_time']
+            period_temp_qs = PeriodTemplateDetail.objects.filter( 
+                                                            Q(end_time__gt=start_time),
+                                                            start_time__gte=start_time,
+                                                                    room=validated_data['room'],
+                                                                   day=validated_data['day'],
+                                                                       
+                                                        )
+            print(period_temp_qs) 
+            pdb.set_trace()
+            if period_temp_qs:
+                raise ValidationError("Period With This Time Exists")
+            else:
+                # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
+                return validated_data
     
     
 
@@ -221,3 +222,12 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
+
+    def validate(self,validated_data):
+        instance = super(PeriodTemplateToGradeCreateSerializer,self).create(validated_data)
+        academic_session = instance.academic_session
+        academic_session.period_template = instance.period_template
+        academic_session.is_applied = True
+        academic_session.save()
+        instance.save()
+        return instance
