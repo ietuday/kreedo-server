@@ -132,7 +132,7 @@ def total_working_days(grade_dict, count_weekday):
 
 
 def create_period(grade_dict):
-    try:
+    try: 
 
         from_date = datetime.strptime(grade_dict['start_date'], '%Y-%m-%d')
         to_date = datetime.strptime(grade_dict['end_date'], '%Y-%m-%d')
@@ -149,14 +149,14 @@ def create_period(grade_dict):
                     
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
-                            academic_session=grade_dict['acad_session'], day=day_according_to_date.upper())
+                             day=day_according_to_date.upper())
                         print("@@@@@@@@@@@@",period_list)
                         period_dict = {}
 
                         for period in period_list:
 
-                            period_dict['academic_session'] = [
-                                period.academic_session.id]
+                            # period_dict['academic_session'] = [
+                            #     period.academic_session.id]
                             period_dict['name'] = period.subject.name
                             period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
