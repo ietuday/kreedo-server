@@ -192,13 +192,13 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
             # period_temp_qs = PeriodTemplateDetail.objects.filter( 
-            #                                                 Q(Q(start_time__lt=start_time,end_time__gt=end_time) |
-            #                                                     # Q(start_time__lt=start_time,end_time__lt=end_time) |
-            #                                                     Q(start_time__lt=start_time,end_time__lte=end_time) |
-            #                                                     Q(start_time__gt=start_time,end_time__lte=end_time)),
-            #                                                room=validated_data['room'],
-            #                                                 day=validated_data['day'],
-            #                                                 period_template = validated_data['period_template']
+            #                  Q(Q(start_time__lt=start_time,end_time__gt=end_time) |
+            #                 # Q(start_time__lt=start_time,end_time__lt=end_time) |
+            #                 Q(start_time__lt=start_time,end_time__lte=end_time) |
+            #                 Q(start_time__gt=start_time,end_time__lte=end_time)),
+            #                  room=validated_data['room'],
+            #                 day=validated_data['day'],
+            #                 period_template = validated_data['period_template']
                                                                        
             #                                             )
 

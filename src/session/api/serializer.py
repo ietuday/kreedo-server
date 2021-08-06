@@ -2,12 +2,13 @@ from holiday.models import*
 from users.api.serializer import*
 from rest_framework import serializers
 from ..models import *
-from schools.api.serializer import*
+from schools.api.serializer import *
 from django.core.exceptions import ValidationError
 
-from holiday.api.serializer import*
+from holiday.api.serializer import *
 from kreedo.conf.logger import CustomFormatter
 import logging
+
 
 
 """ Logging """
@@ -65,7 +66,7 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         academic_session_id = serialized_data.get('id')
         academic_session_qs = SectionSubjectTeacher.objects.filter(
             academic_session=academic_session_id)
-        academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherListSerializer(
+        academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherRetriveSerializer(
             academic_session_qs, many=True)
         serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
         return serialized_data
@@ -256,12 +257,11 @@ class AcademicSessionGroupBySection(serializers.ModelSerializer):
         fields = ['section']
         depth = 1
 
-    # def to_representation(self, obj):
-    #    serialized_data = super(
-    #    AcademicSessionGroupByGrade, self).to_representation(obj)
-    #    print(serialized_data)
-    #    for acad in seri
-    #    return serialized_data
 
+class AcademicSessionSectionSubjectTeacherRetriveSerializer(serializers.ModelSerializer):
+    teacher = UserDetailListForSectionSubjectSerializer()
 
-
+    class Meta:
+        model = SectionSubjectTeacher
+        fields = ['subject','teacher']
+        depth = 1
