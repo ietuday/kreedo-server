@@ -58,7 +58,7 @@ class PeriodListSerializer(serializers.ModelSerializer):
 class PeriodListSerializerWeb(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = ['name', 'type', 'start_time', 'end_time', 'room_no', 'subject']
+        fields = ['name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
         depth = 1
 
 
