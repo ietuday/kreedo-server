@@ -66,8 +66,16 @@ class PeriodListSerializer(serializers.ModelSerializer):
 class PeriodListSerializerWeb(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = ['name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
+        fields = ['id','name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
         depth = 1
+    
+    def to_representation(self, instance):
+        instance = super(PeriodListSerializerWeb,self).to_representation(instance)
+        start_time = get_seconds_removed(instance['start_time'])
+        end_time = get_seconds_removed(instance['end_time'])
+        instance['start_time'] = start_time
+        instance['end_time'] = end_time
+        return instance
 
 
 """ Period  Serializer """
@@ -184,11 +192,13 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
             # period_temp_qs = PeriodTemplateDetail.objects.filter( 
-            #                                               Q(start_time__range=(start_time,end_time))|
-            #                                               Q(end_time__gt=end_time)|
-            #                                               Q(end_time__gte=start_time,end_time__lt=end_time),
-            #                                                 room=validated_data['room'],
+            #                                                 Q(Q(start_time__lt=start_time,end_time__gt=end_time) |
+            #                                                     # Q(start_time__lt=start_time,end_time__lt=end_time) |
+            #                                                     Q(start_time__lt=start_time,end_time__lte=end_time) |
+            #                                                     Q(start_time__gt=start_time,end_time__lte=end_time)),
+            #                                                room=validated_data['room'],
             #                                                 day=validated_data['day'],
+            #                                                 period_template = validated_data['period_template']
                                                                        
             #                                             )
 
@@ -198,7 +208,6 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
             if period_temp_qs:
                 raise ValidationError("Period With This Time Exists")
             else:
-                # data = super(PeriodTemplateDetailCreateSerializer, self).create(validated_data)
                 return validated_data
     
     

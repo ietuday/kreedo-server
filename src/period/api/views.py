@@ -513,7 +513,7 @@ class PerioListAccordingDateWeb(GeneralClass,Mixins,ListCreateAPIView):
             period_serializer = PeriodListSerializerWeb(period_qs,many=True)
             return Response(period_serializer.data,status=status.HTTP_200_OK)     
         except Exception as ex:
-          
+            print(ex)
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
