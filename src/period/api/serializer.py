@@ -66,11 +66,11 @@ class PeriodListSerializer(serializers.ModelSerializer):
 class PeriodListSerializerWeb(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = ['name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
+        fields = ['id','name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
         depth = 1
     
     def to_representation(self, instance):
-        instance = super(PeriodListSerializer,self).to_representation(instance)
+        instance = super(PeriodListSerializerWeb,self).to_representation(instance)
         start_time = get_seconds_removed(instance['start_time'])
         end_time = get_seconds_removed(instance['end_time'])
         instance['start_time'] = start_time
