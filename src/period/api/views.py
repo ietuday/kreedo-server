@@ -344,7 +344,7 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
                 data=request.data.get('grade_list'),many=True)
 
             if period_template_to_grade_serializer.is_valid():
-                period_template_to_grade_serializer.save()
+                # period_template_to_grade_serializer.save()
                 return Response(period_template_to_grade_serializer.data,status=status.HTTP_200_OK)
             else:
                 return Response(period_template_to_grade_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)

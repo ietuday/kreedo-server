@@ -69,6 +69,12 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
         serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
         return serialized_data
 
+class AcademicSessionRetriveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = '__all__'
+        depth = 1
+
 
 class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
     class Meta:

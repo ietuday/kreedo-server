@@ -5,12 +5,11 @@ from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
 from django.db.models import Q
-
-
-
 from .utils import*
 from holiday.models import*
 from holiday.api.serializer import*
+from schools.api.serializer import *
+
 
 """
     REST LIBRARY IMPORT
@@ -302,12 +301,17 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 
 """ According to school get list of grades and section list """
 
-
 class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
 
             resultant_dict = {}
+            context = self.get_serializer_context()
+            context.update({
+                "school":request.data.get('school',None),
+                "academic_calender":request.data.get('academic_calender',None),
+                "period_template":request.data.get('period_template',None)
+            })
             grade_qs = SchoolGradeSubject.objects.filter(
                 school=request.data.get('school', None)).values('grade')
 
@@ -316,7 +320,7 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
 
-            grade_qs_serializer = GradeListSerializer(grade_qs, many=True)
+            grade_qs_serializer = GradeListSerializer(grade_qs, many=True,context=context)
 
             return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
 
@@ -348,9 +352,6 @@ class GenerateCalenderToPdf(ListCreateAPIView):
 
     def get(self, request,pk):
         try:
-
-            # school_qs = School.objects.get(
-            #     id=pk).id
 
             school_academic_calender_qs = AcademicCalender.objects.filter(
                 school=pk)
