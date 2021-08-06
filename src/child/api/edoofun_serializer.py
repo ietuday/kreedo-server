@@ -60,14 +60,18 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                         parent_serializer.save()
 
                         if parent_serializer.data['msg'] == 'user create':
-
+                            role_id = Role.objects.filter(
+                                name="Parent")[0].id
+                            type_id = UserType.objects.filter(
+                                name='School Users-Parent')[0].id
                             parent_data = {
                                 "user_obj": parent_serializer.data['user_obj'],
                                 "relationship_with_child": parent['relationship_with_child'],
                                 "phone": parent['phone'],
                                 "gender": parent['gender'],
                                 "photo": parent['photo'],
-                                "role": []
+                                "role": [role_id],
+                                "type":type_id
                             }
                             parent_detail_serializer = EdoofunParentDetailSerializer(
                                 data=dict(parent_data))

@@ -66,7 +66,7 @@ class PeriodListSerializer(serializers.ModelSerializer):
 class PeriodListSerializerWeb(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = ['id','name', 'type', 'start_time', 'end_time', 'room_no', 'subject', 'period_template_detail']
+        fields = ['id','name', 'type', 'start_time', 'end_time', 'room', 'subject', 'period_template_detail']
         depth = 1
     
     def to_representation(self, instance):
@@ -117,7 +117,7 @@ class ClassAccordingToTeacherSerializer(serializers.ModelSerializer):
             dict = {}
             for class_period in period_list_qs:
                 dict['id'] = class_period.id
-                dict['room_no'] = class_period.room_no.room_no
+                dict['room'] = class_period.room.room_no
                 dict['start_time'] = class_period.start_time
                 dict['end_time'] = class_period.end_time
                 dict['grade'] = class_period.academic_session.all()

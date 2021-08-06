@@ -160,7 +160,7 @@ def create_period(grade_dict):
                             period_dict['name'] = period.subject.name
                             period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
-                            period_dict['room_no'] = period.room.id
+                            period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time
                             period_dict['start_date'] = period_date

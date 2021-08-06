@@ -450,6 +450,7 @@ class LoggedIn(Mixins, GeneralClass,ListAPIView):
         user_data = LoggedInUserSerializer(user_obj_detail)
         return Response(user_data.data)
 
+
 import traceback
 """ Genrate OTP """
 class GenerateOTP(ListAPIView):
