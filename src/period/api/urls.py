@@ -18,8 +18,6 @@ urlpatterns = [
 
     path('period_list_create',
          PeriodListCreate.as_view(), name='PeriodListCreate'),
-
-
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
          name='PeriodRetriveUpdateDestroy'),
 
@@ -45,6 +43,8 @@ urlpatterns = [
          PeriodMonthList.as_view(), name='PeriodMonthList'),
     path('period_list_according_to_date',
          PerioListAccordingDate.as_view(), name='PerioListAccordingDate'),
+    path('period_list_according_to_date_web',
+         PerioListAccordingDateWeb.as_view(), name='PerioListAccordingDateWeb'),
     path('period_template_detail_by_period_template/<int:pk>', PeriodTemplateDetailByPeriodTemplate.as_view(),
          name='PeriodTemplateDetailByPeriodTemplate'),
     path('get_period_count_by_academic_session',
