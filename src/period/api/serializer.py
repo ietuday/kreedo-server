@@ -9,6 +9,7 @@ from session.models import*
 from holiday.models import *
 from holiday.api.serializer import *
 from django.db.models import Q
+from .utils import *
 
 """ Period Template Serializer """
 
@@ -53,7 +54,14 @@ class PeriodListSerializer(serializers.ModelSerializer):
         model = Period
         fields = '__all__'
         depth = 2
-
+    
+    def to_representation(self, instance):
+        instance = super(PeriodListSerializer,self).to_representation(instance)
+        start_time = get_seconds_removed(instance['start_time'])
+        end_time = get_seconds_removed(instance['end_time'])
+        instance['start_time'] = start_time
+        instance['end_time'] = end_time
+        return instance
 
 class PeriodListSerializerWeb(serializers.ModelSerializer):
     class Meta:
@@ -157,14 +165,10 @@ class PeriodTemplateDetailListSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         instance = super(PeriodTemplateDetailListSerializer,
                                                 self).to_representation(instance)
-        start_time = instance['start_time']
-        end_time = instance['end_time']
-        strt_time_list = start_time.split(':')
-        formated_strt_time = ":".join(strt_time_list[0:2])
-        end_time_list = end_time.split(':')
-        formated_end_time = ":".join(end_time_list[:2])
-        instance['start_time'] = formated_strt_time
-        instance['end_time'] = formated_end_time
+        start_time = get_seconds_removed(instance['start_time'])
+        end_time =get_seconds_removed(instance['end_time'])
+        instance['start_time'] = start_time
+        instance['end_time'] = end_time
         return instance
 
 
