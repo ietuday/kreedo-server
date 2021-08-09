@@ -51,8 +51,7 @@ logger.info("UTILS CAlled ")
 
 class PackageListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Package
-
-    # filterset_class = PackageFilter
+    filterset_class = PackageFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
