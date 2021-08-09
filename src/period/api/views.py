@@ -121,7 +121,7 @@ class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
             if period_temp_serializer.is_valid():
                 period_temp_serializer.save()
                 return Response(period_temp_serializer.data,status=status.HTTP_200_OK)
-            return Response(period_temp_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(period_temp_serializer.errors,status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("@@@",ex)
@@ -365,7 +365,7 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins,Retrie
         if self.request.method == 'PUT':
             return PeriodTemplateToGradeCreateSerializer
         if self.request.method == 'PATCH':
-            return PeriodTemplateToGradeCreateSerializer
+            return PeriodTemplateToGradeUpdateSerializer
     
         
         
