@@ -265,7 +265,11 @@ class SchoolCalendarCreateSerializer(serializers.ModelSerializer):
         model = SchoolCalendar
         fields = '__all__'
 
-
+class AcademicSessionGroupBySection(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = ['section']
+        depth = 1
 
 
 class AcademicSessionSectionSubjectTeacherRetriveSerializer(serializers.ModelSerializer):

@@ -221,6 +221,11 @@ class PeriodTemplateToGradeListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 2
 
+class PeriodTemplateToGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = '__all__'
+        # depth = 2
     
     # def to_representation(self, instance):
     #     instance = super(PeriodTemplateToGradeListSerializer,
