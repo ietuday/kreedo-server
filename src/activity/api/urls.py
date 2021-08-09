@@ -21,6 +21,8 @@ urlpatterns = [
          name='ActivityCompleteRetriveUpdateDestroy'),
      path('bulk-upload/add-activity',
          AddActivity.as_view(), name='AddActivity'),
+     path('activity-complete_list_create_mob',
+         ActivityCompleteListCreateMob.as_view(), name='ActivityCompleteListCreateMob'),
 
      path('bulk-upload/add-activity-assets',
          AddActivityAsset.as_view(), name='AddActivityAsset'),
