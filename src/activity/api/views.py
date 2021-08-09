@@ -156,6 +156,37 @@ class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
+class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
+    model = ActivityComplete
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ActivityCompleteListSerilaizer
+    
+    def post(self,request):
+
+        activity = request.data.get('activity',None)
+        if type(activity) == list:
+            id_list = activity
+            activity_complate_data = []
+            for id in id_list:
+                request.data['activity'] = id
+            
+                activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+                if activity_complete_serializer.is_valid():
+                    activity_complete_serializer.save()
+                    activity_complate_data.append(activity_complete_serializer.data)
+                    continue
+                return Response(activity_complete_serializer.errors)
+            return Response(activity_complate_data)
+        else:
+            activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+            if activity_complete_serializer.is_valid():
+                activity_complete_serializer.save()
+                return Response(activity_complete_serializer.data)
+            return Response(activity_complete_serializer.errors)
+
+
 """ ActivityComplete Retrive update Delete """
 
 

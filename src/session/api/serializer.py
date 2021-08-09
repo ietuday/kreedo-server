@@ -179,17 +179,17 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            # start_date = validated_data['start_date']
-            # end_date = validated_data['end_date']
-            # academic_cal_aval = AcademicCalender.objects.filter(
-            #                             Q(start_date__gte=start_date,start_date__lt=end_date) | 
-            #                             Q(end_date__gt=start_date,end_date__lt=start_date) |
-            #                             Q(start_date__lt=start_date,end_date__gt=end_date),
-            #                             school = validated_data['school'],
-            # )
-            # print("acdemic cal aval",academic_cal_aval)
-            # # pdb.set_trace()
-            academic_cal_aval = []
+            start_date = validated_data['start_date']
+            end_date = validated_data['end_date']
+            academic_cal_aval = AcademicCalender.objects.filter(
+                                        Q(start_date__gte=start_date,start_date__lt=end_date) , 
+                                        Q(end_date__gt=start_date,end_date__lt=start_date) |
+                                        Q(start_date__lt=start_date,end_date__gt=end_date),
+                                        school = validated_data['school'],
+            )
+            print("acdemic cal aval",academic_cal_aval)
+            # pdb.set_trace()
+            # academic_cal_aval = []
             if academic_cal_aval:
                 raise ValidationError("Academic calender with this timings already exists")
             academic_calender = super(
