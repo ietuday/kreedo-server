@@ -305,73 +305,26 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 class GradeAndSectionListBySchool(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
         try:
-            print(request.data.get('school', None))
-            print(request.data.get('academic_calender', None))
-            acad_session_qs = AcademicSession.objects.filter(school=request.data.get('school', None), academic_calender=request.data.get('academic_calender', None))
-            print(acad_session_qs)
 
-            resultant_data = []
-            # for i, f in enumerate(df, start=1):
-            for index, acad in enumerate(acad_session_qs):
-                if acad.grade not in resultant_data:
-                    # grad_serilizer = 
-                    # section_serilizer = 
-                    grade_data = {
-                        "academicSession": acad.id,
-                        "applied_grade": PeriodTemplateToGradeSerializer(PeriodTemplateToGrade.objects.filter(academic_session=acad.id, period_template=acad.period_template), many=True).data,
-                        "is_applied":acad.is_applied, 
-                        "grade": GradeSerializer(acad.grade).data,
-                        "sections":AcademicSessionGroupBySection(AcademicSession.objects.filter(grade=acad.grade, school=request.data.get('school', None)), many=True).data
-                    }
-                    if grade_data in resultant_data:
-                        pass
-                    else:
-                        resultant_data.append(grade_data)   
-                    # for res in resultant_data:
-                    #     if grade_data['grade'] == res['grade']:
-                    #         res['sections'].append(grade_data['sections'])
-                    #     else:
-                    #         # resultant_data.append(grade_data)
-                    #         print("#######################")
-                    
-                    
-                    
-                    # if acad.section.id not in grade_data['sections']:
-                        # grade_data['sections'].append(acad.section)
-                    
-                    # resultant_data['sections'].append(acad.section)
-                    # print(resultant_data)
-                    # return resultant_data
-                else: 
-                    print("ELSE")
-                    print(acad.grade.id)
-                    print(acad.grade.name)
-            # return Response(resultant_data)
-            # acad_session_serilizer = AcademicSessionGroupByGrade(acad_session_qs, many=True)
-            # resultant_dict = {}
-            # context = self.get_serializer_context()
-            # context.update({
-            #     "school":request.data.get('school',None),
-            #     "academic_calender":request.data.get('academic_calender',None),
-            #     "period_template":request.data.get('period_template',None)
-            # })
-            # grade_qs = SchoolGradeSubject.objects.filter(
-            #     school=request.data.get('school', None)).values('grade')
+            resultant_dict = {}
+            grade_qs = SchoolGradeSubject.objects.filter(
+                school=request.data.get('school', None)).values('grade')
 
-            # grade_list = list(
-            #     set(val for dic in grade_qs for val in dic.values()))
+            grade_list = list(
+                set(val for dic in grade_qs for val in dic.values()))
 
-            # grade_qs = Grade.objects.filter(id__in=grade_list)
+            grade_qs = Grade.objects.filter(id__in=grade_list)
+            context = super().get_serializer_context()
+            context.update({"academic_calender": request.data.get('academic_calender', None), "school": request.data.get('school', None)})
+            grade_qs_serializer = GradeListSerializer(grade_qs, many=True, context=context)
 
-            # grade_qs_serializer = GradeListSerializer(grade_qs, many=True,context=context)
-
-            return Response(resultant_data, status=status.HTTP_200_OK)
+            return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
-            print(traceback.print_exc())
             print("ERROR-------", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ Academic Calender and Grade List """
 class ClassTeacherByAcademicCalenderGrade(GeneralClass,Mixins, ListCreateAPIView):
