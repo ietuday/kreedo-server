@@ -191,20 +191,19 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     def validate(self,validated_data):
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
-            # period_temp_qs = PeriodTemplateDetail.objects.filter( 
-            #                  Q(Q(start_time__lt=start_time,end_time__gt=end_time) |
-            #                 # Q(start_time__lt=start_time,end_time__lt=end_time) |
-            #                 Q(start_time__lt=start_time,end_time__lte=end_time) |
-            #                 Q(start_time__gt=start_time,end_time__lte=end_time)),
-            #                  room=validated_data['room'],
-            #                 day=validated_data['day'],
-            #                 period_template = validated_data['period_template']
+            period_temp_qs = PeriodTemplateDetail.objects.filter( 
+                            Q(start_time__gte=start_time,start_time__lt=end_time) | 
+                            Q(end_time__gt=start_time,end_time__lt=start_time) |
+                            Q(start_time__lt=start_time,end_time__gt=end_time),
+                            room=validated_data['room'],
+                            day=validated_data['day'],
+                            period_template = validated_data['period_template']
                                                                        
-            #                                             )
+                                                        )
 
-            # print(period_temp_qs)
+            print(period_temp_qs)
             # pdb.set_trace()
-            period_temp_qs = []
+            # # period_temp_qs = []
             if period_temp_qs:
                 raise ValidationError("Period With This Time Exists")
             else:
@@ -254,3 +253,12 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
         academic_session.save()
         instance.save()
         return instance
+
+class PeriodTemplateToGradeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = '__all__'
+
+    # def update(self,instance,validated_data):
+    #     instance = super(PeriodTemplateToGradeUpdateSerializer,self).update(instance,validated_data)
+    #     return instance

@@ -1,10 +1,11 @@
+
 from holiday.models import*
 from users.api.serializer import*
 from rest_framework import serializers
 from ..models import *
 from schools.api.serializer import *
 from django.core.exceptions import ValidationError
-
+from django.db.models import Q
 from holiday.api.serializer import *
 from kreedo.conf.logger import CustomFormatter
 import logging
@@ -178,6 +179,19 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            # start_date = validated_data['start_date']
+            # end_date = validated_data['end_date']
+            # academic_cal_aval = AcademicCalender.objects.filter(
+            #                             Q(start_date__gte=start_date,start_date__lt=end_date) | 
+            #                             Q(end_date__gt=start_date,end_date__lt=start_date) |
+            #                             Q(start_date__lt=start_date,end_date__gt=end_date),
+            #                             school = validated_data['school'],
+            # )
+            # print("acdemic cal aval",academic_cal_aval)
+            # # pdb.set_trace()
+            academic_cal_aval = []
+            if academic_cal_aval:
+                raise ValidationError("Academic calender with this timings already exists")
             academic_calender = super(
                 AcademicCalenderCreateSerializer, self).create(validated_data)
 
