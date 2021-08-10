@@ -100,9 +100,11 @@ def get_paginated_response(self, data):
 
 import pdb
 from rest_framework.utils.serializer_helpers import ReturnList
+
 def get_response(data, response_obj, message):
     try:
         # print(data)
+        # pdb.set_trace()
         if type(data) is ReturnList:
             if len(data) is 0:
                 response = json.dumps(
@@ -146,9 +148,9 @@ def get_response(data, response_obj, message):
             {
                 
                 'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
-                'isSuccess': True,
+                'isSuccess': False if 'non_field_errors' in data else True,
                 'message': message,
-                'data': data,
+                'data': None if 'non_field_errors' in data else data,
             }
         )
         return response
