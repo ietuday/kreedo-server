@@ -43,7 +43,10 @@ class GradeListSerializer(serializers.ModelSerializer):
                 if academic_session:
                     academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
                     academic_session_data = academic_session_serializer.data
-                    section['template']  = academic_session_data['period_template']
+                    if academic_session_data['period_template']:
+                        section['template']  = academic_session_data['period_template']
+                    else: 
+                        section['template']  = {}
                     periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(academic_session=academic_session[0])
                     if periodTemplateToGrade_qs:
                         periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(periodTemplateToGrade_qs[0])
