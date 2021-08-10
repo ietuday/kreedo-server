@@ -338,7 +338,7 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
                 if academic_qs:
                     grade['academic_session']=academic_qs[0].id
                 else:
-                    return Response("AcademicSession not found",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response("AcademicSession not found",status=status.HTTP_200_OK)
             
             period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
                 data=request.data.get('grade_list'),many=True)
