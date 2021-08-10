@@ -1,3 +1,5 @@
+import traceback
+
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -13,7 +15,6 @@ from kreedo.conf.logger import*
 from .serializer import*
 from ..models import *
 # from holiday.api.serializer import *
-
 
 """ Create Log for Utils"""
 logger = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
             print("@@@@@", traceback.print_exc())
             raise ValidationError(ex)
 
-            
+
 """ Get All List """
 
 
@@ -177,13 +178,12 @@ def create_period(grade_dict):
                              day=day_according_to_date.upper())
                         print("@@@@@@@@@@@@",period_list)
                         period_dict = {}
-
+ 
                         for period in period_list:
-
-                            # period_dict['academic_session'] = [
-                            #     period.academic_session.id]
-                            period_dict['name'] = period.subject.name
-                            period_dict['description'] =  period.subject.name
+                            period_dict['period_template_detail']=period.id
+                            period_dict['academic_session'] = [grade_dict['acad_session']]
+                            period_dict['name'] = period.name
+                            # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
                             period_dict['room'] = period.room.id
                             period_date = day.date()
@@ -219,6 +219,7 @@ def create_period(grade_dict):
         data = "Period Created"
         return data
     except Exception as ex:
+        print(traceback.print_exc())
         logger.debug(ex)
         logger.info(ex)
 
