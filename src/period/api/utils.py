@@ -27,6 +27,31 @@ logger.addHandler(handler)
 logger.info("UTILS Period CAlled ")
 
 
+
+class PeriodCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Period
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
+                                     start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+            if p_qs == 0:
+                print("###################",validated_data)
+                data = super(PeriodCreateSerializer, self).create(validated_data)
+                return data
+            else:
+                print("ALready Created")
+                return ValidationError("Alreday Created")
+
+
+        except Exception as ex:
+            print("ERROR", ex)
+            print("@@@@@", traceback.print_exc())
+            raise ValidationError(ex)
+
+            
 """ Get All List """
 
 
@@ -168,12 +193,12 @@ def create_period(grade_dict):
                             period_dict['start_time'] = period.start_time
                             period_dict['end_time'] = period.end_time
                             period_dict['type'] = period.type
-                            period_dict['is_active'] = "True"
+                            period_dict['is_active'] = True
 
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
                             if p_qs == 0:
-                                # print()
+                                print("#####",p_qs)
                                 period_serializer = PeriodCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
