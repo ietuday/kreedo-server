@@ -170,7 +170,7 @@ class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
             id_list = activity
             activity_complate_data = []
             for id in id_list:
-                request.data['activity'] = id
+                request.data['activity'] = int(id)
             
                 activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
                 if activity_complete_serializer.is_valid():
