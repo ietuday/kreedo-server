@@ -215,8 +215,15 @@ class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
-        if self.request.method == 'POST':
-            return AcademicCalenderCreateSerializer
+      
+        
+    def post(self,request):
+        academic_cal_serializer = AcademicCalenderCreateSerializer(data=request.data)
+        if academic_cal_serializer.is_valid():
+            # academic_cal_serializer.save()
+            return Response(academic_cal_serializer.data)
+        return Response(academic_cal_serializer.errors)
+
 
 
 """ Get Academic Session According to School ID """

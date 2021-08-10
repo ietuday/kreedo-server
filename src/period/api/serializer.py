@@ -191,17 +191,26 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
     def validate(self,validated_data):
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
+            # period_temp_qs = PeriodTemplateDetail.objects.filter( 
+            #                 Q(start_time__lte=start_time,start_time__lt=end_time) ,
+            #                 # Q(end_time__gt=start_time,end_time__lt=end_time) ,
+            #                 # Q(start_time__gte=start_time,end_time__gt=end_time),
+            #                 room=validated_data['room'],
+            #                 day=validated_data['day'],
+            #                 period_template = validated_data['period_template']
+                                                                       
+            #    
+                                                    #  )
             period_temp_qs = PeriodTemplateDetail.objects.filter( 
-                            Q(start_time__gte=start_time,start_time__lt=end_time) | 
-                            Q(end_time__gt=start_time,end_time__lt=start_time) |
-                            Q(start_time__lt=start_time,end_time__gt=end_time),
                             room=validated_data['room'],
                             day=validated_data['day'],
                             period_template = validated_data['period_template']
-                                                                       
-                                                        )
-
+                            ).exclude(  
+                                Q(end_time__lte=start_time) |
+                                Q(start_time__gte=end_time) 
+                            )
             print(period_temp_qs)
+           
             # pdb.set_trace()
             # # period_temp_qs = []
             if period_temp_qs:
@@ -210,7 +219,33 @@ class PeriodTemplateDetailCreateSerializer(serializers.ModelSerializer):
                 return validated_data
     
     
+""" period template detail update serialzer"""
+class PeriodTemplateDetailUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateDetail
+        fields = '__all__'
+    
+    def validate(self,validated_data):
+            start_time = validated_data['start_time']
+            end_time = validated_data['end_time']
+            instance = self.instance 
+            if (instance.start_time!=start_time and instance.end_time!=end_time) or (instance.end_time != end_time) or (instance.start_time != start_time):
+                period_temp_qs = PeriodTemplateDetail.objects.filter( 
+                            room=validated_data['room'],
+                            day=validated_data['day'],
+                            period_template = validated_data['period_template']
+                            ).exclude(  
+                                Q(end_time__lte=start_time) |
+                                Q(start_time__gte=end_time) 
+                            )
 
+            print(period_temp_qs)
+            # pdb.set_trace()
+            # # period_temp_qs = []
+            if period_temp_qs:
+                raise ValidationError("Period With This Time Exists")
+            else:
+                return validated_data
 
 """ PeriodTemplateToGrade List Serializer """
 

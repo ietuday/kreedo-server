@@ -140,9 +140,9 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
         if self.request.method == 'GET':
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
-            return PeriodTemplateDetailCreateSerializer
+            return PeriodTemplateDetailUpdateSerializer
         if self.request.method == 'PATCH':
-            return PeriodTemplateDetailCreateSerializer
+            return PeriodTemplateDetailListSerializer
         
 
 
@@ -262,6 +262,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)
+            print("error@",ex)
             # context = {"error": ex, 'isSuccess': False,
             #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -177,21 +177,22 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
         model = AcademicCalender
         fields = '__all__'
 
-    def create(self, validated_data):
+    def validate(self, validated_data):
         try:
+            print("validate called")
             start_date = validated_data['start_date']
             end_date = validated_data['end_date']
             academic_cal_aval = AcademicCalender.objects.filter(
-                                        Q(start_date__gte=start_date,start_date__lt=end_date) , 
-                                        Q(end_date__gt=start_date,end_date__lt=start_date) |
-                                        Q(start_date__lt=start_date,end_date__gt=end_date),
                                         school = validated_data['school'],
+            ).exclude(
+                Q(end_date__lte=start_date) |
+                Q(start_date__gte=end_date) 
             )
             print("acdemic cal aval",academic_cal_aval)
             # pdb.set_trace()
             # academic_cal_aval = []
             if academic_cal_aval:
-                raise ValidationError("Academic calender with this timings already exists")
+                raise ValidationError("Academic calender with this date already exists")
             academic_calender = super(
                 AcademicCalenderCreateSerializer, self).create(validated_data)
 
