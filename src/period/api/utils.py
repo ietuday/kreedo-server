@@ -51,7 +51,7 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
             print("@@@@@", traceback.print_exc())
             raise ValidationError(ex)
 
-            
+
 """ Get All List """
 
 
@@ -179,9 +179,8 @@ def create_period(grade_dict):
                         period_dict = {}
 
                         for period in period_list:
-
-                            # period_dict['academic_session'] = [
-                            #     period.academic_session.id]
+                            period_dict['period_template_detail']=period['id']
+                            period_dict['academic_session'] = [grade_dict['acad_session']]
                             period_dict['name'] = period.subject.name
                             period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
