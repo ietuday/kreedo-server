@@ -9,6 +9,8 @@ urlpatterns = [
          name='SchoolSessionRetriveUpdateDestroy'),
     path('academic_session_list_create', AcademicSessionListCreate.as_view(),
          name='AcademicSessionListCreate'),
+    path('get_associate_section_list', AssociateSeactionList.as_view(),
+         name='AssociateSeactionList'),
     path('academic_session_retrive_update_delete/<int:pk>', AcademicSessionRetriveUpdateDestroy.as_view(),
          name='AcademicSessionRetriveUpdateDestroy'),
     path('academic_calender_list_create', AcademicCalenderListCreate.as_view(),

@@ -96,6 +96,19 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR--->", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class AssociateSeactionList(GeneralClass, Mixins, ListCreateAPIView):
+    model = AcademicSession
+    filterset_class = AcademicSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AssociateSeactionListSerializer
+
+
+
+
+
 """ Grade List by Academic Calender """
 
 
