@@ -1,3 +1,4 @@
+from pdb import set_trace
 from django.shortcuts import render
 from .serializer import*
 from .filters import*
@@ -187,9 +188,53 @@ class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
             return Response(activity_complete_serializer.errors)
 
 
+
+
+
+
+""" Activity complete list create for group activtity completion"""
+class ActivityCompleteListCreateGroup(GeneralClass,Mixins,ListCreateAPIView):
+    model = ActivityComplete
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ActivityCompleteListSerilaizer
+    
+    def post(self,request):
+        try:
+            activity_complete_data = request.data.get('activity_complete',None)
+            activity_updated_data = []
+          
+            for activity in activity_complete_data:
+                activity_q = ActivityComplete.objects.filter(
+                                                        child=activity.get('child'),
+                                                        activity=activity.get('activity')
+                   
+                                                       )
+                
+                if activity_q:
+                    activity_complete = ActivityCompleteCreateSerilaizer(activity_q[0],data=activity)
+                else:
+                    activity_complete = ActivityCompleteCreateSerilaizer(data=activity)
+
+                if activity_complete.is_valid():
+                    activity_complete.save()
+                    activity_updated_data.append(activity_complete.data)
+                    continue
+                return Response(activity_complete.errors)
+            return Response(activity_updated_data)
+
+        except Exception as ex:
+            print("error",ex)
+            return Response(ex)
+
+
+
+
+
+
+
 """ ActivityComplete Retrive update Delete """
-
-
 class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ActivityComplete
     filterset_class = ActivityCompleteFilter
