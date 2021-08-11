@@ -26,5 +26,7 @@ urlpatterns = [
 
      path('bulk-upload/add-activity-assets',
          AddActivityAsset.as_view(), name='AddActivityAsset'),
+     path('activity-complete_list_create_group',
+         ActivityCompleteListCreateGroup.as_view(), name='ActivityCompleteListCreateGroup'),
 
 ]
