@@ -45,6 +45,7 @@ urlpatterns = [
     path('edoofun/get_list_of_sections_based_on_school_id/<int:pk>',
          GetListOfSectionsBasedOnSchoolID.as_view(), name='get Section List By School'),
 
-
+     path('check_teacher_by_calender', ClassTeacherByCalender.as_view(),
+         name='ClassTeacherByCalender'),
 
 ]
