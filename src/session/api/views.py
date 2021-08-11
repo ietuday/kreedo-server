@@ -640,9 +640,10 @@ class ClassTeacherByCalender(CreateAPIView):
         teacher_with_cal = AcademicSession.objects.filter(
                             section = request.data.get('section'),
                             grade = request.data.get('grade'),
-                            academic_calender = request.data.get("session"),
+                            academic_calender = request.data.get("academic _calendar"),
                             class_teacher=request.data.get('class_teacher')
         ) 
+
         if teacher_with_cal:
             context = {
                 "isSuccess":False,
