@@ -208,7 +208,7 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
+class AcademicCalenderListCreate( Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
@@ -221,8 +221,16 @@ class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
         academic_cal_serializer = AcademicCalenderCreateSerializer(data=request.data)
         if academic_cal_serializer.is_valid():
             # academic_cal_serializer.save()
-            return Response(academic_cal_serializer.data)
-        return Response(academic_cal_serializer.errors)
+            context = {
+                            "isSuccess":True,"status":200,"message":"academic session created successfully",
+                            "data":academic_cal_serializer.data
+                }
+            return Response(context)
+        context = {
+                    "isSuccess":False,"status":200,"message":"academic session creation error",
+                    "data":None
+                }
+        return Response(context)
 
 
 

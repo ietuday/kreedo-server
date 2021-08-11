@@ -105,7 +105,7 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
 """PeriodTemplateDetail List and Create """
 
 
-class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class PeriodTemplateDetailListCreate( Mixins, ListCreateAPIView):
     model = PeriodTemplateDetail
     filterset_class = PeriodTemplateDetailFilter
 
@@ -120,8 +120,16 @@ class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
             period_temp_serializer = PeriodTemplateDetailCreateSerializer(data=request.data)
             if period_temp_serializer.is_valid():
                 period_temp_serializer.save()
-                return Response(period_temp_serializer.data,status=status.HTTP_200_OK)
-            return Response(period_temp_serializer.errors,status=status.HTTP_200_OK)
+                context = {
+                            "isSuccess":True,"status":200,"message":"period template created sucessfully",
+                            "data":period_temp_serializer.data
+                }
+                return Response(context)
+            context = {
+                "isSuccess":False,"status":200,"message":"period-template detail error",
+                            "data":None
+                        }
+            return Response(context)
 
         except Exception as ex:
             print("@@@",ex)
