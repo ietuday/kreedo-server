@@ -9,7 +9,7 @@ from django.db.models import Q
 from holiday.api.serializer import *
 from kreedo.conf.logger import CustomFormatter
 import logging
-
+import traceback
 
 
 
@@ -79,6 +79,34 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
             academic_session_qs, many=True)
         serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
         return serialized_data
+
+
+class AssociateSeactionListSerializer(serializers.ModelSerializer):
+    class_teacher = UserDetailListForAcademicSessionSerializer()
+ 
+    class Meta:
+        model = AcademicSession
+        fields = ['academic_calender', 'grade', 'section', 'class_teacher', 'id', 'updated_at', 'created_at', 'is_active']
+        depth = 1
+
+    def to_representation(self, obj):
+        try:
+            from schools.api.serializer import AcademicSessionSectionSubjectTeacherListSerializer
+            serialized_data = super(
+                AssociateSeactionListSerializer, self).to_representation(obj)
+
+            academic_session_id = serialized_data.get('id')
+            academic_session_qs = SectionSubjectTeacher.objects.filter(
+                academic_session=academic_session_id)
+            academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherRetriveSerializer(
+                academic_session_qs, many=True)
+            serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
+            return serialized_data
+        except Exception as ex:
+            print("ERROR--->", ex)
+            print(traceback.print_exc())
+            
+
 
 class AcademicSessionRetriveSerializer(serializers.ModelSerializer):
     class Meta:
