@@ -12,6 +12,7 @@ import logging
 
 
 
+
 """ Logging """
 
 logger = logging.getLogger(__name__)
@@ -21,6 +22,13 @@ handler.setLevel(logging.DEBUG)
 handler.setFormatter(CustomFormatter())
 
 logger.addHandler(handler)
+
+
+class GradeSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
 
 """ School  Session List Serializer """
 
@@ -83,7 +91,18 @@ class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
         fields = ['grade']
-        depth = 1
+        # depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            AcademicSessionForGradeSerializer, self).to_representation(obj)
+        if obj.grade:
+            grade_serializer = GradeSessionSerializer(obj.grade)
+            data = grade_serializer.data
+        else:
+            data = {}
+        return data
+        # pdb.set_trace()
 
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
