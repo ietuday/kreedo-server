@@ -1,3 +1,5 @@
+import traceback
+
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -14,7 +16,6 @@ from .serializer import*
 from ..models import *
 # from holiday.api.serializer import *
 
-
 """ Create Log for Utils"""
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -25,6 +26,31 @@ handler.setFormatter(CustomFormatter())
 logger.addHandler(handler)
 
 logger.info("UTILS Period CAlled ")
+
+
+
+class PeriodCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Period
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
+                                     start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+            if p_qs == 0:
+                print("###################",validated_data)
+                data = super(PeriodCreateSerializer, self).create(validated_data)
+                return data
+            else:
+                print("ALready Created")
+                return ValidationError("Alreday Created")
+
+
+        except Exception as ex:
+            print("ERROR", ex)
+            print("@@@@@", traceback.print_exc())
+            raise ValidationError(ex)
 
 
 """ Get All List """
@@ -152,13 +178,12 @@ def create_period(grade_dict):
                              day=day_according_to_date.upper())
                         print("@@@@@@@@@@@@",period_list)
                         period_dict = {}
-
+ 
                         for period in period_list:
-
-                            # period_dict['academic_session'] = [
-                            #     period.academic_session.id]
-                            period_dict['name'] = period.subject.name
-                            period_dict['description'] =  period.subject.name
+                            period_dict['period_template_detail']=period.id
+                            period_dict['academic_session'] = [grade_dict['acad_session']]
+                            period_dict['name'] = period.name
+                            # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
                             period_dict['room'] = period.room.id
                             period_date = day.date()
@@ -168,12 +193,12 @@ def create_period(grade_dict):
                             period_dict['start_time'] = period.start_time
                             period_dict['end_time'] = period.end_time
                             period_dict['type'] = period.type
-                            period_dict['is_active'] = "True"
+                            period_dict['is_active'] = True
 
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
                             if p_qs == 0:
-                                # print()
+                                print("#####",p_qs)
                                 period_serializer = PeriodCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
@@ -194,6 +219,7 @@ def create_period(grade_dict):
         data = "Period Created"
         return data
     except Exception as ex:
+        print(traceback.print_exc())
         logger.debug(ex)
         logger.info(ex)
 
