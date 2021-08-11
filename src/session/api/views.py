@@ -1,3 +1,5 @@
+from os import terminal_size
+from plan.models import No
 from .filters import *
 import json
 from .serializer import*
@@ -631,3 +633,28 @@ class SchoolCalendarBySchool(RetrieveUpdateDestroyAPIView):
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ClassTeacherByCalender(CreateAPIView):
+
+    def post(self,request):
+
+        teacher_with_cal = AcademicSession.objects.filter(
+                            section = request.data.get('section'),
+                            grade = request.data.get('grade'),
+                            academic_calender = request.data.get("session"),
+                            class_teacher=request.data.get('class_teacher')
+        ) 
+        if teacher_with_cal:
+            context = {
+                "isSuccess":False,
+                "status":200,
+                "message":"Record already Exist",
+                "data":None
+            }
+            return Response(context)
+        context = {
+                "isSuccess":True,
+                "status":200,
+                "message":"Record Does not Exist",
+                "data":None
+            }
+        return Response(context)
