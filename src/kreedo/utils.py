@@ -148,9 +148,9 @@ def get_response(data, response_obj, message):
             {
                 
                 'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
-                'isSuccess': False if 'non_field_errors' in data else True,
+                'isSuccess': True,
                 'message': message,
-                'data': None if 'non_field_errors' in data else data,
+                'data': data,
             }
         )
         return response
