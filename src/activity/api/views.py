@@ -165,15 +165,20 @@ class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
             return ActivityCompleteListSerilaizer
     
     def post(self,request):
-
         activity = request.data.get('activity',None)
         if type(activity) == list:
             id_list = activity
             activity_complate_data = []
             for id in id_list:
                 request.data['activity'] = int(id)
-            
-                activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+                record_aval = ActivityComplete.objects.filter(
+                                                                child=request.data.get('child'),
+                                                                activity=id
+                                                                )
+                if record_aval:
+                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
+                else:
+                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
                 if activity_complete_serializer.is_valid():
                     activity_complete_serializer.save()
                     activity_complate_data.append(activity_complete_serializer.data)
@@ -181,7 +186,14 @@ class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
                 return Response(activity_complete_serializer.errors)
             return Response(activity_complate_data)
         else:
-            activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+            record_aval = ActivityComplete.objects.filter(
+                                                        child=request.data.get('child'),
+                                                        activity=request.data.get('activity')
+                                                        )
+            if record_aval:
+                activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
+            else:                                                   
+                activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
             if activity_complete_serializer.is_valid():
                 activity_complete_serializer.save()
                 return Response(activity_complete_serializer.data)
