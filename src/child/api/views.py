@@ -458,6 +458,38 @@ class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AttendanceCreateSerializer
 
 
+import pdb
+
+"""Attendance List Create"""
+class AttendanceListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
+    model = Attendance
+    filterset_class = AttendanceFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AttendanceListSerializer
+
+    def post(self,request):
+        try:
+            record_aval = Attendance.objects.filter(
+                                        academic_session=request.data.get('academic_session',None),
+                                        attendance_date=request.data.get('attendance_date',None)
+             
+                               )
+             
+            if record_aval:
+                attendance_serializer = AttendanceCreateSerializer(record_aval[0],data=request.data)
+            else:
+                attendance_serializer = AttendanceCreateSerializer(data=request.data)
+            if attendance_serializer.is_valid():
+                attendance_serializer.save()
+                return Response(attendance_serializer.data)
+            return Response(attendance_serializer.errors)
+        except Exception as ex:
+            print("error@@",ex)
+            return Response(ex)
+
+
 """ Attendance Retrive Update and Delete """
 
 

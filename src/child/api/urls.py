@@ -21,6 +21,8 @@ urlpatterns = [
           ChildSessionByChild.as_view(), name='ChildSessionByChild'),
      path('attendance_list_create',
           AttendanceListCreate.as_view(), name='AttendanceListCreate'),
+     path('attendance_list_create_mob',
+          AttendanceListCreateMob.as_view(), name='AttendanceListCreateMob'),
      path('attendance_retrive_update_delete/<int:pk>', AttendanceRetriveUpdateDestroy.as_view(),
           name='AttendanceRetriveUpdateDestroy'),
      path('child_list_according_grade', childListAccordingToClass.as_view(),
