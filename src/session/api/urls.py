@@ -13,6 +13,8 @@ urlpatterns = [
          name='AssociateSeactionList'),
     path('academic_session_retrive_update_delete/<int:pk>', AcademicSessionRetriveUpdateDestroy.as_view(),
          name='AcademicSessionRetriveUpdateDestroy'),
+     path('associate_section_retrive_update_delete/<int:pk>', AssociateSectionRetriveUpdateDestroy.as_view(),
+         name='AssociateSectionRetriveUpdateDestroy'),
     path('academic_calender_list_create', AcademicCalenderListCreate.as_view(),
          name='AcademicCalenderListCreate'),
     path('academic_calender_retrive_update_delete/<int:pk>', AcademicCalenderRetriveUpdateDestroy.as_view(),
