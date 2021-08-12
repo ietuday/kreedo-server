@@ -722,9 +722,6 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
 """ Logged In User Serializer """
 
 class LoggedInUserSerializer(serializers.ModelSerializer):
@@ -926,3 +923,8 @@ class ParentDetailSerializer(serializers.ModelSerializer):
         model = UserDetail
         fields = '__all__'
 
+"""teachers serializer"""
+class TeacherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  User
+        fields =["id",'email', 'first_name', 'last_name']

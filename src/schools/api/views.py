@@ -24,6 +24,7 @@ from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework import status
 import pdb
+from users.api.serializer import *
 
 
 # Create your views here.
@@ -683,3 +684,31 @@ class AssignAccountManager(GeneralClass,Mixins,ListCreateAPIView):
                 "isSuccess": False, "message": f"{ex}", "error": "", "data": ""}
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+"""teacher list according to school"""
+class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIView):
+    model = UserRole
+
+    def get(self,request,*args,**kwargs):
+        try:
+            school = kwargs['pk']
+            teacher_list = UserRole.objects.filter(
+                                                school=school,
+                                                role__name='Teacher'
+            )
+            teachers_data = []
+            data = {}
+            for teacher in teacher_list:
+                user_role_serialzer = TeacherSerializer(teacher.user.user_obj)
+                data.update({
+                    "user":user_role_serialzer.data,
+                    "school":teacher.school.id,
+                    "role":teacher.role.id
+                })
+                teachers_data.append(data)
+                continue
+            return Response(teachers_data)
+        except Exception as ex:
+            print("error@@",ex)
+            return Response(ex)
