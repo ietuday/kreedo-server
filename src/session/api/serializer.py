@@ -325,5 +325,5 @@ class AcademicSessionSectionSubjectTeacherRetriveSerializer(serializers.ModelSer
 
     class Meta:
         model = SectionSubjectTeacher
-        fields = ['subject','teacher']
+        fields = ['subject','teacher','id']
         depth = 1

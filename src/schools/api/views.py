@@ -712,3 +712,11 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
         except Exception as ex:
             print("error@@",ex)
             return Response(ex)
+
+
+# """Teacher Subject Association for school"""
+# class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
+#     model = SectionSubjectTeacher
+
+
+#     def post(self,request):
