@@ -714,9 +714,43 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
             return Response(ex)
 
 
-# """Teacher Subject Association for school"""
-# class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
+"""Teacher Subject Association for school"""
+class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
+    model = SectionSubjectTeacher
+
+
+    def post(self,request):
+        try:
+            academic_session = AcademicSession.objects.filter(
+                                        school=request.data.get('school',None),
+                                        grade=request.data.get('grade',None),
+                                        section=request.data.get('section',None),
+                                        academic_calender=request.data.get('academic _calendar',None)
+                                    )
+        
+            if academic_session:
+                academic_sess = academic_session[0]
+                academic_sess.class_teacher = UserDetail.objects.get(user_obj__id=request.data.get('class_teacher'))
+                academic_session[0].save()
+                section_subject_teacher_list = request.data.get('subjectsAssociatedTeachers',None)
+                for sub in section_subject_teacher_list:
+                    sub['academic_session'] = academic_sess.id
+                section_subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=section_subject_teacher_list,many=True)
+                if section_subject_teacher_serializer.is_valid():
+                    section_subject_teacher_serializer.save()
+                    return Response(section_subject_teacher_serializer.data)
+                return Response(section_subject_teacher_serializer.errors)
+            else:
+                raise ValidationError("academic session not avaliable")
+                
+        except Exception as ex:
+            print("error@@",ex)
+            return Response(ex)
+
+
+# """ update teacher-subject based on """
+# class UpdateTeacherSubjectAssociation(Mixins,GeneralClass,RetrieveUpdateDestroyAPIView):
 #     model = SectionSubjectTeacher
 
+#     def put(self,request):
 
-#     def post(self,request):
