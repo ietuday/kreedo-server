@@ -59,7 +59,7 @@ urlpatterns = [
 
      path('school-assignment',AssignAccountManager.as_view(),name='school_assignment'),
      path('teacher_list_according_to_school/<int:pk>',TeacherListAccordingToSchool.as_view(),name='teacher_list_based_n_school'),
-     # path('teacher_subject_association',TeacherSubjectAssociation.as_view(),name='teacher_subject_association'),
+     path('teacher_subject_association',TeacherSubjectAssociation.as_view(),name='teacher_subject_association'),
 
 
 ]
