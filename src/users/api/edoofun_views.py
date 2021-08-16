@@ -2,6 +2,8 @@
     DJANGO LIBRARY IMPORT
 """
 
+from schools.models import*
+from schools.api.edoofun_serializer import*
 from django.shortcuts import render
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
@@ -60,8 +62,8 @@ class RegisterParent(ListCreateAPIView):
                 "phone": request.data.get('phone', None),
                 "relationship_with_child": request.data.get('relationship_with_child', None),
                 "role": [role_id],
-                "type":type_id,
-                "is_platform_user":request.data.get('is_platform_user',None)
+                "type": type_id,
+                "is_platform_user": request.data.get('is_platform_user', None)
             }
 
             print("user_detail_data----------", user_detail_data)
@@ -120,9 +122,8 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
             context = {'isSuccess': False, 'message': "Something went wrong",
                        'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
-            
-from schools.models import*
-from schools.api.edoofun_serializer import*
+
+
 """Get All ACCOUNT """
 
 
@@ -130,40 +131,45 @@ class GetAllAccounts(ListCreateAPIView):
     def post(self, request):
 
         try:
-            print("@@@@@@@@@@@@",request.data )
+            print("@@@@@@@@@@@@", request.data)
             if request.data['type'] == 'account_id':
-                user_role_qs = UserRole.objects.filter(user=request.data.get('account_id',None))
-                user_role_qs_serializer = SchoolUserRoleSerializers(user_role_qs, many=True)
-                
+                user_role_qs = UserRole.objects.filter(
+                    user=request.data.get('account_id', None))
+                user_role_qs_serializer = SchoolUserRoleSerializers(
+                    user_role_qs, many=True)
+
                 context = {'isSuccess': True, 'message': "School List by Account Id",
                            'data': user_role_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
 
             elif request.data['type'] == 'school_id':
                 print("35")
-                
-                school_qs = School.objects.filter(id = request.data.get('school_id',None))
-                print("school_qs",school_qs)
-                school_qs_serializer = SchoolListSerializer(school_qs, many=True)
+
+                school_qs = School.objects.filter(
+                    id=request.data.get('school_id', None))
+                print("school_qs", school_qs)
+                school_qs_serializer = SchoolListSerializer(
+                    school_qs, many=True)
 
                 context = {'isSuccess': True, 'message': "School Detail by School Id",
                            'data': school_qs_serializer.data, "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            elif  request.data['type'] == 'all':
+            elif request.data['type'] == 'all':
                 roles = Role.objects.get(name='School Account Owner')
                 roles = roles.id
 
                 user_obj = UserDetail.objects.filter(role=roles)
                 if user_obj:
 
-                    user_obj_serializer = AccountUserSerializer(user_obj, many=True)
+                    user_obj_serializer = AccountUserSerializer(
+                        user_obj, many=True)
 
                     context = {'isSuccess': True, 'message': "Accounts List",
-                            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+                               'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     context = {'isSuccess': False, 'message': "Accounts List Not Found",
-                            'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
+                               'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
                     return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("@@@@@@@@", ex)
@@ -180,8 +186,9 @@ class GetUsersBasedOnSchoolID(ListCreateAPIView):
     def get(self, request, pk):
         try:
             role_qs = Role.objects.get(name='School Account Owner').id
-            
-            user_role = UserRole.objects.filter(school=pk).exclude(role=role_qs)
+
+            user_role = UserRole.objects.filter(
+                school=pk).exclude(role=role_qs)
             if user_role:
                 user_role_serializer = UserListBySchoolSerializers(
                     user_role, many=True)
@@ -208,26 +215,28 @@ class GetUsersBasedOnSchoolID(ListCreateAPIView):
 
 class UpdateSecretPinForParent(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-    def post(self,request):
+
+    def post(self, request):
         try:
             parent_detail = {
                 "username": request.user.username,
-                "email":request.data.get('parent_email', None),
-                "old_pin":request.data.get('old_pin', None),
-                "new_pin":request.data.get('new_pin', None)
+                "email": request.data.get('parent_email', None),
+                "old_pin": request.data.get('old_pin', None),
+                "new_pin": request.data.get('new_pin', None)
             }
-            
+
             context = super().get_serializer_context()
             context.update({"parent_detail": parent_detail})
-            user_qs_serializer = UserChangePinSerializer(data=request.data, context=context)
+            user_qs_serializer = UserChangePinSerializer(
+                data=request.data, context=context)
             if user_qs_serializer.is_valid():
-               
+
                 context = {'isSuccess': True, 'message': "Pin changed Successfully",
-                            "statusCode": status.HTTP_200_OK}
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {'isSuccess': False, 'message': "User Not Found",
-                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": user_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("EX", ex)
@@ -236,20 +245,23 @@ class UpdateSecretPinForParent(ListCreateAPIView):
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 """ GetParentDetails """
+
+
 class GetParentDetails(ListCreateAPIView):
     def get(self, request, pk):
         try:
             user_qs = UserDetail.objects.filter(user_obj=pk)
             if user_qs:
                 user_qs_serializer = ParentDetailSerializer(user_qs, many=True)
-                context = {'isSuccess': True, 'message': "Parent Detail",'data': user_qs_serializer.data,
-                            "statusCode": status.HTTP_200_OK}
+                context = {'isSuccess': True, 'message': "Parent Detail", 'data': user_qs_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
                 context = {'isSuccess': False, 'message': "Parent Detail Not Found",
-                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": user_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("EX", ex)
@@ -257,31 +269,30 @@ class GetParentDetails(ListCreateAPIView):
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
- 
-
-
-
 
 
 """ Get List Of Schools BasedOn AccountID """
-class SchoolListByUser(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class SchoolListByUser(GeneralClass, Mixins, ListCreateAPIView):
     model = UserRole
     filterset_class = UserRoleFilter
 
     def get(self, request, pk):
         try:
-            user_school_qs = UserRole.objects.filter(user=pk).exclude(school__isnull =True)
-            
-            user_school_qs_serializer = SchoolListByUserSerializer(user_school_qs,many=True)
-            return Response(user_school_qs_serializer.data,status=status.HTTP_200_OK)
+            user_school_qs = UserRole.objects.filter(
+                user=pk).exclude(school__isnull=True)
+
+            user_school_qs_serializer = SchoolListByUserSerializer(
+                user_school_qs, many=True)
+            return Response(user_school_qs_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 """ Log in user detail """
+
 
 @permission_classes((IsAuthenticated,))
 class LoggedInUser(ListAPIView):
@@ -291,8 +302,8 @@ class LoggedInUser(ListAPIView):
             logged_user = request.user
             user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
             user_data = LoggedInUserDetailSerializer(user_obj_detail)
-            context = {'isSuccess': True, 'message': "Parent Detail",'data': user_data.data,
-                            "statusCode": status.HTTP_200_OK}
+            context = {'isSuccess': True, 'message': "Parent Detail", 'data': user_data.data,
+                       "statusCode": status.HTTP_200_OK}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR-------", ex)
@@ -304,6 +315,7 @@ class LoggedInUser(ListAPIView):
 
 """ Set Password """
 
+
 class SetPassword(CreateAPIView):
     # model = User
     permission_classes = [IsAuthenticated]
@@ -313,27 +325,26 @@ class SetPassword(CreateAPIView):
 
             password_detail = {
                 "username": request.user.username,
-                "new_password": request.data.get('new_password', None)
+                "new_password": request.data.get('new_password', None),
                 "confirm_password": request.data.get('confirm_password', None),
 
             }
             context = super().get_serializer_context()
             context.update({"password_detail": password_detail})
-           
+
             user_data_serializer = ParentChangePasswordSerializer(
                 data=request.data, context=context)
             if user_data_serializer.is_valid():
-
-                context = {"data": user_data_serializer.data,
+                print(user_data_serializer.data)
+                context = {'isSuccess': True, 'message': "Password has been Changed", "data": user_data_serializer.data, ""
                            "statusCode": status.HTTP_200_OK}
                 return Response(context)
-                # return Response( user_data_serializer.data['message'], status = status.HTTP_200_OK)
             else:
 
-                context = {"error": user_data_serializer.errors,
+                context = {"error": user_data_serializer.errors, 'isSuccess': False,
                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            # context = {"error": ex,
-            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            context = {'isSuccess': False, "error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

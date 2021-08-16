@@ -1,9 +1,11 @@
+from question_answer.models import*
+from child.api.edoofun_serializer import*
+from child.models import*
 import logging
 import traceback
 from .edoofun_utils import*
 from address.api.serializer import AddressSerializer
 from ..models import*
-from kreedo.general_views import Mixins, GeneralClass
 
 from rest_framework import serializers
 """
@@ -49,39 +51,42 @@ class UserDetailsSerializer(serializers.ModelSerializer):
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
 
+
 """ Auth User Serializer """
+
 
 class AuthUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username','first_name','last_name','email','is_active']
+        fields = ['id', 'username', 'first_name',
+                  'last_name', 'email', 'is_active']
 
 
 class AccountUserSerializer(serializers.ModelSerializer):
 
     user_obj = AuthUserSerializer()
+
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
 
     """ no of license add """
+
     def to_representation(self, obj):
         serialized_data = super(
             AccountUserSerializer, self).to_representation(obj)
         user_id = serialized_data['user_obj']['id']
         role_id = [entry['id'] for entry in serialized_data['role']]
 
-        user_role = UserRole.objects.filter(user=user_id, role=role_id[0], school__isnull=False).count()
+        user_role = UserRole.objects.filter(
+            user=user_id, role=role_id[0], school__isnull=False).count()
         if user_role:
-            serialized_data['no_of_license']=user_role
+            serialized_data['no_of_license'] = user_role
 
         return serialized_data
 
-    
-    
-   
 
 """ User Role Serializer"""
 
@@ -157,7 +162,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                 raise ValidationError("Failed to Genrate Password")
 
             try:
-                if User.objects.filter(email=validated_data['email'],first_name=validated_data['first_name'],last_name= validated_data['last_name']).exists():
+                if User.objects.filter(email=validated_data['email'], first_name=validated_data['first_name'], last_name=validated_data['last_name']).exists():
                     print("EXIST@@@@@@@@@@@@@@@@@@@")
 
                     raise ValidationError("User is already exists.")
@@ -165,7 +170,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                 elif UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
                     raise ValidationError(
                         "Phone already regsitered for another user provide different number.")
-                
+
                 else:
 
                     """ Create User """
@@ -187,7 +192,6 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                         self.context.update(
                             {"user_detail": user_detail_serializer.data})
                         print("USER DETAIL SAVE")
-                        
 
                     else:
                         raise ValidationError(user_detail_serializer.errors)
@@ -196,7 +200,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                         "user": user_detail_serializer.data['user_obj'],
                         "role": Role.objects.filter(name="Primary")[0].id,
                         "school": "",
-                        "is_active":True
+                        "is_active": True
                     }
                     user_role_serializer = UserRoleSerializer(
                         data=dict(user_role))
@@ -208,18 +212,20 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                     print("@@@@@@@@USER-----", user)
 
                     user_question = {
-                        "question":"",
-                        "answer":"",
-                        "user":[user.id],
-                        "is_active":True
+                        "question": "",
+                        "answer": "",
+                        "user": [user.id],
+                        "is_active": True
                     }
-                    print("user_question---",user_question)
-                    user_question_serializer =QuestionCreateSerializer(data=dict(user_question))
+                    print("user_question---", user_question)
+                    user_question_serializer = QuestionCreateSerializer(
+                        data=dict(user_question))
                     if user_question_serializer.is_valid():
                         user_question_serializer.save()
                         print("CREATe")
                     else:
-                        print("Question Serializer", user_question_serializer.errors)
+                        print("Question Serializer",
+                              user_question_serializer.errors)
                     return user
 
             except Exception as ex:
@@ -350,14 +356,13 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         try:
             serialized_data = super(
-            EdoofunParentSerializer, self).to_representation(obj)
-            
+                EdoofunParentSerializer, self).to_representation(obj)
+
             return self.context
 
         except Exception as ex:
             print("Error-------", ex)
             print("TRACEBACK-----------", traceback.print_exc())
-        
 
     def create(self, validated_data):
         """ Genrate Username """
@@ -369,15 +374,15 @@ class EdoofunParentSerializer(serializers.ModelSerializer):
 
         if User.objects.filter(email=validated_data['email']).exists():
             user_obj_qs = User.objects.filter(email=validated_data['email'])[0]
-            self.context.update({"user_obj":user_obj_qs.id,"msg":"user exist"})
+            self.context.update(
+                {"user_obj": user_obj_qs.id, "msg": "user exist"})
             return user_obj_qs
         else:
             user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=validated_data['first_name'],
                                             last_name=validated_data['last_name'], is_active=True)
-            
-            self.context.update({"user_obj":user.id,"msg":"user create"})
+
+            self.context.update({"user_obj": user.id, "msg": "user create"})
             return user
-            
 
 
 """ PArent detail serailizer """
@@ -388,83 +393,85 @@ class EdoofunParentDetailSerializer(serializers.ModelSerializer):
         model = UserDetail
         fields = '__all__'
 
-
     def create(self, validated_data):
         print("validated_data-------->", validated_data)
         if UserDetail.objects.filter(user_obj=validated_data['user_obj']).exists():
-            user_detail_qs = UserDetail.objects.filter(user_obj=validated_data['user_obj'])[0]
-            print("user_detail_qs----",user_detail_qs)
+            user_detail_qs = UserDetail.objects.filter(
+                user_obj=validated_data['user_obj'])[0]
+            print("user_detail_qs----", user_detail_qs)
             return user_detail_qs
         else:
-            user_detail_qs = super(EdoofunParentDetailSerializer, self).create(validated_data)
+            user_detail_qs = super(
+                EdoofunParentDetailSerializer, self).create(validated_data)
 
             return user_detail_qs
-
-
-
-
 
 
 """ Update secret pin Serializer """
 
 """ CHANGE PIN """
+
+
 class UserChangePinSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDetail
-        fields =['secret_pin']
+        fields = ['secret_pin']
 
     def to_representation(self, instance):
-        instance = super(UserChangePinSerializer, self).to_representation(instance)
+        instance = super(UserChangePinSerializer,
+                         self).to_representation(instance)
         instance['data'] = self.context['data']
         return instance
 
     def validate(self, validated_data):
         print("self----------->", self)
-        username=self.context['parent_detail']['username']
+        username = self.context['parent_detail']['username']
         email = self.context['parent_detail']['email']
-        old_pin=self.context['parent_detail']['old_pin']
-        new_pin=self.context['parent_detail']['new_pin']
+        old_pin = self.context['parent_detail']['old_pin']
+        new_pin = self.context['parent_detail']['new_pin']
 
         try:
             """ authenticate password and username """
             try:
-                            
-                user = User._default_manager.filter(username=username, is_active=True).first()
-         
+
+                user = User._default_manager.filter(
+                    username=username, is_active=True).first()
+
             except Exception as ex:
                 raise serializers.ValidationError("User is not Authorized")
             """ Password set """
             try:
                 if user is not None:
-                    if UserDetail.objects.filter(user_obj=user,secret_pin=old_pin).exists():
-                        user_detail_qs = UserDetail.objects.get(user_obj=user,secret_pin=old_pin)
+                    if UserDetail.objects.filter(user_obj=user, secret_pin=old_pin).exists():
+                        user_detail_qs = UserDetail.objects.get(
+                            user_obj=user, secret_pin=old_pin)
                         user_detail_qs.secret_pin = new_pin
                         user_detail_qs.save()
                         data = "PIN has been reset."
-                        self.context.update({"data":data})
+                        self.context.update({"data": data})
                         return validated_data
                     else:
                         raise ValidationError("Old pin is not Matched")
-                  
+
                 else:
                     raise serializers.ValidationError('User is not Authorized')
             except Exception as ex:
                 raise serializers.ValidationError(ex)
-            
+
         except Exception as ex:
             print("EROR", ex)
             print("TRaceback-------", traceback.print_exc())
-         
+
             raise serializers.ValidationError(ex)
 
 
-        
 """ ParentDetails Serializer """
-from child.models import*
-from child.api.edoofun_serializer import*
+
+
 class ParentDetailSerializer(serializers.ModelSerializer):
 
     user_obj = AuthUserSerializer()
+
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
@@ -473,43 +480,47 @@ class ParentDetailSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             ParentDetailSerializer, self).to_representation(obj)
-        print("serialized_data",serialized_data['user_obj']['id'])
+        print("serialized_data", serialized_data['user_obj']['id'])
         user_id = serialized_data['user_obj']['id']
 
         child_qs = Child.objects.filter(parent=user_id)
         if child_qs:
-            child_qs_serializer = ChildListParentSerializer(child_qs,many=True)
-            print("child_qs----",child_qs)
+            child_qs_serializer = ChildListParentSerializer(
+                child_qs, many=True)
+            print("child_qs----", child_qs)
             serialized_data['child_list'] = child_qs_serializer.data
         return serialized_data
 
 
-
 """ AccountListtSerializer List Serializer """
+
+
 class AccountListForSerializer(serializers.ModelSerializer):
     user_obj = AuthUserSerializer()
-    
+
     class Meta:
         model = UserDetail
-        exclude = ('activation_key', 'activation_key_expires','address')
+        exclude = ('activation_key', 'activation_key_expires', 'address')
         depth = 1
 
 
-
 """ AccountListtSerializer List Serializer """
+
+
 class LicenceForSerializer(serializers.ModelSerializer):
     user_obj = AuthUserSerializer()
-    
+
     class Meta:
         model = UserDetail
-        fields = ['user_obj','phone']
+        fields = ['user_obj', 'phone']
         depth = 1
 
 
 class SchoolUserRoleSerializers(serializers.ModelSerializer):
     user = AccountListForSerializer()
+
     class Meta:
-        
+
         model = UserRole
         fields = ['user', 'school']
         depth = 2
@@ -517,103 +528,107 @@ class SchoolUserRoleSerializers(serializers.ModelSerializer):
 
 class UserListBySchoolSerializers(serializers.ModelSerializer):
     user = AccountListForSerializer()
+
     class Meta:
-        
+
         model = UserRole
         fields = ['user']
         depth = 1
 
 
-
 """ User Detail List Serializer """
+
+
 class UserDetailListSerializer(serializers.ModelSerializer):
     user_obj = AuthUserSerializer()
+
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
-  
-    
 
 
 """ Logged In User Serializer """
-from child.models import*
-from child.api.edoofun_serializer import*
-from question_answer.models import*
-from question_answer.api.serializer import*
+
 
 class LoggedInUserDetailSerializer(serializers.ModelSerializer):
-    
+
     user_obj = AuthUserSerializer()
+
     class Meta:
         model = UserDetail
         exclude = ('activation_key', 'activation_key_expires')
         depth = 3
-    
+
     def to_representation(self, obj):
         serialized_data = super(
             LoggedInUserDetailSerializer, self).to_representation(obj)
-        user_obj_id =serialized_data.get('user_obj')
-        
+        user_obj_id = serialized_data.get('user_obj')
+
         user_id = user_obj_id.get('id')
         if Child.objects.filter(parent=user_id).exists():
             child_qs = Child.objects.filter(parent=user_id)
-            child_qs_seriliazer = ChildListForParentSerializer(child_qs, many=True)
+            child_qs_seriliazer = ChildListForParentSerializer(
+                child_qs, many=True)
             serialized_data['childs'] = child_qs_seriliazer.data
 
         if QuestionAnswer.objects.filter(user=user_id).exists():
             question_answer_qs = QuestionAnswer.objects.filter(user=user_id)
-            question_answer_qs_serializer = QuestionSerializer(question_answer_qs,many=True)
-            serialized_data['secret_question']=question_answer_qs_serializer.data
-        
-  
+            question_answer_qs_serializer = QuestionSerializer(
+                question_answer_qs, many=True)
+            serialized_data['secret_question'] = question_answer_qs_serializer.data
+
         return serialized_data
 
 
-
-
 """ CHANGE PASSWORD """
+
+
 class ParentChangePasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields =['id', 'email', 'first_name', 'last_name', 'is_active']
+        fields = ['id', 'email', 'first_name', 'last_name', 'is_active']
 
     def to_representation(self, instance):
-        instance = super(ParentChangePasswordSerializer, self).to_representation(instance)
+        instance = super(ParentChangePasswordSerializer,
+                         self).to_representation(instance)
         instance['message'] = self.context['message']
         return instance
 
     def validate(self, validated_data):
-        username=self.context['password_detail']['username']
-        new_password=self.context['password_detail']['new_password']
-        confirm_password =self.context['password_detail']['confirm_password']
-
+        username = self.context['password_detail']['username']
+        new_password = self.context['password_detail']['new_password']
+        confirm_password = self.context['password_detail']['confirm_password']
 
         try:
             """ authenticate username """
             try:
-                            
-                user = authenticate_user(username=username)
+
+                user = User._default_manager.filter(
+                    username=username).first()
+
             except Exception as ex:
-                raise serializers.ValidationError("Old Password is not Matched")
-            
+                raise serializers.ValidationError(
+                    "User is not Authorized")
+
             """ Password set """
             try:
                 if user is not None:
                     if new_password == confirm_password:
                         user.set_password(new_password)
                         user.save()
-                        data ='Password has been Changed'
-                        self.context.update({"message":'Password has been Changed'})
+                        data = 'Password has been Changed'
+                        self.context.update(
+                            {"message": 'Password has been Changed'})
                         return validated_data
                     else:
                         raise serializers.ValidationError('Password Not Match')
 
                 else:
-                    raise serializers.ValidationError('User Credentials incorrect')
+                    raise serializers.ValidationError(
+                        'User Credentials incorrect')
             except Exception as ex:
                 raise serializers.ValidationError('User Credentials incorrect')
-            
-        except Exception as ex:
-         
-            raise serializers.ValidationError("Old Password is not Matched")
 
+        except Exception as ex:
+
+            raise serializers.ValidationError("Old Password is not Matched")
