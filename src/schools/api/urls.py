@@ -12,6 +12,8 @@ urlpatterns = [
          name='SectionRetriveUpdateDestroy'),
     path('subject_list_create', SubjectListCreate.as_view(),
          name='SubjectListCreate'),
+     path('subject_list_by_school', SubjectListBySchool.as_view(),
+         name='SubjectListCreate'),
     path('subject_retrive_update_delete/<int:pk>', SubjectRetriveUpdateDestroy.as_view(),
          name='SubjectRetriveUpdateDestroy'),
     path('license_list_create', LicenseListCreate.as_view(),
