@@ -239,7 +239,7 @@ class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate( Mixin, ListCreateAPIView):
+class AcademicCalenderListCreate( GeneralClass,Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
