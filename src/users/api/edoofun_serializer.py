@@ -595,7 +595,7 @@ class ParentChangePasswordSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, validated_data):
-        username = self.context['password_detail']['username']
+        user_id = self.context['password_detail']['user_id']
         new_password = self.context['password_detail']['new_password']
         confirm_password = self.context['password_detail']['confirm_password']
 
@@ -604,7 +604,7 @@ class ParentChangePasswordSerializer(serializers.ModelSerializer):
             try:
 
                 user = User._default_manager.filter(
-                    username=username).first()
+                    id=user_id).first()
 
             except Exception as ex:
                 raise serializers.ValidationError(
