@@ -700,13 +700,13 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
             teachers_data = []
             data = {}
             for teacher in teacher_list:
-                user_role_serialzer = TeacherSerializer(teacher.user.user_obj)
+                user_role_serialzer = UserRoleListForSchoolSerializer(teacher)
                 data.update({
-                    "user":user_role_serialzer.data,
+                    "user_obj":user_role_serialzer.data,
                     "school":teacher.school.id,
                     "role":teacher.role.id
                 })
-                teachers_data.append(data)
+                teachers_data.append(user_role_serialzer.data)
                 continue
             return Response(teachers_data)
         except Exception as ex:
@@ -715,7 +715,7 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
 
 
 """Teacher Subject Association for school"""
-class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
+class TeacherSubjectAssociation(Mixins,CreateAPIView):
     model = SectionSubjectTeacher
 
 
@@ -738,15 +738,30 @@ class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
                 section_subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=section_subject_teacher_list,many=True)
                 if section_subject_teacher_serializer.is_valid():
                     section_subject_teacher_serializer.save()
-                    return Response(section_subject_teacher_serializer.data)
-                return Response(section_subject_teacher_serializer.errors)
+                    context = {
+                        "is_Success":True,"status":200,"message":"Associate added successfully",
+                        "data":section_subject_teacher_serializer.data
+                    }
+                    return Response(context)
+                context = {
+                        "is_Success":False,"status":200,"message":"Associate section error",
+                        "data":section_subject_teacher_serializer.errors
+                    }
+                return Response(context)
             else:
-                raise ValidationError("academic session not avaliable")
+                context = {
+                        "is_Success":False,"status":200,"message":"Academic Session Not Found",
+                        "data":None
+                    }
+                return Response(context)
                 
         except Exception as ex:
             print("error@@",ex)
-            return Response(ex)
-
+            context = {
+                        "is_Success":False,"status":500,"message":f"{ex}",
+                        "data":None
+                    }
+            return Response(context)
 
 """ update teacher-subject based on """
 class UpdateTeacherSubjectAssociation(Mixins,GeneralClass,RetrieveUpdateDestroyAPIView):
