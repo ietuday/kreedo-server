@@ -69,5 +69,9 @@ urlpatterns = [
     path('edoofun/logged_in_user_detail',
          LoggedInUser.as_view(), name='Logged In User'),
     path('edoofun/set_password', SetPassword.as_view(), name='Set Password'),
+    path('edoofun/genrate_otp', EdoofunGenerateOTP.as_view(),
+         name='Edoofun Generate OTP'),
+    path('edoofun/otp_verify', EdoofunOTPVerification.as_view(),
+         name='Edoofun OTP Verification'),
 
 ]
