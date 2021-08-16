@@ -5,7 +5,7 @@ from rest_framework import serializers
 from ..models import *
 from schools.api.serializer import *
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, fields
 from holiday.api.serializer import *
 from kreedo.conf.logger import CustomFormatter
 import logging
@@ -327,3 +327,9 @@ class AcademicSessionSectionSubjectTeacherRetriveSerializer(serializers.ModelSer
         model = SectionSubjectTeacher
         fields = ['subject','teacher','id']
         depth = 1
+
+
+class AcademicSessionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicSession
+        fields = ['section','grade','class_teacher','school','academic_calender']
