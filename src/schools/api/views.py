@@ -748,18 +748,18 @@ class TeacherSubjectAssociation(Mixins,CreateAPIView):
                 if section_subject_teacher_serializer.is_valid():
                     section_subject_teacher_serializer.save()
                     context = {
-                        "is_Success":True,"status":200,"message":"Associate added successfully",
+                        "isSuccess":True,"status":200,"message":"Associate added successfully",
                         "data":section_subject_teacher_serializer.data
                     }
                     return Response(context)
                 context = {
-                        "is_Success":False,"status":200,"message":"Associate section error",
+                        "isSuccess":False,"status":200,"message":"Associate section error",
                         "data":section_subject_teacher_serializer.errors
                     }
                 return Response(context)
             else:
                 context = {
-                        "is_Success":False,"status":200,"message":"Academic Session Not Found",
+                        "isSuccess":False,"status":200,"message":"Academic Session Not Found",
                         "data":None
                     }
                 return Response(context)
@@ -767,7 +767,7 @@ class TeacherSubjectAssociation(Mixins,CreateAPIView):
         except Exception as ex:
             print("error@@",ex)
             context = {
-                        "is_Success":False,"status":500,"message":f"{ex}",
+                        "isSuccess":False,"status":500,"message":f"{ex}",
                         "data":None
                     }
             return Response(context)
