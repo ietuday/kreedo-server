@@ -29,7 +29,7 @@ class SectionFilter(filters.FilterSet):
 
 class SubjectFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-
+    school = filters.CharFilter(field_name='school__id', lookup_expr='exact')
     class Meta:
         model = Subject
         fields = '__all__'

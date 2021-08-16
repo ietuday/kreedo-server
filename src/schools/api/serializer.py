@@ -96,6 +96,10 @@ class SubjectListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+class SubjectListBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = '__all__'
 
 """ Subject Create Serializer """
 
