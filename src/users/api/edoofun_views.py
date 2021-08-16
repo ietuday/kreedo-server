@@ -318,13 +318,12 @@ class LoggedInUser(ListAPIView):
 
 class SetPassword(CreateAPIView):
     # model = User
-    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
 
             password_detail = {
-                "username": request.user.username,
+                "user_id": request.data.get('user_id', None),
                 "new_password": request.data.get('new_password', None),
                 "confirm_password": request.data.get('confirm_password', None),
 
