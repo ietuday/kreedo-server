@@ -65,13 +65,11 @@ class ActivityListBySubject(GeneralClass,Mixins,ListAPIView):
         try:
             subject = kwargs.get('subject',None)
             child = kwargs.get('child',None)
-
             context = self.get_serializer_context()
             context['child'] = child
             activity_list = Activity.objects.filter(subject=subject)
             print('list',activity_list)
             activity_serializer = ActivityListSerializer(activity_list,many=True,context=context)
-        
             return Response(activity_serializer.data)
                     
         except Exception as ex:

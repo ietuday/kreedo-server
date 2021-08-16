@@ -700,7 +700,7 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
             teachers_data = []
             data = {}
             for teacher in teacher_list:
-                user_role_serialzer = UserRoleListForSchoolSerializer(teacher)
+                user_role_serialzer = TeacherListForSchoolSerializer(teacher)
                 data.update({
                     "user_obj":user_role_serialzer.data,
                     "school":teacher.school.id,
