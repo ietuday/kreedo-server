@@ -82,6 +82,7 @@ class Subject(TimestampAwareModel):
     is_active = models.BooleanField(default=False)
     plan = models.ManyToManyField(ChildPlan, blank=True)
     is_kreedo = models.BooleanField(default=False)
+    school = models.ForeignKey("School",on_delete=models.PROTECT,null=True,blank=True)
 
     class Meta:
         verbose_name = 'Subject'

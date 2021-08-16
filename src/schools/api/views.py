@@ -126,6 +126,15 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return SubjectCreateSerializer
 
+""" Subject List By School """
+
+class SubjectListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    model = Subject
+    filterset_class = SubjectFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SubjectListBySchoolSerializer
 
 """ Subject update Retrive and Delete """
 
