@@ -1,3 +1,5 @@
+from os import terminal_size
+from plan.models import No
 from .filters import *
 import json
 from .serializer import*
@@ -216,7 +218,23 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
         
+""" Associate section Retrive Update Delete"""
+class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = AcademicSession
+    filterset_class = AcademicSessionFilter
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AssociateSeactionListSerializer
+        if self.request.method == 'PUT':
+            return AcademicSessionCreateSerializer
+        if self.request.method == 'PATCH':
+            return AcademicSessionCreateSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 """ Create and List of Academic Calender """
 
@@ -631,3 +649,29 @@ class SchoolCalendarBySchool(RetrieveUpdateDestroyAPIView):
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ClassTeacherByCalender(CreateAPIView):
+
+    def post(self,request):
+
+        teacher_with_cal = AcademicSession.objects.filter(
+                            section = request.data.get('section'),
+                            grade = request.data.get('grade'),
+                            academic_calender = request.data.get("academic _calendar"),
+                            class_teacher=request.data.get('class_teacher')
+        ) 
+
+        if teacher_with_cal:
+            context = {
+                "isSuccess":False,
+                "status":200,
+                "message":"Record already Exist",
+                "data":None
+            }
+            return Response(context)
+        context = {
+                "isSuccess":True,
+                "status":200,
+                "message":"Record Does not Exist",
+                "data":None
+            }
+        return Response(context)
