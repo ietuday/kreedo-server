@@ -1,7 +1,9 @@
 from django.shortcuts import render
+
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
+import threading
 from kreedo.general_views import*
 from period.models import *
 from .filters import*
@@ -434,7 +436,7 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "end_date": request.data.get('end_date', None),
                 "acad_session": request.data.get('acad_session', None)
             }
-
+            print(grade_dict)
             """ Get Holidays Function Call """
             school_holiday_count = school_holiday(grade_dict)
             print("COUNT----------->", school_holiday_count)
@@ -448,9 +450,11 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
             working_days = total_working_days(grade_dict, count_weekday)
             print("working_days---->", working_days)
             # """ Period Creation """
-            period_reponse = create_period(grade_dict)
-            print("period Response------->", period_reponse)
-            return Response(period_reponse,status=status.HTTP_200_OK)
+
+            threading.Thread(target=create_period, args=(grade_dict['grade'], grade_dict['section'], grade_dict['start_date'], grade_dict['end_date'], grade_dict['acad_session'])).start()
+            # period_reponse = create_period(grade_dict)
+            # print("period Response------->", period_reponse)
+            return Response("Period is Creating......",status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERRROR", ex)
