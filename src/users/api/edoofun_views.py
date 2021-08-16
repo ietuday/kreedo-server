@@ -428,7 +428,7 @@ class EdoofunOTPVerification(ListAPIView):
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
                            'isSuccess': "false", 'message': 'User with this phone number does not exist'}
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
             date_time = datetime.datetime.strptime(
                 request.data['datetime'], "%Y-%m-%d %H:%M:%S.%f")
@@ -436,7 +436,7 @@ class EdoofunOTPVerification(ListAPIView):
             if datetime.datetime.now() - date_time >= datetime.timedelta(seconds=140):
                 context = {'error': "OTP expired",
                            'isSuccess': "false", 'message': 'OTP expired'}
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
             # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
             pbkdf2_sha256.hash(
@@ -467,4 +467,4 @@ class EdoofunOTPVerification(ListAPIView):
         except Exception as error:
             context = {'error': str(error), 'isSuccess': "false",
                        'message': 'Unable to validate OTP'}
-        return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
