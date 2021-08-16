@@ -174,7 +174,7 @@ class GetAllAccounts(ListCreateAPIView):
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     context = {'isSuccess': False, 'message': "Accounts List Not Found",
-                               'data': user_obj_serializer.data, "statusCode": status.HTTP_404_NOT_FOUND}
+                               'data': user_obj_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                     return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("@@@@@@@@", ex)
@@ -424,7 +424,7 @@ class EdoofunOTPVerification(ListAPIView):
         try:
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
-
+            print("user_obj----", user_obj)
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
                            'isSuccess': "false", 'message': 'User with this phone number does not exist'}
@@ -437,14 +437,14 @@ class EdoofunOTPVerification(ListAPIView):
                 context = {'error': "OTP expired",
                            'isSuccess': "false", 'message': 'OTP expired'}
                 return Response(context, status=status.HTTP_400_BAD_REQUEST)
-
+            print("OTP--------", request.data['entered_otp'])
             # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
             pbkdf2_sha256.hash(
                 str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj))
 
             if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj), "$pbkdf2-sha256" + request.data['otp']):
-                activation_key = urlsafe_base64_encode(force_bytes(user_obj.user_obj.pk)).decode(
-                    'utf8') + '-' + default_token_generator.make_token(user_obj.user_obj)
+                activation_key = urlsafe_base64_encode(force_bytes(str(user_obj.user_obj.pk))).decode(
+                ) + '-' + default_token_generator.make_token(user_obj.user_obj)
                 link = os.environ.get(
                     'kreedo_url') + '/users/reset_password_confirm/' + activation_key
 
@@ -464,7 +464,12 @@ class EdoofunOTPVerification(ListAPIView):
             context = {'error': "Validation failed",
                        'isSuccess': "false", 'message': 'Failed to validate OTP'}
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as error:
-            context = {'error': str(error), 'isSuccess': "false",
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': str(ex), 'isSuccess': "false",
                        'message': 'Unable to validate OTP'}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Get all the User list """
