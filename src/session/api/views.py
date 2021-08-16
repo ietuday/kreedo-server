@@ -1,3 +1,5 @@
+from os import terminal_size
+from plan.models import No
 from .filters import *
 import json
 from .serializer import*
@@ -9,6 +11,7 @@ from .utils import*
 from holiday.models import*
 from holiday.api.serializer import*
 from schools.api.serializer import *
+from period.api.serializer import *
 
 
 """
@@ -94,6 +97,19 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             print("ERROR--->", ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AssociateSeactionList(GeneralClass, Mixins, ListCreateAPIView):
+    model = AcademicSession
+    filterset_class = AcademicSessionFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AssociateSeactionListSerializer
+
+
+
+
 
 """ Grade List by Academic Calender """
 
@@ -202,20 +218,51 @@ class AcademicSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDe
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
         
+""" Associate section Retrive Update Delete"""
+class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = AcademicSession
+    filterset_class = AcademicSessionFilter
 
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return AssociateSeactionListSerializer
+        if self.request.method == 'PUT':
+            return AcademicSessionCreateSerializer
+        if self.request.method == 'PATCH':
+            return AcademicSessionCreateSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
 
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate(GeneralClass, Mixin, ListCreateAPIView):
+class AcademicCalenderListCreate( Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
-        if self.request.method == 'POST':
-            return AcademicCalenderCreateSerializer
+      
+        
+    def post(self,request):
+        academic_cal_serializer = AcademicCalenderCreateSerializer(data=request.data)
+        if academic_cal_serializer.is_valid():
+            # academic_cal_serializer.save()
+            context = {
+                            "isSuccess":True,"status":200,"message":"academic session created successfully",
+                            "data":academic_cal_serializer.data
+                }
+            return Response(context)
+        context = {
+                    "isSuccess":False,"status":200,"message":"academic session creation error",
+                    "data":None
+                }
+        return Response(context)
+
 
 
 """ Get Academic Session According to School ID """
@@ -301,17 +348,11 @@ class AcademicCalenderListBySchool(GeneralClass, Mixins, ListCreateAPIView):
 
 """ According to school get list of grades and section list """
 
-class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+class GradeAndSectionListBySchool(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
         try:
 
             resultant_dict = {}
-            context = self.get_serializer_context()
-            context.update({
-                "school":request.data.get('school',None),
-                "academic_calender":request.data.get('academic_calender',None),
-                "period_template":request.data.get('period_template',None)
-            })
             grade_qs = SchoolGradeSubject.objects.filter(
                 school=request.data.get('school', None)).values('grade')
 
@@ -319,8 +360,9 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
                 set(val for dic in grade_qs for val in dic.values()))
 
             grade_qs = Grade.objects.filter(id__in=grade_list)
-
-            grade_qs_serializer = GradeListSerializer(grade_qs, many=True,context=context)
+            context = super().get_serializer_context()
+            context.update({"academic_calender": request.data.get('academic_calender', None), "school": request.data.get('school', None)})
+            grade_qs_serializer = GradeListSerializer(grade_qs, many=True, context=context)
 
             return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
 
@@ -328,6 +370,7 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR-------", ex)
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 """ Academic Calender and Grade List """
 class ClassTeacherByAcademicCalenderGrade(GeneralClass,Mixins, ListCreateAPIView):
@@ -606,3 +649,29 @@ class SchoolCalendarBySchool(RetrieveUpdateDestroyAPIView):
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class ClassTeacherByCalender(CreateAPIView):
+
+    def post(self,request):
+
+        teacher_with_cal = AcademicSession.objects.filter(
+                            section = request.data.get('section'),
+                            grade = request.data.get('grade'),
+                            academic_calender = request.data.get("academic _calendar"),
+                            class_teacher=request.data.get('class_teacher')
+        ) 
+
+        if teacher_with_cal:
+            context = {
+                "isSuccess":False,
+                "status":200,
+                "message":"Record already Exist",
+                "data":None
+            }
+            return Response(context)
+        context = {
+                "isSuccess":True,
+                "status":200,
+                "message":"Record Does not Exist",
+                "data":None
+            }
+        return Response(context)

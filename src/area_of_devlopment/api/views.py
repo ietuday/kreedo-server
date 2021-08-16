@@ -44,7 +44,7 @@ logger.info("UTILS CAlled ")
 
 """ Area of Devlopment List and Create """
 
-
+ 
 class AreaOfDevlopmentListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = AreaOfDevlopment
     filterset_class = AreaOfDevlopmentFilter
@@ -52,7 +52,7 @@ class AreaOfDevlopmentListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AreaOfDevlopmentListSerializer
-        if self.request.method == 'PUT':
+        if self.request.method == 'POST':
             return AreaOfDevlopmentCreateSerializer
 
 

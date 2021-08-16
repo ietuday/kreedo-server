@@ -1,7 +1,9 @@
 from django.shortcuts import render
+
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
+import threading
 from kreedo.general_views import*
 from period.models import *
 from .filters import*
@@ -105,7 +107,7 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
 """PeriodTemplateDetail List and Create """
 
 
-class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class PeriodTemplateDetailListCreate( Mixins, ListCreateAPIView):
     model = PeriodTemplateDetail
     filterset_class = PeriodTemplateDetailFilter
 
@@ -120,8 +122,16 @@ class PeriodTemplateDetailListCreate(GeneralClass, Mixins, ListCreateAPIView):
             period_temp_serializer = PeriodTemplateDetailCreateSerializer(data=request.data)
             if period_temp_serializer.is_valid():
                 period_temp_serializer.save()
-                return Response(period_temp_serializer.data,status=status.HTTP_200_OK)
-            return Response(period_temp_serializer.errors,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                context = {
+                            "isSuccess":True,"status":200,"message":"period template created sucessfully",
+                            "data":period_temp_serializer.data
+                }
+                return Response(context)
+            context = {
+                "isSuccess":False,"status":200,"message":"period-template detail error",
+                            "data":None
+                        }
+            return Response(context)
 
         except Exception as ex:
             print("@@@",ex)
@@ -140,9 +150,9 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
         if self.request.method == 'GET':
             return PeriodTemplateDetailListSerializer
         if self.request.method == 'PUT':
-            return PeriodTemplateDetailCreateSerializer
+            return PeriodTemplateDetailUpdateSerializer
         if self.request.method == 'PATCH':
-            return PeriodTemplateDetailCreateSerializer
+            return PeriodTemplateDetailListSerializer
         
 
 
@@ -262,6 +272,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)
+            print("error@",ex)
             # context = {"error": ex, 'isSuccess': False,
             #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -338,7 +349,7 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
                 if academic_qs:
                     grade['academic_session']=academic_qs[0].id
                 else:
-                    return Response("AcademicSession not found",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response("AcademicSession not found",status=status.HTTP_200_OK)
             
             period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
                 data=request.data.get('grade_list'),many=True)
@@ -365,7 +376,7 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins,Retrie
         if self.request.method == 'PUT':
             return PeriodTemplateToGradeCreateSerializer
         if self.request.method == 'PATCH':
-            return PeriodTemplateToGradeCreateSerializer
+            return PeriodTemplateToGradeUpdateSerializer
     
         
         
@@ -425,7 +436,7 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "end_date": request.data.get('end_date', None),
                 "acad_session": request.data.get('acad_session', None)
             }
-
+            print(grade_dict)
             """ Get Holidays Function Call """
             school_holiday_count = school_holiday(grade_dict)
             print("COUNT----------->", school_holiday_count)
@@ -439,9 +450,11 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
             working_days = total_working_days(grade_dict, count_weekday)
             print("working_days---->", working_days)
             # """ Period Creation """
-            period_reponse = create_period(grade_dict)
-            print("period Response------->", period_reponse)
-            return Response(period_reponse,status=status.HTTP_200_OK)
+
+            threading.Thread(target=create_period, args=(grade_dict['grade'], grade_dict['section'], grade_dict['start_date'], grade_dict['end_date'], grade_dict['acad_session'])).start()
+            # period_reponse = create_period(grade_dict)
+            # print("period Response------->", period_reponse)
+            return Response("Period is Creating......",status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERRROR", ex)

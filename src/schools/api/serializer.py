@@ -1,10 +1,13 @@
-from period.models import PeriodTemplate
+import traceback
+
+from period.models import *
 from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
 from ..models import*
 import pdb
 from session.api.serializer import *
+from period.api.serializer import *
 
 
 """ Grade Serializer """
@@ -22,29 +25,41 @@ class GradeListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, obj):
-        serialized_data = super(
-            GradeListSerializer, self).to_representation(obj)
-        context=self.context
-        grade_id = serialized_data.get('id')
-        section_qs = Section.objects.filter(grade=grade_id)
-        section_qs_serializer = SectionSerializer(section_qs, many=True)
-        section_data = section_qs_serializer.data
-        for section in section_data:
-            academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
-                                                school=context['school'],
-                                                grade=grade_id,
-                                                section=section['id'],
-                                                is_applied=True)
-            # pdb.set_trace()
-            if academic_session:
-                academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
-                academic_session_data = academic_session_serializer.data
-                section['template']  = academic_session_data['period_template']
+        try:
+            serialized_data = super(
+                GradeListSerializer, self).to_representation(obj)
+            context=self.context
+            grade_id = serialized_data.get('id')
+            section_qs = Section.objects.filter(grade=grade_id)
+            section_qs_serializer = SectionSerializer(section_qs, many=True)
+            section_data = section_qs_serializer.data
+            for section in section_data:
+                academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+                                                    school=context['school'],
+                                                    grade=grade_id,
+                                                    section=section['id'])
+                    
                 # pdb.set_trace()
-            else:
-                section['template']  = {}
-        serialized_data['sections'] = section_data
-        return serialized_data
+                if academic_session:
+                    academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
+                    academic_session_data = academic_session_serializer.data
+                    if academic_session_data['period_template']:
+                        section['template']  = academic_session_data['period_template']
+                    else: 
+                        section['template']  = {}
+                    periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(academic_session=academic_session[0])
+                    if periodTemplateToGrade_qs:
+                        periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(periodTemplateToGrade_qs[0])
+                        section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
+                else:
+                    section['template']  = {}
+            serialized_data['sections'] = section_data
+            return serialized_data
+        except Exception as ex:
+            print(ex)
+            print(traceback.print_exc())
+
+
 
 
 """Section List Serializer """

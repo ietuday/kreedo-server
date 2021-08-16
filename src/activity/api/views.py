@@ -1,3 +1,4 @@
+from pdb import set_trace
 from django.shortcuts import render
 from .serializer import*
 from .filters import*
@@ -5,7 +6,7 @@ from kreedo.general_views import*
 from activity.models import*
 from users.models import*
 
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,ListAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -25,6 +26,8 @@ from kreedo.conf.logger import CustomFormatter
 import logging
 from rest_framework import status
 import ast
+from rest_framework.pagination import LimitOffsetPagination
+
 
 # Create your views here.
 
@@ -54,22 +57,22 @@ class ActivityListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return ActivityCreateSerializer
 
-class ActivityListBySubject(GeneralClass,Mixins,CreateAPIView):
+class ActivityListBySubject(GeneralClass,Mixins,ListAPIView):
     model = Activity
     filterset_class = ActivityFilter
 
-    def post(self,request):
+    def get(self,request,*args,**kwargs):
         try:
-            subject = request.data.get('subject',None)
-            child = request.data.get('child',None)
+            subject = kwargs.get('subject',None)
+            child = kwargs.get('child',None)
 
             context = self.get_serializer_context()
             context['child'] = child
             activity_list = Activity.objects.filter(subject=subject)
             print('list',activity_list)
             activity_serializer = ActivityListSerializer(activity_list,many=True,context=context)
-            
-            return Response(activity_serializer.data,status.HTTP_200_OK)
+        
+            return Response(activity_serializer.data)
                     
         except Exception as ex:
             print(ex)
@@ -78,8 +81,6 @@ class ActivityListBySubject(GeneralClass,Mixins,CreateAPIView):
 
 
 """ Activity Retrive Update and delete"""
-
-
 class ActivityRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Activity
     filterset_class = ActivityFilter
@@ -156,9 +157,96 @@ class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
+class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
+    model = ActivityComplete
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ActivityCompleteListSerilaizer
+    
+    def post(self,request):
+        activity = request.data.get('activity',None)
+        if type(activity) == list:
+            id_list = activity
+            activity_complate_data = []
+            for id in id_list:
+                request.data['activity'] = int(id)
+                record_aval = ActivityComplete.objects.filter(
+                                                                child=request.data.get('child'),
+                                                                activity=id
+                                                                )
+                if record_aval:
+                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
+                else:
+                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+                if activity_complete_serializer.is_valid():
+                    activity_complete_serializer.save()
+                    activity_complate_data.append(activity_complete_serializer.data)
+                    continue
+                return Response(activity_complete_serializer.errors)
+            return Response(activity_complate_data)
+        else:
+            record_aval = ActivityComplete.objects.filter(
+                                                        child=request.data.get('child'),
+                                                        activity=request.data.get('activity')
+                                                        )
+            if record_aval:
+                activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
+            else:                                                   
+                activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+            if activity_complete_serializer.is_valid():
+                activity_complete_serializer.save()
+                return Response(activity_complete_serializer.data)
+            return Response(activity_complete_serializer.errors)
+
+
+
+
+
+
+""" Activity complete list create for group activtity completion"""
+class ActivityCompleteListCreateGroup(GeneralClass,Mixins,ListCreateAPIView):
+    model = ActivityComplete
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ActivityCompleteListSerilaizer
+    
+    def post(self,request):
+        try:
+            activity_complete_data = request.data.get('activity_complete',None)
+            activity_updated_data = []
+          
+            for activity in activity_complete_data:
+                activity_q = ActivityComplete.objects.filter(
+                                                        child=activity.get('child'),
+                                                        activity=activity.get('activity')
+                   
+                                                       )
+                
+                if activity_q:
+                    activity_complete = ActivityCompleteCreateSerilaizer(activity_q[0],data=activity)
+                else:
+                    activity_complete = ActivityCompleteCreateSerilaizer(data=activity)
+
+                if activity_complete.is_valid():
+                    activity_complete.save()
+                    activity_updated_data.append(activity_complete.data)
+                    continue
+                return Response(activity_complete.errors)
+            return Response(activity_updated_data)
+
+        except Exception as ex:
+            print("error",ex)
+            return Response(ex)
+
+
+
+
+
+
+
 """ ActivityComplete Retrive update Delete """
-
-
 class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ActivityComplete
     filterset_class = ActivityCompleteFilter

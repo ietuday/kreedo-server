@@ -5,7 +5,7 @@ from .views import*
 urlpatterns = [
     path('activity_list_create',
          ActivityListCreate.as_view(), name='ActivityListCreate'),
-    path('activity_list_by_subject',
+    path('activity_list_by_subject/<int:subject>/<int:child>',
          ActivityListBySubject.as_view(), name='ActivityListBySubject'), 
     path('activity_retrive_update_delete/<int:pk>', ActivityRetriveUpdateDestroy.as_view(),
          name='ActivityRetriveUpdateDestroy'),
@@ -21,8 +21,12 @@ urlpatterns = [
          name='ActivityCompleteRetriveUpdateDestroy'),
      path('bulk-upload/add-activity',
          AddActivity.as_view(), name='AddActivity'),
+     path('activity-complete_list_create_mob',
+         ActivityCompleteListCreateMob.as_view(), name='ActivityCompleteListCreateMob'),
 
      path('bulk-upload/add-activity-assets',
          AddActivityAsset.as_view(), name='AddActivityAsset'),
+     path('activity-complete_list_create_group',
+         ActivityCompleteListCreateGroup.as_view(), name='ActivityCompleteListCreateGroup'),
 
 ]

@@ -51,8 +51,7 @@ logger.info("UTILS CAlled ")
 
 class PackageListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Package
-
-    # filterset_class = PackageFilter
+    filterset_class = PackageFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -75,7 +74,11 @@ class PackageRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
         if self.request.method == 'PUT':
             return PackageCreateSerializer
 
-
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+   
 """ School Package List and Create """
 
 
