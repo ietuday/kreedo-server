@@ -145,6 +145,7 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print("validated_data",validated_data)
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
                                      start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
             if p_qs == 0:
@@ -156,9 +157,9 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
 
 
         except Exception as ex:
-            print("ERROR", ex)
             print("@@@@@", traceback.print_exc())
-            raise ValidationError(ex)
+            print("ERROR", ex)
+            # raise ValidationError(ex)
 
         
 """ Period Template Detail List Serializer """

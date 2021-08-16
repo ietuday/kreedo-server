@@ -152,7 +152,7 @@ class School(TimestampAwareModel):
 
 
 """ Section Subject Teacher Model """
-
+ 
 
 class SectionSubjectTeacher(TimestampAwareModel):
     subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
