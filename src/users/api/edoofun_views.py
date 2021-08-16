@@ -300,4 +300,40 @@ class LoggedInUser(ListAPIView):
             context = {'isSuccess': False, "error": ex,
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
- 
+
+
+""" Set Password """
+
+class SetPassword(CreateAPIView):
+    # model = User
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+
+            password_detail = {
+                "username": request.user.username,
+                "new_password": request.data.get('new_password', None)
+                "confirm_password": request.data.get('confirm_password', None),
+
+            }
+            context = super().get_serializer_context()
+            context.update({"password_detail": password_detail})
+           
+            user_data_serializer = ParentChangePasswordSerializer(
+                data=request.data, context=context)
+            if user_data_serializer.is_valid():
+
+                context = {"data": user_data_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
+                return Response(context)
+                # return Response( user_data_serializer.data['message'], status = status.HTTP_200_OK)
+            else:
+
+                context = {"error": user_data_serializer.errors,
+                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            # context = {"error": ex,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)

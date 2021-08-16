@@ -429,7 +429,7 @@ class UserChangePinSerializer(serializers.ModelSerializer):
             """ authenticate password and username """
             try:
                             
-                user = user_obj = User._default_manager.filter(username=username, is_active=True).first()
+                user = User._default_manager.filter(username=username, is_active=True).first()
          
             except Exception as ex:
                 raise serializers.ValidationError("User is not Authorized")
@@ -567,3 +567,53 @@ class LoggedInUserDetailSerializer(serializers.ModelSerializer):
         
   
         return serialized_data
+
+
+
+
+""" CHANGE PASSWORD """
+class ParentChangePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields =['id', 'email', 'first_name', 'last_name', 'is_active']
+
+    def to_representation(self, instance):
+        instance = super(ParentChangePasswordSerializer, self).to_representation(instance)
+        instance['message'] = self.context['message']
+        return instance
+
+    def validate(self, validated_data):
+        username=self.context['password_detail']['username']
+        new_password=self.context['password_detail']['new_password']
+        confirm_password =self.context['password_detail']['confirm_password']
+
+
+        try:
+            """ authenticate username """
+            try:
+                            
+                user = authenticate_user(username=username)
+            except Exception as ex:
+                raise serializers.ValidationError("Old Password is not Matched")
+            
+            """ Password set """
+            try:
+                if user is not None:
+                    if new_password == confirm_password:
+                        user.set_password(new_password)
+                        user.save()
+                        data ='Password has been Changed'
+                        self.context.update({"message":'Password has been Changed'})
+                        return validated_data
+                    else:
+                        raise serializers.ValidationError('Password Not Match')
+
+                else:
+                    raise serializers.ValidationError('User Credentials incorrect')
+            except Exception as ex:
+                raise serializers.ValidationError('User Credentials incorrect')
+            
+        except Exception as ex:
+         
+            raise serializers.ValidationError("Old Password is not Matched")
+

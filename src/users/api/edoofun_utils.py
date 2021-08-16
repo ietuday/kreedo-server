@@ -160,3 +160,15 @@ def genrate_link(user_obj, user_detail_obj, genrated_password):
         logger.debug(error)
         logger.info(error)
         raise ValidationError("Failed to send Token to user")
+
+
+
+"""authenticate_user"""
+def authenticate_user(username):
+    try:
+        user = authenticate(username=username)
+        return user
+    except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
+        raise ValidationError("User not Authorized")
