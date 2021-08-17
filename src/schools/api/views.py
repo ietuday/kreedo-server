@@ -841,13 +841,26 @@ class AlterSubjectList(GeneralClass,Mixins,ListCreateAPIView):
             subject_list = request.data.get('addedSubjects',None)
             for record in subject_list:
                 record['academic_session'] = academic_session.id
-                subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=record)
-                if subject_teacher_serializer.is_valid():
-                    subject_teacher_serializer.save()
-                    response_data.append(subject_teacher_serializer.data)
-                    continue
+                if record['id'] :
+                    print("update",record)
+                    subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_obj,data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data.append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
                 else:
-                    return Response(subject_teacher_serializer.errors)
+                    print("create",record)
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data.append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
+
             deletedSubjects = request.data.get('deletedSubjects',None)
             for record in deletedSubjects:
                 subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
