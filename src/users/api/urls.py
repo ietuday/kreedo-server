@@ -58,6 +58,9 @@ urlpatterns = [
          RegisterParent.as_view(), name='Register Parent'),
     path('edoofun/login_user_by_email_id',
          LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD'),
+    path('edoofun/login_user_based_on_contact_number',
+         LoginUserBasedOnContactNumber.as_view(), name='Login User BasedOn Contact Number'),
+
     path('edoofun/get_all_account',
          GetAllAccounts.as_view(), name='Get All Accounts'),
     path('edoofun/get_users_based_on_school_id/<int:pk>',
