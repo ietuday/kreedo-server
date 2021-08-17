@@ -299,7 +299,7 @@ class GetParentDetails(ListCreateAPIView):
             else:
 
                 context = {'isSuccess': False, 'message': "Parent Detail Not Found",
-                           'data': " ", "error": user_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("EX", ex)
@@ -508,13 +508,32 @@ class EdoofunOTPVerification(ListAPIView):
 """ Get all the User list """
 
 
-# class GetUserList(ListCreateAPIView):
-#     def get(self):
-#         try:
-#             role_qs = aRole.objects.filter(name=d)
-#         except Exception as ex:
-#             print("@ERROR---------", ex)
-#             print("TRACEBACK----", traceback.print_exc())
-#             context = {'error': str(ex), 'isSuccess': "false",
-#                        'message': 'Unable to validate OTP'}
-#             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class GetUserList(ListCreateAPIView):
+    def get(self, request):
+        try:
+            role_qs = Role.objects.filter(
+                name__in=['School Account Owner', 'School Admin', 'School Associate', 'Teacher'])
+
+            role_list = []
+            for i in role_qs:
+                role_list.append(i.id)
+
+            user_role = UserRole.objects.filter(role__in=role_list)
+            if user_role:
+
+                user_role_serializer = UsesrRoleListSerializers(
+                    user_role, many=True)
+                context = {'isSuccess': True, 'message': "User List", 'data': user_role_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "User list Not Found",
+                           'data': " ", "error": "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': str(ex), 'isSuccess': "false",
+                       'message': 'Unable to validate OTP'}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
