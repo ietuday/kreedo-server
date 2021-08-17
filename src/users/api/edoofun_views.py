@@ -129,6 +129,39 @@ class LoginUserBasedOnEmailD(ListCreateAPIView):
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 
+""" login with Contact Number """
+
+
+class LoginUserBasedOnContactNumber(ListCreateAPIView):
+
+    def post(self, request):
+        try:
+            user_detail_data = {
+                "phone": request.data.get('phone', None)
+            }
+
+            """  Pass dictionary through Context """
+            context = super().get_serializer_context()
+            context.update(
+                {"user_detail_data": user_detail_data})
+            user_data_serializer = EdoofunUserLoginContactSerializer(
+                data=request.data, context=context)
+            if user_data_serializer.is_valid():
+                context = {'isSuccess': True, 'message': "Login Successfull",
+                           'data': user_data_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response(user_data_serializer.data, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, "error": user_data_serializer.errors['non_field_errors'][0],
+                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
+                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            context = {'isSuccess': False, 'message': "Something went wrong",
+                       'error': ex, "statusCode": status.HTTP_400_BAD_REQUEST}
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+
+
 """Get All ACCOUNT """
 
 
@@ -266,7 +299,7 @@ class GetParentDetails(ListCreateAPIView):
             else:
 
                 context = {'isSuccess': False, 'message': "Parent Detail Not Found",
-                           'data': " ", "error": user_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": "", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("EX", ex)
@@ -444,7 +477,7 @@ class EdoofunOTPVerification(ListAPIView):
 
             if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj), "$pbkdf2-sha256" + request.data['otp']):
                 activation_key = urlsafe_base64_encode(force_bytes(str(user_obj.user_obj.pk))).decode(
-                ) + '-' + default_token_generator.make_token(user_obj.user_obj)
+                    'utf-8') + '-' + default_token_generator.make_token(user_obj.user_obj)
                 link = os.environ.get(
                     'kreedo_url') + '/users/reset_password_confirm/' + activation_key
 
@@ -473,3 +506,34 @@ class EdoofunOTPVerification(ListAPIView):
 
 
 """ Get all the User list """
+
+
+class GetUserList(ListCreateAPIView):
+    def get(self, request):
+        try:
+            role_qs = Role.objects.filter(
+                name__in=['School Account Owner', 'School Admin', 'School Associate', 'Teacher'])
+
+            role_list = []
+            for i in role_qs:
+                role_list.append(i.id)
+
+            user_role = UserRole.objects.filter(role__in=role_list)
+            if user_role:
+
+                user_role_serializer = UsesrRoleListSerializers(
+                    user_role, many=True)
+                context = {'isSuccess': True, 'message': "User List", 'data': user_role_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                context = {'isSuccess': False, 'message': "User list Not Found",
+                           'data': " ", "error": "", "statusCode": status.HTTP_404_NOT_FOUND}
+                return Response(context, status=status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': str(ex), 'isSuccess': "false",
+                       'message': 'Unable to validate OTP'}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
