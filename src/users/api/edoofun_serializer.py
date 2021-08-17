@@ -334,6 +334,105 @@ class EdoofunUserLoginSerializer(serializers.ModelSerializer):
             raise ValidationError(ex)
 
 
+""" User Login Serialzer """
+
+
+class EdoofunUserLoginContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def to_representation(self, instance):
+        try:
+
+            instance = super(EdoofunUserLoginContactSerializer,
+                             self).to_representation(instance)
+            instance['token'] = self.context['token']
+
+            return instance
+        except Exception as ex:
+            raise ValidationError(ex)
+
+    def validate(self, validated_data):
+        try:
+            print("validated_data", validated_data)
+            phone = self.context['user_detail_data']['phone']
+            password = validated_data.pop('password')
+
+            print("phone--------", phone, password)
+            """ validate phone and phone"""
+            try:
+                phone_password = validate_auth_user_phone(phone, password)
+            except Exception as ex:
+                raise ValidationError("Phone and Password is required")
+
+            """ get username"""
+            try:
+
+                if phone is not None:
+
+                    user = UserDetail.objects.get(phone=phone)
+                    print("username-", user)
+
+                    username = User.objects.get(
+                        username=user, is_active=True).username
+                    print("username-", username)
+
+                else:
+                    raise ValidationError("Email is required")
+            except Exception as ex:
+
+                raise ValidationError("Invalid Credentials, Try Again")
+
+            """ authenticate username and password """
+            try:
+                if username and password is not None:
+
+                    auth_user = authenticate_username_password(
+                        username, password)
+                else:
+                    raise ValidationError("Credentials is required")
+            except Exception as ex:
+                raise ValidationError("Credentials is required")
+
+            try:
+                if auth_user is not None:
+                    if auth_user.is_active:
+                        try:
+                            user_detail = UserDetail.objects.get(
+                                user_obj=auth_user)
+                            print("user_detail", user_detail)
+
+                            token = genrate_token(auth_user)
+                            self.context.update({"token": token})
+                            data = "Login Successful"
+                            return data
+                        except Exception as ex:
+                            raise ValidationError(
+                                'Some issue in user detail.Please Check')
+                    else:
+                        raise ValidationError(
+                            "Sorry, this account is deactivated")
+                else:
+                    raise ValidationError(
+                        "Login failed ,Invalid Username and Password")
+
+            except Exception as ex:
+                print("ERROr-----11", ex)
+                print("TRACEBACK-------1", traceback.print_exc())
+                logger.info(ex)
+                logger.debug(ex)
+                raise ValidationError(ex)
+
+        except Exception as ex:
+            print("ERROr-----", ex)
+            print("TRACEBACK-------", traceback.print_exc())
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
+
+
 """ User Role Serializer"""
 
 
