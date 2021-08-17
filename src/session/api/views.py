@@ -6,7 +6,7 @@ from .serializer import*
 from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
-from django.db.models import Q
+from django.db.models import Q, query
 from .utils import*
 from holiday.models import*
 from holiday.api.serializer import*
@@ -106,8 +106,11 @@ class AssociateSeactionList(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AssociateSeactionListSerializer
-
-
+    
+    """To list academic section which are associate"""
+    def get_queryset(self):
+        qs = AcademicSession.objects.exclude(class_teacher=None)
+        return qs
 
 
 
