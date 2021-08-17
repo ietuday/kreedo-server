@@ -731,3 +731,13 @@ class ParentChangePasswordSerializer(serializers.ModelSerializer):
         except Exception as ex:
 
             raise serializers.ValidationError("Old Password is not Matched")
+
+
+class UsesrRoleListSerializers(serializers.ModelSerializer):
+    user = AccountListForSerializer()
+
+    class Meta:
+
+        model = UserRole
+        fields = '__all__'
+        depth = 1
