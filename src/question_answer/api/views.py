@@ -1,3 +1,4 @@
+import traceback
 from django.shortcuts import render
 from .serializer import*
 from kreedo.general_views import *
@@ -112,7 +113,7 @@ class GetSecretQuestionBasedOnParentID(ListCreateAPIView):
 
 """ UpdateSecretQuestionBasedOnParentID """
 
-import traceback
+
 class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
     def put(self, request, pk):
         try:
@@ -121,30 +122,21 @@ class UpdateSecretQuestionBasedOnParentID(ListCreateAPIView):
                 question_answer = QuestionAnswer.objects.filter(user=pk)
                 print("@@@@@@@", question_answer)
                 for question in question_answer:
-                    
+
                     question.user.remove(pk)
                     print("remove")
-                
-                question_detail = {
-                    "user":[pk],
-                }
-                user_question_answer = QuestionAnswer.objects.filter(id=request.data.get('question',None))
+
+                user_question_answer = QuestionAnswer.objects.filter(
+                    id=request.data.get('question', None))
                 print("@@@@@@@@@", user_question_answer)
-                
 
-
-                question_answer_qs_serilaizer = QuestionCreateSerializer(user_question_answer,data=question_detail,partial=True)
-                if question_answer_qs_serilaizer.is_valid():
-                    question_answer_qs_serilaizer.save()
+                for i in user_question_answer:
+                    i.user.add(pk)
+                    i.save()
                     print("UPDATE")
-                    context = {'isSuccess': True, "error": "",'message': "Question updated Successfully"
-                            ,"parent_id":pk,"statusCode": status.HTTP_200_OK,}
-                    return Response(context, status=status.HTTP_200_OK)
-                else:
-                    print("question_answer_qs_serilaizer.errors",question_answer_qs_serilaizer.errors)
-                    context = {'isSuccess': False, "error": question_answer_qs_serilaizer.errors,
-                    "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, 'data': ''}
-                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                context = {'isSuccess': True, "error": "", 'message': "Question updated Successfully",
+                           "parent_id": pk, "statusCode": status.HTTP_200_OK, }
+                return Response(context, status=status.HTTP_200_OK)
             else:
                 context = {'isSuccess': True, 'message': "User Not found",
                            'data': "", "statusCode": status.HTTP_404_NOT_FOUND}
