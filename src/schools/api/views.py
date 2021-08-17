@@ -734,9 +734,8 @@ class TeacherSubjectAssociation(Mixins,CreateAPIView):
                                         school=request.data.get('school',None),
                                         grade=request.data.get('grade',None),
                                         section=request.data.get('section',None),
-                                        academic_calender=request.data.get('academic _calendar',None)
+                                        academic_calender=request.data.get('academic_calendar',None)
                                     )
-        
             if academic_session:
                 academic_sess = academic_session[0]
                 academic_sess.class_teacher = UserDetail.objects.get(user_obj__id=request.data.get('class_teacher'))
