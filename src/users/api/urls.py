@@ -76,5 +76,9 @@ urlpatterns = [
          name='Edoofun Generate OTP'),
     path('edoofun/otp_verify', EdoofunOTPVerification.as_view(),
          name='Edoofun OTP Verification'),
+    path('edoofun/get_users_list', GetUserList.as_view(),
+         name='Get User List'),
+
+
 
 ]
