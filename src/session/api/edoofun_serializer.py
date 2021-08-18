@@ -81,3 +81,23 @@ class AcademicSessionGradeSerializer(serializers.ModelSerializer):
         model = AcademicSession
         fields = '__all__'
         depth = 1
+
+
+class ClassTeacherSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUsersSerializer()
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires',
+                   'address', 'type', 'role', 'reason_for_discontinution', 'relationship_with_child', 'joining_date', 'secret_pin')
+        depth = 3
+
+
+class AcademicSessionChildSerializer(serializers.ModelSerializer):
+    class_teacher = ClassTeacherSerializer()
+
+    class Meta:
+        model = AcademicSession
+        fields = ['school', 'grade', 'section', 'class_teacher']
+        depth = 1

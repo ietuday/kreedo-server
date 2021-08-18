@@ -1,3 +1,5 @@
+from rest_framework.utils.serializer_helpers import ReturnList
+import pdb
 import json
 import rest_framework.status
 import logging
@@ -28,7 +30,7 @@ def get_url(request_obj):
         url1 = url0.strip("'/")
         url2 = url1.split("/")
         url = url2[1]
-        
+
         return url, method
     except Exception as ex:
         logger.info(ex)
@@ -43,8 +45,7 @@ def get_url(request_obj):
 
 def get_message(api_name, method):
     apiname_list = api_name.split('?')
-    return  apiname_list[0]
-
+    return apiname_list[0]
 
     # model_name = ['user-type', 'role', 'grade', 'subject', 'section',
     #               'license', 'school', 'school-session', 'academic-session',
@@ -58,7 +59,6 @@ def get_message(api_name, method):
     #               'logged-in-user-detail', 'holiday-list','activity-detail',
     #               'user', 'child', 'child-detail', 'period', 'academic-calender',
     #               'group','permission']
-
 
     # for name in model_name:
     #     if name in apiname_list:
@@ -76,7 +76,6 @@ def get_message(api_name, method):
 
     #         }
     #         return switcher[method]
-
 
 
 """ 
@@ -98,12 +97,10 @@ def get_paginated_response(self, data):
     Genrate Response
 """
 
-import pdb
-from rest_framework.utils.serializer_helpers import ReturnList
 
 def get_response(data, response_obj, message):
     try:
-        # print(data)
+        print(data)
         # pdb.set_trace()
         if type(data) is ReturnList:
             if len(data) is 0:
@@ -111,42 +108,40 @@ def get_response(data, response_obj, message):
                     {
                         'isSuccess': True,
                         'statusCode': 200,
-                        'message':message,
-                        'data':[]
+                        'message': message,
+                        'data': []
                     }
                 )
                 return response
 
-
             elif 'non_field_errors' in data[0]:
-                
+
                 message = data[0]['non_field_errors']
                 response = json.dumps(
                     {
                         'isSuccess': False,
                         'statusCode': 200,
-                        'message':message,
-                        'data':None
+                        'message': message,
+                        'data': None
                     }
                 )
                 return response
 
-            
             elif 'detail' in data[0]:
                 message = data[0]['detail']
                 response = json.dumps(
                     {
                         'isSuccess': False,
                         'statusCode': 200,
-                        'message':message,
-                        'data':None
+                        'message': message,
+                        'data': None
                     }
                 )
                 return response
 
         response = json.dumps(
             {
-                
+
                 'statusCode': 200 if response_obj.status_code == 204 else response_obj.status_code,
                 'isSuccess': True,
                 'message': message,
