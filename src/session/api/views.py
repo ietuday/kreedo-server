@@ -121,7 +121,8 @@ class GradeLisbyAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
     def get(self,request, pk):
         try:
             academic_sesion_qs = AcademicSession.objects.filter(academic_calender=pk)
-            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_sesion_qs, many=True)
+            academic_qs_with_distinct_grades = academic_sesion_qs.order_by('grade__name').distinct('grade__name')
+            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_qs_with_distinct_grades, many=True)
             return Response(academic_sesion_qs_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR--->", ex)
