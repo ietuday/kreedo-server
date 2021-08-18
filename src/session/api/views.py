@@ -243,21 +243,22 @@ class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate(Mixin, ListCreateAPIView):
+class AcademicCalenderListCreate(GeneralClass,Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
-    def get(self,request):
-        qs = self.get_queryset()
-        academic_cal_serializer = AcademicCalenderListSerializer(qs,many=True)
-        context = {
-                            "isSuccess":True,"status":200,"message":"academic session details",
-                            "data":academic_cal_serializer.data
-                }
-        return Response(context)
+
+    # def get(self,request):
+    #     qs = self.get_queryset()
+    #     academic_cal_serializer = AcademicCalenderListSerializer(qs,many=True)
+    #     context = {
+    #                         "isSuccess":True,"status":200,"message":"academic session details",
+    #                         "data":academic_cal_serializer.data
+    #             }
+    #     return Response(context)
       
         
     def post(self,request):
