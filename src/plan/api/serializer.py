@@ -99,9 +99,14 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
             return ValidationError(ex)
 
 
+""" Plan Update Serializer"""
+class PlanUpdateSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = '__all__'
+
+
 """ child Plan List Serailizer"""
-
-
 class ChildPlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
