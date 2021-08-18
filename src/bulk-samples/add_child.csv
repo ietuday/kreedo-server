@@ -1,0 +1,2 @@
+id,first_name,last_name,date_of_birth,gender,date_of_joining,place_of_birth,blood_group,photo,parents_id,parents,child_plan,is_active,is_Deleted
+,MNO,WER,02/11/2017,Female,05/02/2021,Nagpur,A+,namammaa,,"[{""first_name"":""vbvbvbvb"",""last_name"":""ghg"",""gender"":""Male"",""phone"":""6556565656"",""email"":""xyzabc@gmail.com"",""relationship_with_child"":""Father""}]","[{""section"":1,""grade"":3,""academic_calender"":20,""subjects"":[3,4,5],""class_teacher"":2,""curriculum_start_date"":""2021-04-22""}]",TRUE,FALSE

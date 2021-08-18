@@ -1,0 +1,2 @@
+id,name,type,sub_type,is_group,grade,subject,range_from,range_to,activity,previous_kreedo,is_active,is_Deleted
+,Plan1,Group,"""""",TRUE,1,1,0,0,"[{""activity"":2,""sort_no"":2,""dependent_on"":1}]",FALSE,TRUE,FALSE
