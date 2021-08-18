@@ -124,13 +124,16 @@ class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             AcademicSessionForGradeSerializer, self).to_representation(obj)
-        if obj.grade:
+        # grade_dict = {}
+        if obj.grade :
             grade_serializer = GradeSessionSerializer(obj.grade)
             data = grade_serializer.data
+            # grade_dict.update(data)
+            
         else:
             data = {}
         return data
-        # pdb.set_trace()
+        
 
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
