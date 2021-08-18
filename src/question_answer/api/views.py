@@ -55,7 +55,7 @@ class RandomQuestion(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-""" Valiodate Answer """
+""" Validate Answer """
 
 
 class ValidateAnswer(ListCreateAPIView):
