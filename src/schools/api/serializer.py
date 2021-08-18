@@ -96,6 +96,10 @@ class SubjectListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+class SubjectListBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = '__all__'
 
 """ Subject Create Serializer """
 
@@ -357,3 +361,19 @@ class AccountManagerAssignSerializer(serializers.ModelSerializer):
         instance = self.instance
         instance = super(AccountManagerAssignSerializer,self).update(instance,validated_data)
         return instance
+
+
+class TeacherListForSchoolSerializer(serializers.ModelSerializer):
+    user = UserDetailListForAcademicSessionSerializer()
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 1
+    
+    def to_representation(self, obj):
+        serialized_data = super(
+            TeacherListForSchoolSerializer, self).to_representation(obj)
+        
+        serialized_data.update(serialized_data['user'])
+        del serialized_data['user']
+        return serialized_data

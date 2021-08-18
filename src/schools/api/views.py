@@ -126,6 +126,15 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return SubjectCreateSerializer
 
+""" Subject List By School """
+
+class SubjectListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    model = Subject
+    filterset_class = SubjectFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SubjectListBySchoolSerializer
 
 """ Subject update Retrive and Delete """
 
@@ -700,13 +709,13 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
             teachers_data = []
             data = {}
             for teacher in teacher_list:
-                user_role_serialzer = TeacherSerializer(teacher.user.user_obj)
+                user_role_serialzer = TeacherListForSchoolSerializer(teacher)
                 data.update({
-                    "user":user_role_serialzer.data,
+                    "user_obj":user_role_serialzer.data,
                     "school":teacher.school.id,
                     "role":teacher.role.id
                 })
-                teachers_data.append(data)
+                teachers_data.append(user_role_serialzer.data)
                 continue
             return Response(teachers_data)
         except Exception as ex:
@@ -715,7 +724,7 @@ class TeacherListAccordingToSchool(GeneralClass,Mixins,RetrieveUpdateDestroyAPIV
 
 
 """Teacher Subject Association for school"""
-class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
+class TeacherSubjectAssociation(Mixins,CreateAPIView):
     model = SectionSubjectTeacher
 
 
@@ -725,32 +734,142 @@ class TeacherSubjectAssociation(GeneralClass,Mixins,CreateAPIView):
                                         school=request.data.get('school',None),
                                         grade=request.data.get('grade',None),
                                         section=request.data.get('section',None),
-                                        academic_calender=request.data.get('academic _calendar',None)
+                                        academic_calender=request.data.get('academic_calendar',None)
                                     )
-        
             if academic_session:
                 academic_sess = academic_session[0]
                 academic_sess.class_teacher = UserDetail.objects.get(user_obj__id=request.data.get('class_teacher'))
                 academic_session[0].save()
                 section_subject_teacher_list = request.data.get('subjectsAssociatedTeachers',None)
-                for sub in section_subject_teacher_list:
-                    sub['academic_session'] = academic_sess.id
+                for record in section_subject_teacher_list:
+                    record['academic_session'] = academic_sess.id
                 section_subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=section_subject_teacher_list,many=True)
                 if section_subject_teacher_serializer.is_valid():
                     section_subject_teacher_serializer.save()
-                    return Response(section_subject_teacher_serializer.data)
-                return Response(section_subject_teacher_serializer.errors)
+                    context = {
+                        "isSuccess":True,"status":200,"message":"Associate added successfully",
+                        "data":section_subject_teacher_serializer.data
+                    }
+                    return Response(context)
+                context = {
+                        "isSuccess":False,"status":200,"message":"Associate section error",
+                        "data":section_subject_teacher_serializer.errors
+                    }
+                return Response(context)
             else:
-                raise ValidationError("academic session not avaliable")
+                context = {
+                        "isSuccess":False,"status":200,"message":"Academic Session Not Found",
+                        "data":None
+                    }
+                return Response(context)
                 
+        except Exception as ex:
+            print("error@@",ex)
+            context = {
+                        "isSuccess":False,"status":500,"message":f"{ex}",
+                        "data":None
+                    }
+            return Response(context)
+
+""" update teacher-subject based on """
+class UpdateTeacherSubjectAssociation(Mixins,GeneralClass,RetrieveUpdateDestroyAPIView):
+    model = SectionSubjectTeacher
+
+    def put(self,request):
+        try:
+            response_data = []
+            academic_session = AcademicSession.objects.get(pk=request.data.get('academic_session'))
+            academic_data = {
+                            'section':request.data.get('section',None),
+                            'grade':request.data.get('grade',None),
+                            'academic_calender':request.data.get('academic_calendar',None),
+                            'class_teacher':request.data.get('class_teacher',None)
+            }
+            academic_session_serializer = AcademicSessionUpdateSerializer(academic_session,data=academic_data)
+            
+            if academic_session_serializer.is_valid():
+                academic_session_serializer.save()
+                
+                response_data.append(academic_session_serializer.data)
+                response_data[0]['subject_teacher_list'] = []
+
+            else:
+                return Response(academic_session_serializer.errors)
+            subject_teacher_list = request.data.get('subjectsAssociatedTeachers',None)
+            
+            for record in subject_teacher_list:
+                print('id',record['id'])
+                record['academic_session'] = academic_session.id
+                if record['id'] or (record['id']==None and SectionSubjectTeacher.objects.filter(subject=record['subject'],academic_session=record['academic_session'])):
+                    if record['id']:
+                        subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                    else:
+                        subject_teacher_obj = SectionSubjectTeacher.objects.get(subject=record['subject'],academic_session=record['academic_session'])
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_obj,data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data[0]['subject_teacher_list'].append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
+                else:
+                    
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data[0]['subject_teacher_list'].append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
+
+            deleted_subject_teacher_list = request.data.get('deletedSubjectsAssociatedTeachers',None)
+            for record in deleted_subject_teacher_list:
+                subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                subject_teacher_obj.delete()
+                print('object deleted')
+            return Response(response_data)
         except Exception as ex:
             print("error@@",ex)
             return Response(ex)
 
+"""alter subject list in associate section"""
+class AlterSubjectList(GeneralClass,Mixins,ListCreateAPIView):
+    model = SectionSubjectTeacher
 
-# """ update teacher-subject based on """
-# class UpdateTeacherSubjectAssociation(Mixins,GeneralClass,RetrieveUpdateDestroyAPIView):
-#     model = SectionSubjectTeacher
+    def post(self,request):
+        try:
+            response_data = []
+            academic_session = AcademicSession.objects.get(pk=request.data.get('academic_session'))
+            subject_list = request.data.get('addedSubjects',None)
+            for record in subject_list:
+                record['academic_session'] = academic_session.id
+                if record['id'] :
+                    print("update",record)
+                    subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_obj,data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data.append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
+                else:
+                    print("create",record)
+                    subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=record)
+                    if subject_teacher_serializer.is_valid():
+                        subject_teacher_serializer.save()
+                        response_data.append(subject_teacher_serializer.data)
+                        continue
+                    else:
+                        return Response(subject_teacher_serializer.errors)
 
-#     def put(self,request):
+            deletedSubjects = request.data.get('deletedSubjects',None)
+            for record in deletedSubjects:
+                subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                subject_teacher_obj.delete()
+                print('object deleted')
+            return Response(response_data)
 
+        except Exception as ex:
+            print("error@@",ex)
+            return Response(ex)

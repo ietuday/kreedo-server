@@ -6,7 +6,7 @@ from .serializer import*
 from schools.models import*
 from kreedo.general_views import *
 from django.shortcuts import render
-from django.db.models import Q
+from django.db.models import Q, query
 from .utils import*
 from holiday.models import*
 from holiday.api.serializer import*
@@ -106,8 +106,11 @@ class AssociateSeactionList(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AssociateSeactionListSerializer
-
-
+    
+    """To list academic section which are associate"""
+    def get_queryset(self):
+        qs = AcademicSession.objects.exclude(class_teacher=None)
+        return qs
 
 
 
@@ -118,7 +121,8 @@ class GradeLisbyAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
     def get(self,request, pk):
         try:
             academic_sesion_qs = AcademicSession.objects.filter(academic_calender=pk)
-            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_sesion_qs, many=True)
+            academic_qs_with_distinct_grades = academic_sesion_qs.order_by('grade__name').distinct('grade__name')
+            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_qs_with_distinct_grades, many=True)
             return Response(academic_sesion_qs_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR--->", ex)
@@ -239,13 +243,22 @@ class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 """ Create and List of Academic Calender """
 
 
-class AcademicCalenderListCreate( Mixin, ListCreateAPIView):
+class AcademicCalenderListCreate(GeneralClass,Mixin, ListCreateAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
+
+    # def get(self,request):
+    #     qs = self.get_queryset()
+    #     academic_cal_serializer = AcademicCalenderListSerializer(qs,many=True)
+    #     context = {
+    #                         "isSuccess":True,"status":200,"message":"academic session details",
+    #                         "data":academic_cal_serializer.data
+    #             }
+    #     return Response(context)
       
         
     def post(self,request):

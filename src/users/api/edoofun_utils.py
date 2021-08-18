@@ -82,7 +82,6 @@ def authenticate_username_password(username, password):
         raise ValidationError("Login failed , Invalid Username and Password")
 
 
-
 def authenticate_username(username, old_password):
     try:
         #  authenticate(username=username)
@@ -92,11 +91,22 @@ def authenticate_username(username, old_password):
         logger.info(ex)
         raise ValidationError("User not Authorized")
 
+
 """ Validate Email and Password """
 
 
 def validate_auth_user(email, password):
     if email is not None and password is not None:
+        return True
+    else:
+        return False
+
+
+""" Validate Email and Password """
+
+
+def validate_auth_user_phone(phone, password):
+    if phone is not None and password is not None:
         return True
     else:
         return False
@@ -160,3 +170,16 @@ def genrate_link(user_obj, user_detail_obj, genrated_password):
         logger.debug(error)
         logger.info(error)
         raise ValidationError("Failed to send Token to user")
+
+
+"""authenticate_user"""
+
+
+def authenticate_user(username):
+    try:
+        user = authenticate(username=username)
+        return user
+    except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
+        raise ValidationError("User not Authorized")

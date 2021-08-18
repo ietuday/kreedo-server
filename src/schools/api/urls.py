@@ -12,6 +12,8 @@ urlpatterns = [
          name='SectionRetriveUpdateDestroy'),
     path('subject_list_create', SubjectListCreate.as_view(),
          name='SubjectListCreate'),
+     path('subject_list_by_school', SubjectListBySchool.as_view(),
+         name='SubjectListCreate'),
     path('subject_retrive_update_delete/<int:pk>', SubjectRetriveUpdateDestroy.as_view(),
          name='SubjectRetriveUpdateDestroy'),
     path('license_list_create', LicenseListCreate.as_view(),
@@ -60,6 +62,8 @@ urlpatterns = [
      path('school-assignment',AssignAccountManager.as_view(),name='school_assignment'),
      path('teacher_list_according_to_school/<int:pk>',TeacherListAccordingToSchool.as_view(),name='teacher_list_based_n_school'),
      path('teacher_subject_association',TeacherSubjectAssociation.as_view(),name='teacher_subject_association'),
+     path('update_teacher_subject_association',UpdateTeacherSubjectAssociation.as_view(),name='update_teacher_subject_association'),
+     path('alter_subject_list',AlterSubjectList.as_view(),name='alter_subject_list'),
 
 
 ]

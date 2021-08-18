@@ -58,6 +58,9 @@ urlpatterns = [
          RegisterParent.as_view(), name='Register Parent'),
     path('edoofun/login_user_by_email_id',
          LoginUserBasedOnEmailD.as_view(), name='Login User Based On EmailD'),
+    path('edoofun/login_user_based_on_contact_number',
+         LoginUserBasedOnContactNumber.as_view(), name='Login User BasedOn Contact Number'),
+
     path('edoofun/get_all_account',
          GetAllAccounts.as_view(), name='Get All Accounts'),
     path('edoofun/get_users_based_on_school_id/<int:pk>',
@@ -66,7 +69,16 @@ urlpatterns = [
          UpdateSecretPinForParent.as_view(), name='Update Secret PIN For Parent'),
     path('edoofun/get_parent_details/<int:pk>',
          GetParentDetails.as_view(), name='Get Parent Details'),
-    path('edoofun/logged_in_user_detail', LoggedInUser.as_view(), name='Logged In User'),
+    path('edoofun/logged_in_user_detail',
+         LoggedInUser.as_view(), name='Logged In User'),
+    path('edoofun/set_password', SetPassword.as_view(), name='Set Password'),
+    path('edoofun/genrate_otp', EdoofunGenerateOTP.as_view(),
+         name='Edoofun Generate OTP'),
+    path('edoofun/otp_verify', EdoofunOTPVerification.as_view(),
+         name='Edoofun OTP Verification'),
+    path('edoofun/get_users_list', GetUserList.as_view(),
+         name='Get User List'),
+
 
 
 ]
