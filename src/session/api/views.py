@@ -17,7 +17,7 @@ from period.api.serializer import *
 """
     REST LIBRARY IMPORT
 """
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,ListAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
@@ -240,10 +240,9 @@ class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
-""" Create and List of Academic Calender """
+""" List of Academic Calender """
 
-
-class AcademicCalenderListCreate(GeneralClass,Mixin, ListCreateAPIView):
+class AcademicCalenderListView(GeneralClass,Mixin, ListAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
@@ -251,16 +250,12 @@ class AcademicCalenderListCreate(GeneralClass,Mixin, ListCreateAPIView):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
 
-    # def get(self,request):
-    #     qs = self.get_queryset()
-    #     academic_cal_serializer = AcademicCalenderListSerializer(qs,many=True)
-    #     context = {
-    #                         "isSuccess":True,"status":200,"message":"academic session details",
-    #                         "data":academic_cal_serializer.data
-    #             }
-    #     return Response(context)
-      
-        
+
+"""Create Academic Calender """ 
+class AcademicCalenderCreateView(Mixin, CreateAPIView):
+    model = AcademicCalender
+    filterset_class = AcademicCalenderFilter
+
     def post(self,request):
         academic_cal_serializer = AcademicCalenderCreateSerializer(data=request.data)
         if academic_cal_serializer.is_valid():
