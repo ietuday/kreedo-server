@@ -1,0 +1,2 @@
+id,name,type,objective,description,master_material,subject,created_by,supporting_material,is_active,is_Deleted
+,Activity_one,Group,Activity,Actiivity,"[1,2,3,]","[1,2,3]",2,"[3,4,6]",TRUE,FALSE
