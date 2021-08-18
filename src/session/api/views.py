@@ -17,7 +17,7 @@ from period.api.serializer import *
 """
     REST LIBRARY IMPORT
 """
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,ListAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 
@@ -121,7 +121,8 @@ class GradeLisbyAcademicSession(GeneralClass,Mixins,ListCreateAPIView):
     def get(self,request, pk):
         try:
             academic_sesion_qs = AcademicSession.objects.filter(academic_calender=pk)
-            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_sesion_qs, many=True)
+            academic_qs_with_distinct_grades = academic_sesion_qs.order_by('grade__name').distinct('grade__name')
+            academic_sesion_qs_serializer = AcademicSessionForGradeSerializer(academic_qs_with_distinct_grades, many=True)
             return Response(academic_sesion_qs_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR--->", ex)
@@ -239,18 +240,22 @@ class AssociateSectionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
-""" Create and List of Academic Calender """
+""" List of Academic Calender """
 
-
-class AcademicCalenderListCreate( GeneralClass,Mixin, ListCreateAPIView):
+class AcademicCalenderListView(GeneralClass,Mixin, ListAPIView):
     model = AcademicCalender
     filterset_class = AcademicCalenderFilter
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AcademicCalenderListSerializer
-      
-        
+
+
+"""Create Academic Calender """ 
+class AcademicCalenderCreateView(Mixin, CreateAPIView):
+    model = AcademicCalender
+    filterset_class = AcademicCalenderFilter
+
     def post(self,request):
         academic_cal_serializer = AcademicCalenderCreateSerializer(data=request.data)
         if academic_cal_serializer.is_valid():

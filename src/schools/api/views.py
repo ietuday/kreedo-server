@@ -734,16 +734,15 @@ class TeacherSubjectAssociation(Mixins,CreateAPIView):
                                         school=request.data.get('school',None),
                                         grade=request.data.get('grade',None),
                                         section=request.data.get('section',None),
-                                        academic_calender=request.data.get('academic _calendar',None)
+                                        academic_calender=request.data.get('academic_calendar',None)
                                     )
-        
             if academic_session:
                 academic_sess = academic_session[0]
                 academic_sess.class_teacher = UserDetail.objects.get(user_obj__id=request.data.get('class_teacher'))
                 academic_session[0].save()
                 section_subject_teacher_list = request.data.get('subjectsAssociatedTeachers',None)
-                for sub in section_subject_teacher_list:
-                    sub['academic_session'] = academic_sess.id
+                for record in section_subject_teacher_list:
+                    record['academic_session'] = academic_sess.id
                 section_subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(data=section_subject_teacher_list,many=True)
                 if section_subject_teacher_serializer.is_valid():
                     section_subject_teacher_serializer.save()
@@ -801,8 +800,11 @@ class UpdateTeacherSubjectAssociation(Mixins,GeneralClass,RetrieveUpdateDestroyA
             for record in subject_teacher_list:
                 print('id',record['id'])
                 record['academic_session'] = academic_session.id
-                if record['id']:
-                    subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                if record['id'] or (record['id']==None and SectionSubjectTeacher.objects.filter(subject=record['subject'],academic_session=record['academic_session'])):
+                    if record['id']:
+                        subject_teacher_obj = SectionSubjectTeacher.objects.get(pk=record['id'])
+                    else:
+                        subject_teacher_obj = SectionSubjectTeacher.objects.get(subject=record['subject'],academic_session=record['academic_session'])
                     subject_teacher_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_obj,data=record)
                     if subject_teacher_serializer.is_valid():
                         subject_teacher_serializer.save()

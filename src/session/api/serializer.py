@@ -124,13 +124,16 @@ class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
     def to_representation(self, obj):
         serialized_data = super(
             AcademicSessionForGradeSerializer, self).to_representation(obj)
-        if obj.grade:
+        # grade_dict = {}
+        if obj.grade :
             grade_serializer = GradeSessionSerializer(obj.grade)
             data = grade_serializer.data
+            # grade_dict.update(data)
+            
         else:
             data = {}
         return data
-        # pdb.set_trace()
+        
 
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
@@ -229,12 +232,17 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
             print("validate called")
             start_date = validated_data['start_date']
             end_date = validated_data['end_date']
+            # academic_cal_aval = AcademicCalender.objects.filter(
+            #                             school = validated_data['school'],
+            # ).exclude(
+            #     Q(end_date__lte=start_date) |
+            #     Q(start_date__gte=end_date) 
+            # )
             academic_cal_aval = AcademicCalender.objects.filter(
                                         school = validated_data['school'],
-            ).exclude(
-                Q(end_date__lte=start_date) |
-                Q(start_date__gte=end_date) 
+                                        start_date=start_date
             )
+
             print("acdemic cal aval",academic_cal_aval)
             # pdb.set_trace()
             # academic_cal_aval = []
