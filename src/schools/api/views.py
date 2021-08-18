@@ -550,6 +550,7 @@ class AddSubject(ListCreateAPIView):
                     subject_qs.name = f['name']
                     subject_qs.type = f['type']
                     subject_qs.activity = f['activity']
+                    subject_qs.is_kreedo = f['is_kreedo']
                     subject_qs.is_active = f['is_active']
                     subject_qs.save()
                     added_subject.append(subject_qs)
