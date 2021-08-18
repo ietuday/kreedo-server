@@ -1,3 +1,4 @@
+from area_of_devlopment.api.edoofun_serializer import*
 import traceback
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -57,9 +58,9 @@ class RegisterChild(ListCreateAPIView):
                 "class_teacher": request.data.get('class_teacher', None),
                 "account_manager": request.data.get('account_manager', None),
                 "parent": "",
-                "is_active":True
+                "is_active": True
             }
-           
+
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
@@ -67,14 +68,15 @@ class RegisterChild(ListCreateAPIView):
                 "section": request.data.get('section', None),
                 "grade": request.data.get('grade', None)
             }
-            print("request.data.get('parents', None)",request.data.get('parents', None))
+            print("request.data.get('parents', None)",
+                  request.data.get('parents', None))
             for parent in request.data.get('parents', None):
-                
-                user_obj = UserDetail.objects.filter(phone= parent['phone'])
-                if Child.objects.filter(first_name=request.data.get('first_name', None),last_name=request.data.get('last_name', None),
-                            parent__in=user_obj).exists():
+
+                user_obj = UserDetail.objects.filter(phone=parent['phone'])
+                if Child.objects.filter(first_name=request.data.get('first_name', None), last_name=request.data.get('last_name', None),
+                                        parent__in=user_obj).exists():
                     context = {"isSuccess": False, "message": "Child already Exist", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                     "data": ""}
+                               "data": ""}
                     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                     print("@@@@@@@Child")
                 else:
@@ -83,7 +85,7 @@ class RegisterChild(ListCreateAPIView):
                     context = super().get_serializer_context()
                     context.update(
                         {"child_detail": child_detail, "parent_detail": parent_detail,
-                        "academic_session_detail": academic_session_detail})
+                         "academic_session_detail": academic_session_detail})
 
                     try:
 
@@ -93,17 +95,17 @@ class RegisterChild(ListCreateAPIView):
                             child_detail_serializer.save()
 
                             context = {"isSuccess": True, "message": "Child register successfully", "status": status.HTTP_200_OK,
-                                    "error": "", "data": child_detail_serializer.data}
+                                       "error": "", "data": child_detail_serializer.data}
                             return Response(context, status=status.HTTP_200_OK)
                         else:
                             context = {"isSuccess": True, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                    "error": child_detail_serializer.errors, "data": ""}
+                                       "error": child_detail_serializer.errors, "data": ""}
                             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
                     except Exception as ex:
                         print("ERROR---1", ex)
                         context = {"isSuccess": False, "message": "Issue in Child Creation", "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                "error": ex, "data": ""}
+                                   "error": ex, "data": ""}
                         return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
@@ -134,8 +136,11 @@ class ChildListAssociatedToSectionID(ListCreateAPIView):
 """ Update Secret Pin For Selected Child """
 
 # @permission_classes((IsAuthenticated,))
+
+
 class UpdateSecretPinForSelectedChild(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
             print(request.data)
@@ -157,14 +162,14 @@ class UpdateSecretPinForSelectedChild(ListCreateAPIView):
                 child_detail_serilaizer.save()
                 print("child_detail_serilaizer------>")
                 context = {'isSuccess': True, 'message': "Pin changed Successfully",
-                            "statusCode": status.HTTP_200_OK}
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
 
             else:
                 print("child_detail_serilaizer errors ------->",
                       child_detail_serilaizer.errors)
                 context = {'isSuccess': False, 'message': "Child Not Found",
-                           'data': " ", "error":user_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": user_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
@@ -174,23 +179,25 @@ class UpdateSecretPinForSelectedChild(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 """ GetChildListBasedOnParentID """
+
+
 class GetChildListBasedOnParentID(ListCreateAPIView):
     def get(self, request, pk):
         try:
-            print("@@@@@@@@@@@@@@@3",pk)
+            print("@@@@@@@@@@@@@@@3", pk)
             child_qs = Child.objects.filter(parent=pk)
             if child_qs:
-                child_qs_serializer = ChildListParentSerializer(child_qs,many=True)
-                print("child_qs----",child_qs)  
-                context = {'isSuccess': True, 'message': "Child List based on ParentId",'data': child_qs_serializer.data,
-                            "statusCode": status.HTTP_200_OK}
+                child_qs_serializer = ChildListParentSerializer(
+                    child_qs, many=True)
+                print("child_qs----", child_qs)
+                context = {'isSuccess': True, 'message': "Child List based on ParentId", 'data': child_qs_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
                 context = {'isSuccess': False, 'message': "Child List based on ParentId Not Found",
-                           'data': " ", "error":child_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": child_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
@@ -201,28 +208,28 @@ class GetChildListBasedOnParentID(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 """ GetChildDetailsBasedOnChildID  """
+
+
 class GetChildDetailsBasedOnChildID(RetrieveUpdateDestroyAPIView):
     model = Child
     filterset_class = ChildFilter
 
-
     def get(self, request, pk):
         try:
-            print("@@@@@@@@@@@@@@@3",pk)
+            print("@@@@@@@@@@@@@@@3", pk)
             child_qs = Child.objects.filter(id=pk)
             if child_qs:
-                child_qs_serializer = ChildDetailSerializer(child_qs,many=True)
-                print("child_qs----",child_qs)  
-                context = {'isSuccess': True, 'message': "Child Detail based on Child Id",'data': child_qs_serializer.data,
-                            "statusCode": status.HTTP_200_OK}
+                child_qs_serializer = ChildDetailSerializer(
+                    child_qs, many=True)
+                print("child_qs----", child_qs)
+                context = {'isSuccess': True, 'message': "Child Detail based on Child Id", 'data': child_qs_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
                 context = {'isSuccess': False, 'message': "Child Detail based on Child Id Not Found",
-                           'data': " ", "error":child_qs_serializer.errors,"statusCode": status.HTTP_404_NOT_FOUND}
+                           'data': " ", "error": child_qs_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
@@ -233,20 +240,21 @@ class GetChildDetailsBasedOnChildID(RetrieveUpdateDestroyAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 """  GetChildListAssociatedToLicenseID """
+
 
 class GetChildListAssociatedToLicenseID(ListCreateAPIView):
     def post(self, request):
         try:
-            child_qs = Child.objects.filter(school=request.data.get('school',None),
-            school__license = request.data.get('license',None))
+            child_qs = Child.objects.filter(school=request.data.get('school', None),
+                                            school__license=request.data.get('license', None))
             print("@@@@@@@@@@", child_qs)
-            if len(child_qs) !=0:
-                child_qs_serializer = ChildListbylicenseSerializer(child_qs,many=True)
-                print("child_qs----",child_qs)  
-                context = {'isSuccess': True, 'message': "Child List associated to License Id",'data': child_qs_serializer.data,
-                            "statusCode": status.HTTP_200_OK}
+            if len(child_qs) != 0:
+                child_qs_serializer = ChildListbylicenseSerializer(
+                    child_qs, many=True)
+                print("child_qs----", child_qs)
+                context = {'isSuccess': True, 'message': "Child List associated to License Id", 'data': child_qs_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
@@ -261,27 +269,28 @@ class GetChildListAssociatedToLicenseID(ListCreateAPIView):
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from area_of_devlopment.api.edoofun_serializer import*
 
 """ GetSkillsAssociatedToChildId """
+
+
 class GetSkillsAssociatedToChildId(ListCreateAPIView):
-    def get(self, request,pk):
+    def get(self, request, pk):
         try:
             child_qs = ChildPlan.objects.filter(child=pk).values('subjects')
-            activity_qs = Subject.objects.filter(id__in= child_qs).values('activity')
+            activity_qs = Subject.objects.filter(
+                id__in=child_qs).values('activity')
             skill_qs = Skill.objects.filter(activity__in=activity_qs)
             if len(skill_qs) != 0:
-                skill_qs_serializer = SkillListForChildSerializer(skill_qs, many=True)
-                context = {'isSuccess': True, 'message': "Skills Associated To Child Id",'data': skill_qs_serializer.data,
-                            "statusCode": status.HTTP_200_OK}
+                skill_qs_serializer = SkillListForChildSerializer(
+                    skill_qs, many=True)
+                context = {'isSuccess': True, 'message': "Skills Associated To Child Id", 'data': skill_qs_serializer.data,
+                           "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             else:
 
                 context = {'isSuccess': False, 'message': "Skills Associated To Child Id Not Found",
                            'data': " ", "statusCode": status.HTTP_404_NOT_FOUND}
                 return Response(context, status=status.HTTP_404_NOT_FOUND)
-
-
 
         except Exception as ex:
             print("Traceback------", traceback.print_exc())
@@ -290,3 +299,14 @@ class GetSkillsAssociatedToChildId(ListCreateAPIView):
                        "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+""" Child Retrive """
+
+
+class GetChildDetailsBasedOnChildID(GeneralClass, Mixins, RetrieveAPIView):
+    model = Child
+    filterset_class = ChildFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ChildRetriveSerializer
