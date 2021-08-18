@@ -1,0 +1,2 @@
+id,account_id,name,type,address,city,state,country,type,licence_start,no_of_month,school_calender_for_no_of_year,package,no._of_users,no_of_children,isDeleted,created_by
+,90,test,Preschool,test,test,test,test,HLS,12/02/2021,24,3,"[{""pakage"": 1, ""customized_material"": [1,2]}]",100,25,FALSE,2
