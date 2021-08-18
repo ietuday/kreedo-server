@@ -6,8 +6,8 @@ from plan.models import*
 
 class PlanFilter(filters.FilterSet):
     name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-    grade = filters.CharFilter(
-        field_name='grade__name', lookup_expr='icontains')
+    # grade = filters.CharFilter(
+    #     field_name='grade__name', lookup_expr='icontains')
     subject = filters.CharFilter(
         field_name='subject__name', lookup_expr='icontains')
 

@@ -72,8 +72,6 @@ class Activity(TimestampAwareModel):
 
 
 """ Activity Asset Model """
-
-
 class ActivityAsset(TimestampAwareModel):
     activity = models.ForeignKey(
         'Activity', on_delete=models.PROTECT, null=True, blank=True)
