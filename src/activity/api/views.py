@@ -1,4 +1,6 @@
 from pdb import set_trace
+from rest_framework.pagination import LimitOffsetPagination
+
 from django.shortcuts import render
 from .serializer import*
 from .filters import*
@@ -62,6 +64,7 @@ class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
     model = Activity
     filterset_class = ActivityFilter
     # pagination_class = LimitOffsetPagination
+    serializer_class = ActivityListSerializer
 
     def get(self, request, *args, **kwargs):
         try:
@@ -71,11 +74,14 @@ class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
             context = self.get_serializer_context()
             context['child'] = child
             activity_list = Activity.objects.filter(subject=subject)
-            print('list', activity_list)
-            activity_serializer = ActivityListSerializer(
-                activity_list, many=True, context=context)
-            return Response(activity_serializer.data, status=status.HTTP_200_OK)
-
+            print('list',activity_list)
+            page = self.paginate_queryset(activity_list)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True,context=context)
+                return self.get_paginated_response(serializer.data)
+            activity_serializer = ActivityListSerializer(activity_list,many=True,context=context)
+            return Response(activity_serializer.data)
+                    
         except Exception as ex:
             print(ex)
             return Response(ex)
