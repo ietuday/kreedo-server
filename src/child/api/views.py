@@ -182,15 +182,12 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             }
 
             child_qs = Child.objects.filter(id=pk)[0]
-            # pdb.set_trace()
-            # print(parent_detail['parents'])
+
             child_qs_serializer = ChildUpdateSerializer(
                 child_qs, data=dict(child_detail), partial=True)
             if child_qs_serializer.is_valid():
                 child_qs_serializer.save()
                 parents_detail = parent_detail['parents']
-                # pdb.set_trace()
-                print("parents_detail", parents_detail)
                 parent_list = []
                 for parent in parents_detail:
 
