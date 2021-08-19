@@ -8,7 +8,7 @@ from kreedo.general_views import*
 from activity.models import*
 from users.models import*
 
-from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView,ListAPIView
+from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -59,16 +59,18 @@ class ActivityListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return ActivityCreateSerializer
 
-class ActivityListBySubject(GeneralClass,Mixins,ListAPIView):
+
+class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
     model = Activity
     filterset_class = ActivityFilter
     # pagination_class = LimitOffsetPagination
     serializer_class = ActivityListSerializer
 
-    def get(self,request,*args,**kwargs):
+    def get(self, request, *args, **kwargs):
         try:
-            subject = kwargs.get('subject',None)
-            child = kwargs.get('child',None)
+
+            subject = kwargs.get('subject', None)
+            child = kwargs.get('child', None)
             context = self.get_serializer_context()
             context['child'] = child
             activity_list = Activity.objects.filter(subject=subject)
@@ -85,8 +87,9 @@ class ActivityListBySubject(GeneralClass,Mixins,ListAPIView):
             return Response(ex)
 
 
-
 """ Activity Retrive Update and delete"""
+
+
 class ActivityRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Activity
     filterset_class = ActivityFilter
@@ -131,7 +134,7 @@ class ActivityAssetRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
             return ActivityAssetListSerializer
         if self.request.method == 'PUT':
             return ActivityAssetUpdateSerializer
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -163,77 +166,83 @@ class ActivityCompleteListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
-class ActivityCompleteListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
+class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityComplete
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ActivityCompleteListSerilaizer
-    
-    def post(self,request):
-        activity = request.data.get('activity',None)
+
+    def post(self, request):
+        activity = request.data.get('activity', None)
         if type(activity) == list:
             id_list = activity
             activity_complate_data = []
             for id in id_list:
                 request.data['activity'] = int(id)
                 record_aval = ActivityComplete.objects.filter(
-                                                                child=request.data.get('child'),
-                                                                activity=id
-                                                                )
+                    child=request.data.get('child'),
+                    activity=id
+                )
                 if record_aval:
-                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
+                    activity_complete_serializer = ActivityCompleteCreateSerilaizer(
+                        record_aval[0], data=request.data)
                 else:
-                    activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+                    activity_complete_serializer = ActivityCompleteCreateSerilaizer(
+                        data=request.data)
                 if activity_complete_serializer.is_valid():
                     activity_complete_serializer.save()
-                    activity_complate_data.append(activity_complete_serializer.data)
+                    activity_complate_data.append(
+                        activity_complete_serializer.data)
                     continue
                 return Response(activity_complete_serializer.errors)
             return Response(activity_complate_data)
         else:
             record_aval = ActivityComplete.objects.filter(
-                                                        child=request.data.get('child'),
-                                                        activity=request.data.get('activity')
-                                                        )
+                child=request.data.get('child'),
+                activity=request.data.get('activity')
+            )
             if record_aval:
-                activity_complete_serializer =ActivityCompleteCreateSerilaizer(record_aval[0],data=request.data)
-            else:                                                   
-                activity_complete_serializer =ActivityCompleteCreateSerilaizer(data=request.data)
+                activity_complete_serializer = ActivityCompleteCreateSerilaizer(
+                    record_aval[0], data=request.data)
+            else:
+                activity_complete_serializer = ActivityCompleteCreateSerilaizer(
+                    data=request.data)
             if activity_complete_serializer.is_valid():
                 activity_complete_serializer.save()
                 return Response(activity_complete_serializer.data)
             return Response(activity_complete_serializer.errors)
 
 
-
-
-
-
 """ Activity complete list create for group activtity completion"""
-class ActivityCompleteListCreateGroup(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityComplete
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ActivityCompleteListSerilaizer
-    
-    def post(self,request):
+
+    def post(self, request):
         try:
-            activity_complete_data = request.data.get('activity_complete',None)
+            activity_complete_data = request.data.get(
+                'activity_complete', None)
             activity_updated_data = []
-          
+
             for activity in activity_complete_data:
                 activity_q = ActivityComplete.objects.filter(
-                                                        child=activity.get('child'),
-                                                        activity=activity.get('activity')
-                   
-                                                       )
-                
+                    child=activity.get('child'),
+                    activity=activity.get('activity')
+
+                )
+
                 if activity_q:
-                    activity_complete = ActivityCompleteCreateSerilaizer(activity_q[0],data=activity)
+                    activity_complete = ActivityCompleteCreateSerilaizer(
+                        activity_q[0], data=activity)
                 else:
-                    activity_complete = ActivityCompleteCreateSerilaizer(data=activity)
+                    activity_complete = ActivityCompleteCreateSerilaizer(
+                        data=activity)
 
                 if activity_complete.is_valid():
                     activity_complete.save()
@@ -243,16 +252,13 @@ class ActivityCompleteListCreateGroup(GeneralClass,Mixins,ListCreateAPIView):
             return Response(activity_updated_data)
 
         except Exception as ex:
-            print("error",ex)
+            print("error", ex)
             return Response(ex)
 
 
-
-
-
-
-
 """ ActivityComplete Retrive update Delete """
+
+
 class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ActivityComplete
     filterset_class = ActivityCompleteFilter
@@ -288,22 +294,25 @@ class AddActivity(ListCreateAPIView):
             added_activity = []
 
             for i, f in enumerate(df, start=1):
-                f['master_material']= ast.literal_eval(f['master_material'])
-                f['supporting_material']= ast.literal_eval(f['supporting_material'])
-                f['subject']= ast.literal_eval(f['subject'])
+                f['master_material'] = ast.literal_eval(f['master_material'])
+                f['supporting_material'] = ast.literal_eval(
+                    f['supporting_material'])
+                f['subject'] = ast.literal_eval(f['subject'])
                 if not m.isnan(f['id']) and f['is_Deleted'] == False:
                     print("UPDATION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
-                    
+
                     activity_qs.name = f['name']
                     activity_qs.type = f['type']
                     activity_qs.objective = f['objective']
                     activity_qs.description = f['description']
                     activity_qs.master_material.set(f['master_material'])
                     activity_qs.subject.set(f['subject'])
-                    activity_qs.supporting_material.set(f['supporting_material'])
+                    activity_qs.supporting_material.set(
+                        f['supporting_material'])
                     activity_qs.is_active = f['is_active']
-                    activity_qs.created_by = UserDetail.objects.filter(user_obj=f['created_by'])[0]
+                    activity_qs.created_by = UserDetail.objects.filter(
+                        user_obj=f['created_by'])[0]
                     activity_qs.save()
                     activity_serializer = ActivityCreateSerializer(activity_qs)
                     added_activity.append(activity_serializer.data)
@@ -326,10 +335,9 @@ class AddActivity(ListCreateAPIView):
                         "subject": f.get('subject', None),
                         "is_active": f.get('is_active', None),
                         "created_by": f.get('created_by', None)
-                    }   
+                    }
                     print(activity_detail)
                     print(f)
-
 
                     activity_serializer = ActivityCreateSerializer(
                         data=dict(activity_detail))
@@ -355,7 +363,7 @@ class AddActivity(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Added sucessfully",
-            "error": "", "data": path_to_file}
+                       "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 
@@ -364,7 +372,7 @@ class AddActivity(ListCreateAPIView):
             logger.debug(ex)
             print(traceback.print_exc())
             context = {"isSuccess": False, "message": "Issue Activity",
-            "error": ex, "data": ""}
+                       "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -402,10 +410,9 @@ class AddActivityAsset(ListCreateAPIView):
                         "description": f.get('description', None),
                         "is_active": f.get('is_active', None),
                         "created_by": f.get('created_by', None)
-                    }   
+                    }
                     print(activity_detail)
                     print(f)
-
 
                     activity_serializer = ActivityAssetCreateSerializer(
                         data=dict(activity_detail))
@@ -430,7 +437,7 @@ class AddActivityAsset(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Asset Added sucessfully",
-            "error": "", "data": path_to_file}
+                       "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 
@@ -438,5 +445,5 @@ class AddActivityAsset(ListCreateAPIView):
             print(ex)
             logger.debug(ex)
             context = {"isSuccess": False, "message": "Issue Activity Asset",
-            "error": ex, "data": ""}
+                       "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

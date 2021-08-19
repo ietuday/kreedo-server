@@ -71,7 +71,7 @@ class ChildRegisterSerializer(serializers.ModelSerializer):
                                 "gender": parent['gender'],
                                 "photo": parent['photo'],
                                 "role": [role_id],
-                                "type":type_id
+                                "type": type_id
                             }
                             parent_detail_serializer = EdoofunParentDetailSerializer(
                                 data=dict(parent_data))
@@ -152,9 +152,9 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            
+
             child_id = self.context['child_detail']['child']
-          
+
             user_id = self.context['child_detail']['logged_user']
             user_obj_detail = UserDetail.objects.get(pk=user_id.id)
             if user_obj_detail:
@@ -163,7 +163,7 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
                 if Child.objects.filter(id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin']).exists():
                     child_qs = Child.objects.get(
                         id=child_id, parent=user_id, secret_pin=self.context['child_detail']['old_pin'])
-                
+
                     child_qs.secret_pin = self.context['child_detail']['new_pin']
                     child_qs.save()
                     data = "PIN has been reset."
@@ -174,7 +174,7 @@ class UpdateSecretPinForChildSerializer(serializers.ModelSerializer):
             else:
                 ValidationError("InValid Signature")
         except Exception as ex:
-          
+
             raise ValidationError(ex)
 
 
@@ -229,9 +229,34 @@ class ChildListbylicenseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 class ChildListForParentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Child
         fields = '__all__'
         # depth = 1
+
+
+class ChildRetriveSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Child
+        fields = '__all__'
+        # depth= 2
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildRetriveSerializer, self).to_representation(obj)
+
+        child_id = serialized_data.get('id')
+
+        child_id_qs = ChildPlan.objects.filter(child=child_id)
+        if child_id_qs:
+            print("child_id_qs----", child_id_qs)
+            child_id_serializer = ChildPlanByChildSerializer(
+                child_id_qs, many=True)
+            serialized_data['academic_session_data'] = child_id_serializer.data
+
+        else:
+            serialized_data['academic_session_data'] = ""
+
+        return serialized_data

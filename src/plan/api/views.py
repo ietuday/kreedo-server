@@ -79,9 +79,9 @@ class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
         if self.request.method == 'GET':
             return PlanListSerailizer
         if self.request.method == 'PUT':
-            return PlanCreateSerailizer
+            return PlanUpdateSerailizer
         if self.request.method == 'PATCH':
-            return PlanCreateSerailizer
+            return PlanUpdateSerailizer
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()

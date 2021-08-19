@@ -38,7 +38,6 @@ Activity_Asset_Choice = [
 ]
 
 
-
 """ Activity Model """
 
 
@@ -48,11 +47,12 @@ class Activity(TimestampAwareModel):
     objective = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     notes = models.CharField(max_length=200, blank=True, null=True)
-    subject = models.ManyToManyField(to='schools.Subject',related_name='activity_subject', blank=True)
+    subject = models.ManyToManyField(
+        to='schools.Subject', related_name='activity_subject', blank=True)
     # skill = models.ManyToManyField(to='area_of_devlopment.Skill', relatedblank=True)
     master_material = models.ManyToManyField(to='material.Material')
     supporting_material = models.ManyToManyField(
-        to='material.Material', related_name='activity_supporting_material',blank=True)
+        to='material.Material', related_name='activity_supporting_material', blank=True)
     created_by = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
@@ -72,8 +72,6 @@ class Activity(TimestampAwareModel):
 
 
 """ Activity Asset Model """
-
-
 class ActivityAsset(TimestampAwareModel):
     activity = models.ForeignKey(
         'Activity', on_delete=models.PROTECT, null=True, blank=True)
@@ -100,10 +98,10 @@ class ActivityAsset(TimestampAwareModel):
 
 
 class ActivityComplete(TimestampAwareModel):
-    child = models.ForeignKey(to='child.Child', on_delete = models.PROTECT)
-    period =  models.ForeignKey(to='period.Period', on_delete = models.PROTECT)
+    child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT)
+    period = models.ForeignKey(to='period.Period', on_delete=models.PROTECT)
     activity = models.ForeignKey(
-        to='activity.Activity', on_delete=models.PROTECT,related_name='activity_complete')
+        to='activity.Activity', on_delete=models.PROTECT, related_name='activity_complete')
     is_completed = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
@@ -117,6 +115,3 @@ class ActivityComplete(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ActivityComplete_detail', kwargs={"pk": self.pk})
-
-
-
