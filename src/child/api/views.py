@@ -1,3 +1,7 @@
+import pdb
+import math
+from plan.api.serializer import*
+from activity.models import*
 import traceback
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -18,8 +22,6 @@ from schools.models import*
 from users.api.serializer import*
 from rest_framework import status
 from datetime import date
-
-
 
 
 """ 
@@ -60,8 +62,6 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Child
     filterset_class = ChildFilter
 
-    
-    
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildListSerializer
@@ -82,7 +82,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
                 "registered_by": request.user,
-                "school": School.objects.filter(id = request.data.get('school', None))[0].id,
+                "school": School.objects.filter(id=request.data.get('school', None))[0].id,
                 "is_active":  request.data.get('is_active', False)
 
             }
@@ -94,13 +94,12 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             #     return Response(child_serilalizer.data)
             # else:
             #      return Response(child_serilalizer.errors)
-            
 
             # return Response(child_serilalizer.data)
             # print(request.data.get('school', None))
             # print("###########",School.objects.filter(id=request.data.get('school', None))[0])
-            # print(child_detail) 
-            
+            # print(child_detail)
+
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
@@ -111,18 +110,18 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "class_teacher": request.data.get('class_teacher', None),
                 "curriculum_start_date": request.data.get('curriculum_start_date', None),
                 "subjects": request.data.get('subjects', []),
-                "kreedo_previous_session": request.data.get('kreedo_previous_session',"No"),
-            } 
- 
+                "kreedo_previous_session": request.data.get('kreedo_previous_session', "No"),
+            }
+
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
                 {"child_detail": child_detail,
                  "parent_detail": parent_detail,
                  "academic_session_detail": academic_session_detail
-                #  "school_detail": school_detail
-                }
-                )
+                 #  "school_detail": school_detail
+                 }
+            )
             try:
 
                 child_detail_serializer = ChildParentCreateSerializer(
@@ -143,22 +142,19 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
             print("traceback----", traceback.print_exc())
             return Response(ex)
-import pdb
+
 
 """ Child Retrive , Update ,Destroy  """
+
+
 class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Child
     filterset_class = ChildFilter
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildSerializer
-        # if self. request.method == 'PATCH':
-        #     return ChildSerializer
-        # if self.request.method == 'PUT':
-        #     return ChildSerializer
-    
+
     def put(self, request, pk):
         try:
             child_detail = {
@@ -171,7 +167,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None)
             }
-            
+
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
@@ -184,31 +180,33 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 "subjects": request.data.get('subjects', None)
 
             }
-            
+
             child_qs = Child.objects.filter(id=pk)[0]
             # pdb.set_trace()
             # print(parent_detail['parents'])
-            child_qs_serializer = ChildUpdateSerializer(child_qs,data=dict(child_detail), partial=True)
+            child_qs_serializer = ChildUpdateSerializer(
+                child_qs, data=dict(child_detail), partial=True)
             if child_qs_serializer.is_valid():
                 child_qs_serializer.save()
                 parents_detail = parent_detail['parents']
                 # pdb.set_trace()
-                print("parents_detail",parents_detail)
+                print("parents_detail", parents_detail)
                 parent_list = []
                 for parent in parents_detail:
 
                     try:
-                    
+
                         if parent['id'] is None:
-                            parent_serializer = ParentSerializer(data=dict(parent))
+                            parent_serializer = ParentSerializer(
+                                data=dict(parent))
                             if parent_serializer.is_valid():
                                 parent_serializer.save()
                                 parent_data = {
                                     "user_obj": parent_serializer.data['id'],
                                     "relationship_with_child": parent['relationship_with_child'],
                                     "phone": parent['phone'],
-                                    "gender":parent['gender'],
-                                    "photo":parent['photo']
+                                    "gender": parent['gender'],
+                                    "photo": parent['photo']
 
                                 }
                                 parent_detail_serializer = ParentDetailSerializer(
@@ -230,18 +228,20 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                                 raise ValidationError(parent_serializer.errors)
                         else:
                             parent_qs = User.objects.filter(id=parent['id'])[0]
-                            parent_serializer = ParentSerializer(parent_qs, data=dict(parent), partial=True)
+                            parent_serializer = ParentSerializer(
+                                parent_qs, data=dict(parent), partial=True)
                             if parent_serializer.is_valid():
                                 parent_serializer.save()
                                 parent_data = {
                                     "user_obj": parent_serializer.data['id'],
                                     "relationship_with_child": parent['relationship_with_child'],
                                     "phone": parent['phone'],
-                                    "gender":parent['gender'],
-                                    "photo":parent['photo']
+                                    "gender": parent['gender'],
+                                    "photo": parent['photo']
 
                                 }
-                                parent_detail_qs = UserDetail.objects.filter(user_obj=parent_serializer.data['id'])[0]
+                                parent_detail_qs = UserDetail.objects.filter(
+                                    user_obj=parent_serializer.data['id'])[0]
                                 parent_detail_serializer = ParentDetailSerializer(
                                     parent_detail_qs, data=dict(parent_data), partial=True)
 
@@ -260,7 +260,6 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                             else:
                                 raise ValidationError(parent_serializer.errors)
 
-
                     except Exception as ex:
                         print(traceback.print_exc())
                         logger.debug(ex)
@@ -276,57 +275,57 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 grade = academic_session_detail['grade']
                 class_teacher = academic_session_detail['class_teacher']
 
-                acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,grade=grade, section=section, class_teacher=class_teacher).values('id')
-                print("acadmic_ids",acadmic_ids)
+                acadmic_ids = AcademicSession.objects.filter(
+                    academic_calender=acad_session, grade=grade, section=section, class_teacher=class_teacher).values('id')
+                print("acadmic_ids", acadmic_ids)
                 if len(acadmic_ids) is 0:
-                    acadmic_ids = [] 
+                    acadmic_ids = []
                     return Response("acadmic_ids not found", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
                     print("@@@@@@@@@@")
                     acadmic_ids = acadmic_ids[0]['id']
                 child_plan_detail = {
-                    "child":pk,
+                    "child": pk,
                     "academic_session": acadmic_ids,
                     "subjects": academic_session_detail['subjects'],
                     "curriculum_start_date": academic_session_detail['curriculum_start_date'],
                     "kreedo_previous_session": request.data.get('kreedo_previous_session', "No")
                 }
-                print("academic_session_detail",child_plan_detail)
-                child_plan_qs = ChildPlan.objects.filter(academic_session = request.data.get('academic_session_data', None),child=child_qs.id)
+                print("academic_session_detail", child_plan_detail)
+                child_plan_qs = ChildPlan.objects.filter(academic_session=request.data.get(
+                    'academic_session_data', None), child=child_qs.id)
                 """  update child plan """
-                print("child_plan_qs",child_plan_qs)
+                print("child_plan_qs", child_plan_qs)
                 try:
                     if child_plan_qs:
                         child_plan_serializer = ChildPlanUpdateSerailizer(
                             child_plan_qs[0], data=dict(child_plan_detail), partial=True)
                         if child_plan_serializer.is_valid():
                             child_plan_serializer.save()
-                            return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
+                            return Response(child_qs_serializer.data, status=status.HTTP_200_OK)
                         # self.context.update({"child_plan_serializer_data":child_plan_serializer.data})
 
                         else:
-                            print("@@@@@@@",child_plan_serializer.errors)
+                            print("@@@@@@@", child_plan_serializer.errors)
                             raise ValidationError(child_plan_serializer.errors)
-                    else: 
-                        return Response(child_qs_serializer.data,status=status.HTTP_200_OK)
+                    else:
+                        return Response(child_qs_serializer.data, status=status.HTTP_200_OK)
                 except Exception as ex:
-                    print("ex",ex)
+                    print("ex", ex)
                     logger.debug(ex)
                     logger.info(ex)
                     raise ValidationError(ex)
 
-                    
             else:
                 print(child_qs_serializer.errors)
                 raise ValidationError(child_qs_serializer.errors)
 
         except Exception as ex:
             print("EX", ex)
-            print("@@@@@@@@@",traceback.print_exc())
+            print("@@@@@@@@@", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
             return Response(ex)
-    
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -341,7 +340,6 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
     model = ChildDetail
     filterset_class = ChildDetailFilter
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildDetailListSerializer
@@ -350,8 +348,6 @@ class ChildDetailListCreate(GeneralClass, Mixins, CreateAPIView):
             return ChildDetailCreateSerializer
         if self.request.method == 'PATCH':
             return ChildDetailCreateSerializer
-        
-    
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -363,26 +359,25 @@ class ChildDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestro
     model = ChildDetail
     filterset_class = ChildDetailFilter
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return ChildDetailListSerializer
 
         if self.request.method == 'PUT':
             return ChildDetailCreateSerializer
-         
+
         if self.request.method == 'PATCH':
             return ChildDetailCreateSerializer
 
-    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
 
-
 """ Child Session Create Serializer """
+
+
 class ChildSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = ChildSession
     filterset_class = ChildSessionFilter
@@ -394,8 +389,11 @@ class ChildSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
         if self.request.method == 'POST':
             return ChildSessionCreateSerializer
 
+
 """  Child Session Retrive Delete update """
-class ChildSessionRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroyAPIView):
+
+
+class ChildSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ChildSession
     filterset_class = ChildSessionFilter
 
@@ -408,47 +406,49 @@ class ChildSessionRetriveUpdateDestroy(GeneralClass,Mixins,RetrieveUpdateDestroy
 
         if self.request.method == 'PATCH':
             return ChildSessionCreateSerializer
-        
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
 
 
-
-
-
 """ Child Session by  Child detail """
-class ChildSessionByChild(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class ChildSessionByChild(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
             child_detail_qs = ChildSession.objects.filter(child=pk)
-            child_detail_serializer = ChildSessionListSerializer(child_detail_qs, many=True)
-            return Response(child_detail_serializer.data,status = status.HTTP_200_OK)
-            
-        except Exception as ex:
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            child_detail_serializer = ChildSessionListSerializer(
+                child_detail_qs, many=True)
+            return Response(child_detail_serializer.data, status=status.HTTP_200_OK)
 
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Child According Child detail """
-class ChildDetailByChild(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class ChildDetailByChild(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
             child_detail_qs = ChildDetail.objects.filter(child=pk)[0]
-            child_detail_serializer = ChildDetailListSerializer(child_detail_qs)
-            return Response(child_detail_serializer.data,status = status.HTTP_200_OK)
-            
+            child_detail_serializer = ChildDetailListSerializer(
+                child_detail_qs)
+            return Response(child_detail_serializer.data, status=status.HTTP_200_OK)
+
         except Exception as ex:
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ Attendance List and Create """
 
 
 class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = Attendance
     filterset_class = AttendanceFilter
-
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -458,10 +458,10 @@ class AttendanceListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return AttendanceCreateSerializer
 
 
-import pdb
-
 """Attendance List Create"""
-class AttendanceListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
+
+
+class AttendanceListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
     model = Attendance
     filterset_class = AttendanceFilter
 
@@ -469,24 +469,26 @@ class AttendanceListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
         if self.request.method == 'GET':
             return AttendanceListSerializer
 
-    def post(self,request):
+    def post(self, request):
         try:
             record_aval = Attendance.objects.filter(
-                                        academic_session=request.data.get('academic_session',None),
-                                        attendance_date=request.data.get('attendance_date',None)
-             
-                               )
-             
+                academic_session=request.data.get('academic_session', None),
+                attendance_date=request.data.get('attendance_date', None)
+
+            )
+
             if record_aval:
-                attendance_serializer = AttendanceCreateSerializer(record_aval[0],data=request.data)
+                attendance_serializer = AttendanceCreateSerializer(
+                    record_aval[0], data=request.data)
             else:
-                attendance_serializer = AttendanceCreateSerializer(data=request.data)
+                attendance_serializer = AttendanceCreateSerializer(
+                    data=request.data)
             if attendance_serializer.is_valid():
                 attendance_serializer.save()
                 return Response(attendance_serializer.data)
             return Response(attendance_serializer.errors)
         except Exception as ex:
-            print("error@@",ex)
+            print("error@@", ex)
             return Response(ex)
 
 
@@ -496,7 +498,7 @@ class AttendanceListCreateMob(GeneralClass,Mixins,ListCreateAPIView):
 class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Attendance
     filterset_class = AttendanceFilter
-    
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return AttendanceListSerializer
@@ -509,7 +511,7 @@ class AttendanceRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroy
 
 
 """ child List of class, section and subject """
-from activity.models import*
+
 
 class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
@@ -518,72 +520,71 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
             section = request.data.get('section', None)
             subject = request.data.get('subject', None)
             school = request.data.get('school', None)
-            
+
             academic_session = AcademicSession.objects.filter(
                 grade=grade, section=section, school=school)
-       
-            print("academic_session",academic_session)
+
+            print("academic_session", academic_session)
 
             if len(academic_session) != 0:
-                print("academic_session------",academic_session)
-                attendace_qs =  Attendance.objects.filter(academic_session=academic_session[0].id,
-                attendance_date=request.data.get('attendance_date',None))
-                print("attendace_qs-------->",attendace_qs) 
-                if Attendance.objects.filter(attendance_date=request.data.get('attendance_date',None),academic_session=academic_session[0]).exists():
+                print("academic_session------", academic_session)
+                attendace_qs = Attendance.objects.filter(academic_session=academic_session[0].id,
+                                                         attendance_date=request.data.get('attendance_date', None))
+                print("attendace_qs-------->", attendace_qs)
+                if Attendance.objects.filter(attendance_date=request.data.get('attendance_date', None), academic_session=academic_session[0]).exists():
                     print("IF----------------------")
-                    attendace_qs =  Attendance.objects.filter(attendance_date=request.data.get('attendance_date',None),
-                        academic_session=academic_session[0])[0]
-                    
-                    attendace_qs_serializer = AttendanceChildSerializer(attendace_qs)
+                    attendace_qs = Attendance.objects.filter(attendance_date=request.data.get('attendance_date', None),
+                                                             academic_session=academic_session[0])[0]
+
+                    attendace_qs_serializer = AttendanceChildSerializer(
+                        attendace_qs)
                     print("AttendANCE CALLED")
                     return Response(attendace_qs_serializer.data)
-                        
+
                 else:
                     child_query = ChildPlan.objects.filter(
-                    academic_session=academic_session[0], subjects=subject,curriculum_start_date__lte=date.today())
-                    print("child_query",child_query)
-                    if len(child_query) !=0:
-                        childs =[]
+                        academic_session=academic_session[0], subjects=subject, curriculum_start_date__lte=date.today())
+                    print("child_query", child_query)
+                    if len(child_query) != 0:
+                        childs = []
                         for i in child_query:
                             child_activity_count = ActivityComplete.objects.filter(
-                            child__id=i.child.id, is_completed=False).count()
-                            child ={
-                                "child_id":i.child.id,
-                                "name":i.child.first_name,
-                                "present":False,
-                                "activity_behind":child_activity_count if child_activity_count else 0
+                                child__id=i.child.id, is_completed=False).count()
+                            child = {
+                                "child_id": i.child.id,
+                                "name": i.child.first_name,
+                                "present": False,
+                                "activity_behind": child_activity_count if child_activity_count else 0
                             }
                             childs.append(child)
                         print("childs-----", childs)
-                            
+
                         attendace_dict = {
-                            "academic_session":academic_session[0].id,
-                            "marked_status":False,
-                            "childs":childs,
-                            "attendance_date":request.data.get('attendance_date',None),
-                            "is_active":False
+                            "academic_session": academic_session[0].id,
+                            "marked_status": False,
+                            "childs": childs,
+                            "attendance_date": request.data.get('attendance_date', None),
+                            "is_active": False
                         }
                         return Response(attendace_dict)
                     else:
-                        return Response("Academic Session according child not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                        return Response("Academic Session according child not available", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             else:
-                return Response("academic_session not available",status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response("academic_session not available", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as ex:
-            print("#############",ex)
+            print("#############", ex)
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-from plan.api.serializer import*
 class AttendenceByAcademicSession(ListCreateAPIView):
     def post(self, request):
         try:
             grade = request.data.get('grade', None)
             section = request.data.get('section', None)
             attendance_date = request.data.get('attendance_date', None)
-            
 
             period_detail = {
                 "period": request.data.get('period', None),
@@ -592,21 +593,23 @@ class AttendenceByAcademicSession(ListCreateAPIView):
             context = super().get_serializer_context()
             context.update({"period_detail": period_detail})
 
-
             academic_id = AcademicSession.objects.filter(
                 grade=grade, section=section)
-        
-            if len(academic_id) is not 0:
-                
-                academic_qs_serializer = AcademicSessionForCalender(academic_id[0])
 
-                attendence_qs = Attendance.objects.filter(academic_session=academic_id[0],attendance_date= attendance_date)
-                if len(attendence_qs)is not 0:
-                    print("attendence_qs",attendence_qs)
-                    
-                    attendanceListSerializer = AttendanceListSerializer(attendence_qs[0],context=context, many=True)
+            if len(academic_id) is not 0:
+
+                academic_qs_serializer = AcademicSessionForCalender(
+                    academic_id[0])
+
+                attendence_qs = Attendance.objects.filter(
+                    academic_session=academic_id[0], attendance_date=attendance_date)
+                if len(attendence_qs) is not 0:
+                    print("attendence_qs", attendence_qs)
+
+                    attendanceListSerializer = AttendanceListSerializer(
+                        attendence_qs[0], context=context, many=True)
                     context = {"isSuccess": True, "message": "Child List",
-                    "error": "", "data": attendanceListSerializer.data}
+                               "error": "", "data": attendanceListSerializer.data}
                     return Response(context, status=status.HTTP_200_OK)
                     # return Response(attendanceListSerializer.data, status=status.HTTP_200_OK)
                 # else:
@@ -616,36 +619,39 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 #     return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 else:
                     print("@@@@@@@@@@@@@@@@@@@@@@@@@")
-                    child_qs = ChildPlan.objects.filter(academic_session=academic_id[0])
-                    child_qs_serializer = ChildPlansChildSerializer(child_qs, many=True)
-                    child_list =[]
+                    child_qs = ChildPlan.objects.filter(
+                        academic_session=academic_id[0])
+                    child_qs_serializer = ChildPlansChildSerializer(
+                        child_qs, many=True)
+                    child_list = []
                     child_data = {
-                        "marked_status":False,
-                        "childs":ChildJsonData(child_qs_serializer.data,period_detail),
-                        "attendance_date":"",
-                        "is_active":False
+                        "marked_status": False,
+                        "childs": ChildJsonData(child_qs_serializer.data, period_detail),
+                        "attendance_date": "",
+                        "is_active": False
 
                     }
                     child_list.append(child_data)
                     context = {"isSuccess": True, "message": "Child List",
-                    "error": "", "data": child_list}
+                               "error": "", "data": child_list}
                     return Response(context, status=status.HTTP_200_OK)
 
             else:
                 context = {"isSuccess": False, "message": "Issue in Child List",
-                    "error": "Grade Section is not valid", "data": ""}
+                           "error": "Grade Section is not valid", "data": ""}
                 return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            
         except Exception as ex:
             print("ERROR--", ex)
             print("traceback----", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Child Bulk Upload """
+
+
 class AddChild(ListCreateAPIView):
     def post(self, request):
         try:
@@ -653,7 +659,7 @@ class AddChild(ListCreateAPIView):
             print("File in memory", file_in_memory)
 
             df = pd.read_csv(file_in_memory).to_dict(orient='records')
-            print("df",df)
+            print("df", df)
             added_child = []
 
             for i, f in enumerate(df, start=1):
@@ -673,7 +679,8 @@ class AddChild(ListCreateAPIView):
                     child_plan_data = f.get('child_plan', None)
                     print(child_plan_data)
                     for i, da in enumerate(json.loads(child_plan_data), start=1):
-                        child_plan_qs = ChildPlan.objects.filter(child=child_qs['id'])[0]
+                        child_plan_qs = ChildPlan.objects.filter(
+                            child=child_qs['id'])[0]
                         child_plan_qs.academic_session = da['academic_session']
                         child_plan_qs.subjects = da['subjects']
                         child_plan_qs.class_teacher = da['class_teacher']
@@ -689,18 +696,22 @@ class AddChild(ListCreateAPIView):
                         auth_user.last_name = f.get('last_name', None)
                         auth_user.email = f.get('email', None)
                         auth_user.save()
-                        user_detail_qs = UserDetail.objects.filter(user_obj=i)[0]
+                        user_detail_qs = UserDetail.objects.filter(user_obj=i)[
+                            0]
                         user_detail_qs.phone = f.get('phone', None)
-                        user_detail_qs.joining_date = f.get('joining_date', None)
+                        user_detail_qs.joining_date = f.get(
+                            'joining_date', None)
                         user_detail_qs.save()
 
                 elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     child_qs = Child.objects.filter(id=f['id'])[0]
-                    child_plan_qs = ChildPlan.objects.filter(child = child_qs['id'])[0]
+                    child_plan_qs = ChildPlan.objects.filter(
+                        child=child_qs['id'])[0]
                     for i in child_qs['parents']:
                         user_qs = User.objects.filter(id=i)[0]
-                        user_detail_qs = UserDetail.objects.filter(user_obj=user_qs['id'])[0]
+                        user_detail_qs = UserDetail.objects.filter(
+                            user_obj=user_qs['id'])[0]
                         user_detail_qs.delete()
                         user_qs.delete()
                     child_serializer = ChildSerializer(child_qs)
@@ -708,25 +719,25 @@ class AddChild(ListCreateAPIView):
                     child_plan_qs.delete()
                     child_qs.delete()
 
-
                 else:
                     print("Create")
-                    print(" f.get('parents',None)", f.get('parents',None))
+                    print(" f.get('parents',None)", f.get('parents', None))
 
-                    parent_detail = f.get('parents',None)
+                    parent_detail = f.get('parents', None)
                     parent_list = []
                     for i, da in enumerate(json.loads(parent_detail), start=1):
-                        print("da---->",da)
+                        print("da---->", da)
 
                         """ Create Auth User"""
                         user_data = {
-                                "first_name":da['first_name'],
-                                "last_name":da['last_name'],
-                                "email":da['email'],
-                                "is_active":"TRUE"
+                            "first_name": da['first_name'],
+                            "last_name": da['last_name'],
+                            "email": da['email'],
+                            "is_active": "TRUE"
 
                         }
-                        user_data_serializer = ParentSerializer(data=dict(user_data))
+                        user_data_serializer = ParentSerializer(
+                            data=dict(user_data))
                         if user_data_serializer.is_valid():
 
                             user_data_serializer.save()
@@ -734,12 +745,12 @@ class AddChild(ListCreateAPIView):
                             raise ValidationError(user_data_serializer.errors)
 
                         user_details_data = {
-                                "user_obj":user_data_serializer.data['id'],
-                                "phone":da['phone'],
-                                "gender":da['gender'],
-                                "email":da['email'],
-                                "relationship_with_child":da['relationship_with_child']
-                        } 
+                            "user_obj": user_data_serializer.data['id'],
+                            "phone": da['phone'],
+                            "gender": da['gender'],
+                            "email": da['email'],
+                            "relationship_with_child": da['relationship_with_child']
+                        }
                         try:
                             user_details_data_serializer = ParentDetailSerializer(
                                 data=dict(user_details_data))
@@ -751,32 +762,31 @@ class AddChild(ListCreateAPIView):
                                 parent_id = user_details_data_serializer.data['user_obj']
                                 parent_list.append(parent_id)
                             else:
-                                raise ValidationError(user_details_data_serializer.errors)
+                                raise ValidationError(
+                                    user_details_data_serializer.errors)
                         except Exception as ex:
                             print("error", ex)
                             print("traceback", traceback.print_exc())
                             logger.debug(ex)
                             return Response(ex)
-                
-
 
                     """ Child Creation """
                     child_data = {
-                        "first_name":f.get('first_name', None),
-                        "last_name":f.get('last_name', None),
-                        "date_of_birth":f.get('date_of_birth', None),
-                        "gender":f.get('gender', None),
-                        "date_of_joining":f.get('date_of_joining', None),
-                        "place_of_birth":f.get('place_of_birth', None),
-                        "blood_group":f.get('blood_group', None),
-                        "photo":f.get('photo', None),
-                        "parent":parent_list
+                        "first_name": f.get('first_name', None),
+                        "last_name": f.get('last_name', None),
+                        "date_of_birth": f.get('date_of_birth', None),
+                        "gender": f.get('gender', None),
+                        "date_of_joining": f.get('date_of_joining', None),
+                        "place_of_birth": f.get('place_of_birth', None),
+                        "blood_group": f.get('blood_group', None),
+                        "photo": f.get('photo', None),
+                        "parent": parent_list
 
                     }
                     print("Child----", child_data)
                     try:
                         child_serializer = ChildSerializer(
-                        data=dict(child_data))
+                            data=dict(child_data))
                         if child_serializer.is_valid():
                             child_serializer.save()
                             print("child Create")
@@ -790,38 +800,38 @@ class AddChild(ListCreateAPIView):
                         print("traceback", traceback.print_exc())
                         logger.debug(ex)
                         return Response(ex)
-                
-                    
-                    
+
                     """ Child Plan Creation """
                     child_plan_data = f.get('child_plan', None)
                     print(child_plan_data)
                     for i, da in enumerate(json.loads(child_plan_data), start=1):
-                        print("da",da['academic_calender'])
+                        print("da", da['academic_calender'])
                         acadmic_ids = AcademicSession.objects.filter(academic_calender=da['academic_calender'],
-                                                         grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')
+                                                                     grade=da['grade'], section=da['section'], class_teacher=da['class_teacher']).values('id')
 
-                        if len(acadmic_ids) != 0: 
+                        if len(acadmic_ids) != 0:
 
                             acadmic_ids = acadmic_ids[0]['id']
                             print("####", acadmic_ids)
                             child_plan_data = {
-                                "child":child_serializer.data['id'],
-                                "academic_session":acadmic_ids,
+                                "child": child_serializer.data['id'],
+                                "academic_session": acadmic_ids,
                                 "subjects": da['subjects'],
                                 "class_teacher": da['class_teacher'],
                                 "curriculum_start_date": da['curriculum_start_date'],
-                                "is_active":"TRUE"
+                                "is_active": "TRUE"
                             }
                             try:
-                                childplan_serializer = ChildPlanCreateSerailizer(data=dict(child_plan_data))
+                                childplan_serializer = ChildPlanCreateSerailizer(
+                                    data=dict(child_plan_data))
                                 if childplan_serializer.is_valid():
                                     childplan_serializer.save()
                                     # added_child.append(childplan_serializer.data)
                                     print("child_plan Create")
-                                    
+
                                 else:
-                                    raise ValidationError(childplan_serializer.errors)
+                                    raise ValidationError(
+                                        childplan_serializer.errors)
                             except Exception as ex:
                                 print("error", ex)
                                 print("traceback", traceback.print_exc())
@@ -837,12 +847,14 @@ class AddChild(ListCreateAPIView):
                 dict_writer.writerows(added_child)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
             context = {"isSuccess": True, "message": "Child Added sucessfully",
-            "error": "", "data": path_to_file}
+                       "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
@@ -850,14 +862,11 @@ class AddChild(ListCreateAPIView):
             print("traceback", traceback.print_exc())
             logger.debug(ex)
             context = {"isSuccess": False, "message": "Issue in child",
-            "error": ex, "data": ""}
+                       "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Bulk Upload Child Detail """
-
-
-import math
 
 
 class AddChildDetail(ListCreateAPIView):
@@ -870,7 +879,7 @@ class AddChildDetail(ListCreateAPIView):
 
             for i, f in enumerate(df, start=1):
                 # f['subject'] = json.loads(f['subject'])
-                
+
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
@@ -888,7 +897,7 @@ class AddChildDetail(ListCreateAPIView):
                     child_detail_qs = ChildDetail.objects.filter(id=f['id'])[0]
                     added_child.append(child_detail_qs)
                     child_detail_qs.delete()
-                else:  
+                else:
                     print("Create")
                     # f['subject'] = json.loads(f['subject'])
                     child_detail_serializer = ChildDetailCreateSerializer(
@@ -900,7 +909,7 @@ class AddChildDetail(ListCreateAPIView):
                         print(child_detail_serializer.data)
                     else:
                         print("child_detail_serializer._errors",
-                            child_detail_serializer._errors)
+                              child_detail_serializer._errors)
                         raise ValidationError(child_detail_serializer.errors)
 
             keys = added_child[0].keys()
@@ -910,12 +919,14 @@ class AddChildDetail(ListCreateAPIView):
                 dict_writer.writerows(added_child)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
             context = {"isSuccess": True, "message": "Child Detail Added sucessfully",
-            "error": "", "data": path_to_file}
+                       "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
@@ -924,11 +935,12 @@ class AddChildDetail(ListCreateAPIView):
             logger.debug(ex)
             # return Response(ex)
             context = {"isSuccess": False, "message": "Issue Child Detail",
-            "error": ex, "data": ""}
+                       "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Bulk  upload child Session """
+
 
 class AddChildSession(ListCreateAPIView):
 
@@ -940,10 +952,11 @@ class AddChildSession(ListCreateAPIView):
 
             for i, f in enumerate(df, start=1):
                 # f['subject'] = json.loads(f['subject'])
-                
+
                 if not math.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
-                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[0]
+                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[
+                        0]
                     child_detail_qs.child = f['child']
                     child_detail_qs.session_name = f['session_name']
                     child_detail_qs.session_type = f['session_type']
@@ -955,10 +968,11 @@ class AddChildSession(ListCreateAPIView):
                     added_child.append(child_detail_qs)
                 elif not math.isnan(f['id']) and f['isDeleted'] == True:
                     print("DELETION")
-                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[0]
+                    child_detail_qs = ChildSession.objects.filter(id=f['id'])[
+                        0]
                     added_child.append(child_detail_qs)
                     child_detail_qs.delete()
-                else:  
+                else:
                     print("Create")
                     # f['subject'] = json.loads(f['subject'])
                     child_session_serializer = ChildSessionCreateSerializer(
@@ -970,7 +984,7 @@ class AddChildSession(ListCreateAPIView):
                         print(child_session_serializer.data)
                     else:
                         print("child_session_serializer._errors",
-                            child_session_serializer._errors)
+                              child_session_serializer._errors)
                         raise ValidationError(child_session_serializer.errors)
 
             keys = added_child[0].keys()
@@ -980,12 +994,14 @@ class AddChildSession(ListCreateAPIView):
                 dict_writer.writerows(added_child)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             # return Response(path_to_file)
             context = {"isSuccess": True, "message": "Child Session Added sucessfully",
-            "error": "", "data": path_to_file}
+                       "error": "", "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
@@ -994,12 +1010,5 @@ class AddChildSession(ListCreateAPIView):
             logger.debug(ex)
             # return Response(ex)
             context = {"isSuccess": False, "message": "Issue Child Session",
-            "error": ex, "data": ""}
+                       "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
