@@ -33,10 +33,11 @@ class ReportingToFilter(filters.FilterSet):
         fields = '__all__'
 
 
-
 class UserRoleFilter(filters.FilterSet):
     user = filters.CharFilter(
         field_name='user__user_obj__first_name', lookup_expr='icontains')
+    # role = filters.NumberFilter(lookup_expr='iexact')
+
     class Meta:
         model = UserRole
         fields = '__all__'
