@@ -74,14 +74,16 @@ class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
             context = self.get_serializer_context()
             context['child'] = child
             activity_list = Activity.objects.filter(subject=subject)
-            print('list',activity_list)
+            print('list', activity_list)
             page = self.paginate_queryset(activity_list)
             if page is not None:
-                serializer = self.get_serializer(page, many=True,context=context)
+                serializer = self.get_serializer(
+                    page, many=True, context=context)
                 return self.get_paginated_response(serializer.data)
-            activity_serializer = ActivityListSerializer(activity_list,many=True,context=context)
+            activity_serializer = ActivityListSerializer(
+                activity_list, many=True, context=context)
             return Response(activity_serializer.data)
-                    
+
         except Exception as ex:
             print(ex)
             return Response(ex)
