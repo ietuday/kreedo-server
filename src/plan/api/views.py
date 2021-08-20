@@ -232,6 +232,7 @@ class AddPlan(ListCreateAPIView):
                     plan_qs.name = f['name']
                     plan_qs.type = f['type']
                     plan_qs.activity = f['activity']
+                    plan_qs.previous_kreedo = f['previous_kreedo']
                     plan_qs.is_active = f['is_active']
                     plan_qs.save()
                     plan_serializer = PlanSerailizer(plan_qs) 

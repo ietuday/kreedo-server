@@ -8,6 +8,7 @@ import math
 import pdb
 import csv
 import ast
+from re import U
 from pandas import DataFrame
 import json
 from .serializer import*
@@ -888,7 +889,10 @@ class UserRoleRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAP
 
 class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
     model = UserRole
+    serializer_class = SchoolUserRoleSerializers
     filterset_class = UserRoleFilter
+
+    filter_backends = (filters.DjangoFilterBackend,)
 
     def get(self, request, pk):
         try:
@@ -896,12 +900,18 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
             user_role = UserRole.objects.filter(school=pk)
             print(user_role)
             if user_role:
+
+                page = self.paginate_queryset(user_role)
+                if page is not None:
+                    serializer = self.get_serializer(
+                        page, many=True)
+                    return self.get_paginated_response(serializer.data)
                 user_role_serializer = SchoolUserRoleSerializers(
                     user_role, many=True)
                 return Response(user_role_serializer.data, status=status.HTTP_200_OK)
             else:
 
-                return Response(user_role_serializer.errors, status=status.HTTP_404_NOT_FOUND)
+                return Response("User List Not Found", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1603,3 +1613,63 @@ class AddUserData(ListCreateAPIView):
 
 #         except Exception as ex:
 #             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Get role by loggin id """
+
+
+@permission_classes((IsAuthenticated,))
+class getRolesByLoggedinUserId(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request):
+        try:
+            logged_user = request.user
+            user_obj = UserDetail.objects.filter(user_obj=logged_user.id)[0]
+            for role in user_obj.role.all():
+
+                role_name = Role.objects.filter(name=role)[0]
+                if role_name.name == "School Account Owner":
+                    role_obj = Role.objects.filter(name="School Admin")
+                    role_obj_serilaizer = RoleListSerializer(
+                        role_obj, many=True)
+                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+                elif role_name.name == "School Admin":
+                    role_obj = Role.objects.filter(
+                        name__in=["School Admin", "School Associate", "Teacher"])
+                    role_obj_serilaizer = RoleListSerializer(
+                        role_obj, many=True)
+                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+                elif role_name.name == "School Associate":
+                    role_obj = Role.objects.filter(
+                        name__in=["School Admin", "School Associate", "Teacher"])
+                    role_obj_serilaizer = RoleListSerializer(
+                        role_obj, many=True)
+                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response("Role Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("ERROR-----", ex)
+            print("TRACEBACK---------", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+"""get reportings to based on selected role """
+
+
+class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            print("request")
+            user_role_qs = UserRole.objects.filter(role=request.data.get(
+                'role', None), school=request.data.get('school', None))
+            if user_role_qs:
+                user_role_qs_serializer = ReportingToRoleSerializer(
+                    user_role_qs, many=True)
+                return Response(user_role_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Reporting to Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("ERROR-----", ex)
+            print("TRACEBACK---------", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
