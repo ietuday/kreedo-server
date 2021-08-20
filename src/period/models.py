@@ -68,7 +68,6 @@ class PeriodTemplate(TimestampAwareModel):
 
 """ Period Model """
 
-
 class Period(TimestampAwareModel):
     period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=100, blank=True)
