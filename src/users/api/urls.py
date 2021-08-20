@@ -29,7 +29,7 @@ urlpatterns = [
     re_path('reset_password/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)',
             ResetPassword.as_view(), name='ResetPassword'),
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
-    path('add-user', AddUser.as_view(), name='AddUser'),
+    path('add_user', AddUser.as_view(), name='AddUser'),
     path('update_user/<int:pk>', UpdateUser.as_view(), name='UpdateUser'),
     path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
