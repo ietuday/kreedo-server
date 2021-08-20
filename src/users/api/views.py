@@ -892,22 +892,26 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
     serializer_class = SchoolUserRoleSerializers
     filterset_class = UserRoleFilter
 
-    filter_backends = (filters.DjangoFilterBackend,)
+    # filter_backends = (filters.DjangoFilterBackend,)
 
     def get(self, request, pk):
         try:
 
-            user_role = UserRole.objects.filter(school=pk)
-            print(user_role)
-            if user_role:
+            user_role_list = UserRole.objects.filter(school=pk)
+            print(user_role_list)
+            filtered_data = UserRoleFilter(request.GET, queryset=user_role_list)
+            filtered_quersyet = filtered_data.qs
+            user_role_list = filtered_quersyet.all()
+            # pdb.set_trace()
+            if user_role_list:
 
-                page = self.paginate_queryset(user_role)
+                page = self.paginate_queryset(user_role_list)
                 if page is not None:
                     serializer = self.get_serializer(
                         page, many=True)
                     return self.get_paginated_response(serializer.data)
                 user_role_serializer = SchoolUserRoleSerializers(
-                    user_role, many=True)
+                    user_role_list, many=True)
                 return Response(user_role_serializer.data, status=status.HTTP_200_OK)
             else:
 
