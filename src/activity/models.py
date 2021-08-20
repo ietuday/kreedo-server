@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.deletion import PROTECT
 from django.urls import reverse
 from kreedo.core import TimestampAwareModel
 from users.models import*
@@ -39,8 +40,6 @@ Activity_Asset_Choice = [
 
 
 """ Activity Model """
-
-
 class Activity(TimestampAwareModel):
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=Activity_Type_Choice)
@@ -95,8 +94,6 @@ class ActivityAsset(TimestampAwareModel):
 
 
 """ Activity Complete """
-
-
 class ActivityComplete(TimestampAwareModel):
     child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT)
     period = models.ForeignKey(to='period.Period', on_delete=models.PROTECT)
@@ -104,6 +101,7 @@ class ActivityComplete(TimestampAwareModel):
         to='activity.Activity', on_delete=models.PROTECT, related_name='activity_complete')
     is_completed = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    activity_reschedule_period = models.ForeignKey(to='period.Period',on_delete=PROTECT,null=True,blank=True,related_name='reschedule_period')
 
     class Meta:
         verbose_name = 'ActivityComplete'

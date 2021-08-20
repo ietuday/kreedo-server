@@ -1,4 +1,5 @@
 from pdb import set_trace
+from period.models import Period
 from rest_framework.pagination import LimitOffsetPagination
 
 from django.shortcuts import render
@@ -176,48 +177,67 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
             return ActivityCompleteListSerilaizer
 
     def post(self, request):
-        activity = request.data.get('activity', None)
-        if type(activity) == list:
-            id_list = activity
-            activity_complate_data = []
-            for id in id_list:
-                request.data['activity'] = int(id)
-                record_aval = ActivityComplete.objects.filter(
-                    child=request.data.get('child'),
-                    activity=id
-                )
-                if record_aval:
-                    activity_complete_serializer = ActivityCompleteCreateSerilaizer(
-                        record_aval[0], data=request.data)
-                else:
-                    activity_complete_serializer = ActivityCompleteCreateSerilaizer(
-                        data=request.data)
-                if activity_complete_serializer.is_valid():
-                    activity_complete_serializer.save()
-                    activity_complate_data.append(
-                        activity_complete_serializer.data)
-                    continue
-                return Response(activity_complete_serializer.errors)
-            return Response(activity_complate_data)
-        else:
+        activity_complete_list = request.data.get('activity_complete', None)
+        activity_complete_data = []
+        for activity in activity_complete_list:
             record_aval = ActivityComplete.objects.filter(
-                child=request.data.get('child'),
-                activity=request.data.get('activity')
-            )
+                child=activity.get('child'),
+                activity=activity.get('activity')
+            ) 
+            
+
+            if activity['is_completed'] == False:
+                period = Period.objects.get(pk=activity['period'])
+                next_period = Period.objects.filter(
+                                period_template_detail=period.period_template_detail,
+                                subject=period.subject,
+                                id__gt=period.id).order_by('id').first()
+                if next_period:
+                    activity['activity_reschedule_period'] = next_period.id
+                else:
+                    activity['activity_reschedule_period'] = None
+            else:
+                activity['activity_reschedule_period'] = None
+
             if record_aval:
                 activity_complete_serializer = ActivityCompleteCreateSerilaizer(
-                    record_aval[0], data=request.data)
+                    record_aval[0], data=activity)
             else:
                 activity_complete_serializer = ActivityCompleteCreateSerilaizer(
-                    data=request.data)
+                    data=activity)
             if activity_complete_serializer.is_valid():
                 activity_complete_serializer.save()
-                return Response(activity_complete_serializer.data)
+                activity_complete_data.append(
+                    activity_complete_serializer.data)
+                
+
+                if activity['is_completed'] == True and (activity['behind_activity'] == True or activity['behind_activity'] == False) :
+                    chk_activity_complete = ActivityComplete.objects.filter(
+                                                            activity=activity['activity'],
+                                                            period=activity['period']
+                                                        ).exclude(
+                                                            is_completed=True
+                                                        )
+
+                    # pdb.set_trace()                                 
+                    if len(chk_activity_complete) == 0:
+                        period_b = Period.objects.get(pk=activity['period'])
+                        activity_b = Activity.objects.get(pk=activity['activity'])
+                        # pdb.set_trace()
+                        period_b.activity_done.add(activity_b)
+                        period_b.save()
+                        # pdb.set_trace()
+                continue
             return Response(activity_complete_serializer.errors)
+            
+
+        return Response(activity_complete_data)
+
+
+
 
 
 """ Activity complete list create for group activtity completion"""
-
 
 class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityComplete
@@ -236,8 +256,7 @@ class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
                 activity_q = ActivityComplete.objects.filter(
                     child=activity.get('child'),
                     activity=activity.get('activity')
-
-                )
+                      )
 
                 if activity_q:
                     activity_complete = ActivityCompleteCreateSerilaizer(
@@ -259,7 +278,6 @@ class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
 
 
 """ ActivityComplete Retrive update Delete """
-
 
 class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ActivityComplete

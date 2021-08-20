@@ -664,11 +664,12 @@ class ClassTeacherByCalender(CreateAPIView):
         teacher_with_cal = AcademicSession.objects.filter(
                             section = request.data.get('section'),
                             grade = request.data.get('grade'),
-                            academic_calender = request.data.get("academic _calendar"),
-                            class_teacher=request.data.get('class_teacher')
+                            academic_calender = request.data.get("academic_calendar")
         ) 
 
-        if teacher_with_cal:
+        if teacher_with_cal and teacher_with_cal[0].class_teacher:
+            print(teacher_with_cal)
+            print(teacher_with_cal[0].class_teacher)
             context = {
                 "isSuccess":False,
                 "status":200,
