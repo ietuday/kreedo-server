@@ -361,13 +361,13 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins,ListCreateAPIView):
         try:
 
             resultant_dict = {}
-            grade_qs = SchoolGradeSubject.objects.filter(
-                school=request.data.get('school', None)).values('grade')
+            grade_qs = Grade.objects.filter(
+                school=request.data.get('school', None))
 
-            grade_list = list(
-                set(val for dic in grade_qs for val in dic.values()))
+            # grade_list = list(
+            #     set(val for dic in grade_qs for val in dic.values()))
 
-            grade_qs = Grade.objects.filter(id__in=grade_list)
+            grade_qs = Grade.objects.filter(id__in=grade_qs)
             context = super().get_serializer_context()
             context.update({"academic_calender": request.data.get('academic_calender', None), "school": request.data.get('school', None)})
             grade_qs_serializer = GradeListSerializer(grade_qs, many=True, context=context)
