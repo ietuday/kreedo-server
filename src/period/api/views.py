@@ -308,19 +308,34 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             child = request.data.get('child', None)
-            period = request.data.get('period', None)
+            period_pk = request.data.get('period', None)
+            response_data = {}
+            period = Period.objects.get(pk=period_pk)
+            subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
+            period_based_activities = []
+            count = 0
+            for activity in subject_associate_activities:
+                if count < 2:
+                    record_aval = ActivityComplete.objects.filter(
+                                                                activity=activity,
+                                                                child=child
+                                                            )
+                    if len(record_aval) == 0 and count <= 2:
+                        period_based_activities.append(activity)
+                        count += 1
+                else:
+                    break
 
+            activity_serializer = ActivityListSerializer(period_based_activities,many=True)
+            response_data['activity'] = activity_serializer.data
             activity_missed_qs = ActivityComplete.objects.filter(child=child,
-                                                                 period=period)
-
-            if len(activity_missed_qs) !=0:                                                    
-                activity_missed_serializer = ActivityCompleteListChildSerilaizer(
-                    activity_missed_qs, many=True)
-                return Response(activity_missed_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response("Activity Complete list by child is not found",status=status.HTTP_404_NOT_FOUND )
-        except Exception as ex:
-         
+                                                                is_completed=False,
+                                                                activity_reschedule_period=period)
+            activity_complete_serializer = ActivityCompleteCreateSerilaizer(activity_missed_qs,many=True)
+            response_data['activity_behind'] = activity_complete_serializer.data
+            return Response(response_data)
+        except Exception as ex: 
+            print("error@@",ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

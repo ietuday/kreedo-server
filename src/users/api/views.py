@@ -889,7 +889,10 @@ class UserRoleRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAP
 
 class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
     model = UserRole
+    serializer_class = SchoolUserRoleSerializers
     filterset_class = UserRoleFilter
+
+    filter_backends = (filters.DjangoFilterBackend,)
 
     def get(self, request, pk):
         try:
@@ -897,12 +900,18 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
             user_role = UserRole.objects.filter(school=pk)
             print(user_role)
             if user_role:
+
+                page = self.paginate_queryset(user_role)
+                if page is not None:
+                    serializer = self.get_serializer(
+                        page, many=True)
+                    return self.get_paginated_response(serializer.data)
                 user_role_serializer = SchoolUserRoleSerializers(
                     user_role, many=True)
                 return Response(user_role_serializer.data, status=status.HTTP_200_OK)
             else:
 
-                return Response(user_role_serializer.errors, status=status.HTTP_404_NOT_FOUND)
+                return Response("User List Not Found", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

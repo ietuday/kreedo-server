@@ -100,7 +100,7 @@ def get_paginated_response(self, data):
 
 def get_response(data, response_obj, message):
     try:
-        print(data)
+        # print(data)
         # pdb.set_trace()
         if type(data) is ReturnList:
             if len(data) is 0:

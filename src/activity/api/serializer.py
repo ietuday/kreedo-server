@@ -3,8 +3,8 @@ from activity.models import*
 import pdb
 from material.api.serializer import *
 
-""" Activity List Serializer """
 
+""" Activity List Serializer """
 class ActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
@@ -35,6 +35,35 @@ class ActivityListSerializer(serializers.ModelSerializer):
             return serialized_data  
           
 
+""" Activity List by child Serializer """
+class ActivityListyChildBSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+        depth = 1
+
+    def to_representation(self, instance):
+        print(instance)
+        serialized_data = super(
+            ActivityListyChildBSerializer, self).to_representation(instance)
+        context = self.context
+        if 'child' in context:  
+            activity = Activity.objects.get(pk=serialized_data['id'])
+            activity_complete = activity.activity_complete.filter(child=context['child'])
+
+            if len(activity_complete) > 0:
+                serialized_data['is_present'] = True
+                if activity_complete[0].is_completed == True:
+                    serialized_data['is_completed'] = True
+                else:
+                    serialized_data['is_completed'] = False
+               
+            else:
+                serialized_data['is_present'] = False
+                serialized_data['is_completed'] = False
+            return serialized_data
+        else:
+            return serialized_data
 
 
 """ Activity Create Serializer """
