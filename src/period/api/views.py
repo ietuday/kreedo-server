@@ -311,8 +311,22 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             period_pk = request.data.get('period', None)
             response_data = {}
             period = Period.objects.get(pk=period_pk)
-            subject_associate_activities = period.subject.activity.all()
-            activity_serializer = ActivityListSerializer(subject_associate_activities,many=True)
+            subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
+            period_based_activities = []
+            count = 0
+            for activity in subject_associate_activities:
+                if count < 2:
+                    record_aval = ActivityComplete.objects.filter(
+                                                                activity=activity,
+                                                                child=child
+                                                            )
+                    if len(record_aval) == 0 and count <= 2:
+                        period_based_activities.append(activity)
+                        count += 1
+                else:
+                    break
+
+            activity_serializer = ActivityListSerializer(period_based_activities,many=True)
             response_data['activity'] = activity_serializer.data
             activity_missed_qs = ActivityComplete.objects.filter(child=child,
                                                                 is_completed=False,
@@ -320,7 +334,7 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             activity_complete_serializer = ActivityCompleteCreateSerilaizer(activity_missed_qs,many=True)
             response_data['activity_behind'] = activity_complete_serializer.data
             return Response(response_data)
-        except Exception as ex:
+        except Exception as ex: 
             print("error@@",ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

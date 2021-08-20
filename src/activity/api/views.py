@@ -178,7 +178,6 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
             ) 
             
 
-
             if activity['is_completed'] == False:
                 period = Period.objects.get(pk=activity['period'])
                 next_period = Period.objects.filter(
@@ -189,6 +188,8 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
                     activity['activity_reschedule_period'] = next_period.id
                 else:
                     activity['activity_reschedule_period'] = None
+            else:
+                activity['activity_reschedule_period'] = None
 
             if record_aval:
                 activity_complete_serializer = ActivityCompleteCreateSerilaizer(
@@ -202,19 +203,22 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
                     activity_complete_serializer.data)
                 
 
-                if activity['is_completed'] == True and activity['behind_activity'] == True:
+                if activity['is_completed'] == True and (activity['behind_activity'] == True or activity['behind_activity'] == False) :
                     chk_activity_complete = ActivityComplete.objects.filter(
                                                             activity=activity['activity'],
                                                             period=activity['period']
                                                         ).exclude(
                                                             is_completed=True
                                                         )
-                                                        
+
+                    # pdb.set_trace()                                 
                     if len(chk_activity_complete) == 0:
                         period_b = Period.objects.get(pk=activity['period'])
                         activity_b = Activity.objects.get(pk=activity['activity'])
-                        period.activity_done.add(activity_b)
-                        period.save()
+                        # pdb.set_trace()
+                        period_b.activity_done.add(activity_b)
+                        period_b.save()
+                        # pdb.set_trace()
                 continue
             return Response(activity_complete_serializer.errors)
             
