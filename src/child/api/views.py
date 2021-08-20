@@ -594,7 +594,6 @@ class AttendenceByAcademicSession(ListCreateAPIView):
                 grade=grade, section=section)
 
             if len(academic_id) is not 0:
-
                 academic_qs_serializer = AcademicSessionForCalender(
                     academic_id[0])
 
