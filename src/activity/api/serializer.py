@@ -194,4 +194,11 @@ class ActivityCompleteCreateSerilaizer(serializers.ModelSerializer):
     def get_activity_asset(self, instance):
         activity_asset_qs =  ActivityAsset.objects.filter(activity__id=instance.id)
         return ActivityAssetSerializer(activity_asset_qs, many=True).data
-        
+
+
+""" Activity List Serializer by subject web """
+class ActivityListWebSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity
+        fields = '__all__'
+        # depth = 1
