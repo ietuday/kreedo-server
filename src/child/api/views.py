@@ -546,7 +546,9 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
                         childs = []
                         for i in child_query:
                             child_activity_count = ActivityComplete.objects.filter(
-                                child__id=i.child.id, is_completed=False).count()
+                                child__id=i.child.id, is_completed=False,
+                            activity_reschedule_period = request.data.get('period',None)
+                                ).count()
                             child = {
                                 "child_id": i.child.id,
                                 "name": i.child.first_name,
