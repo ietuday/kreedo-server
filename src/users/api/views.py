@@ -760,6 +760,33 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
+    def patch(self, request, pk):
+        try:
+
+            user_data = {
+
+                "is_active": request.data.get('is_active', None),
+            }
+
+            user_qs = User.objects.get(id=pk)
+
+            user_qs_serializer = UpdateUserSerializer(
+                user_qs, data=dict(user_data), partial=True)
+            if user_qs_serializer.is_valid():
+                user_qs_serializer.save()
+                print("SAVE")
+                return Response("User Updated successfully")
+            else:
+                print("user_qs_serializer.errors", user_qs_serializer.errors)
+                return Response(user_qs_serializer.errors)
+
+        except Exception as ex:
+            print("ERROR------", ex)
+            print("traceback", traceback.print_exc())
+            context = {"error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
+
 
 """ Add role from user detail """
 
