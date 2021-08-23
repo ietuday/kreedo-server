@@ -690,19 +690,17 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
 
             else:
                 raise ValidationError(address_qs.errors)
-
             user_data = {
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
-                "email": request.data.get('email', None),
-                "is_active": request.data.get('is_active', None),
+                "email": request.data.get('email', None)
             }
 
             user_details_data = {
                 "phone": request.data.get('phone', None),
                 "joining_date": request.data.get('joining_date', None),
                 "role": request.data.get('role', None),
-                "address": request.data.get('address_id', None),
+                "address": request.data.get('address_id', None)
 
             }
             user_qs = User.objects.get(id=pk)
