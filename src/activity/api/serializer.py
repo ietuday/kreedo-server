@@ -16,10 +16,11 @@ class ActivityListSerializer(serializers.ModelSerializer):
         serialized_data = super(
             ActivityListSerializer, self).to_representation(instance)
         context = self.context
+        # pdb.set_trace()
         if 'child' in context:  
             activity = Activity.objects.get(pk=serialized_data['id'])
             activity_complete = activity.activity_complete.filter(child=context['child'])
-
+            # pdb.set_trace()
             if len(activity_complete) > 0:
                 serialized_data['is_present'] = True
                 if activity_complete[0].is_completed == True:
@@ -128,20 +129,26 @@ class ActivityCompleteSerilaizer(serializers.ModelSerializer):
 
     class Meta:
         model = ActivityComplete
-        fields = ['activity', 'period']
-        depth = 2
+        fields = ['activity', 'period','child']
+        # depth = 1
 
     def to_representation(self, obj):
         serialized_data = super(
             ActivityCompleteSerilaizer, self).to_representation(obj)
-        activity_data = serialized_data.get('activity')
+        activity_pk = serialized_data.get('activity')
+        activity_obj = Activity.objects.get(pk=activity_pk)
+        activity_serializer =ActivitySerializer(activity_obj)
+        activity_data = activity_serializer.data
+        activity_data['is_present'] = True
         
-        activity_id = activity_data.get('id')
-        activity_asset_qs = ActivityAsset.objects.filter(activity__id=activity_id)
-        activity_asset_serializer = ActivityAssetSerializer(
-            activity_asset_qs, many=True)
-        serialized_data['activity_asset_data'] = activity_asset_serializer.data
+        if obj.is_completed:
+            activity_data['is_completed'] = True
+        else:
+            activity_data['is_completed'] = False
+        serialized_data['activity'] = activity_data
         return serialized_data
+
+
 
 
 
@@ -166,10 +173,25 @@ class ActivityCompleteListChildSerilaizer(serializers.ModelSerializer):
         fields = ['activity', 'period','is_completed']
         depth = 2
 
-""" Activity  Complete Create Serializer"""
 
+    # def get_activity_asset(self, instance):
+    #     activity_asset_qs =  ActivityAsset.objects.filter(activity__id=instance.activity.id)
+    #     return ActivityAssetSerializer(activity_asset_qs, many=True).data
+
+
+""" Activity  Complete Create Serializer"""
 
 class ActivityCompleteCreateSerilaizer(serializers.ModelSerializer):
     class Meta:
         model = ActivityComplete
         fields = '__all__'
+
+    # def to_representation(self, obj):
+    #     serialized_data = super(
+    #         ActivityCompleteCreateSerilaizer, self).to_representation(obj)
+
+
+    def get_activity_asset(self, instance):
+        activity_asset_qs =  ActivityAsset.objects.filter(activity__id=instance.id)
+        return ActivityAssetSerializer(activity_asset_qs, many=True).data
+        
