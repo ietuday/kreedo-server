@@ -636,11 +636,13 @@ class AddUser(ListCreateAPIView):
 
                 if user_detail_serializer.is_valid():
                     user_detail_serializer.save()
-                    context = {"message": "User is created successfully.",
+                    print("user_detail_serializer.data-",
+                          user_detail_serializer.data)
+                    context = {"message": "User is created successfully.", "isSuccess": True,
                                "data": user_detail_serializer.data, "statusCode": status.HTTP_200_OK}
                     return Response(context)
                 else:
-                    context = {"error": user_detail_serializer.errors,
+                    context = {"error": user_detail_serializer.errors, "isSuccess": False,
                                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
                     return Response(context)
@@ -668,7 +670,7 @@ class AddUser(ListCreateAPIView):
 """ Update User """
 
 
-class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
+class UpdateUser(ListCreateAPIView):
 
     def put(self, request, pk):
         try:
@@ -748,8 +750,13 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
                 reporting_to_obj.reporting_to = user_detail_qs
                 reporting_to_obj.save()
             print("reporting to Save")
-
-            return Response("User Updated", status=status.HTTP_200_OK)
+            user_obj_data = {
+                "id": user_qs.id
+            }
+            # return Response("User Updated", status=status.HTTP_200_OK)
+            context = {"message": "User Updated successfully.", "isSuccess": True,
+                       "data": user_obj_data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
 
         except Exception as ex:
             print("ERROR------", ex)
