@@ -167,7 +167,7 @@ class ReportingToListByUserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReportingTo
-        fields = ['id', 'reporting_to']
+        fields = ['id', 'reporting_to', 'user_role']
         depth = 1
 
 
