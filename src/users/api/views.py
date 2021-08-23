@@ -749,7 +749,7 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
                 reporting_to_obj.save()
             print("reporting to Save")
 
-            return Response("User Updated")
+            return Response("User Updated", status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR------", ex)
@@ -758,6 +758,8 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context)
 
+
+class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     def patch(self, request, pk):
         try:
 
@@ -773,7 +775,7 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
             if user_qs_serializer.is_valid():
                 user_qs_serializer.save()
                 print("SAVE")
-                return Response("User Updated successfully")
+                return Response("User Updated successfully", status=status.HTTP_200_OK)
             else:
                 print("user_qs_serializer.errors", user_qs_serializer.errors)
                 return Response(user_qs_serializer.errors)
