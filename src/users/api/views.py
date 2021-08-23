@@ -694,11 +694,11 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
             user_data = {
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
-                "email": request.data.get('email', None)
+                "email": request.data.get('email', None),
+                "is_active": request.data.get('is_active', None),
             }
 
             user_details_data = {
-
                 "phone": request.data.get('phone', None),
                 "joining_date": request.data.get('joining_date', None),
                 "role": request.data.get('role', None),
@@ -899,23 +899,19 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
 
             user_role_list = UserRole.objects.filter(school=pk)
             print(user_role_list)
-            filtered_data = UserRoleFilter(request.GET, queryset=user_role_list)
+            filtered_data = UserRoleFilter(
+                request.GET, queryset=user_role_list)
             filtered_quersyet = filtered_data.qs
             user_role_list = filtered_quersyet.all()
-            # pdb.set_trace()
-            if user_role_list:
 
-                page = self.paginate_queryset(user_role_list)
-                if page is not None:
-                    serializer = self.get_serializer(
-                        page, many=True)
-                    return self.get_paginated_response(serializer.data)
-                user_role_serializer = SchoolUserRoleSerializers(
-                    user_role_list, many=True)
-                return Response(user_role_serializer.data, status=status.HTTP_200_OK)
-            else:
-
-                return Response("User List Not Found", status=status.HTTP_404_NOT_FOUND)
+            page = self.paginate_queryset(user_role_list)
+            if page is not None:
+                serializer = self.get_serializer(
+                    page, many=True)
+                return self.get_paginated_response(serializer.data)
+            user_role_serializer = SchoolUserRoleSerializers(
+                user_role_list, many=True)
+            return Response(user_role_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
