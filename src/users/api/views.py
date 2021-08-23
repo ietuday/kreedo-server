@@ -640,19 +640,20 @@ class AddUser(ListCreateAPIView):
                           user_detail_serializer.data)
                     context = {"message": "User is created successfully.", "isSuccess": True,
                                "data": user_detail_serializer.data, "statusCode": status.HTTP_200_OK}
-                    return Response(context)
+                    return Response(context, status=status.HTTP_200_OK)
                 else:
-                    context = {"error": user_detail_serializer.errors, "isSuccess": False,
+                    context = {"message": user_detail_serializer.errors, "isSuccess": False, "data": [],
                                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
-                    return Response(context)
+                    return Response(context, status=status.status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as ex:
                 print("TRACEback", traceback.print_exc())
+                print("ERROR-------------", ex)
                 logger.debug(ex)
                 context = {
-                    "error": ex, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                    "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_200_OK}
 
-                return Response(context)
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
 
@@ -661,10 +662,9 @@ class AddUser(ListCreateAPIView):
                 address_obj = Address.objects.get(pk=address_id)
                 address_obj.delete()
             logger.debug(ex)
-            context = {"error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-
-            return Response(context)
+            context = {
+                "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Update User """
@@ -756,14 +756,14 @@ class UpdateUser(ListCreateAPIView):
             # return Response("User Updated", status=status.HTTP_200_OK)
             context = {"message": "User Updated successfully.", "isSuccess": True,
                        "data": user_obj_data, "statusCode": status.HTTP_200_OK}
-            return Response(context)
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR------", ex)
             print("traceback", traceback.print_exc())
-            context = {"error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            context = {
+                "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
@@ -798,14 +798,14 @@ class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView)
                 return Response("User Updated successfully", status=status.HTTP_200_OK)
             else:
                 print("user_qs_serializer.errors", user_qs_serializer.errors)
-                return Response(user_qs_serializer.errors)
+                return Response(user_qs_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("ERROR------", ex)
             print("traceback", traceback.print_exc())
-            context = {"error": ex,
-                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context)
+            context = {
+                "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Add role from user detail """
