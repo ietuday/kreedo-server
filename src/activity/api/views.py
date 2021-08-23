@@ -192,6 +192,7 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
                                 period_template_detail=period.period_template_detail,
                                 subject=period.subject,
                                 id__gt=period.id).order_by('id').first()
+                print("next period",next_period)
                 if next_period:
                     activity['activity_reschedule_period'] = next_period.id
                 else:
