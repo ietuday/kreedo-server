@@ -849,7 +849,7 @@ class ReportingToListByUserDetailList(GeneralClass, Mixins, RetrieveUpdateDestro
     def get(self, request, pk):
         try:
             reporting_to_qs = ReportingTo.objects.filter(user_detail=pk)
-            reporting_to_serializer = ReportingToListSerializer(
+            reporting_to_serializer = ReportingToListByUserDetailSerializer(
                 reporting_to_qs, many=True)
             return Response(reporting_to_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
