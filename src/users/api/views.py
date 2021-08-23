@@ -690,7 +690,6 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
 
             else:
                 raise ValidationError(address_qs.errors)
-
             user_data = {
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
@@ -698,11 +697,10 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
             }
 
             user_details_data = {
-
                 "phone": request.data.get('phone', None),
                 "joining_date": request.data.get('joining_date', None),
                 "role": request.data.get('role', None),
-                "address": request.data.get('address_id', None),
+                "address": request.data.get('address_id', None)
 
             }
             user_qs = User.objects.get(id=pk)
@@ -752,6 +750,33 @@ class UpdateUser(GeneralClass, Mixins, ListCreateAPIView):
             print("reporting to Save")
 
             return Response("User Updated")
+
+        except Exception as ex:
+            print("ERROR------", ex)
+            print("traceback", traceback.print_exc())
+            context = {"error": ex,
+                       "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context)
+
+    def patch(self, request, pk):
+        try:
+
+            user_data = {
+
+                "is_active": request.data.get('is_active', None),
+            }
+
+            user_qs = User.objects.get(id=pk)
+
+            user_qs_serializer = UpdateUserSerializer(
+                user_qs, data=dict(user_data), partial=True)
+            if user_qs_serializer.is_valid():
+                user_qs_serializer.save()
+                print("SAVE")
+                return Response("User Updated successfully")
+            else:
+                print("user_qs_serializer.errors", user_qs_serializer.errors)
+                return Response(user_qs_serializer.errors)
 
         except Exception as ex:
             print("ERROR------", ex)
@@ -892,26 +917,26 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
     serializer_class = SchoolUserRoleSerializers
     filterset_class = UserRoleFilter
 
-    filter_backends = (filters.DjangoFilterBackend,)
+    # filter_backends = (filters.DjangoFilterBackend,)
 
     def get(self, request, pk):
         try:
 
-            user_role = UserRole.objects.filter(school=pk)
-            print(user_role)
-            if user_role:
+            user_role_list = UserRole.objects.filter(school=pk)
+            print(user_role_list)
+            filtered_data = UserRoleFilter(
+                request.GET, queryset=user_role_list)
+            filtered_quersyet = filtered_data.qs
+            user_role_list = filtered_quersyet.all()
 
-                page = self.paginate_queryset(user_role)
-                if page is not None:
-                    serializer = self.get_serializer(
-                        page, many=True)
-                    return self.get_paginated_response(serializer.data)
-                user_role_serializer = SchoolUserRoleSerializers(
-                    user_role, many=True)
-                return Response(user_role_serializer.data, status=status.HTTP_200_OK)
-            else:
-
-                return Response("User List Not Found", status=status.HTTP_404_NOT_FOUND)
+            page = self.paginate_queryset(user_role_list)
+            if page is not None:
+                serializer = self.get_serializer(
+                    page, many=True)
+                return self.get_paginated_response(serializer.data)
+            user_role_serializer = SchoolUserRoleSerializers(
+                user_role_list, many=True)
+            return Response(user_role_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
