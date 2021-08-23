@@ -162,6 +162,15 @@ class ReportingToListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class ReportingToListByUserDetailSerializer(serializers.ModelSerializer):
+    reporting_to = UserDetailListForAcademicSessionSerializer()
+
+    class Meta:
+        model = ReportingTo
+        fields = ['id', 'reporting_to', 'user_role']
+        depth = 1
+
+
 """ User Role Serializer"""
 
 
