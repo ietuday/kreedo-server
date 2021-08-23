@@ -90,9 +90,14 @@ class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
             return Response(ex)
 
 
+"activity list by subject for web"
+class ActivityListBySubjectWeb(GeneralClass, Mixins,  ListAPIView):
+    model = Activity
+    filterset_class = ActivityFilter
+    # pagination_class = LimitOffsetPagination
+    serializer_class = ActivityListWebSerializer
+
 """ Activity Retrive Update and delete"""
-
-
 class ActivityRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Activity
     filterset_class = ActivityFilter
