@@ -810,9 +810,7 @@ class AddUserSerializer(serializers.ModelSerializer):
                              self).to_representation(instance)
             """ Update details in RESPONSE """
             print("self.context['user_detail']", self.context)
-            instance['user_detail_data'] = self.context['user_detail']
-            if "reporting_to" in self.context:
-                instance['reporting_to'] = self.context['reporting_to']
+            instance['id'] = self.context['id']
 
             return instance
         except Exception as ex:
@@ -877,8 +875,8 @@ class AddUserSerializer(serializers.ModelSerializer):
                     if user_detail_serializer.is_valid():
                         user_detail_serializer.save()
 
-                        self.context.update(
-                            {"user_detail": user_detail_serializer.data})
+                        # self.context.update(
+                        #     {"user_detail": user_detail_serializer.data})
                         """ send temprorary password mail """
                         send_temprorary_password_mail(
                             user, user_detail_serializer.data, genrated_password)
@@ -898,9 +896,9 @@ class AddUserSerializer(serializers.ModelSerializer):
                     if user_role_serializer.is_valid():
                         user_role_serializer.save()
 
-                        self.context.update({
-                            "user_role": user_role_serializer.data
-                        })
+                        # self.context.update({
+                        #     "user_role": user_role_serializer.data
+                        # })
 
                     else:
                         print("ERROR------------>",
@@ -915,13 +913,19 @@ class AddUserSerializer(serializers.ModelSerializer):
                             data=self.context['reporting_to'])
                         if reporting_to_serializers.is_valid():
                             reporting_to_serializers.save()
-                            self.context.update(
-                                {"reporting_to": reporting_to_serializers.data})
+                            # self.context.update(
+                            #     {"reporting_to": reporting_to_serializers.data})
 
                         else:
                             raise ValidationError(
                                 reporting_to_serializers.errors)
-                    return user
+                    user_data = {
+                        "user_obj": user.id
+                    }
+                    self.context.update({
+                        "id": user.id
+                    })
+                    return user_data
 
             except Exception as ex:
                 logger.info(ex)
