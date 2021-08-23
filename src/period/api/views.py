@@ -316,21 +316,21 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
                             "child":child
             })
             subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
-            period_based_activities = []
-            count = 0
-            for activity in subject_associate_activities:
-                if count < 2:
-                    record_aval = ActivityComplete.objects.filter(
-                                                                activity=activity,
-                                                                child=child
-                                                            )
-                    if len(record_aval) == 0 and count <= 2:
-                        period_based_activities.append(activity)
-                        count += 1
-                else:
-                    break
+            # period_based_activities = []
+            # count = 0
+            # for activity in subject_associate_activities:
+            #     if count < 2:
+            #         record_aval = ActivityComplete.objects.filter(
+            #                                                     activity=activity,
+            #                                                     child=child
+            #                                                 )
+            #         if len(record_aval) == 0 and count <= 2:
+            #             period_based_activities.append(activity)
+            #             count += 1
+            #     else:
+            #         break
 
-            activity_serializer = ActivityListSerializer(period_based_activities,many=True,context=context)
+            activity_serializer = ActivityListSerializer(subject_associate_activities,many=True,context=context)
             response_data['activity'] = activity_serializer.data
             activity_missed_qs = ActivityComplete.objects.filter(child=child,
                                                                 is_completed=False,
