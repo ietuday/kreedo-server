@@ -311,6 +311,10 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             period_pk = request.data.get('period', None)
             response_data = {}
             period = Period.objects.get(pk=period_pk)
+            context = self.get_serializer_context()
+            context.update({
+                            "child":child
+            })
             subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
             period_based_activities = []
             count = 0
@@ -326,12 +330,12 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
                 else:
                     break
 
-            activity_serializer = ActivityListSerializer(period_based_activities,many=True)
+            activity_serializer = ActivityListSerializer(period_based_activities,many=True,context=context)
             response_data['activity'] = activity_serializer.data
             activity_missed_qs = ActivityComplete.objects.filter(child=child,
                                                                 is_completed=False,
                                                                 activity_reschedule_period=period)
-            activity_complete_serializer = ActivityCompleteCreateSerilaizer(activity_missed_qs,many=True)
+            activity_complete_serializer = ActivityCompleteSerilaizer(activity_missed_qs,many=True)
             response_data['activity_behind'] = activity_complete_serializer.data
             return Response(response_data)
         except Exception as ex: 
