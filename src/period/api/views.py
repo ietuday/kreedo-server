@@ -316,7 +316,7 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
                             "child":child
             })
             subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
-            # period_based_activities = []
+            period_based_activities = []
             # count = 0
             # for activity in subject_associate_activities:
             #     if count < 2:
@@ -329,8 +329,16 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             #             count += 1
             #     else:
             #         break
+            for activity in subject_associate_activities:
+                record_aval = activity.activity_complete.filter(child=child)
+                if record_aval:
+                    if record_aval[0].is_completed == True:
+                        period_based_activities.append(activity)
+                else:
+                    period_based_activities.append(activity)
+                
 
-            activity_serializer = ActivityListSerializer(subject_associate_activities,many=True,context=context)
+            activity_serializer = ActivityListSerializer(period_based_activities,many=True,context=context)
             response_data['activity'] = activity_serializer.data
             activity_missed_qs = ActivityComplete.objects.filter(child=child,
                                                                 is_completed=False,
