@@ -951,7 +951,7 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             user_role_list = UserRole.objects.filter(
-                school=pk)
+                school=pk).distinct('user')
             print("user------->", user_role_list)
             filtered_data = UserRoleFilter(
                 request.GET, queryset=user_role_list)
