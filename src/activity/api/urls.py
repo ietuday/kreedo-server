@@ -7,6 +7,8 @@ urlpatterns = [
          ActivityListCreate.as_view(), name='ActivityListCreate'),
     path('activity_list_by_subject/<int:subject>/<int:child>',
          ActivityListBySubject.as_view(), name='ActivityListBySubject'), 
+     path('activity_list_by_subject_web/<int:subject>',
+         ActivityListBySubjectWeb.as_view(), name='ActivityListBySubject'), 
     path('activity_retrive_update_delete/<int:pk>', ActivityRetriveUpdateDestroy.as_view(),
          name='ActivityRetriveUpdateDestroy'),
     path('activity-asset_list_create',
