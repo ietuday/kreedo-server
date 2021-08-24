@@ -713,8 +713,12 @@ class UpdateUser(ListCreateAPIView):
                 user_qs_serializer.save()
                 print("SAVE")
             else:
-                print("user_qs_serializer.errors", user_qs_serializer.errors)
-                return Response(user_qs_serializer.errors)
+                print("user_qs_serializer.errors---->",
+                      user_qs_serializer.errors)
+                # return Response(user_qs_serializer.errors)
+                context = {"message": user_qs_serializer.errors['non_field_errors'], "isSuccess": False,
+                           "data": [], "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
 
             user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
 
@@ -723,7 +727,10 @@ class UpdateUser(ListCreateAPIView):
             if user_detail_qs_serializer.is_valid():
                 user_detail_qs_serializer.save()
             else:
-                return Response(user_detail_qs_serializer.errors)
+                # return Response(user_detail_qs_serializer.errors)
+                context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
+                           "data": [], "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
             role = request.data.get('role', None)
             user_role_id = Role.objects.filter(id=role[0])[0]
             print("user_role_id---", user_role_id)
@@ -743,7 +750,7 @@ class UpdateUser(ListCreateAPIView):
             print("user_detail_qs-------->", user_detail_qs)
             reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
                 'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
-            print("#$$$$")
+
             for reporting_to_obj in reporting_to_qs:
 
                 reporting_to_obj.user_role = user_role_id
@@ -753,7 +760,6 @@ class UpdateUser(ListCreateAPIView):
             user_obj_data = {
                 "id": user_qs.id
             }
-            # return Response("User Updated", status=status.HTTP_200_OK)
             context = {"message": "User Updated successfully.", "isSuccess": True,
                        "data": user_obj_data, "statusCode": status.HTTP_200_OK}
             return Response(context, status=status.HTTP_200_OK)
@@ -944,8 +950,9 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
 
-            user_role_list = UserRole.objects.filter(school=pk)
-            print(user_role_list)
+            user_role_list = UserRole.objects.filter(
+                school=pk)
+            print("user------->", user_role_list)
             filtered_data = UserRoleFilter(
                 request.GET, queryset=user_role_list)
             filtered_quersyet = filtered_data.qs
