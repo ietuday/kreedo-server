@@ -775,15 +775,11 @@ class UpdateUser(ListCreateAPIView):
 class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     def patch(self, request, pk):
         try:
-
+            
             user_data = {
 
                 "is_active": request.data.get('is_active', None),
 
-            }
-
-            user_details_data = {
-                "reason_for_discontinution": request.data.get('reason_for_discontinution', None)
             }
             user_qs = User.objects.get(id=pk)
 
@@ -792,19 +788,27 @@ class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView)
             if user_qs_serializer.is_valid():
                 user_qs_serializer.save()
                 print("SAVE")
-                user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
 
-                user_detail_qs_serializer = UserDetailSerializer(
-                    user_details_qs, data=dict(user_details_data), partial=True)
-                if user_detail_qs_serializer.is_valid():
-                    user_detail_qs_serializer.save()
-                else:
-                    print(user_detail_qs_serializer.errors)
-
-                return Response("User Updated successfully", status=status.HTTP_200_OK)
             else:
-                print("user_qs_serializer.errors", user_qs_serializer.errors)
+                print("user_qs_serializer.errors",
+                        user_qs_serializer.errors)
                 return Response(user_qs_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            user_details_data = {
+                "reason_for_discontinution": request.data.get('reason_for_discontinution', None),
+                "role_label": request.data.get('role_label', None)
+            }
+
+            user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
+
+            user_detail_qs_serializer = UserDetailSerializer(
+                user_details_qs, data=dict(user_details_data), partial=True)
+            if user_detail_qs_serializer.is_valid():
+                user_detail_qs_serializer.save()
+            else:
+                print(user_detail_qs_serializer.errors)
+
+            return Response("User Updated successfully", status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR------", ex)
