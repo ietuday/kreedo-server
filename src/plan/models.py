@@ -99,7 +99,6 @@ class PlanActivity(TimestampAwareModel):
 
 """ Subject School Grade Plan Model """
 
-
 class SubjectSchoolGradePlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT)
