@@ -1,4 +1,5 @@
 
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 from rest_framework.serializers import (
     ModelSerializer,
@@ -818,6 +819,12 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'is_active']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=User.objects.all(),
+                fields=['email', 'is_active']
+            )
+        ]
 
 
 """ Add user Serializer """

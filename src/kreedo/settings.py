@@ -171,7 +171,6 @@ USE_L10N = True
 USE_TZ = True
 
 
-
 # Import Static Configuration File
 
 # Import Rest Configuration File
@@ -217,3 +216,6 @@ if bool(env('DEV')) == False:
 
 DEFAULT_FILE_STORAGE = 'kreedo.custom_storage.MediaStorage'
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+""" Email Unique"""
+# AUTH_USER_EMAIL_UNIQUE = True
