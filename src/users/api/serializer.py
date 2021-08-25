@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from rest_framework.serializers import (
     ModelSerializer,
@@ -793,7 +794,21 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
             acadamic_session_serializer = AcademicSessionListSerializer(
                 AcademicSession.objects.filter(class_teacher=user_id), many=True)
             serialized_data['class_teacher_data'] = acadamic_session_serializer.data
+        
+        # subject_teacher_list = SectionSubjectTeacher.objects.filter(
+        #                                                             teacher=obj
+        #                                                             )
+        # if subject_teacher_list:
+        #     section_subject_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_list,many=True)
+        #     serialized_data['subject_teacher_data'] = section_subject_serializer.data
+        # else:
+        #     serialized_data['subject_teacher_data'] = {}
         return serialized_data
+
+
+
+
+
 
 
 """ Update user Serializer """

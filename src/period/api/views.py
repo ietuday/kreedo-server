@@ -317,6 +317,7 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             })
             subject_associate_activities = Activity.objects.filter(subject=period.subject).order_by('id')
             period_based_activities = []
+
             # count = 0
             # for activity in subject_associate_activities:
             #     if count < 2:
@@ -329,6 +330,7 @@ class ActivityListByChild(GeneralClass, Mixins, ListCreateAPIView):
             #             count += 1
             #     else:
             #         break
+            
             for activity in subject_associate_activities:
                 record_aval = activity.activity_complete.filter(child=child)
                 if record_aval:
