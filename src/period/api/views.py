@@ -225,6 +225,7 @@ class ClassAccordingToTeacher(GeneralClass, Mixins, ListCreateAPIView):
                         activity_asset_list = []
                         activity_asset_dict = {}
                         for asset in activity_asset:
+                            activity_asset_dict['id'] = asset.id
                             activity_asset_dict['activity_id'] = asset.activity.id
                             activity_asset_dict['type'] = asset.type
                             activity_asset_dict['activity_data'] = asset.activity_data
