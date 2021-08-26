@@ -64,7 +64,7 @@ class SchoolSessionRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
 """ AcademicSession Create  and list """
 
 
-class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class AcademicSessionList(GeneralClass, Mixins, ListCreateAPIView):
     model = AcademicSession 
     filterset_class = AcademicSessionFilter
 
@@ -74,29 +74,53 @@ class AcademicSessionListCreate(GeneralClass, Mixins, ListCreateAPIView):
         # if self.request.method == 'POST':
         #     return AcademicSessionCreateSerializer
 
+
+class AcademicSessionCreate(Mixins, ListCreateAPIView):
+    model = AcademicSession 
+    filterset_class = AcademicSessionFilter
+
+
     def post(self, request):
         try:
             grade_list = request.data.get('grade_list')
-           
-            for grade in grade_list:
-
-            
+            failed_section= []
+            for grade in grade_list:            
                 academic_calender_qs = AcademicCalender.objects.filter(id=grade['academic_calender'])[0]
                 grade['session_from']= academic_calender_qs.start_date
                 grade['session_till']= academic_calender_qs.end_date
 
-            academic_session_serializer = AcademicSessionCreateSerializer(
-                data=request.data.get('grade_list'), many=True)
 
-            if academic_session_serializer.is_valid():
-                academic_session_serializer.save()
-                return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(academic_session_serializer.errors, status=status.HTTP_200_OK)
+                academic_session_serializer = AcademicSessionCreateSerializer(
+                    data=grade)
 
+                if academic_session_serializer.is_valid():
+                    academic_session_serializer.save()
+                    continue
+                    # return Response(academic_session_serializer.data, status=status.HTTP_200_OK)
+                else:
+                    section = Section.objects.get(pk=grade['section'])
+                    failed_section.append(section.name)
+                    continue
+                    # return Response(academic_session_serializer.errors, status=status.HTTP_200_OK)
+            if failed_section:
+                sections = ",".join(failed_section)
+                context = {
+                        "isSuccess":False,"status":200,"message":f"Academic Session not save for {sections} section",
+                        "data":None
+                     }
+                return Response(context)
+
+            context = {
+                        "isSuccess":True,"status":200,"message":f"Academic Session Applied Successfully","data":None
+                     }
+            return Response(context)
         except Exception as ex:
             print("ERROR--->", ex)
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            context = {
+                        "isSuccess":False,"status":200,"message":f"{ex}",
+                        "data":None
+                     }
+            return Response(context)
 
 
 class AssociateSeactionList(GeneralClass, Mixins, ListCreateAPIView):
