@@ -684,23 +684,23 @@ class AddUser(ListCreateAPIView):
 
 
 def update_user_function(request, pk):
-    address_detail = {
-        "address": request.data.get('address', None),
-        "city": request.data.get('city', None),
-        "state": request.data.get('state', None),
-        "country": request.data.get('country', None),
-        "pincode": request.data.get('pincode', None),
+    # address_detail = {
+    #     "address": request.data.get('address', None),
+    #     "city": request.data.get('city', None),
+    #     "state": request.data.get('state', None),
+    #     "country": request.data.get('country', None),
+    #     "pincode": request.data.get('pincode', None),
 
-    }
-    address_qs = Address.objects.get(
-        id=request.data.get('address_id', None))
-    address_qs_serializer = AddressSerializer(
-        address_qs, data=dict(address_detail), partial=True)
-    if address_qs_serializer.is_valid():
-        address_qs_serializer.save()
+    # }
+    # address_qs = Address.objects.get(
+    #     id=request.data.get('address_id', None))
+    # address_qs_serializer = AddressSerializer(
+    #     address_qs, data=dict(address_detail), partial=True)
+    # if address_qs_serializer.is_valid():
+    #     address_qs_serializer.save()
 
-    else:
-        raise ValidationError(address_qs.errors)
+    # else:
+    #     raise ValidationError(address_qs.errors)
 
     user_data = {
         "first_name": request.data.get('first_name', None),
@@ -708,13 +708,21 @@ def update_user_function(request, pk):
         "email": request.data.get('email', None)
     }
 
-    user_role = UserDetail.objects.get(user_obj=pk).values('role')
-    print("user role", user_role)
+    user_role = UserDetail.objects.get(user_obj=pk)
+    print("user_role",user_role.role.all())
+    previous_user_role = request.data.get('previous_user_role', None)
+    roles = []
+    for role in user_role.role.all():
+        if role.id != request.data.get('previous_user_role', None):
+            roles.append(role.id)
+        else:
+            roles.append(request.data.get('role', None)[0])
+
 
     user_details_data = {
         "phone": request.data.get('phone', None),
         "joining_date": request.data.get('joining_date', None),
-        "role": request.data.get('role', None),
+        "role": roles,
         "address": request.data.get('address_id', None)
 
     }
@@ -763,7 +771,7 @@ def update_user_function(request, pk):
 
     print("user_detail_qs-------->", user_detail_qs)
     reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
-        'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
+        'previous_user_role', None))
 
     for reporting_to_obj in reporting_to_qs:
 
@@ -783,6 +791,7 @@ def update_user_function(request, pk):
 
 
 class UpdateUser(ListCreateAPIView):
+    serializer_class = UpdateUserSerializer
 
     def put(self, request, pk):
         try:
