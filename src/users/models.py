@@ -138,7 +138,6 @@ class ReportingTo(TimestampAwareModel):
     class Meta:
         verbose_name = 'ReportingTo'
         verbose_name_plural = 'ReportingTos'
-        # unique_together = ('user_detail', 'user_role')
 
     def __str__(self):
         return str(self.id)
