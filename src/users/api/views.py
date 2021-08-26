@@ -1,6 +1,7 @@
 """
     DJANGO LIBRARY IMPORT
 """
+from inspect import trace
 import os
 from datetime import date
 import math as m
@@ -468,6 +469,8 @@ class LoggedInMob(Mixins, GeneralClass, ListAPIView):
 
 
 """ Genrate OTP """
+
+
 class GenerateOTP(ListAPIView):
 
     def post(self, request):
@@ -699,6 +702,7 @@ class UpdateUser(ListCreateAPIView):
 
             else:
                 raise ValidationError(address_qs.errors)
+
             user_data = {
                 "first_name": request.data.get('first_name', None),
                 "last_name": request.data.get('last_name', None),
@@ -726,6 +730,7 @@ class UpdateUser(ListCreateAPIView):
                 context = {"message": user_qs_serializer.errors['non_field_errors'], "isSuccess": False,
                            "data": [], "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
+            role = request.data.get('role', None)
 
             user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
 
@@ -772,8 +777,8 @@ class UpdateUser(ListCreateAPIView):
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
-            print("ERROR------", ex)
-            print("traceback", traceback.print_exc())
+            print("ERROR------>", ex)
+            print("traceback----->", traceback.print_exc())
             context = {
                 "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -782,7 +787,7 @@ class UpdateUser(ListCreateAPIView):
 class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     def patch(self, request, pk):
         try:
-            
+
             user_data = {
 
                 "is_active": request.data.get('is_active', None),
@@ -798,7 +803,7 @@ class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView)
 
             else:
                 print("user_qs_serializer.errors",
-                        user_qs_serializer.errors)
+                      user_qs_serializer.errors)
                 return Response(user_qs_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             user_details_data = {
@@ -828,7 +833,7 @@ class UserActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView)
 """ Add role from user detail """
 
 
-class AddRoleOfUserListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class AddRoleOfUserListCreate(ListCreateAPIView):
     model = ReportingTo
 
     def get_serializer_class(self):
@@ -844,19 +849,40 @@ class AddRoleOfUserListCreate(GeneralClass, Mixins, ListCreateAPIView):
             }
             context = super().get_serializer_context()
             context.update({"role_detail": role_detail})
-            user_role_serializer = ReportingToCreateSerializer(
-                data=request.data, context=context)
-            if user_role_serializer.is_valid():
-                user_role_serializer.save()
-                print("Serializer---", user_role_serializer.data)
-                return Response(user_role_serializer.data, status=status.HTTP_200_OK)
+            if ReportingTo.objects.filter(user_detail=request.data.get('user_detail', None), user_role=request.data.get('user_role', None)).exists():
+                # return Response('Role already exists', status=status.HTTP_200_OK)
+                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
+                           "statusCode": status.HTTP_200_OK}
+
+                return Response(context, status=status.HTTP_200_OK)
+
             else:
-                print(user_role_serializer.errors)
-                return Response(user_role_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                user_role_serializer = ReportingToCreateSerializer(
+                    data=request.data, context=context)
+                if user_role_serializer.is_valid():
+                    user_role_serializer.save()
+                    context = {"message": "ReportingTo Added successfully", "isSuccess": True, "data": user_role_serializer.data,
+                               "statusCode": status.HTTP_200_OK}
+
+                    return Response(context, status=status.HTTP_200_OK)
+                    # print("Serializer---", user_role_serializer.data)
+                    # return Response(user_role_serializer.data, status=status.HTTP_200_OK)
+                else:
+                    print(user_role_serializer.errors)
+                    # return Response(user_role_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    context = {"message": user_role_serializer.errors, "isSuccess": True, "data": [],
+                               "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
+            print("Error ", ex)
             logger.debug(ex)
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            context = {
+                "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """  Reprting to list by User Detail """
@@ -873,36 +899,58 @@ class ReportingToListByUserDetailList(GeneralClass, Mixins, RetrieveUpdateDestro
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
     def put(self, request):
         try:
             request_data = request.data.copy()
-            user_detail = UserDetail.objects.filter(
-                user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
-            print(user_detail.role.all())
-            user_detail.role.remove(request_data['previous_user_role'])
-            user_detail.save()
-            print(user_detail.role.all())
-            user_detail.role.add(request_data['user_role'])
-            user_detail.save()
-            print(user_detail.role.all())
-            user_role = Role.objects.filter(id=request_data['user_role'])[0]
-            user_role_qs = UserRole.objects.filter(
-                user=request_data['user_detail'], role=request_data['previous_user_role'])[0]
-            user_role_qs.role = user_role
-            user_role_qs.save()
 
-            user_detail_qs = UserDetail.objects.filter(
-                user_obj=request_data['reporting_to'])[0]
-            reporting_to_qs = ReportingTo.objects.filter(
-                user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
-            reporting_to_qs.reporting_to = user_detail_qs
-            reporting_to_qs.user_role = user_role
-            reporting_to_qs.save()
+            user_role = Role.objects.filter(
+                id=request_data['user_role'])[0]
+            if ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=user_role).exists():
 
-            return Response("Updated Successfully", status=status.HTTP_200_OK)
+                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
+                           "statusCode": status.HTTP_200_OK}
+
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+
+                user_detail = UserDetail.objects.filter(
+                    user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                print(user_detail.role.all())
+                user_detail.role.remove(request_data['previous_user_role'])
+                user_detail.save()
+                print(user_detail.role.all())
+                user_detail.role.add(request_data['user_role'])
+                user_detail.save()
+                print(user_detail.role.all())
+                user_role = Role.objects.filter(
+                    id=request_data['user_role'])[0]
+
+                user_role_qs = UserRole.objects.filter(
+                    user=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                user_role_qs.role = user_role
+                user_role_qs.save()
+
+                user_detail_qs = UserDetail.objects.filter(
+                    user_obj=request_data['reporting_to'])[0]
+
+                reporting_to_qs = ReportingTo.objects.filter(
+                    user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
+                reporting_to_qs.reporting_to = user_detail_qs
+                reporting_to_qs.user_role = user_role
+                reporting_to_qs.save()
+
+                context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
+                           "statusCode": status.HTTP_200_OK}
+
+                return Response(context, status=status.HTTP_200_OK)
+
+            # return Response("Updated Successfully", status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR--------", ex)
+            print("@2222222222", traceback.print_exc())
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -960,9 +1008,9 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
 
     def get(self, request, pk):
         try:
-
+            # role_id = Role
             user_role_list = UserRole.objects.filter(
-                school=pk).distinct('user')
+                school=pk, role__name__in=['School Associate', 'Teacher', 'School Admin']).distinct('user')
             print("user------->", user_role_list)
             filtered_data = UserRoleFilter(
                 request.GET, queryset=user_role_list)

@@ -109,7 +109,7 @@ class UserDetail(TimestampAwareModel):
     joining_date = models.DateField(null=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
     secret_pin = models.CharField(max_length=50, default='0000')
-    is_platform_user =  models.BooleanField(default=False)
+    is_platform_user = models.BooleanField(default=False)
     objects = UserDetailManager
 
     class Meta:
@@ -125,18 +125,20 @@ class UserDetail(TimestampAwareModel):
 
 
 class ReportingTo(TimestampAwareModel):
-    reporting_to = models.ForeignKey(
-        'UserDetail', on_delete=models.SET_NULL, null=True, blank=True)
-    user_role = models.ForeignKey(
-        'Role', on_delete=models.CASCADE, related_name='reporting_to.user_role+')
     user_detail = models.ForeignKey(
         'UserDetail', on_delete=models.CASCADE, related_name='reporting_to.user_detail+')
+    user_role = models.ForeignKey(
+        'Role', on_delete=models.CASCADE, related_name='reporting_to.user_role+')
+    reporting_to = models.ForeignKey(
+        'UserDetail', on_delete=models.SET_NULL, null=True, blank=True)
+
     is_active = models.BooleanField(default=False)
     objects = ReportingToManager
 
     class Meta:
         verbose_name = 'ReportingTo'
         verbose_name_plural = 'ReportingTos'
+        # unique_together = ('user_detail', 'user_role')
 
     def __str__(self):
         return str(self.id)
