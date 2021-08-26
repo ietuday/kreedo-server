@@ -684,23 +684,23 @@ class AddUser(ListCreateAPIView):
 
 
 def update_user_function(request, pk):
-    # address_detail = {
-    #     "address": request.data.get('address', None),
-    #     "city": request.data.get('city', None),
-    #     "state": request.data.get('state', None),
-    #     "country": request.data.get('country', None),
-    #     "pincode": request.data.get('pincode', None),
+    address_detail = {
+        "address": request.data.get('address', None),
+        "city": request.data.get('city', None),
+        "state": request.data.get('state', None),
+        "country": request.data.get('country', None),
+        "pincode": request.data.get('pincode', None),
 
-    # }
-    # address_qs = Address.objects.get(
-    #     id=request.data.get('address_id', None))
-    # address_qs_serializer = AddressSerializer(
-    #     address_qs, data=dict(address_detail), partial=True)
-    # if address_qs_serializer.is_valid():
-    #     address_qs_serializer.save()
+    }
+    address_qs = Address.objects.get(
+        id=request.data.get('address_id', None))
+    address_qs_serializer = AddressSerializer(
+        address_qs, data=dict(address_detail), partial=True)
+    if address_qs_serializer.is_valid():
+        address_qs_serializer.save()
 
-    # else:
-    #     raise ValidationError(address_qs.errors)
+    else:
+        raise ValidationError(address_qs.errors)
 
     user_data = {
         "first_name": request.data.get('first_name', None),
