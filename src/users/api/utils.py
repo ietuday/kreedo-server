@@ -1,4 +1,7 @@
 # validate email
+from rest_framework import status
+from address.api.serializer import*
+from users.api.serializer import*
 from kreedo.conf.logger import*
 import logging
 import traceback
@@ -57,9 +60,6 @@ def validate_auth_user(email, password):
         return False
 
 
-
-
-
 """ Validate Email """
 
 
@@ -99,7 +99,6 @@ def send_user_details(user_obj, user_detail_obj):
         logger.info(ex)
         logger.debug(ex)
         raise ValidationError("Error in genrate verification link")
-
 
 
 """ genrate activation link """
@@ -337,6 +336,8 @@ def user_created_password_mail(user_obj, genrated_password):
 
 
 """ Reset password link """
+
+
 def generate_reset_password_link(user_obj):
     try:
 
@@ -360,15 +361,14 @@ def generate_reset_password_link(user_obj):
         user_detail_instance.save()
         user_email = user_obj.email
         link = os.environ.get('FRONTEND_URL') + \
-                '/auth/reset-password/' +user_email+'/'+ activation_key
-        
+            '/auth/reset-password/' + user_email+'/' + activation_key
+
         print("LINK------->", link)
         return link
     except Exception as error:
         logger.debug(error)
         logger.info(error)
         raise ValidationError("Failed to Create link")
-
 
 
 def user_reset_password_link(user_obj, link):
@@ -386,48 +386,40 @@ def user_reset_password_link(user_obj, link):
         raise ValidationError("Failed to send Email")
 
 
-
-
-
-
-
-
-
-
-
-
 def add_months(sourcedate, months):
-    print("##############",sourcedate,months)
+    print("##############", sourcedate, months)
     # print(mont
     # sourcedate = datetime.datetime.strptime(str(sourcedate), '%d/%m/%Y').date()
     # print(datetime.datetime.strptime(sourcedate , '%d/%m/%Y').date())
     sourcedate = datetime.datetime.strptime(sourcedate, '%Y-%m-%d').date()
-    print("sourcedate-------",sourcedate)
+    print("sourcedate-------", sourcedate)
     months = int(months)
-    print("##############",sourcedate,months)
+    print("##############", sourcedate, months)
     month = sourcedate.month - 1 + months
     year = sourcedate.year + month // 12
     month = month % 12 + 1
-    day = min(sourcedate.day, calendar.monthrange(year,month)[1])
+    day = min(sourcedate.day, calendar.monthrange(year, month)[1])
     return datetime.date(year, month, day)
 
 
 def addYears(d, years):
     try:
-#Return same day of the current year   
-        print(d.year)  
+        # Return same day of the current year
+        print(d.year)
         print(years)
-        print(d.year + int(years))     
-        return d.replace(year = d.year + int(years))
+        print(d.year + int(years))
+        return d.replace(year=d.year + int(years))
     except ValueError:
-#If not same day, it will return other, i.e.  February 29 to March 1 etc.        
+        # If not same day, it will return other, i.e.  February 29 to March 1 etc.
         return d + (datetime.date(d.year + years, 1, 1) - datetime.date(d.year, 1, 1))
 
 
 """ Encription """
+
+
 def genrate_encrypted_string(random_string):
     try:
-        encrypted_string =""
+        encrypted_string = ""
         for ch in random_string:
             encrypted_string += chr(ord(ch) + 15)
         return encrypted_string
@@ -435,15 +427,113 @@ def genrate_encrypted_string(random_string):
     except Exception as ex:
         raise ValidationError(ex)
 
+
 """ Decryption """
+
 
 def genrate_decrypted_string(random_string):
     try:
-        decrypted_string =""
+        decrypted_string = ""
         for ch in random_string:
             decrypted_string += chr(ord(ch) - 15)
-          
+
         return decrypted_string
-        
+
     except Exception as ex:
         raise ValidationError(ex)
+
+
+""" Update User"""
+
+
+def update_user(request, pk):
+    address_detail = {
+        "address": request.data.get('address', None),
+        "city": request.data.get('city', None),
+        "state": request.data.get('state', None),
+        "country": request.data.get('country', None),
+        "pincode": request.data.get('pincode', None),
+
+    }
+    address_qs = Address.objects.get(
+        id=request.data.get('address_id', None))
+    address_qs_serializer = AddressSerializer(
+        address_qs, data=dict(address_detail), partial=True)
+    if address_qs_serializer.is_valid():
+        address_qs_serializer.save()
+
+    else:
+        raise ValidationError(address_qs.errors)
+
+    user_data = {
+        "first_name": request.data.get('first_name', None),
+        "last_name": request.data.get('last_name', None),
+        "email": request.data.get('email', None)
+    }
+
+    user_details_data = {
+        "phone": request.data.get('phone', None),
+        "joining_date": request.data.get('joining_date', None),
+        "role": request.data.get('role', None),
+        "address": request.data.get('address_id', None)
+
+    }
+    user_qs = User.objects.get(id=pk)
+
+    user_qs_serializer = UpdateUserSerializer(
+        user_qs, data=dict(user_data), partial=True)
+    if user_qs_serializer.is_valid():
+        user_qs_serializer.save()
+        print("SAVE")
+    else:
+        print("user_qs_serializer.errors---->",
+              user_qs_serializer.errors)
+        # return Response(user_qs_serializer.errors)
+        context = {"message": user_qs_serializer.errors['non_field_errors'], "isSuccess": False,
+                   "data": [], "statusCode": status.HTTP_200_OK}
+        return context
+    role = request.data.get('role', None)
+
+    user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
+
+    user_detail_qs_serializer = UserDetailSerializer(
+        user_details_qs, data=dict(user_details_data), partial=True)
+    if user_detail_qs_serializer.is_valid():
+        user_detail_qs_serializer.save()
+    else:
+        # return Response(user_detail_qs_serializer.errors)
+        context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
+                   "data": [], "statusCode": status.HTTP_200_OK}
+        return context
+    role = request.data.get('role', None)
+    user_role_id = Role.objects.filter(id=role[0])[0]
+    print("user_role_id---", user_role_id)
+
+    user_role_qs = UserRole.objects.filter(
+        user=pk, role=request.data.get('previous_user_role', None))
+
+    for user_role_obj in user_role_qs:
+
+        user_role_obj.role = user_role_id
+        user_role_obj.save()
+
+    print("Role saved")
+    user_detail_qs = UserDetail.objects.get(
+        user_obj=request.data.get('reporting', None))
+
+    print("user_detail_qs-------->", user_detail_qs)
+    reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
+        'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
+
+    for reporting_to_obj in reporting_to_qs:
+
+        reporting_to_obj.user_role = user_role_id
+        reporting_to_obj.reporting_to = user_detail_qs
+        reporting_to_obj.save()
+    print("reporting to Save")
+    user_obj_data = {
+        "id": user_qs.id
+    }
+    context = {"message": "User Updated successfully.", "isSuccess": True,
+               "data": user_obj_data, "statusCode": status.HTTP_200_OK}
+    return context
