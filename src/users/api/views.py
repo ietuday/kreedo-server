@@ -469,6 +469,8 @@ class LoggedInMob(Mixins, GeneralClass, ListAPIView):
 
 
 """ Genrate OTP """
+
+
 class GenerateOTP(ListAPIView):
 
     def post(self, request):
@@ -854,7 +856,7 @@ class AddRoleOfUserListCreate(ListCreateAPIView):
             context.update({"role_detail": role_detail})
             if ReportingTo.objects.filter(user_detail=request.data.get('user_detail', None), user_role=request.data.get('user_role', None)).exists():
                 # return Response('Role already exists', status=status.HTTP_200_OK)
-                context = {"message": ['Role already exists'], "isSuccess": True, "data": [],
+                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
                            "statusCode": status.HTTP_200_OK}
 
                 return Response(context, status=status.HTTP_200_OK)
@@ -952,11 +954,11 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
             reporting_to_qs.save()
 
             context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
-                        "statusCode": status.HTTP_200_OK}
+                       "statusCode": status.HTTP_200_OK}
 
             return Response(context, status=status.HTTP_200_OK)
 
-                # return Response("Updated Successfully", status=status.HTTP_200_OK)
+            # return Response("Updated Successfully", status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR--------", ex)
