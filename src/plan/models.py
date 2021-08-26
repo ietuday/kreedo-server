@@ -42,7 +42,6 @@ Previous_Session_Choice = [
 
 """ Plan Model """
 
-
 class Plan(TimestampAwareModel):
     name = models.CharField(max_length=100)
     type = models.CharField(
@@ -98,7 +97,6 @@ class PlanActivity(TimestampAwareModel):
 
 
 """ Subject School Grade Plan Model """
-
 
 class SubjectSchoolGradePlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)

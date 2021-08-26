@@ -10,6 +10,8 @@ from holiday.api.serializer import *
 from kreedo.conf.logger import CustomFormatter
 import logging
 import traceback
+from django.contrib.auth.models import User
+
 
 
 
@@ -48,6 +50,24 @@ class SchoolSessionCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class teacherAuthUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name',
+                  'last_name', 'email', 'is_active']
+
+
+
+class TeacherListForAcademicSessionSerializer(serializers.ModelSerializer):
+    user_obj = teacherAuthUserSerializer()
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        # depth = 1
+
+
 """ Academic Session serializer """
 
 
@@ -60,7 +80,7 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
 
 
 class AcademicSessionListSerializer(serializers.ModelSerializer):
-    class_teacher = UserDetailListForAcademicSessionSerializer()
+    class_teacher = TeacherListForAcademicSessionSerializer()
 
     class Meta:
         model = AcademicSession
@@ -82,7 +102,7 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
 
 
 class AssociateSeactionListSerializer(serializers.ModelSerializer):
-    class_teacher = UserDetailListForAcademicSessionSerializer()
+    class_teacher = TeacherListForAcademicSessionSerializer()
  
     class Meta:
         model = AcademicSession
@@ -156,7 +176,7 @@ class GradeListOfAcademicSessionSerializer(serializers.ModelSerializer):
 
 
 class ClassTeacherByAcademicSession(serializers.ModelSerializer):
-    class_teacher = UserDetailListForAcademicSessionSerializer()
+    class_teacher = TeacherListForAcademicSessionSerializer()
 
     class Meta:
         model = AcademicSession
@@ -194,7 +214,7 @@ class AcademicCalenderBySchoolSerializer(serializers.ModelSerializer):
 
 
 class AcademicSessionListForChildSerializer(serializers.ModelSerializer):
-    class_teacher = UserDetailListForAcademicSessionSerializer()
+    class_teacher = TeacherListForAcademicSessionSerializer()
 
     class Meta:
         model = AcademicSession
@@ -341,3 +361,48 @@ class AcademicSessionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
         fields = ['section','grade','class_teacher','school','academic_calender']
+
+
+
+
+""" Logged In User Serializer """
+
+class LoggedInUserMobSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 2
+
+    def to_representation(self, obj):
+        from session.api.serializer import AcademicSessionListSerializer
+        serialized_data = super(
+            LoggedInUserMobSerializer, self).to_representation(obj)
+
+        user_obj_id = serialized_data.get('user_obj')
+
+        user_id = user_obj_id.get('id')
+        if UserRole.objects.filter(user=user_id).exists():
+            user_role_data = UserRole.objects.filter(user=user_id)
+            user_role_data_serializer = UserRoleListSerializer(
+                user_role_data, many=True)
+            serialized_data['user_role_data'] = user_role_data_serializer.data
+        if AcademicSession.objects.filter(class_teacher=user_id).exists():
+            # acadamic_session_serializer = AcademicSessionListSerializer(
+            #     AcademicSession.objects.filter(class_teacher=user_id), many=True)
+
+            serialized_data['is_ClassTeacher'] = True
+        else:
+            serialized_data['is_ClassTeacher'] = False
+        
+        subject_teacher_list = SectionSubjectTeacher.objects.filter(
+                                                                    teacher=obj
+                                                                    )
+        if subject_teacher_list:
+            # section_subject_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_list,many=True)
+            serialized_data['is_SubjectTeacher'] = True
+        else:
+            serialized_data['is_SubjectTeacher'] = False
+        return serialized_data

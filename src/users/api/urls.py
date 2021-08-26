@@ -29,6 +29,7 @@ urlpatterns = [
     re_path('reset_password/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)',
             ResetPassword.as_view(), name='ResetPassword'),
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
+    path('logged-in-user-detail_mob',LoggedInMob.as_view(), name='LoggedIn'),
     path('add_user', AddUser.as_view(), name='AddUser'),
     path('update_user/<int:pk>', UpdateUser.as_view(), name='UpdateUser'),
 

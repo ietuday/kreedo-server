@@ -459,9 +459,16 @@ class LoggedIn(Mixins, GeneralClass, ListAPIView):
         return Response(user_data.data)
 
 
+# @permission_classes((IsAuthenticated,))
+class LoggedInMob(Mixins, GeneralClass, ListAPIView):
+    def get(self, request):
+        logged_user = request.user
+        user_obj_detail = UserDetail.objects.get(pk=logged_user.id)
+        user_data = LoggedInUserMobSerializer(user_obj_detail)
+        return Response(user_data.data)
+
+
 """ Genrate OTP """
-
-
 class GenerateOTP(ListAPIView):
 
     def post(self, request):

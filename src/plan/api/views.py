@@ -62,6 +62,7 @@ class PlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
             else:
                 return Response(plan_serializer.errors)
         except Exception as ex:
+            print("error@@",ex)
             logger.debug(ex)
             logger.info(ex)
 
