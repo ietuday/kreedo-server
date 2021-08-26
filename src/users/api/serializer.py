@@ -517,6 +517,8 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 raise ValidationError(ex)
 
         except Exception as ex:
+            print("ERROR", ex)
+            print("TRACEback", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
             raise ValidationError(ex)
@@ -800,7 +802,7 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
             acadamic_session_serializer = AcademicSessionListSerializer(
                 AcademicSession.objects.filter(class_teacher=user_id), many=True)
             serialized_data['class_teacher_data'] = acadamic_session_serializer.data
-        
+
         # subject_teacher_list = SectionSubjectTeacher.objects.filter(
         #                                                             teacher=obj
         #                                                             )
@@ -810,11 +812,6 @@ class LoggedInUserSerializer(serializers.ModelSerializer):
         # else:
         #     serialized_data['subject_teacher_data'] = {}
         return serialized_data
-
-
-
-
-
 
 
 """ Update user Serializer """
