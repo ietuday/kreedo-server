@@ -731,55 +731,50 @@ class UpdateUser(ListCreateAPIView):
                            "data": [], "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
             role = request.data.get('role', None)
-            if UserDetail.objects.filter(user_obj=pk, role=role[0]).exists():
-                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
-                           "statusCode": status.HTTP_200_OK}
 
-                return Response(context, status=status.HTTP_200_OK)
+            user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
+
+            user_detail_qs_serializer = UserDetailSerializer(
+                user_details_qs, data=dict(user_details_data), partial=True)
+            if user_detail_qs_serializer.is_valid():
+                user_detail_qs_serializer.save()
             else:
-                user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
-
-                user_detail_qs_serializer = UserDetailSerializer(
-                    user_details_qs, data=dict(user_details_data), partial=True)
-                if user_detail_qs_serializer.is_valid():
-                    user_detail_qs_serializer.save()
-                else:
-                    # return Response(user_detail_qs_serializer.errors)
-                    context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
-                               "data": [], "statusCode": status.HTTP_200_OK}
-                    return Response(context, status=status.HTTP_200_OK)
-                role = request.data.get('role', None)
-                user_role_id = Role.objects.filter(id=role[0])[0]
-                print("user_role_id---", user_role_id)
-
-                user_role_qs = UserRole.objects.filter(
-                    user=pk, role=request.data.get('previous_user_role', None))
-
-                for user_role_obj in user_role_qs:
-
-                    user_role_obj.role = user_role_id
-                    user_role_obj.save()
-
-                print("Role saved")
-                user_detail_qs = UserDetail.objects.get(
-                    user_obj=request.data.get('reporting', None))
-
-                print("user_detail_qs-------->", user_detail_qs)
-                reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
-                    'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
-
-                for reporting_to_obj in reporting_to_qs:
-
-                    reporting_to_obj.user_role = user_role_id
-                    reporting_to_obj.reporting_to = user_detail_qs
-                    reporting_to_obj.save()
-                print("reporting to Save")
-                user_obj_data = {
-                    "id": user_qs.id
-                }
-                context = {"message": "User Updated successfully.", "isSuccess": True,
-                           "data": user_obj_data, "statusCode": status.HTTP_200_OK}
+                # return Response(user_detail_qs_serializer.errors)
+                context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
+                           "data": [], "statusCode": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
+            role = request.data.get('role', None)
+            user_role_id = Role.objects.filter(id=role[0])[0]
+            print("user_role_id---", user_role_id)
+
+            user_role_qs = UserRole.objects.filter(
+                user=pk, role=request.data.get('previous_user_role', None))
+
+            for user_role_obj in user_role_qs:
+
+                user_role_obj.role = user_role_id
+                user_role_obj.save()
+
+            print("Role saved")
+            user_detail_qs = UserDetail.objects.get(
+                user_obj=request.data.get('reporting', None))
+
+            print("user_detail_qs-------->", user_detail_qs)
+            reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
+                'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
+
+            for reporting_to_obj in reporting_to_qs:
+
+                reporting_to_obj.user_role = user_role_id
+                reporting_to_obj.reporting_to = user_detail_qs
+                reporting_to_obj.save()
+            print("reporting to Save")
+            user_obj_data = {
+                "id": user_qs.id
+            }
+            context = {"message": "User Updated successfully.", "isSuccess": True,
+                       "data": user_obj_data, "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR------>", ex)
@@ -909,54 +904,47 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
     def put(self, request):
         try:
             request_data = request.data.copy()
-            # user_role = Role.objects.filter(
-            #     id=request_data['user_role'])[0]
-            # if UserDetail.objects.filter(
-            #         user_obj=request_data['user_detail'], role=user_role).exists():
 
-            #     context = {"message": ['Role already exists'], "isSuccess": True, "data": [],
-            #                "statusCode": status.HTTP_200_OK}
-
-            #     return Response(context, status=status.HTTP_200_OK)
-
-            # else:
-
-            user_detail = UserDetail.objects.filter(
-                user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
-            print(user_detail.role.all())
-            user_detail.role.remove(request_data['previous_user_role'])
-            user_detail.save()
-            print(user_detail.role.all())
-            user_detail.role.add(request_data['user_role'])
-            user_detail.save()
-            print(user_detail.role.all())
             user_role = Role.objects.filter(
                 id=request_data['user_role'])[0]
-            # if UserRole.objects.filter(
-            #         user=request_data['user_detail'], role=user_role).exists():
-            #     context = {"message": ['Role already exists'], "isSuccess": True, "data": [],
-            #                "statusCode": status.HTTP_200_OK}
+            if ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=user_role).exists():
 
-            #     return Response(context, status=status.HTTP_200_OK)
+                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
+                           "statusCode": status.HTTP_200_OK}
 
-            # else:
-            user_role_qs = UserRole.objects.filter(
-                user=request_data['user_detail'], role=request_data['previous_user_role'])[0]
-            user_role_qs.role = user_role
-            user_role_qs.save()
+                return Response(context, status=status.HTTP_200_OK)
+            else:
 
-            user_detail_qs = UserDetail.objects.filter(
-                user_obj=request_data['reporting_to'])[0]
-            reporting_to_qs = ReportingTo.objects.filter(
-                user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
-            reporting_to_qs.reporting_to = user_detail_qs
-            reporting_to_qs.user_role = user_role
-            reporting_to_qs.save()
+                user_detail = UserDetail.objects.filter(
+                    user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                print(user_detail.role.all())
+                user_detail.role.remove(request_data['previous_user_role'])
+                user_detail.save()
+                print(user_detail.role.all())
+                user_detail.role.add(request_data['user_role'])
+                user_detail.save()
+                print(user_detail.role.all())
+                user_role = Role.objects.filter(
+                    id=request_data['user_role'])[0]
 
-            context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
-                       "statusCode": status.HTTP_200_OK}
+                user_role_qs = UserRole.objects.filter(
+                    user=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                user_role_qs.role = user_role
+                user_role_qs.save()
 
-            return Response(context, status=status.HTTP_200_OK)
+                user_detail_qs = UserDetail.objects.filter(
+                    user_obj=request_data['reporting_to'])[0]
+
+                reporting_to_qs = ReportingTo.objects.filter(
+                    user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
+                reporting_to_qs.reporting_to = user_detail_qs
+                reporting_to_qs.user_role = user_role
+                reporting_to_qs.save()
+
+                context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
+                           "statusCode": status.HTTP_200_OK}
+
+                return Response(context, status=status.HTTP_200_OK)
 
             # return Response("Updated Successfully", status=status.HTTP_200_OK)
 
@@ -1020,9 +1008,9 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
 
     def get(self, request, pk):
         try:
-
+            # role_id = Role
             user_role_list = UserRole.objects.filter(
-                school=pk).distinct('user')
+                school=pk, role__name__in=['School Associate', 'Teacher', 'School Admin']).distinct('user')
             print("user------->", user_role_list)
             filtered_data = UserRoleFilter(
                 request.GET, queryset=user_role_list)
