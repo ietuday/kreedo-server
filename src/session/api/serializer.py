@@ -82,7 +82,7 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
         session_from = validated_data['session_from']
         session_till = validated_data['session_till']
         record_aval = AcademicSession.objects.filter(
-                                                academic_calender=validated_data['academic_calender'],
+                                                # academic_calender=validated_data['academic_calender'],
                                                 school=validated_data['school'],
                                                 grade=validated_data['grade'],
                                                 section=validated_data['section']
