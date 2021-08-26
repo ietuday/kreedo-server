@@ -77,6 +77,27 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = ['id', 'school', 'grade', 'academic_calender', 'session_from', 'session_till',
                   'section', 'is_active', 'is_applied']
+    
+    def validate(self,validated_data):
+        session_from = validated_data['session_from']
+        session_till = validated_data['session_till']
+        record_aval = AcademicSession.objects.filter(
+                                                academic_calender=validated_data['academic_calender'],
+                                                school=validated_data['school'],
+                                                grade=validated_data['grade'],
+                                                section=validated_data['section']
+                                                ).exclude(  
+                                Q(session_till__lt=session_from) |
+                                Q(session_from__gt=session_till) 
+                                              )
+
+        print("record_aval@@",record_aval)
+        # pdb.set_trace()
+        if record_aval:
+            raise ValidationError("Academic Session Over-Lap")
+        else:
+
+            return validated_data
 
 
 class AcademicSessionListSerializer(serializers.ModelSerializer):
@@ -119,12 +140,14 @@ class AssociateSeactionListSerializer(serializers.ModelSerializer):
             academic_session_qs = SectionSubjectTeacher.objects.filter(
                 academic_session=academic_session_id)
             academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherRetriveSerializer(
-                academic_session_qs, many=True)
+                                                    academic_session_qs, many=True)
             serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
             return serialized_data
         except Exception as ex:
             print("ERROR--->", ex)
             print(traceback.print_exc())
+    
+  
             
 
 
@@ -260,7 +283,8 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
             # )
             academic_cal_aval = AcademicCalender.objects.filter(
                                         school = validated_data['school'],
-                                        start_date=start_date
+                                        start_date=start_date,
+                                        end_date=end_date
             )
 
             print("acdemic cal aval",academic_cal_aval)
