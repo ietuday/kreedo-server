@@ -206,11 +206,12 @@ class ReportingToCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("@@@@@@2", validated_data.pop('user_detail'))
+            # print("@@@@@@2", validated_data.pop('user_detail'))
             # if ReportingTo.objects.filter(user_detail=validated_data.pop('user_detail', None), user_role=validated_data.pop('user_role', None)).exists():
             #     print("EXIST")
             #     raise ValidationError("Role already exists")
             # else:
+            print("Validate------>", validated_data)
             reporting_qs = ReportingTo.objects.create(**validated_data)
             """ Role update in User Detail """
             user_detail = UserDetail.objects.get(
