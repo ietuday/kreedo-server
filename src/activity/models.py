@@ -85,6 +85,8 @@ class ActivityAsset(TimestampAwareModel):
         verbose_name = 'ActivityAsset'
         verbose_name_plural = 'ActivityAssets'
         ordering = ['-id']
+        unique_together = ['activity','type']
+
 
     def __str__(self):
         return str(self.id)
