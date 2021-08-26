@@ -1,7 +1,7 @@
 # validate email
 from rest_framework import status
 from address.api.serializer import*
-from users.api.serializer import*
+# from users.api.serializer import*
 from kreedo.conf.logger import*
 import logging
 import traceback
@@ -443,97 +443,97 @@ def genrate_decrypted_string(random_string):
         raise ValidationError(ex)
 
 
-""" Update User"""
+# """ Update User"""
 
 
-def update_user(request, pk):
-    address_detail = {
-        "address": request.data.get('address', None),
-        "city": request.data.get('city', None),
-        "state": request.data.get('state', None),
-        "country": request.data.get('country', None),
-        "pincode": request.data.get('pincode', None),
+# def update_user(request, pk):
+#     address_detail = {
+#         "address": request.data.get('address', None),
+#         "city": request.data.get('city', None),
+#         "state": request.data.get('state', None),
+#         "country": request.data.get('country', None),
+#         "pincode": request.data.get('pincode', None),
 
-    }
-    address_qs = Address.objects.get(
-        id=request.data.get('address_id', None))
-    address_qs_serializer = AddressSerializer(
-        address_qs, data=dict(address_detail), partial=True)
-    if address_qs_serializer.is_valid():
-        address_qs_serializer.save()
+#     }
+#     address_qs = Address.objects.get(
+#         id=request.data.get('address_id', None))
+#     address_qs_serializer = AddressSerializer(
+#         address_qs, data=dict(address_detail), partial=True)
+#     if address_qs_serializer.is_valid():
+#         address_qs_serializer.save()
 
-    else:
-        raise ValidationError(address_qs.errors)
+#     else:
+#         raise ValidationError(address_qs.errors)
 
-    user_data = {
-        "first_name": request.data.get('first_name', None),
-        "last_name": request.data.get('last_name', None),
-        "email": request.data.get('email', None)
-    }
+#     user_data = {
+#         "first_name": request.data.get('first_name', None),
+#         "last_name": request.data.get('last_name', None),
+#         "email": request.data.get('email', None)
+#     }
 
-    user_details_data = {
-        "phone": request.data.get('phone', None),
-        "joining_date": request.data.get('joining_date', None),
-        "role": request.data.get('role', None),
-        "address": request.data.get('address_id', None)
+#     user_details_data = {
+#         "phone": request.data.get('phone', None),
+#         "joining_date": request.data.get('joining_date', None),
+#         "role": request.data.get('role', None),
+#         "address": request.data.get('address_id', None)
 
-    }
-    user_qs = User.objects.get(id=pk)
+#     }
+#     user_qs = User.objects.get(id=pk)
 
-    user_qs_serializer = UpdateUserSerializer(
-        user_qs, data=dict(user_data), partial=True)
-    if user_qs_serializer.is_valid():
-        user_qs_serializer.save()
-        print("SAVE")
-    else:
-        print("user_qs_serializer.errors---->",
-              user_qs_serializer.errors)
-        # return Response(user_qs_serializer.errors)
-        context = {"message": user_qs_serializer.errors['non_field_errors'], "isSuccess": False,
-                   "data": [], "statusCode": status.HTTP_200_OK}
-        return context
-    role = request.data.get('role', None)
+#     user_qs_serializer = UpdateUserSerializer(
+#         user_qs, data=dict(user_data), partial=True)
+#     if user_qs_serializer.is_valid():
+#         user_qs_serializer.save()
+#         print("SAVE")
+#     else:
+#         print("user_qs_serializer.errors---->",
+#               user_qs_serializer.errors)
+#         # return Response(user_qs_serializer.errors)
+#         context = {"message": user_qs_serializer.errors['non_field_errors'], "isSuccess": False,
+#                    "data": [], "statusCode": status.HTTP_200_OK}
+#         return context
+#     role = request.data.get('role', None)
 
-    user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
+#     user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
 
-    user_detail_qs_serializer = UserDetailSerializer(
-        user_details_qs, data=dict(user_details_data), partial=True)
-    if user_detail_qs_serializer.is_valid():
-        user_detail_qs_serializer.save()
-    else:
-        # return Response(user_detail_qs_serializer.errors)
-        context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
-                   "data": [], "statusCode": status.HTTP_200_OK}
-        return context
-    role = request.data.get('role', None)
-    user_role_id = Role.objects.filter(id=role[0])[0]
-    print("user_role_id---", user_role_id)
+#     user_detail_qs_serializer = UserDetailSerializer(
+#         user_details_qs, data=dict(user_details_data), partial=True)
+#     if user_detail_qs_serializer.is_valid():
+#         user_detail_qs_serializer.save()
+#     else:
+#         # return Response(user_detail_qs_serializer.errors)
+#         context = {"message": user_detail_qs_serializer.errors, "isSuccess": False,
+#                    "data": [], "statusCode": status.HTTP_200_OK}
+#         return context
+#     role = request.data.get('role', None)
+#     user_role_id = Role.objects.filter(id=role[0])[0]
+#     print("user_role_id---", user_role_id)
 
-    user_role_qs = UserRole.objects.filter(
-        user=pk, role=request.data.get('previous_user_role', None))
+#     user_role_qs = UserRole.objects.filter(
+#         user=pk, role=request.data.get('previous_user_role', None))
 
-    for user_role_obj in user_role_qs:
+#     for user_role_obj in user_role_qs:
 
-        user_role_obj.role = user_role_id
-        user_role_obj.save()
+#         user_role_obj.role = user_role_id
+#         user_role_obj.save()
 
-    print("Role saved")
-    user_detail_qs = UserDetail.objects.get(
-        user_obj=request.data.get('reporting', None))
+#     print("Role saved")
+#     user_detail_qs = UserDetail.objects.get(
+#         user_obj=request.data.get('reporting', None))
 
-    print("user_detail_qs-------->", user_detail_qs)
-    reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
-        'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
+#     print("user_detail_qs-------->", user_detail_qs)
+#     reporting_to_qs = ReportingTo.objects.filter(user_detail=pk, user_role=request.data.get(
+#         'previous_user_role', None), reporting_to=request.data.get('previous_reporting_to', None))
 
-    for reporting_to_obj in reporting_to_qs:
+#     for reporting_to_obj in reporting_to_qs:
 
-        reporting_to_obj.user_role = user_role_id
-        reporting_to_obj.reporting_to = user_detail_qs
-        reporting_to_obj.save()
-    print("reporting to Save")
-    user_obj_data = {
-        "id": user_qs.id
-    }
-    context = {"message": "User Updated successfully.", "isSuccess": True,
-               "data": user_obj_data, "statusCode": status.HTTP_200_OK}
-    return context
+#         reporting_to_obj.user_role = user_role_id
+#         reporting_to_obj.reporting_to = user_detail_qs
+#         reporting_to_obj.save()
+#     print("reporting to Save")
+#     user_obj_data = {
+#         "id": user_qs.id
+#     }
+#     context = {"message": "User Updated successfully.", "isSuccess": True,
+#                "data": user_obj_data, "statusCode": status.HTTP_200_OK}
+#     return context
