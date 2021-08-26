@@ -953,14 +953,9 @@ class AddRoleOfUserListCreate(ListCreateAPIView):
 
     def post(self, request):
         try:
-            # print(request.data)
-            role_detail = {
-                "user": request.data.get('user_detail', None),
-                "role": request.data.get('user_role', None),
-                "school": ""
-            }
-            context = super().get_serializer_context()
-            context.update({"role_detail": role_detail})
+            print("@@@@@@", request.data.get('user_detail', None),
+                  request.data.get('user_role', None))
+
             if ReportingTo.objects.filter(user_detail=request.data.get('user_detail', None), user_role=request.data.get('user_role', None)).exists():
                 # return Response('Role already exists', status=status.HTTP_200_OK)
                 context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
@@ -970,6 +965,14 @@ class AddRoleOfUserListCreate(ListCreateAPIView):
 
             else:
 
+                print("request.data-----------", request.data)
+                role_detail = {
+                    "user": request.data.get('user_detail', None),
+                    "role": request.data.get('user_role', None),
+                    "school": ""
+                }
+                context = super().get_serializer_context()
+                context.update({"role_detail": role_detail})
                 user_role_serializer = ReportingToCreateSerializer(
                     data=request.data, context=context)
                 if user_role_serializer.is_valid():
