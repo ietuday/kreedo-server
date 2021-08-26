@@ -1887,7 +1887,7 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
             print("request")
             role_name = Role.objects.filter(id=request.data.get(
                 'role', None))[0]
-            print("role_name.name", role_name.name)
+
             if role_name.name == "School Admin":
                 role_obj = Role.objects.filter(name="School Account Owner")[0]
 
@@ -1900,8 +1900,8 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
                 else:
                     return Response([], status=status.HTTP_404_NOT_FOUND)
             elif role_name.name == "School Associate":
-                role_obj = Role.objects.filter(
-                    name__in=["School Admin", "School Account Owner"])[0]
+                # role_obj = Role.objects.filter(
+                #     name__in=["School Admin", "School Account Owner"])[0]
 
                 user_role_qs = UserRole.objects.filter(
                     role__name__in=["School Admin", "School Account Owner"], school=request.data.get('school', None))
@@ -1913,8 +1913,8 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
                     return Response([], status=status.HTTP_404_NOT_FOUND)
             elif role_name.name == "Teacher":
                 print("#######")
-                role_obj = Role.objects.filter(
-                    name__in=["School Admin", "School Account Owner", "School Associate"])[0]
+                # role_obj = Role.objects.filter(
+                #     name__in=["School Admin", "School Account Owner", "School Associate"])[0]
 
                 user_role_qs = UserRole.objects.filter(
                     role__name__in=["School Admin", "School Account Owner", "School Associate"], school=request.data.get('school', None))
@@ -1925,7 +1925,7 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
                 else:
                     return Response([], status=status.HTTP_404_NOT_FOUND)
             else:
-                return Response([], status=status.HTTP_404_NOT_FOUND)
+                return Response([], status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR-----", ex)
             print("TRACEBACK---------", traceback.print_exc())
