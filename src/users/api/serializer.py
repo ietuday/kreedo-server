@@ -1046,14 +1046,16 @@ class AccountUserListSerializer(serializers.ModelSerializer):
         role_list = serialized_data['role']
         for role in role_list:
             print("@@@@@@@@2", role['name'])
-
-            if UserRole.objects.filter(
-                    user=user_id, role__name__in=role['name'], school__isnull=True).exists():
-                print("%")
-                user_license_count = UserRole.objects.filter(
-                    user=user_id, role__name__in=role['name'], school__isnull=True).count()
-                print("user-----", user_license_count)
-                if user_license_count:
-                    serialized_data['no_of_license'] = user_license_count
-
+            try:
+                if UserRole.objects.filter(
+                        user=user_id, role__name=role['name']).exists():
+                    print("%")
+                    user_license_count = UserRole.objects.filter(
+                        user=user_id, role__name=role['name']).count()
+                    print("user-----", user_license_count)
+                    if user_license_count:
+                        serialized_data['no_of_license'] = user_license_count
+            except Exception as ex:
+                print(ex)
+                print(traceback.print_exc())
         return serialized_data
