@@ -709,7 +709,7 @@ def update_user_function(request, pk):
     }
 
     user_role = UserDetail.objects.get(user_obj=pk)
-    print("user_role",user_role.role.all())
+    print("user_role", user_role.role.all())
     previous_user_role = request.data.get('previous_user_role', None)
     roles = []
     for role in user_role.role.all():
@@ -717,7 +717,6 @@ def update_user_function(request, pk):
             roles.append(role.id)
         else:
             roles.append(request.data.get('role', None)[0])
-
 
     user_details_data = {
         "phone": request.data.get('phone', None),
@@ -1748,21 +1747,46 @@ class AddUserData(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# class SchoolAccountListCreate(GeneralClass,Mixins,ListCreateAPIView):
-#     model = User
-#     serializer_class = AddUserSerializer
+class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = UserDetail
+    # serializer_class = AddUserSerialize
 
+    def get(self, request):
+        try:
 
-#     def post(self,request):
-#         try:
-#             user_details_data = {
-#                 'first_name':request.data.get('first_name',None),
-#                 'last_name':request.data.get('last_name',None),
+            # roles = Role.objects.get(name=)
+            # roles = roles.id
 
-#             }
+            user_obj = UserDetail.objects.filter(
+                role__name__in=['School Account Owner'])
+            if user_obj:
 
-#         except Exception as ex:
-#             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                user_obj_serializer = AccountUserListSerializer(
+                    user_obj, many=True)
+
+                context = {'isSuccess': True, 'message': "Accounts List",
+                           'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print(ex)
+            print(traceback.format_exc())
+            logger.debug(ex)
+            # return Response(ex)
+            context = {"isSuccess": False, "message": "Issue in Accounts List",
+                       "error": ex, "data": []}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # def post(self,request):
+    #     try:
+    #         user_details_data = {
+    #             'first_name':request.data.get('first_name',None),
+    #             'last_name':request.data.get('last_name',None),
+
+    #         }
+
+    #     except Exception as ex:
+    #         return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Get role by loggin id """
