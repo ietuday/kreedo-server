@@ -406,14 +406,15 @@ class GradeAndSectionListBySchool(GeneralClass, Mixins,ListCreateAPIView):
 class GradeAndSectionListBySchoolAcademic(GeneralClass, Mixins,ListCreateAPIView):
     def post(self, request):
         try:
-            acad_session_qs = AcademicSession.objects.filter(school=request.data.get('school', None),academic_calender= request.data.get('academic_calender', None))
+            acad_session_qs = AcademicSession.objects.filter(school=request.data.get('school', None),academic_calender= request.data.get('academic_calender', None), is_applied=True)
             if acad_session_qs:
                 grades = []
                 for acad in acad_session_qs:
                     if acad.grade not in grades: 
                         grades.append(acad.grade)
-                
-                grade_qs_serializer = GradeListSerializer(grades, many=True)
+                context = super().get_serializer_context()
+                context.update({"academic_calender": request.data.get('academic_calender', None), "school": request.data.get('school', None)})
+                grade_qs_serializer = GradeListBasedAcademicSerializer(grades, many=True, context=context)
 
             return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
 
