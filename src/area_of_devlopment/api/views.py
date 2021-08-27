@@ -89,6 +89,7 @@ class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return ConceptCreateSerializer
 
 
+
 """ Retrive update and delete Concept """
 
 class ConceptRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
@@ -120,6 +121,9 @@ class SkillListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SkillListSerializer
         if self.request.method == 'POST':
             return SkillCreateSerializer
+    
+
+
 
 
 

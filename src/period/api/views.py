@@ -129,7 +129,7 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
                 }
                 return Response(context)
             context = {
-                "isSuccess": False, "status": 200, "message": "period-template detail error",
+                "isSuccess": False, "status": 200, "message": "Period already exist in this time",
                 "data": None
             }
             return Response(context)
