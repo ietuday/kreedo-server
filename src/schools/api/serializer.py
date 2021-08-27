@@ -34,25 +34,26 @@ class GradeListSerializer(serializers.ModelSerializer):
             section_qs_serializer = SectionSerializer(section_qs, many=True)
             section_data = section_qs_serializer.data
             for section in section_data:
-                academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
-                                                    school=context['school'],
-                                                    grade=grade_id,
-                                                    section=section['id'])
+                if context and context['academic_calender']:
+                    academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+                                                        school=context['school'],
+                                                        grade=grade_id,
+                                                        section=section['id'])
                     
                 # pdb.set_trace()
-                if academic_session:
-                    academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
-                    academic_session_data = academic_session_serializer.data
-                    if academic_session_data['period_template']:
-                        section['template']  = academic_session_data['period_template']
-                    else: 
+                    if academic_session:
+                        academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
+                        academic_session_data = academic_session_serializer.data
+                        if academic_session_data['period_template']:
+                            section['template']  = academic_session_data['period_template']
+                        else: 
+                            section['template']  = {}
+                        periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(academic_session=academic_session[0])
+                        if periodTemplateToGrade_qs:
+                            periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(periodTemplateToGrade_qs[0])
+                            section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
+                    else:
                         section['template']  = {}
-                    periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(academic_session=academic_session[0])
-                    if periodTemplateToGrade_qs:
-                        periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(periodTemplateToGrade_qs[0])
-                        section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
-                else:
-                    section['template']  = {}
             serialized_data['sections'] = section_data
             return serialized_data
         except Exception as ex:
