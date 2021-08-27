@@ -71,27 +71,38 @@ class RegisterParent(ListCreateAPIView):
                 "is_platform_user": request.data.get('is_platform_user', None)
             }
 
-            print("user_detail_data----------", user_detail_data)
-
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
                 {"user_data": user_data, "user_detail_data": user_detail_data})
-
-            user_detail_serialzer = RegisterParentSerializer(
-                data=dict(user_data), context=context)
-
-            if user_detail_serialzer.is_valid():
-                user_detail_serialzer.save()
-
-                context = {"isSuccess": True, "message": "Parent created sucessfully",
-                           "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+            if User.objects.filter(email=request.data.get('email', None)).exists():
+                context = {"isSuccess": False, "message": "Email is already exists.",
+                           "error": "Email is already exists.", "data": [], "status": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            else:
 
-                context = {"isSuccess": False, "message": "Issue in Parent Creation",
-                           "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif UserDetail.objects.filter(phone=request.data.get('phone', None)).exists():
+                # raise ValidationError(
+                #     "Phone already regsitered for another user provide different number.")
+                context = {"isSuccess": False, "message": "Phone already regsitered for another user provide different number.",
+                           "error": "Phone already regsitered for another user provide different number.", "data": [], "status": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+
+            else:
+                user_detail_serialzer = RegisterParentSerializer(
+                    data=dict(user_data), context=context)
+
+                if user_detail_serialzer.is_valid():
+                    user_detail_serialzer.save()
+
+                    context = {"isSuccess": True, "message": "Parent created sucessfully",
+                               "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    print("@@@@@@@@@@@@@@@@@@ERROR----1",
+                          user_detail_serialzer.errors)
+                    context = {"isSuccess": False, "message": "Issue in Parent Creation",
+                               "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("Error------>", ex)
@@ -536,4 +547,30 @@ class GetUserList(ListCreateAPIView):
             print("TRACEBACK----", traceback.print_exc())
             context = {'error': str(ex), 'isSuccess': "false",
                        'message': 'Unable to validate OTP'}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" CurriculumDashboardData """
+
+
+class CurriculumDashboardData(ListCreateAPIView):
+    def get(self, request):
+        try:
+            count_dict = {
+                "no_of_school": School.objects.count(),
+                "no_of_children": Child.objects.count(),
+                "no_of_parents": UserDetail.objects.filter(is_platform_user=True, role__name__in=['Parent']).count(),
+                "no_of_parents_active": UserDetail.objects.filter(user_obj__is_active=True, role__name__in=['Parent'], is_platform_user=True).count(),
+                "no_of_teacher": UserRole.objects.filter(role__name__in=['Teacher']).count()
+            }
+
+            context = {'isSuccess': True, 'message': "Dashboard data", 'data': count_dict,
+                       "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': ex, 'isSuccess': False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       'message': "Issue in Curriculum  Dashboard  Data"}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
