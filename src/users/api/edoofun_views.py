@@ -548,8 +548,8 @@ class CurriculumDashboardData(ListCreateAPIView):
             count_dict = {
                 "no_of_school": School.objects.count(),
                 "no_of_children": Child.objects.count(),
-                "no_of_parents": UserDetail.objects.filter(is_platform_user=True).count(),
-                "no_of_parents_active": UserDetail.objects.filter(user_obj__is_active=True, is_platform_user=True).count(),
+                "no_of_parents": UserDetail.objects.filter(is_platform_user=True, role__name__in=['Parent']).count(),
+                "no_of_parents_active": UserDetail.objects.filter(user_obj__is_active=True, role__name__in=['Parent'], is_platform_user=True).count(),
                 "no_of_teacher": UserRole.objects.filter(role__name__in=['Teacher']).count()
             }
 
