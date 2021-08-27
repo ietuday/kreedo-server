@@ -71,27 +71,38 @@ class RegisterParent(ListCreateAPIView):
                 "is_platform_user": request.data.get('is_platform_user', None)
             }
 
-            print("user_detail_data----------", user_detail_data)
-
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
                 {"user_data": user_data, "user_detail_data": user_detail_data})
-
-            user_detail_serialzer = RegisterParentSerializer(
-                data=dict(user_data), context=context)
-
-            if user_detail_serialzer.is_valid():
-                user_detail_serialzer.save()
-
-                context = {"isSuccess": True, "message": "Parent created sucessfully",
-                           "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+            if User.objects.filter(email=request.data.get('email', None)).exists():
+                context = {"isSuccess": False, "message": "Email is already exists.",
+                           "error": "Email is already exists.", "data": [], "status": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            else:
 
-                context = {"isSuccess": False, "message": "Issue in Parent Creation",
-                           "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif UserDetail.objects.filter(phone=request.data.get('phone', None)).exists():
+                # raise ValidationError(
+                #     "Phone already regsitered for another user provide different number.")
+                context = {"isSuccess": False, "message": "Phone already regsitered for another user provide different number.",
+                           "error": "Phone already regsitered for another user provide different number.", "data": [], "status": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+
+            else:
+                user_detail_serialzer = RegisterParentSerializer(
+                    data=dict(user_data), context=context)
+
+                if user_detail_serialzer.is_valid():
+                    user_detail_serialzer.save()
+
+                    context = {"isSuccess": True, "message": "Parent created sucessfully",
+                               "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    print("@@@@@@@@@@@@@@@@@@ERROR----1",
+                          user_detail_serialzer.errors)
+                    context = {"isSuccess": False, "message": "Issue in Parent Creation",
+                               "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("Error------>", ex)

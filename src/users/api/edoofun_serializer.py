@@ -115,12 +115,14 @@ class RegisterParentSerializer(serializers.ModelSerializer):
             instance = super(RegisterParentSerializer,
                              self).to_representation(instance)
             """ Update details in RESPONSE """
-            print("self.context['user_detail']", self.context)
+
             instance['user_detail_data'] = self.context['user_detail']
 
             return instance
         except Exception as ex:
-            raise ValidationError(ex)
+            print(ex)
+            print("traceback", traceback.print_exc())
+            # raise ValidationError(ex)
 
     def create(self, validated_data):
 
@@ -162,74 +164,75 @@ class RegisterParentSerializer(serializers.ModelSerializer):
                 raise ValidationError("Failed to Genrate Password")
 
             try:
-                if User.objects.filter(email=validated_data['email'], first_name=validated_data['first_name'], last_name=validated_data['last_name']).exists():
-                    print("EXIST@@@@@@@@@@@@@@@@@@@")
+                # if User.objects.filter(email=validated_data['email'], first_name=validated_data['first_name'], last_name=validated_data['last_name']).exists():
+                # if User.objects.filter(email=validated_data['email']).exists():
 
-                    raise ValidationError("User is already exists.")
+                #     print("EXIST@@@@@@@@@@@@@@@@@@@")
 
-                elif UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
-                    raise ValidationError(
-                        "Phone already regsitered for another user provide different number.")
+                #     raise ValidationError("Email is already exists.")
+
+                # elif UserDetail.objects.filter(phone=self.context['user_detail_data']['phone']).exists():
+                #     raise ValidationError(
+                #         "Phone already regsitered for another user provide different number.")
+
+                # else:
+
+                """ Create User """
+                user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=first_name,
+                                                last_name=last_name, is_active=True)
+                user.set_password(genrated_password)
+                user.save()
+                auth_user_created = True
+
+                self.context['user_detail_data']['user_obj'] = user.id
+
+                """ Pass request data of User detail Serializer"""
+
+                user_detail_serializer = UserDetailsSerializer(
+                    data=self.context['user_detail_data'])
+                if user_detail_serializer.is_valid():
+                    user_detail_serializer.save()
+
+                    self.context.update(
+                        {"user_detail": user_detail_serializer.data})
+                    print("USER DETAIL SAVE")
 
                 else:
+                    raise ValidationError(user_detail_serializer.errors)
 
-                    """ Create User """
-                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'], first_name=first_name,
-                                                    last_name=last_name, is_active=True)
-                    user.set_password(genrated_password)
-                    user.save()
-                    auth_user_created = True
+                user_role = {
+                    "user": user_detail_serializer.data['user_obj'],
+                    "role": Role.objects.filter(name="Parent")[0].id,
+                    "school": "",
+                    "is_active": True
+                }
+                user_role_serializer = UserRoleSerializer(
+                    data=dict(user_role))
+                if user_role_serializer.is_valid():
+                    user_role_serializer.save()
+                    print("USER ROLE SAVE")
+                else:
+                    raise ValidationError(user_role_serializer.errors)
 
-                    self.context['user_detail_data']['user_obj'] = user.id
-
-                    """ Pass request data of User detail Serializer"""
-
-                    user_detail_serializer = UserDetailsSerializer(
-                        data=self.context['user_detail_data'])
-                    if user_detail_serializer.is_valid():
-                        user_detail_serializer.save()
-
-                        self.context.update(
-                            {"user_detail": user_detail_serializer.data})
-                        print("USER DETAIL SAVE")
-
-                    else:
-                        raise ValidationError(user_detail_serializer.errors)
-
-                    user_role = {
-                        "user": user_detail_serializer.data['user_obj'],
-                        "role": Role.objects.filter(name="Parent")[0].id,
-                        "school": "",
-                        "is_active": True
-                    }
-                    user_role_serializer = UserRoleSerializer(
-                        data=dict(user_role))
-                    if user_role_serializer.is_valid():
-                        user_role_serializer.save()
-                        print("USER ROLE SAVE")
-                    else:
-                        raise ValidationError(user_role_serializer.errors)
-                    print("@@@@@@@@USER-----", user)
-
-                    user_question = {
-                        "question": "",
-                        "answer": "",
-                        "user": [user.id],
-                        "is_active": True
-                    }
-                    print("user_question---", user_question)
-                    user_question_serializer = QuestionCreateSerializer(
-                        data=dict(user_question))
-                    if user_question_serializer.is_valid():
-                        user_question_serializer.save()
-                        print("CREATe")
-                    else:
-                        print("Question Serializer",
-                              user_question_serializer.errors)
-                    return user
+                user_question = {
+                    "question": "",
+                    "answer": "",
+                    "user": [user.id],
+                    "is_active": True
+                }
+                print("user_question---", user_question)
+                user_question_serializer = QuestionCreateSerializer(
+                    data=dict(user_question))
+                if user_question_serializer.is_valid():
+                    user_question_serializer.save()
+                    print("CREATe")
+                else:
+                    print("Question Serializer",
+                          user_question_serializer.errors)
+                return user
 
             except Exception as ex:
-                print("ERROR-----", ex)
+                print("ERROR 1 try", ex)
                 print("TRACEBACK", traceback.print_exc())
                 raise ValidationError(ex)
 
