@@ -537,3 +537,29 @@ class GetUserList(ListCreateAPIView):
             context = {'error': str(ex), 'isSuccess': "false",
                        'message': 'Unable to validate OTP'}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" CurriculumDashboardData """
+
+
+class CurriculumDashboardData(ListCreateAPIView):
+    def get(self, request):
+        try:
+            count_dict = {
+                "no_of_school": School.objects.count(),
+                "no_of_children": Child.objects.count(),
+                "no_of_parents": UserDetail.objects.filter(is_platform_user=True).count(),
+                "no_of_parents_active": UserDetail.objects.filter(user_obj__is_active=True, is_platform_user=True).count(),
+                "no_of_teacher": UserRole.objects.filter(role__name__in=['Teacher']).count()
+            }
+
+            context = {'isSuccess': True, 'message': "Dashboard data", 'data': count_dict,
+                       "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': ex, 'isSuccess': False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       'message': "Issue in Curriculum  Dashboard  Data"}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
