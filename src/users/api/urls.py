@@ -55,7 +55,8 @@ urlpatterns = [
          getRolesByLoggedinUserId.as_view(), name='Get Roles by Login ID'),
     path('get_reporting_to_based_on_selected_role',
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
-
+    path('account_list_create',
+         AccountListCreate.as_view(), name='Account List Create'),
 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 
