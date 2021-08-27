@@ -1777,16 +1777,16 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
                        "error": ex, "data": []}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # def post(self,request):
-    #     try:
-    #         user_details_data = {
-    #             'first_name':request.data.get('first_name',None),
-    #             'last_name':request.data.get('last_name',None),
+    def post(self, request):
+        try:
+            user_details_data = {
+                'first_name': request.data.get('first_name', None),
+                'last_name': request.data.get('last_name', None),
 
-    #         }
+            }
 
-    #     except Exception as ex:
-    #         return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Get role by loggin id """
