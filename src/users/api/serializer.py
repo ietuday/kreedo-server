@@ -1021,3 +1021,39 @@ class ReportingToRoleSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = '__all__'
         depth = 1
+
+
+""" Account List Serializer"""
+
+
+class AccountUserListSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 3
+
+    """ no of license add """
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            AccountUserListSerializer, self).to_representation(obj)
+        user_id = serialized_data['user_obj']['id']
+        print("user id", user_id)
+        # role_id = [entry['id'] for entry in serialized_data['role']]
+        role_list = serialized_data['role']
+        for role in role_list:
+            print("@@@@@@@@2", role['name'])
+
+            if UserRole.objects.filter(
+                    user=user_id, role__name__in=role['name'], school__isnull=True).exists():
+                print("%")
+                user_license_count = UserRole.objects.filter(
+                    user=user_id, role__name__in=role['name'], school__isnull=True).count()
+                print("user-----", user_license_count)
+                if user_license_count:
+                    serialized_data['no_of_license'] = user_license_count
+
+        return serialized_data

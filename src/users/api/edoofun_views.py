@@ -218,7 +218,7 @@ class GetAllAccounts(ListCreateAPIView):
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     context = {'isSuccess': False, 'message': "Accounts List Not Found",
-                               'data': user_obj_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
+                               'data': [], "statusCode": status.HTTP_404_NOT_FOUND}
                     return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("@@@@@@@@", ex)
