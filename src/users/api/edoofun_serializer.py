@@ -198,7 +198,7 @@ class RegisterParentSerializer(serializers.ModelSerializer):
 
                     user_role = {
                         "user": user_detail_serializer.data['user_obj'],
-                        "role": Role.objects.filter(name="Primary")[0].id,
+                        "role": Role.objects.filter(name="Parent")[0].id,
                         "school": "",
                         "is_active": True
                     }
