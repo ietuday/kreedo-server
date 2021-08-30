@@ -92,21 +92,40 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
                 raise ValidationError(plan_activity_serializer.errors)
             return plan
         except Exception as ex:
-            print("%%%%%%%%%%%%",ex)
-            print("line no",traceback.print_exc())
+            print("%%%%%%%%%%%%", ex)
+            print("line no", traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
             return ValidationError(ex)
 
 
 """ Plan Update Serializer"""
+
+
 class PlanUpdateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = Plan
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+
+        try:
+            print("instance.pk-----", instance)
+
+            plan_qs = Plan.objects.filter(
+                pk=instance.pk).update(**validated_data)
+            print("%%%%%5")
+
+            return instance
+        except Exception as ex:
+            print("@@@@@@@@ SERIALIZER", ex)
+            print("Traceback------>", traceback.print_exc())
+            raise ValidationError(ex)
+
 
 """ child Plan List Serailizer"""
+
+
 class ChildPlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
@@ -135,7 +154,7 @@ class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
                 ChildPlanListByGradeSerializer, self).to_representation(obj)
-            print("serialized_data",serialized_data)
+            print("serialized_data", serialized_data)
             child_data = serialized_data.get('child')
             child_id = child_data.get('id')
             child_activity_count = ActivityComplete.objects.filter(
@@ -147,12 +166,12 @@ class ChildPlanListByGradeSerializer(serializers.ModelSerializer):
                 attendance_qs = Attendance.objects.get(attendance_date=self.context['attendance_detail']['attendance_date'],
                                                        academic_session=self.context['attendance_detail']['academic_session'])
 
-                print("attendance_qs",attendance_qs)
+                print("attendance_qs", attendance_qs)
                 for i, d in enumerate(attendance_qs.childs):
-                    
+
                     if str(child_id) in d['child_id']:
-                        
-                        print("Child id is present",str(child_id) )
+
+                        print("Child id is present", str(child_id))
                         serialized_data['is_present'] = d['present']
                         # return serialized_data
                     else:
@@ -242,6 +261,7 @@ class PlanActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlanActivity
         fields = '__all__'
+        depth = 2
 
 
 """ Plan Activity Create Serilaizer """
