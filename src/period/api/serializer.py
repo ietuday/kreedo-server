@@ -37,7 +37,7 @@ class PeriodTemplateListSerializer(serializers.ModelSerializer):
             week_dict = {}
             week_dict['name'] = week_name
             period_template_detail_qs = PeriodTemplateDetail.objects.filter(
-                period_template=period_template_id, day=week_name)
+                period_template=period_template_id, day=week_name).order_by('start_time', 'end_time')
             period_template_detail_serializer = PeriodTemplateDetailListSerializer(
                 period_template_detail_qs, many=True)
             week_dict['periods'] = period_template_detail_serializer.data
