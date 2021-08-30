@@ -1,3 +1,5 @@
+from functools import partial
+from inspect import trace
 from django.shortcuts import render
 from .serializer import*
 from plan.models import*
@@ -79,29 +81,35 @@ class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PlanListSerailizer
-        if self.request.method == 'PUT':
-            return PlanUpdateSerailizer
-        if self.request.method == 'PATCH':
-            return PlanUpdateSerailizer
+        # if self.request.method == 'PUT':
+        #     return PlanUpdateSerailizer
+        # if self.request.method == 'PATCH':
+        #     return PlanUpdateSerailizer
 
     def put(self, request, pk):
         try:
-
+            # print("request-----plan_activity",
+            #       request.data.pop('plan_activity', None))
+            print("request----",
+                  request.data)
+            plan_qs = Plan.objects.filter(id=pk)[0]
+            print("@", plan_qs)
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
                 {"plan_activity_dict": request.data.get('plan_activity', None)})
-            plan_qs = Plan.objects.filter(id=pk)
-            print("@", plan_qs)
-            plan_serializer = PlanUpdateSerailizer(
-                data=request.data, context=context)
-            # if plan_serializer.is_valid():
-            #     plan_serializer.save()
-            #     return Response(plan_serializer.data)
-            # else:
-            #     return Response(plan_serializer.errors)
+            plan_serializer = PlanUpdateSerailizer(plan_qs,
+                                                   data=request.data, context=context, partial=True)
+            if plan_serializer.is_valid():
+                plan_serializer.save()
+                print("Save")
+                return Response(plan_serializer.data)
+            else:
+                return Response(plan_serializer.errors)
+
         except Exception as ex:
             print("error@@", ex)
+            print("TRACEBACK---------", traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
 
