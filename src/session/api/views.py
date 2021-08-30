@@ -407,7 +407,7 @@ class GradeAndSectionListBySchoolAcademic(GeneralClass, Mixins,ListCreateAPIView
     def post(self, request):
         try:
             acad_session_qs = AcademicSession.objects.filter(school=request.data.get('school', None),
-            academic_calender= request.data.get('academic_calender', None),period_template=request.data.get('period_template', None), is_applied=True)
+            academic_calender= request.data.get('academic_calender', None), is_applied=True)
             if acad_session_qs:
                 grades = []
                 for acad in acad_session_qs:
