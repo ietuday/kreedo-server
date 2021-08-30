@@ -131,7 +131,7 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
 
             else:
                 context = {
-                    "isSuccess": False, "status": 200, "message": "Period already exist in this time",
+                    "isSuccess": False, "status": 200, "message": "Period already exists in this time",
                     "data": None
                 }
                 return Response(context)
@@ -190,7 +190,7 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
             logger.debug(ex)
 
             # return Response(ex)
-            context = {"isSuccess": False, "message": "Period With This Time Exists",
+            context = {"isSuccess": False, "message": "Period already exists in this time",
                        "data": [], "status": status.HTTP_200_OK}
             return Response(context, status=status.HTTP_200_OK)
 
