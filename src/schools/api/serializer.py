@@ -77,7 +77,7 @@ class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
             grade_id = serialized_data.get('id')
             print(context)
             acad_qs = AcademicSession.objects.filter(
-                grade=grade_id, is_applied=True, school=context['school'], period_template=context['period_template'], academic_calender=context['academic_calender'])
+                grade=grade_id, is_applied=True, school=context['school'], academic_calender=context['academic_calender'])
             sections = []
             for acad in acad_qs:
                 if acad.section not in sections:
