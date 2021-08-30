@@ -1,3 +1,4 @@
+from functools import partial
 from django.shortcuts import render
 
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveAPIView
@@ -119,6 +120,7 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
+            print("##########")
             period_temp_serializer = PeriodTemplateDetailCreateSerializer(
                 data=request.data)
             if period_temp_serializer.is_valid():
@@ -128,11 +130,13 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
                     "data": period_temp_serializer.data
                 }
                 return Response(context)
-            context = {
-                "isSuccess": False, "status": 200, "message": "Period already exist in this time",
-                "data": None
-            }
-            return Response(context)
+
+            else:
+                context = {
+                    "isSuccess": False, "status": 200, "message": "Period already exist in this time",
+                    "data": None
+                }
+                return Response(context)
 
         except Exception as ex:
             print("@@@", ex)
@@ -153,6 +157,52 @@ class PeriodTemplateDetailRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpd
             return PeriodTemplateDetailUpdateSerializer
         if self.request.method == 'PATCH':
             return PeriodTemplateDetailListSerializer
+
+
+class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
+    def put(self, request, pk):
+        try:
+            print("PK------", pk)
+            period_template_detail_qs = PeriodTemplateDetail.objects.filter(
+                id=pk)[0]
+            print("period_template_detail_qs------", period_template_detail_qs)
+
+            # if PeriodTemplateDetail.objects.filter(start_time=request.data.get('start_time', None),
+            #                                        end_time=request.data.get('end_time', None), room=request.data.get('room', None),
+            #                                        day=request.data.get('day', None), period_template=request.data.get('period_template', None)).exists():
+            #     context = {
+            #         "isSuccess": False, "status": 200, "message": "Period already exist in this time",
+            #         "data": None
+            #     }
+            #     return Response(context)
+            # else:
+            period_template_detail_serializer = UpdatePeriodTemplateSerializer(period_template_detail_qs,
+                                                                                data=request.data, partial=True)
+
+            if period_template_detail_serializer.is_valid():
+
+                period_template_detail_serializer.save()
+                context = {
+                    "isSuccess": True, "status": 200, "message": "period template detail Updated sucessfully",
+                    "data": period_template_detail_serializer.data
+                }
+                return Response(context)
+            else:
+                ("ERROR---------------", period_template_detail_serializer.errors)
+                context = {
+                    "isSuccess": False, "status": status.HTTP_200_OK, "message": period_template_detail_serializer.errors,
+                    "data": []
+                }
+                return Response(context)
+
+        except Exception as ex:
+            print("@#################3", ex)
+            print("@@@@@@@@@@@@@ TRACEBACK", traceback.print_exc())
+            logger.debug(ex)
+            # return Response(ex)
+            context = {"isSuccess": False, "message": "Issue in period template detail",
+                       "error": ex, "data": []}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ List of classes acording to teacher id , date, and day """

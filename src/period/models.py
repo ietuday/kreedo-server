@@ -1,3 +1,4 @@
+import pdb
 from django.core import validators
 from django.db import models
 from django.urls import reverse
@@ -68,8 +69,10 @@ class PeriodTemplate(TimestampAwareModel):
 
 """ Period Model """
 
+
 class Period(TimestampAwareModel):
-    period_template_detail = models.ForeignKey(to='PeriodTemplateDetail',on_delete=models.PROTECT, null=True, blank=True)
+    period_template_detail = models.ForeignKey(
+        to='PeriodTemplateDetail', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=100, blank=True)
     subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT,
                                 related_name='period_subject', null=True, blank=True)
@@ -101,32 +104,28 @@ class Period(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('Period_detail', kwargs={"pk": self.pk})
 
-    
 
-import pdb
 def valid_time_slot(value):
     print(value)
     val = value.strftime('%H:%M')
     # pdb.set_trace()
     return val
 
-    
-
-
 
 """ Period Template Detail """
+
 
 class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
         'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
-    name =  models.CharField(
-        max_length=50,null=True,blank=True)
+    name = models.CharField(
+        max_length=50, null=True, blank=True)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
         to='schools.Room', on_delete=models.PROTECT, null=True, blank=True)
-    start_date = models.DateField(null=True,blank=True)
-    end_date = models.DateField(null=True,blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     start_time = models.TimeField(null=True)
     end_time = models.TimeField(null=True)
     type = models.CharField(
@@ -137,13 +136,12 @@ class PeriodTemplateDetail(TimestampAwareModel):
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
- 
-            
     class Meta:
         verbose_name = 'PeriodTemplateDetail'
         verbose_name_plural = 'PeriodTemplateDetails'
         ordering = ['id']
-        unique_together = ('period_template','room','start_time','end_time','day')
+        unique_together = ('period_template', 'room',
+                           'start_time', 'end_time', 'day')
 
     def __str__(self):
         return str(self.id)
