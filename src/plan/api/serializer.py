@@ -1,3 +1,4 @@
+from functools import partial
 from traceback import print_exc
 from child.api.serializer import*
 from child.models import*
@@ -110,12 +111,29 @@ class PlanUpdateSerailizer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         try:
-            print("instance.pk-----", instance)
+
+            plan_activity = self.context['plan_activity_dict']
 
             plan_qs = Plan.objects.filter(
                 pk=instance.pk).update(**validated_data)
-            print("%%%%%5")
 
+            """ Update Plan Activity"""
+            for plan_activity_obj in plan_activity:
+                plan_activity_id = plan_activity_obj.pop('id')
+
+                plan_activity_qss = PlanActivity.objects.filter(
+                    id=plan_activity_id)[0]
+
+                plan_activity_serializer = PlanActivityCreateSerializer(
+                    plan_activity_qss, data=dict(plan_activity_obj), partial=True)
+                if plan_activity_serializer.is_valid():
+                    plan_activity_serializer.save()
+                    print("UPDATE")
+                else:
+
+                    print("%%%%%5", plan_activity_serializer.errors)
+
+            # plan_activity_qs= PlanActivity.objects.filter
             return instance
         except Exception as ex:
             print("@@@@@@@@ SERIALIZER", ex)
