@@ -191,8 +191,8 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
 
             # return Response(ex)
             context = {"isSuccess": False, "message": "Period With This Time Exists",
-                       "error": "", "data": [], "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                       "data": [], "status": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
 
 
 """ List of classes acording to teacher id , date, and day """
