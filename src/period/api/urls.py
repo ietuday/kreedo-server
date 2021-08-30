@@ -16,6 +16,8 @@ urlpatterns = [
     path('period_template_detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
 
+    path('update_period_template_detail/<int:pk>', UpdatePeriodTemplateDetail.as_view(),
+         name='UpdatePeriodTemplateDetail'),
     path('period_list_create',
          PeriodListCreate.as_view(), name='PeriodListCreate'),
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
