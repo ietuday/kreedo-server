@@ -6,6 +6,9 @@ from django_filters import rest_framework as filters
 
 
 class AreaOfDevlopmentFilter(filters.FilterSet):
+    name = filters.CharFilter(
+        field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = AreaOfDevlopment
         fields = '__all__'
@@ -15,6 +18,9 @@ class AreaOfDevlopmentFilter(filters.FilterSet):
 
 
 class ConceptFilter(filters.FilterSet):
+    name = filters.CharFilter(
+        field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = Concept
         fields = '__all__'
@@ -24,6 +30,9 @@ class ConceptFilter(filters.FilterSet):
 
 
 class SkillFilter(filters.FilterSet):
+    name = filters.CharFilter(
+        field_name='name', lookup_expr='icontains')
+
     class Meta:
         model = Skill
         fields = '__all__'
