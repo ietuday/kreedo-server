@@ -1747,9 +1747,9 @@ class AddUserData(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
+class AccountListCreate(ListCreateAPIView):
     model = UserDetail
-    # serializer_class = AddUserSerialize
+    serializer_class = AccountUserListSerializer
     filterset_class = UserDetailFilter
 
     def get(self, request):
@@ -1760,6 +1760,7 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             user_obj = UserDetail.objects.filter(
                 role__name__in=['School Account Owner'])
+            print("#######", user_obj)
             page = self.paginate_queryset(user_obj)
             if page is not None:
                 serializer = self.get_serializer(
