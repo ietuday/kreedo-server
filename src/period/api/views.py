@@ -115,8 +115,6 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PeriodTemplateDetailListSerializer
-        if self.request.method == 'POST':
-            return PeriodTemplateDetailCreateSerializer
 
     def post(self, request):
         try:
@@ -167,17 +165,8 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                 id=pk)[0]
             print("period_template_detail_qs------", period_template_detail_qs)
 
-            # if PeriodTemplateDetail.objects.filter(start_time=request.data.get('start_time', None),
-            #                                        end_time=request.data.get('end_time', None), room=request.data.get('room', None),
-            #                                        day=request.data.get('day', None), period_template=request.data.get('period_template', None)).exists():
-            #     context = {
-            #         "isSuccess": False, "status": 200, "message": "Period already exist in this time",
-            #         "data": None
-            #     }
-            #     return Response(context)
-            # else:
             period_template_detail_serializer = UpdatePeriodTemplateSerializer(period_template_detail_qs,
-                                                                                data=request.data, partial=True)
+                                                                               data=request.data, partial=True)
 
             if period_template_detail_serializer.is_valid():
 
@@ -199,9 +188,10 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
             print("@#################3", ex)
             print("@@@@@@@@@@@@@ TRACEBACK", traceback.print_exc())
             logger.debug(ex)
+
             # return Response(ex)
-            context = {"isSuccess": False, "message": "Issue in period template detail",
-                       "error": ex, "data": []}
+            context = {"isSuccess": False, "message": "Period With This Time Exists",
+                       "error": "", "data": [], "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

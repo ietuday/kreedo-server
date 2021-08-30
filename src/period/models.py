@@ -149,6 +149,10 @@ class PeriodTemplateDetail(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('PeriodTemplateDetail_detail', kwargs={"pk": self.pk})
 
+    # @property
+    # def validation_time(self):
+    #     return "/".join([settings.EXT_BASE_URL, self.slug])
+
 
 """ Apply period template to section  and grade """
 
