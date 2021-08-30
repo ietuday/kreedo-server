@@ -1750,6 +1750,7 @@ class AddUserData(ListCreateAPIView):
 class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = UserDetail
     # serializer_class = AddUserSerialize
+    filterset_class = UserDetailFilter
 
     def get(self, request):
         try:
@@ -1759,14 +1760,17 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             user_obj = UserDetail.objects.filter(
                 role__name__in=['School Account Owner'])
-            if user_obj:
+            page = self.paginate_queryset(user_obj)
+            if page is not None:
+                serializer = self.get_serializer(
+                    page, many=True)
+                return self.get_paginated_response(serializer.data)
+            user_obj_serializer = AccountUserListSerializer(
+                user_obj, many=True)
 
-                user_obj_serializer = AccountUserListSerializer(
-                    user_obj, many=True)
-
-                context = {'isSuccess': True, 'message': "Accounts List",
-                           'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
-                return Response(context, status=status.HTTP_200_OK)
+            context = {'isSuccess': True, 'message': "Accounts List",
+                       'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print(ex)
