@@ -169,8 +169,16 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                                                                                data=request.data, partial=True)
 
             if period_template_detail_serializer.is_valid():
-
                 period_template_detail_serializer.save()
+                print("DATA-------------", period_template_detail_serializer.data)
+                if 'validation_error' in period_template_detail_serializer.data:
+
+                    context = {
+                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
+
                 context = {
                     "isSuccess": True, "status": 200, "message": "period template detail Updated sucessfully",
                     "data": period_template_detail_serializer.data
@@ -194,10 +202,10 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
 
             # return Response(ex)
             context = {
-                "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
                 "data": []
             }
-            return Response(context, status=status.HTTP_200_OK)
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ List of classes acording to teacher id , date, and day """
