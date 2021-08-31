@@ -127,14 +127,14 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
                     "isSuccess": True, "status": 200, "message": "period template created sucessfully",
                     "data": period_temp_serializer.data
                 }
-                return Response(context)
+                return Response(context, status=status.HTTP_200_OK)
 
             else:
                 context = {
                     "isSuccess": False, "status": 200, "message": "Period already exists in this time",
-                    "data": None
+                    "data": []
                 }
-                return Response(context)
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("@@@", ex)
@@ -175,17 +175,17 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                     "isSuccess": True, "status": 200, "message": "period template detail Updated sucessfully",
                     "data": period_template_detail_serializer.data
                 }
-                return Response(context)
+                return Response(context, status=status.HTTP_200_OK)
             else:
 
                 print("ERROR---------------@@@@",
                       period_template_detail_serializer.errors)
 
                 context = {
-                    "isSuccess": False, "status": status.HTTP_200_OK, "message": period_template_detail_serializer.errors,
+                    "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
                     "data": []
                 }
-                return Response(context)
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("@#################3", ex)
