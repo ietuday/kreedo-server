@@ -535,10 +535,10 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
             print("working_days---->", working_days)
             # """ Period Creation """
 
-            # threading.Thread(target=create_period, args=(
-            #     grade_dict['grade'], grade_dict['section'], grade_dict['start_date'], grade_dict['end_date'], grade_dict['acad_session'])).start()
-            period_reponse = create_period(grade_dict)
-            print("period Response------->", period_reponse)
+            threading.Thread(target=create_period, args=(
+                grade_dict['grade'], grade_dict['section'], grade_dict['start_date'], grade_dict['end_date'], grade_dict['acad_session'])).start()
+            # period_reponse = create_period(grade_dict)
+            # print("period Response------->", period_reponse)
             return Response("Period is Creating......", status=status.HTTP_200_OK)
 
         except Exception as ex:
