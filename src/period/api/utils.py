@@ -28,7 +28,6 @@ logger.addHandler(handler)
 logger.info("UTILS Period CAlled ")
 
 
-
 class PeriodCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
@@ -37,15 +36,15 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
-                                     start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+                                         start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
             if p_qs == 0:
-                print("###################",validated_data)
-                data = super(PeriodCreateSerializer, self).create(validated_data)
+                print("###################", validated_data)
+                data = super(PeriodCreateSerializer,
+                             self).create(validated_data)
                 return data
             else:
                 print("ALready Created")
                 return ValidationError("Alreday Created")
-
 
         except Exception as ex:
             print("ERROR", ex)
@@ -160,13 +159,13 @@ def total_working_days(grade_dict, count_weekday):
 
 
 def create_period(grade, section, start_date, end_date, acad_session):
-    try: 
+    try:
         grade_dict = {
-                "grade": grade,
-                "section": section,
-                "start_date": start_date,
-                "end_date": end_date,
-                "acad_session": acad_session
+            "grade": grade,
+            "section": section,
+            "start_date": start_date,
+            "end_date": end_date,
+            "acad_session": acad_session
         }
         print(grade, section, start_date, end_date, acad_session)
         from_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -181,15 +180,15 @@ def create_period(grade, section, start_date, end_date, acad_session):
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=acad_session).count()
-                    
+
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
-                             day=day_according_to_date.upper())
-                        print("@@@@@@@@@@@@",period_list)
+                            day=day_according_to_date.upper())
+                        print("@@@@@@@@@@@@", period_list)
                         period_dict = {}
- 
+
                         for period in period_list:
-                            period_dict['period_template_detail']=period.id
+                            period_dict['period_template_detail'] = period.id
                             period_dict['academic_session'] = [acad_session]
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
@@ -207,24 +206,24 @@ def create_period(grade, section, start_date, end_date, acad_session):
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
                             if p_qs == 0:
-                                print("#####",p_qs)
+                                print("#####", p_qs)
                                 period_serializer = PeriodCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
                                     period_serializer.save()
 
                                 else:
-                                    print("PERIOD-Serializer",period_serializer.errors)
+                                    print("PERIOD-Serializer",
+                                          period_serializer.errors)
                                     raise ValidationError(
                                         period_serializer.errors)
                             else:
                                 print("error in period")
                         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                        start_date=start_date, end_date=end_date).update(is_applied='True')
-                        
+                                                                         start_date=start_date, end_date=end_date).update(is_applied='True')
+
                         print("#PERIOD-----------#", period_qs)
-                       
-                        
+
         data = "Period Created"
         return data
     except Exception as ex:
@@ -249,3 +248,10 @@ def get_seconds_removed(time):
         return time
     else:
         return time
+
+
+def validation_time_for_period_template_detail():
+    try:
+        print("@@@@@@@@")
+    except Exception as ex:
+        raise ValidationError(ex)
