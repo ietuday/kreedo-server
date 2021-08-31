@@ -177,7 +177,10 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                 }
                 return Response(context)
             else:
-                ("ERROR---------------", period_template_detail_serializer.errors)
+
+                print("ERROR---------------@@@@",
+                      period_template_detail_serializer.errors)
+
                 context = {
                     "isSuccess": False, "status": status.HTTP_200_OK, "message": period_template_detail_serializer.errors,
                     "data": []
@@ -190,9 +193,9 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
             logger.debug(ex)
 
             # return Response(ex)
-            context = {"isSuccess": False, "message": "Period already exists in this time",
-                       "data": [], "status": status.HTTP_200_OK}
-            return Response(context, status=status.HTTP_200_OK)
+            context = {"isSuccess": False, "message": ex,
+                       "data": [], "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ List of classes acording to teacher id , date, and day """
