@@ -292,7 +292,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
                         room=validated_data['room'],
                         day=validated_data['day'],
                         period_template=validated_data['period_template'],
-                        start_time__gte=start_time).exists():
+                        start_time__gt=start_time).exists():
 
                     print("% TIME")
                     raise ValidationError("Period already exists in this time")
@@ -309,7 +309,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
                         room=validated_data['room'],
                         day=validated_data['day'],
                         period_template=validated_data['period_template'],
-                        end_time__lte=end_time).exists():
+                        end_time__lt=end_time).exists():
 
                     print("% TIME")
                     raise ValidationError("Period already exists in this time")
