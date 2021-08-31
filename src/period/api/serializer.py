@@ -276,7 +276,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
                         start_time__gte=start_time, end_time__lte=end_time).exists():
 
                     print("% TIME")
-                    raise ValidationError("Period With This Time Exists")
+                    raise ValidationError("Period already exists in this time")
                 else:
                     period_template_qs = PeriodTemplateDetail.objects.filter(
                         pk=instance.pk).update(**validated_data)
