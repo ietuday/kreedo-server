@@ -267,26 +267,26 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
         try:
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
-            # if (instance.start_time != start_time and instance.end_time != end_time):
-            #     print("#####")
-            if PeriodTemplateDetail.objects.filter(
-                    room=validated_data['room'],
-                    day=validated_data['day'],
-                    period_template=validated_data['period_template'],
-                    start_time__gte=start_time, end_time__lte=end_time).exists():
+            if (instance.start_time != start_time and instance.end_time != end_time):
+                print("#####")
+                if PeriodTemplateDetail.objects.filter(
+                        room=validated_data['room'],
+                        day=validated_data['day'],
+                        period_template=validated_data['period_template'],
+                        start_time__gte=start_time, end_time__lte=end_time).exists():
 
-                print("% TIME")
-                raise ValidationError("Period With This Time Exists")
+                    print("% TIME")
+                    raise ValidationError("Period already exists in this time")
+                else:
+                    period_template_qs = PeriodTemplateDetail.objects.filter(
+                        pk=instance.pk).update(**validated_data)
+
+                    return instance
             else:
                 period_template_qs = PeriodTemplateDetail.objects.filter(
                     pk=instance.pk).update(**validated_data)
 
                 return instance
-            # else:
-                # period_template_qs = PeriodTemplateDetail.objects.filter(
-                #     pk=instance.pk).update(**validated_data)
-
-                # return instance
         except Exception as ex:
             print("@@@@@@@@ SERIALIZER", ex)
             print("Traceback------>", traceback.print_exc())
