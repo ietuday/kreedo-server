@@ -265,7 +265,6 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         try:
-            print("instance.pk-----", instance)
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
             # if (instance.start_time != start_time and instance.end_time != end_time):
@@ -274,7 +273,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
                     room=validated_data['room'],
                     day=validated_data['day'],
                     period_template=validated_data['period_template'],
-                    start_time__gte=start_time, end_time__lt=end_time).exists():
+                    start_time__gte=start_time, end_time__lte=end_time).exists():
 
                 print("% TIME")
                 raise ValidationError("Period With This Time Exists")
