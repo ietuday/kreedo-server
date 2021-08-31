@@ -56,6 +56,7 @@ class Activity(TimestampAwareModel):
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_optional = models.BooleanField(default=False,null=True,blank=True)
     objects = ActivityManager
 
     class Meta:

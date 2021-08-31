@@ -49,7 +49,8 @@ urlpatterns = [
          name='PeriodTemplateDetailByPeriodTemplate'),
     path('get_period_count_by_academic_session',
          PeriodCountListByAcademicSession.as_view(), name='PeriodCountListByAcademicSession'),
-
+     path('test_view',
+         testView.as_view()),
 
 
 ]

@@ -75,7 +75,7 @@ class Plan(TimestampAwareModel):
 
 class PlanActivity(TimestampAwareModel):
     plan = models.ForeignKey(
-        'Plan', on_delete=models.PROTECT, null=True, blank=True)
+        'Plan', on_delete=models.PROTECT, null=True, blank=True,related_name='plan_activity')
     activity = models.ForeignKey(
         to='activity.Activity', on_delete=models.PROTECT, null=True, blank=True)
     sort_no = models.IntegerField(null=True, blank=True)

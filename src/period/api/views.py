@@ -18,6 +18,7 @@ from material.models import*
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.api.serializer import*
+from .utils import period_activity_association
 
 # Create your views here.
 
@@ -613,3 +614,12 @@ class PeriodCountListByAcademicSession(GeneralClass,Mixins, ListCreateAPIView):
             logger.info(ex)
             logger.debug(ex)
             return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class testView(ListCreateAPIView):
+
+    def get(self,request):
+        academic_session = AcademicSession.objects.get(pk=7)
+        period_activity_association(academic_session)
+        data = []
+        return Response(data)

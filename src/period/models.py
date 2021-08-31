@@ -88,6 +88,8 @@ class Period(TimestampAwareModel):
     activity_done = models.ManyToManyField(to='activity.Activity', blank=True)
     is_complete = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    activity_to_be_release = models.ManyToManyField(
+                                        to='activity.activity', blank=True,related_name='period_activity')
 
     class Meta:
         verbose_name = 'Period'
