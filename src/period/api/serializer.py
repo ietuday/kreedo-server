@@ -262,62 +262,76 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
         model = PeriodTemplateDetail
         fields = '__all__'
 
+    def to_representation(self, instance):
+        instance = super(UpdatePeriodTemplateSerializer,
+                         self).to_representation(instance)
+        print("@@@@@@@@@ to representation", self.context)
+        if 'validation_error' in self.context:
+            instance['validation_error'] = self.context['validation_error']
+        return instance
+
     def update(self, instance, validated_data):
 
         try:
             start_time = validated_data['start_time']
             end_time = validated_data['end_time']
-            print("@@@@@@@@@@@@@@@@@@@@")
+
             instance = self.instance
-            if (instance.start_time != start_time and instance.end_time != end_time):
+            if (instance.start_time != start_time) or (instance.end_time != end_time) or (instance.start_time != start_time and instance.end_time != end_time):
+                print("1 If calling.........")
+                if PeriodTemplateDetail.objects.filter(Q(start_time__gte=start_time) | Q(start_time__lte=start_time),
+                                                       Q(end_time__gte=end_time) | Q(
+                                                           end_time__lte=end_time),
+                                                       room=validated_data['room'],
+                                                       day=validated_data['day'],
+                                                       period_template=validated_data['period_template']).exists():
 
-                print("#####@")
-                if PeriodTemplateDetail.objects.filter(
-                        room=validated_data['room'],
-                        day=validated_data['day'],
-                        period_template=validated_data['period_template'],
-                        start_time__gte=start_time, end_time__lte=end_time).exists():
+                    period_template_qs = PeriodTemplateDetail.objects.filter(
+                        pk=instance.pk).update(**validated_data)
 
-                    print("% TIME")
-                    raise ValidationError("Period already exists in this time")
+                    return instance
+
+                else:
+
+                    print(" 2  IF  ----TIME")
+                    validation_error = "Period already exists in this time"
+                    self.context.update({"validation_error": validation_error})
+                    return validated_data
+
+            elif instance.end_time > end_time or instance.start_time < start_time:
+                print("instance.end_time > end_time or instance.start_time < start_time")
+                if PeriodTemplateDetail.objects.filter(Q(start_time__lt=start_time),
+                                                       Q(end_time__gt=end_time),
+                                                       room=validated_data['room'],
+                                                       day=validated_data['day'],
+                                                       period_template=validated_data['period_template']).exists():
+
+                    print(" el-IF  ----TIME")
+                    validation_error = "Period already exists in this time"
+                    self.context.update({"validation_error": validation_error})
+
                 else:
                     period_template_qs = PeriodTemplateDetail.objects.filter(
                         pk=instance.pk).update(**validated_data)
 
                     return instance
-            elif instance.start_time != start_time:
 
-                print("#####START TIME@")
+            elif instance.end_time == start_time:
+                print("instance.end_time != start_time ")
                 if PeriodTemplateDetail.objects.filter(
                         room=validated_data['room'],
                         day=validated_data['day'],
-                        period_template=validated_data['period_template'],
-                        start_time__gt=start_time).exists():
+                        period_template=validated_data['period_template'], end_time=start_time).exists():
 
-                    print("% TIME")
-                    raise ValidationError("Period already exists in this time")
-                    # error = "Period already exists in this time"
-                    # return error
-                else:
                     period_template_qs = PeriodTemplateDetail.objects.filter(
                         pk=instance.pk).update(**validated_data)
 
                     return instance
-            elif instance.end_time != end_time:
-                print("END TIME")
-                if PeriodTemplateDetail.objects.filter(
-                        room=validated_data['room'],
-                        day=validated_data['day'],
-                        period_template=validated_data['period_template'],
-                        end_time__lt=end_time).exists():
-
-                    print("% TIME")
-                    raise ValidationError("Period already exists in this time")
                 else:
-                    period_template_qs = PeriodTemplateDetail.objects.filter(
-                        pk=instance.pk).update(**validated_data)
 
-                    return instance
+                    print(" el-IF  ----TIME")
+                    validation_error = "Period already exists in this time"
+                    self.context.update({"validation_error": validation_error})
 
             else:
                 period_template_qs = PeriodTemplateDetail.objects.filter(
