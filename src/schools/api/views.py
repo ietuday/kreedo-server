@@ -125,6 +125,8 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SubjectListSerializer
+        if self.request.method == 'POST':
+            return SubjectCreateSerializer
 
 
 class SubjectCreate(Mixins, ListCreateAPIView):
