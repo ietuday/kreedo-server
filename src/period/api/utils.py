@@ -158,36 +158,46 @@ def total_working_days(grade_dict, count_weekday):
         raise ValidationError(ex)
 
 
-def create_period(grade, section, start_date, end_date, acad_session):
+def create_period(grade, section, start_date, end_date, acad_session, period_template):
     try:
         grade_dict = {
             "grade": grade,
             "section": section,
             "start_date": start_date,
             "end_date": end_date,
-            "acad_session": acad_session
+            "acad_session": acad_session,
+            "period_template": period_template
         }
         print(grade, section, start_date, end_date, acad_session)
         from_date = datetime.strptime(start_date, '%Y-%m-%d')
         to_date = datetime.strptime(end_date, '%Y-%m-%d')
         delta = to_date - from_date  # as timedelta
+        # pdb.set_trace()
         for i in range(delta.days + 1):
             day = from_date + timedelta(days=i)
             day_according_to_date = check_date_day(str(day.date()))
             week_off = weakoff_list(grade_dict)[0]
             day_according_to_date = day_according_to_date.lower()
+            print(week_off)
             for key, value in week_off.items():
+                # print("##########key########",key)
+                # print("##########day_according_to_date########",day_according_to_date)
+                # print("##########value########",value)
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=acad_session).count()
 
                     if schoolHoliday_count == 0:
+                        print("day$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",day)
+                        # print("day_according_to_date$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",day_according_to_date)
                         period_list = PeriodTemplateDetail.objects.filter(
-                            day=day_according_to_date.upper())
+                            day=day_according_to_date.upper(), period_template=period_template)
                         print("@@@@@@@@@@@@", period_list)
                         period_dict = {}
-
+ 
                         for period in period_list:
+                            print(period)
+                            # pdb.set_trace()
                             period_dict['period_template_detail'] = period.id
                             period_dict['academic_session'] = [acad_session]
                             period_dict['name'] = period.name
@@ -204,9 +214,9 @@ def create_period(grade, section, start_date, end_date, acad_session):
                             period_dict['is_active'] = True
 
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
-                                                         'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time']).count()
+                                                         'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time'], period_template_detail=period.id, room=period.room.id).count()
                             if p_qs == 0:
-                                print("#####", p_qs)
+                                print("#####", period_dict)
                                 period_serializer = PeriodCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
@@ -218,7 +228,7 @@ def create_period(grade, section, start_date, end_date, acad_session):
                                     raise ValidationError(
                                         period_serializer.errors)
                             else:
-                                print("error in period")
+                                print("Period Already Created")
                         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
                                                                          start_date=start_date, end_date=end_date).update(is_applied='True')
 
