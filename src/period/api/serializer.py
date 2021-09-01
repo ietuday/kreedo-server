@@ -290,7 +290,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
 
                     period_template_qs = PeriodTemplateDetail.objects.filter(
                         pk=instance.pk).update(**validated_data)
-
+                    print("Update")
                     return instance
 
                 else:
@@ -387,14 +387,31 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, validated_data):
-        instance = super(PeriodTemplateToGradeCreateSerializer,
-                         self).create(validated_data)
-        academic_session = instance.academic_session
-        academic_session.period_template = instance.period_template
-        academic_session.is_applied = True
-        academic_session.save()
-        instance.save()
-        return instance
+        print("validated_data", validated_data)
+        start_date = validated_data['start_date']
+        end_date = validated_data['end_date']
+        record_aval = PeriodTemplateToGrade.objects.filter(
+            academic_session=validated_data['academic_session'],
+            period_template=validated_data['period_template'],
+        ).exclude(
+            Q(end_date__lt=start_date) |
+            Q(start_date__gt=end_date)
+        )
+
+        if record_aval:
+            print("% EXIST")
+            raise ValidationError("Already exist")
+        else:
+
+            instance = super(PeriodTemplateToGradeCreateSerializer,
+                             self).create(validated_data)
+            print("instance------", instance)
+            academic_session = instance.academic_session
+            academic_session.period_template = instance.period_template
+            academic_session.is_applied = True
+            academic_session.save()
+            instance.save()
+            return validated_data
 
 
 class PeriodTemplateToGradeUpdateSerializer(serializers.ModelSerializer):
