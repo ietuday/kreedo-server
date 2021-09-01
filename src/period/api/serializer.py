@@ -407,10 +407,11 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
                              self).create(validated_data)
             print("instance------", instance)
             academic_session = instance.academic_session
-            academic_session.period_template = instance.period_template
+            academic_session.period_template.add(instance.period_template)
             academic_session.is_applied = True
             academic_session.save()
             instance.save()
+            print("SAVE")
             return validated_data
 
 
