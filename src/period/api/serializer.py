@@ -277,6 +277,8 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
             end_time = validated_data['end_time']
 
             instance = self.instance
+            print("start time", start_time)
+            print("end time", end_time)
             if (instance.start_time != start_time) or (instance.end_time != end_time) or (instance.start_time != start_time and instance.end_time != end_time):
                 print("1 If calling.........")
                 if PeriodTemplateDetail.objects.filter(Q(start_time__gte=start_time) | Q(start_time__lte=start_time),
@@ -293,7 +295,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
 
                 else:
 
-                    print(" 2  IF  ----TIME")
+                    print(" 2 Error")
                     validation_error = "Period already exists in this time"
                     self.context.update({"validation_error": validation_error})
                     return validated_data
@@ -334,6 +336,7 @@ class UpdatePeriodTemplateSerializer(serializers.ModelSerializer):
                     self.context.update({"validation_error": validation_error})
 
             else:
+                print("Changes-----")
                 period_template_qs = PeriodTemplateDetail.objects.filter(
                     pk=instance.pk).update(**validated_data)
 
