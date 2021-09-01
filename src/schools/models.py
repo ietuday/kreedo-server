@@ -38,7 +38,8 @@ School_Type_Choice = [
 
 class Grade(TimestampAwareModel):
     name = models.CharField(max_length=50, unique=True)
-    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
+    school = models.ForeignKey(
+        'School', on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
@@ -56,7 +57,8 @@ class Grade(TimestampAwareModel):
 class Section(TimestampAwareModel):
     grade = models.ForeignKey(
         'Grade', on_delete=models.PROTECT, null=True, blank=True)
-    school = models.ForeignKey('School', on_delete=models.PROTECT, null=True, blank=True)
+    school = models.ForeignKey(
+        'School', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=False)
 
@@ -72,9 +74,8 @@ class Section(TimestampAwareModel):
         return reverse('Section_detail', kwargs={"pk": self.pk})
 
 
-
 class Subject(TimestampAwareModel):
-    name = models.CharField(max_length=50, null=True, blank=True, unique=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
     type = models.CharField(
         max_length=50, choices=Subject_Type_Choice, null=True, blank=True)
     activity = models.ManyToManyField(
@@ -82,7 +83,8 @@ class Subject(TimestampAwareModel):
     is_active = models.BooleanField(default=False)
     plan = models.ManyToManyField(ChildPlan, blank=True)
     is_kreedo = models.BooleanField(default=False)
-    school = models.ForeignKey("School",on_delete=models.PROTECT,null=True,blank=True)
+    school = models.ForeignKey(
+        "School", on_delete=models.PROTECT, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Subject'
@@ -123,6 +125,8 @@ class License(TimestampAwareModel):
 
 
 """School Model"""
+
+
 class School(TimestampAwareModel):
     name = models.CharField(max_length=50)
     type = models.CharField(
@@ -134,7 +138,7 @@ class School(TimestampAwareModel):
         'License', on_delete=models.CASCADE, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     account_manager = models.ForeignKey(
-        to='users.UserDetail', on_delete=models.PROTECT,null=True, blank=True)
+        to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     objects = SchoolManager
 
     class Meta:
@@ -150,7 +154,7 @@ class School(TimestampAwareModel):
 
 
 """ Section Subject Teacher Model """
- 
+
 
 class SectionSubjectTeacher(TimestampAwareModel):
     subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
