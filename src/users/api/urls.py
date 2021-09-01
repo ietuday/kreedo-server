@@ -51,7 +51,7 @@ urlpatterns = [
          name='UserRoleRetriveUpdateDestroy'),
     path('user_list_by_school/<int:pk>',
          UserListBySchoolID.as_view(), name='User List By School'),
-    path('get_roles_by_loggedin_user_id',
+    path('get_roles_by_loggedin_user_id/<int:pk>',
          getRolesByLoggedinUserId.as_view(), name='Get Roles by Login ID'),
     path('get_reporting_to_based_on_selected_role',
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
