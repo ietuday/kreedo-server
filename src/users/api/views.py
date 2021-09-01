@@ -1799,32 +1799,33 @@ class AccountListCreate(ListCreateAPIView):
 
 @permission_classes((IsAuthenticated,))
 class getRolesByLoggedinUserId(GeneralClass, Mixins, ListCreateAPIView):
-    def get(self, request):
+    def get(self, request, pk):
         try:
             logged_user = request.user
-            user_obj = UserDetail.objects.filter(user_obj=logged_user.id)[0]
-            for role in user_obj.role.all():
+            print("ROLE-------", pk)
+            print("user-----", logged_user)
+            user_obj = UserRole.objects.filter(
+                user=logged_user.id, role=pk)[0]
 
-                role_name = Role.objects.filter(name=role)[0]
-                if role_name.name == "School Account Owner":
-                    role_obj = Role.objects.filter(name="School Admin")
-                    role_obj_serilaizer = RoleListSerializer(
-                        role_obj, many=True)
-                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
-                elif role_name.name == "School Admin":
-                    role_obj = Role.objects.filter(
-                        name__in=["School Admin", "School Associate", "Teacher"])
-                    role_obj_serilaizer = RoleListSerializer(
-                        role_obj, many=True)
-                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
-                elif role_name.name == "School Associate":
-                    role_obj = Role.objects.filter(
-                        name__in=["School Admin", "School Associate", "Teacher"])
-                    role_obj_serilaizer = RoleListSerializer(
-                        role_obj, many=True)
-                    return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
-                else:
-                    return Response("Role Not Found", status=status.HTTP_404_NOT_FOUND)
+            if user_obj.role.name == "School Account Owner":
+                role_obj = Role.objects.filter(name="School Admin")
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            elif user_obj.role.name == "School Admin":
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            elif user_obj.role.name == "School Associate":
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Role Not Found", status=status.HTTP_404_NOT_FOUND)
 
         except Exception as ex:
             print("ERROR-----", ex)
