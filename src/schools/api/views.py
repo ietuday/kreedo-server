@@ -125,8 +125,8 @@ class SubjectListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SubjectListSerializer
-        if self.request.method == 'POST':
-            return SubjectCreateSerializer
+        # if self.request.method == 'POST':
+        #     return SubjectCreateSerializer
 
 
 class SubjectCreate(Mixins, ListCreateAPIView):
@@ -146,10 +146,10 @@ class SubjectCreate(Mixins, ListCreateAPIView):
                 subject_serializer = SubjectCreateSerializer(data=request.data)
                 if subject_serializer.is_valid():
                     subject_serializer.save()
-                    context = {
-                        "isSuccess": True, "status": 200, "message": "Subject created successfully",
-                        "data": subject_serializer.data
-                    }
+                context = {
+                    "isSuccess": True, "status": 200, "message": "Subject created successfully",
+                    "data": subject_serializer.data
+                }
                 return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
