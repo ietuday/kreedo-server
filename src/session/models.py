@@ -81,8 +81,8 @@ class AcademicSession(TimestampAwareModel):
         'SchoolCalendar', on_delete=models.PROTECT, null=True, blank=True)
     session_from = models.DateField(blank=True, null=True)
     session_till = models.DateField(blank=True, null=True)
-    period_template = models.ForeignKey(
-        to='period.PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
+    period_template = models.ManyToManyField(
+        to='period.PeriodTemplate', blank=True)
     class_teacher = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     academic_calender = models.ForeignKey(

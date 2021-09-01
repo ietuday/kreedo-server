@@ -35,6 +35,9 @@ urlpatterns = [
          name='ActivityDetail'),
     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
          name='PeriodTemplateAppyToGradesListCreate'),
+    path('period_template_save_to_grade', PeriodTemplateSaveToGrade.as_view(),
+         name='PeriodTemplateSaveToGrade'),
+
 
 
     path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
