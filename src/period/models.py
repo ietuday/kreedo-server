@@ -28,6 +28,13 @@ saturday = "SATURDAY"
 sunday = "SUNDAY"
 
 
+"""Period Status"""
+nothing = "NOTHING"
+complete = "COMPLETE"
+pending = "PENDING"
+failed = "FAILED"
+
+
 Period_Type_Choice = [
     (Regular_Assessment, 'Regular Assessment'),
     (Regular, 'Regular'),
@@ -44,6 +51,14 @@ Days_Choice = [
     (saturday, 'SATURDAY'),
     (sunday, 'SUNDAY'),
 ]
+
+PERIOD_STATUS = [
+     (nothing, 'NOTHING'),
+    (complete, 'COMPLETE'),
+    (pending, 'PENDING'),
+    (failed, 'FAILED')
+]
+
 
 """ Period Template model """
 
@@ -112,6 +127,7 @@ def valid_time_slot(value):
     return val
 
 
+
 """ Period Template Detail """
 
 
@@ -156,6 +172,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
 class PeriodTemplateToGrade(TimestampAwareModel):
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
+    day = models.CharField(
+        max_length=50, choices=Days_Choice)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     period_template = models.ForeignKey(
