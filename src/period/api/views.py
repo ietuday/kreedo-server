@@ -428,9 +428,12 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
         if self.request.method == 'GET':
             return PeriodTemplateToGradeListSerializer
 
+
+class PeriodTemplateSaveToGrade(ListCreateAPIView):
     def post(self, request):
         try:
             grade_list = request.data.get('grade_list')
+            failed_section = []
             for grade in grade_list:
 
                 academic_qs = AcademicSession.objects.filter(
@@ -439,20 +442,44 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
                     grade['academic_session'] = academic_qs[0].id
                 else:
                     return Response("AcademicSession not found", status=status.HTTP_200_OK)
+                print("GRADE-------", grade)
 
-            period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
-                data=request.data.get('grade_list'), many=True)
+                period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
+                    data=grade)
 
-            if period_template_to_grade_serializer.is_valid():
-                # period_template_to_grade_serializer.save()
-                return Response(period_template_to_grade_serializer.data, status=status.HTTP_200_OK)
+                if period_template_to_grade_serializer.is_valid():
+                    period_template_to_grade_serializer.save()
+                    print("SAVE")
+                    continue
+                    # return Response(period_template_to_grade_serializer.data, status=status.HTTP_200_OK)
+                else:
+                    section = Section.objects.get(pk=grade['section'])
+                    failed_section.append(section.name)
+                    continue
+            if failed_section:
+                sections = ",".join(failed_section)
+                context = {
+                    "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
+                    "data": None
+                }
+                return Response(context)
+
+                # return Response(period_template_to_grade_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return Response(period_template_to_grade_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+                context = {
+                    "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+                }
+                return Response(context)
         except Exception as ex:
+            print("ERROR----", ex)
             logger.debug(ex)
             print(traceback.print_exc())
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            context = {
+                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
+                "data": []
+            }
+            return Response(context)
 
 
 class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
