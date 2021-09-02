@@ -647,7 +647,7 @@ class PeriodCountListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
     def post(self, request):
         try:
             period_data = Period.objects.filter(start_date__year=request.data.get('year', None),
-                                                start_date__month=request.data.get('month', None), academic_session=request.data.get('academic_session', None))
+                                                start_date__month=request.data.get('month', None), academic_session=request.data.get('academic_session', None),period_template_detail__period_template =  request.data.get('period_template', None))
             print("period_data--------------->", period_data)
             period_list = []
 
@@ -655,7 +655,7 @@ class PeriodCountListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
                 print(period_qs)
                 period_dict = {}
                 period_count = Period.objects.filter(
-                    start_date=period_qs.start_date)
+                    start_date=period_qs.start_date, period_template_detail__period_template =  request.data.get('period_template', None))
                 period_dict['period_count'] = period_count.count()
                 for period in period_count:
 
