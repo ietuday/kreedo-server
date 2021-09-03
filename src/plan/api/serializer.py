@@ -100,6 +100,15 @@ class PlanCreateSerailizer(serializers.ModelSerializer):
             return ValidationError(ex)
 
 
+""" PlanPatchUpdateSerailizer"""
+
+
+class PlanPatchUpdateSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = '__all__'
+
+
 """ Plan Update Serializer"""
 
 

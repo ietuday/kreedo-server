@@ -14,6 +14,8 @@ from django.core.exceptions import ValidationError
 
 
 from django.contrib.auth.models import User
+
+from schools.models import SchoolGradeSubject
 from ..models import*
 from address.api.serializer import AddressSerializer
 
@@ -1058,4 +1060,42 @@ class AccountUserListSerializer(serializers.ModelSerializer):
             except Exception as ex:
                 print(ex)
                 print(traceback.print_exc())
+        return serialized_data
+
+
+""" SchoolGradeSubjectListLicense"""
+
+
+class SchoolGradeSubjectListLicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = ['grade']
+        depth = 1
+
+
+""" license list by user id """
+
+
+class LicenseListByUserSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
+
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 2
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            LicenseListByUserSerializers, self).to_representation(obj)
+        # user_id = serialized_data['user_obj']['id']
+        print("serialized_data->", serialized_data['school']['id'])
+        school_id = serialized_data['school']['id']
+        school_grade = SchoolGradeSubject.objects.filter(school=school_id)
+        print("school_grade", school_grade)
+        if school_grade:
+            school_grade_qs_serializer = SchoolGradeSubjectListLicenseSerializer(
+                school_grade, many=True)
+            print("school_grade_qs_serializer.data",
+                  school_grade_qs_serializer.data)
+            serialized_data['selected_grades'] = school_grade_qs_serializer.data
         return serialized_data

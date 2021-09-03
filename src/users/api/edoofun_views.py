@@ -405,6 +405,7 @@ class EdoofunGenerateOTP(ListAPIView):
 
     def post(self, request):
         try:
+            print("request.data")
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
 
