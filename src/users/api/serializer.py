@@ -100,7 +100,7 @@ class UserDetailListSerializer(serializers.ModelSerializer):
     def get_reporting_to(self, obj):
         print("@@@@@@@@", obj)
         try:
-            reporting_obj = ReportingTo.objects.filter(user_detail=obj).first()
+            reporting_obj = ReportingTo.objects.filter(user_detail=obj)
             if reporting_obj == None:
                 return {}
             return ReportingToListSerializer(reporting_obj).data
