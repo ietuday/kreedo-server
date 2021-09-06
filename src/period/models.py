@@ -51,7 +51,7 @@ Days_Choice = [
     (saturday, 'SATURDAY'),
     (sunday, 'SUNDAY'),
 ]
-
+ 
 PERIOD_STATUS = [
      (nothing, 'NOTHING'),
     (complete, 'COMPLETE'),
