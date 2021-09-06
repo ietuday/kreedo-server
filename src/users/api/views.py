@@ -20,7 +20,7 @@ from .filters import*
 from kreedo.general_views import Mixins, GeneralClass
 from kreedo.conf.logger import CustomFormatter
 import traceback
-
+# import datetime
 import logging
 import pandas as pd
 
@@ -478,6 +478,7 @@ class GenerateOTP(ListAPIView):
 
     def post(self, request):
         try:
+            import datetime
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
 

@@ -172,8 +172,8 @@ class PeriodTemplateDetail(TimestampAwareModel):
 class PeriodTemplateToGrade(TimestampAwareModel):
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
-    day = models.CharField(
-        max_length=50, choices=Days_Choice)
+    period_status = models.CharField(
+        max_length=50, choices=PERIOD_STATUS)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     period_template = models.ForeignKey(
