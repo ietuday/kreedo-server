@@ -122,6 +122,14 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
 
             if holiday_serializer.is_valid():
                 holiday_serializer.save()
+                if 'validation_error' in holiday_serializer.data:
+
+                    context = {
+                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Holiday already exist in this date",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
+
                 context = {
                     "isSuccess": True, "status": 200, "message": "Holiday Updated Successfully",
                     "data": holiday_serializer.data

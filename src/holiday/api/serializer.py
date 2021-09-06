@@ -3,6 +3,8 @@ from rest_framework import serializers
 from holiday.models import*
 from django.core.exceptions import ValidationError
 
+from plan.models import No
+
 """ Holiday Type List Serializer """
 
 
@@ -129,47 +131,83 @@ class UpdatedSchoolHolidaySerializer(serializers.ModelSerializer):
             print("instance************8", instance)
             holiday_from = validated_data['holiday_from']
             holiday_till = validated_data['holiday_till']
+            print("holiday_from--------", holiday_from)
+            print("holiday_till------", holiday_till)
             school = validated_data.get('school', None)
             academic_calender = validated_data.get('academic_calender', None)
             academic_session = validated_data.get('academic_session', None)
             print("SCHOOL--------", school)
-            print("DATA---------", validated_data)
+            print("academic_calender---------", academic_calender)
             instance = self.instance
             print("instance----->", instance.pk)
-            if school:
-                record_avl = SchoolHoliday.objects.filter(holiday_from=holiday_from,
+            if school is not None:
+                print("SCHOOL")
+                record_avl = SchoolHoliday.objects.filter(~Q(id=instance.pk), holiday_from=holiday_from,
                                                           holiday_till=holiday_till,
                                                           school=school,
                                                           title=validated_data['title'])
                 print("record_avl", record_avl)
                 if record_avl:
                     print("@@@@@@@@@")
+                    validation_error = "Holiday already exists in this date"
+                    self.context.update(
+                        {"validation_error": validation_error})
+                    return validated_data
+                else:
+
                     period_template_qs = SchoolHoliday.objects.filter(
                         pk=instance.pk).update(**validated_data)
                     print("Update")
                     return instance
-                else:
-                    record_avl = SchoolHoliday.objects.filter(
-                        ~Q(id=instance.pk),
-                        title=validated_data['title'],
-                        school=school
-                    ).exclude(
-                        Q(holiday_till=holiday_till) |
-                        Q(holiday_from=holiday_from),
+            elif academic_calender is not None:
+                print("academic_calender")
+                record_avl = SchoolHoliday.objects.filter(
+                    ~Q(id=instance.pk),
+                    academic_calender=academic_calender,
+                    title=validated_data['title']
+                ).exclude(
+                    Q(holiday_till__lte=holiday_from) |
+                    Q(holiday_from__gte=holiday_till),
 
-                    )
-                    # record_avl_s = record_avl.exclude(instance)
-                    print("record_avl------------", record_avl)
-                    if record_avl:
-                        validation_error = "Holiday already exists in this date"
-                        self.context.update(
-                            {"validation_error": validation_error})
-                        return validated_data
-                    else:
-                        period_template_qs = SchoolHoliday.objects.filter(
-                            pk=instance.pk).update(**validated_data)
-                        print("Update")
-                        return instance
+                )
+
+                print("2 record_avl", record_avl)
+                if record_avl:
+                    print("@@@@@@@@@")
+                    validation_error = "Holiday already exists in this date"
+                    self.context.update(
+                        {"validation_error": validation_error})
+                    return validated_data
+                else:
+
+                    period_template_qs = SchoolHoliday.objects.filter(
+                        pk=instance.pk).update(**validated_data)
+                    print("Update")
+                    return instance
+            elif academic_session:
+                print("academic_session", academic_session)
+                record_avl = SchoolHoliday.objects.filter(
+                    ~Q(id=instance.pk),
+                    academic_session=academic_session,
+                    title=validated_data['title']
+                ).exclude(
+                    Q(holiday_till__lte=holiday_from) |
+                    Q(holiday_from__gte=holiday_till),
+
+                )
+                print(" academic_session record_avl", record_avl)
+                if record_avl:
+                    print("@@@@@@@@@")
+                    validation_error = "Holiday already exists in this date"
+                    self.context.update(
+                        {"validation_error": validation_error})
+                    return validated_data
+                else:
+
+                    period_template_qs = SchoolHoliday.objects.filter(
+                        pk=instance.pk).update(**validated_data)
+                    print("Update")
+                    return instance
 
         except Exception as ex:
             print("ex------------", ex)

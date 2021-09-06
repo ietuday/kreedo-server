@@ -101,9 +101,11 @@ class UserDetailListSerializer(serializers.ModelSerializer):
         print("@@@@@@@@", obj)
         try:
             reporting_obj = ReportingTo.objects.filter(user_detail=obj)
+            print("reporting_obj--------", reporting_obj)
             if reporting_obj == None:
                 return {}
-            return ReportingToListSerializer(reporting_obj).data
+
+            return ReportingToListSerializer(reporting_obj, many=True).data
         except Exception as e:
             print(e)
             return None

@@ -1925,13 +1925,15 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
 
 
 """ Kreedo Roles List """
+
+
 class kreedoroleslist(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request):
         try:
-           
-            role_obj = Role.objects.filter(name__in=["Senior Learning Manager","Kreedo Site Admin",
-                    "Learning Manager","Account Manger","School Admin","Kreedo Super Admin",
-                    "Delivery Head",])
+
+            role_obj = Role.objects.filter(name__in=["Senior Learning Manager", "Kreedo Site Admin",
+                                                     "Learning Manager", "Account Manger", "School Admin", "Kreedo Super Admin",
+                                                     "Delivery Head", ])
             role_obj_serilaizer = RoleListSerializer(
                 role_obj, many=True)
             return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
@@ -1939,4 +1941,3 @@ class kreedoroleslist(GeneralClass, Mixins, ListCreateAPIView):
             print("ERROR-----", ex)
             print("TRACEBACK---------", traceback.print_exc())
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
