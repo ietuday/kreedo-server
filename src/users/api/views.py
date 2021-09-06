@@ -1090,14 +1090,14 @@ class LicenseListByLoggedInUser(GeneralClass, Mixins, ListCreateAPIView):
             filtered_quersyet = filtered_data.qs
             user_role_list = filtered_quersyet.all()
             print("user_role_qs-------,", user_role_qs)
-            page = self.paginate_queryset(user_role_qs)
+            page = self.paginate_queryset(user_role_list)
             if page is not None:
                 serializer = self.get_serializer(
                     page, many=True)
                 return self.get_paginated_response(serializer.data)
 
             user_role_qs_serializer = LicenseListByUserSerializers(
-                user_role_qs, many=True)
+                user_role_list, many=True)
             return Response(user_role_qs_serializer.data)
 
         except Exception as ex:
@@ -1800,12 +1800,19 @@ class AccountListCreate(ListCreateAPIView):
                 role__name__in=['School Account Owner'])
             print("#######", user_obj)
             page = self.paginate_queryset(user_obj)
+
+            filtered_data = UserDetailFilter(
+                request.GET, queryset=user_obj)
+            print("filtered_data", filtered_data.qs)
+            filtered_quersyet = filtered_data.qs
+            user_obj_list = filtered_quersyet.all()
+
             if page is not None:
                 serializer = self.get_serializer(
                     page, many=True)
                 return self.get_paginated_response(serializer.data)
             user_obj_serializer = AccountUserListSerializer(
-                user_obj, many=True)
+                user_obj_list, many=True)
 
             context = {'isSuccess': True, 'message': "Accounts List",
                        'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
