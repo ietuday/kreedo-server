@@ -1044,15 +1044,17 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
 
     def get(self, request, pk):
         try:
-            # role_id = Role
+
             user_role_list = UserRole.objects.filter(
                 school=pk, role__name__in=['School Associate', 'Teacher', 'School Admin']).distinct('user')
             print("user------->", user_role_list)
+
             filtered_data = UserRoleFilter(
                 request.GET, queryset=user_role_list)
+            print("filtered_data", filtered_data.qs)
             filtered_quersyet = filtered_data.qs
             user_role_list = filtered_quersyet.all()
-
+            print("user_role_list-------,", user_role_list)
             page = self.paginate_queryset(user_role_list)
             if page is not None:
                 serializer = self.get_serializer(
@@ -1061,6 +1063,41 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
             user_role_serializer = SchoolUserRoleSerializers(
                 user_role_list, many=True)
             return Response(user_role_serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" License list by logged in user id"""
+
+
+class LicenseListByLoggedInUser(GeneralClass, Mixins, ListCreateAPIView):
+    model = UserRole
+    serializer_class = SchoolUserRoleSerializers
+    filterset_class = UserRoleFilter
+
+    def get(self, request, pk):
+
+        try:
+            print(pk)
+            user_role_qs = UserRole.objects.filter(
+                user=pk, role__name__in=['School Account Owner'])
+            print("@@", user_role_qs)
+            filtered_data = UserRoleFilter(
+                request.GET, queryset=user_role_qs)
+
+            filtered_quersyet = filtered_data.qs
+            user_role_list = filtered_quersyet.all()
+            print("user_role_qs-------,", user_role_qs)
+            page = self.paginate_queryset(user_role_qs)
+            if page is not None:
+                serializer = self.get_serializer(
+                    page, many=True)
+                return self.get_paginated_response(serializer.data)
+
+            user_role_qs_serializer = LicenseListByUserSerializers(
+                user_role_qs, many=True)
+            return Response(user_role_qs_serializer.data)
 
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1881,6 +1918,25 @@ class GetReportingToBasedOnSelectedRole(GeneralClass, Mixins, ListCreateAPIView)
                     return Response([], status=status.HTTP_404_NOT_FOUND)
             else:
                 return Response([], status=status.HTTP_200_OK)
+        except Exception as ex:
+            print("ERROR-----", ex)
+            print("TRACEBACK---------", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Kreedo Roles List """
+
+
+class kreedoroleslist(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request):
+        try:
+
+            role_obj = Role.objects.filter(name__in=["Senior Learning Manager", "Kreedo Site Admin",
+                                                     "Learning Manager", "Account Manger", "School Admin", "Kreedo Super Admin",
+                                                     "Delivery Head", ])
+            role_obj_serilaizer = RoleListSerializer(
+                role_obj, many=True)
+            return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ERROR-----", ex)
             print("TRACEBACK---------", traceback.print_exc())

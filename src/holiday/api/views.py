@@ -1,3 +1,5 @@
+import traceback
+from inspect import Traceback, trace
 from django.shortcuts import render
 
 from .serializer import*
@@ -42,6 +44,32 @@ class SchoolHolidayListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SchoolHolidayCreateSerializer
 
 
+class CreateSchoolHoliday(ListCreateAPIView):
+    def post(self, request):
+        try:
+            print(request)
+            holiday_serializer = CreateSchoolHolidaySerializer(
+                data=request.data)
+            if holiday_serializer.is_valid():
+                holiday_serializer.save()
+                context = {
+                    "isSuccess": True, "status": 200, "message": "Holiday Save successfully",
+                    "data": holiday_serializer.data
+                }
+                return Response(context)
+            else:
+                context = {
+                    "isSuccess": False, "status": 200, "message": "Holiday already exist in this date",
+                    "data": []
+                }
+                return Response(context)
+
+        except Exception as ex:
+            print("ERROR---------", ex)
+            print("TRACEBAcK---", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ SchoolHolidayListBySchool """
 
 
@@ -81,6 +109,43 @@ class SchoolHolidayRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDest
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
+
+
+class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
+    def patch(self, request, pk):
+        try:
+            print(request)
+            school_holiday_qs = SchoolHoliday.objects.filter(id=pk)[0]
+            print("SCHHOL Holiday", school_holiday_qs)
+            holiday_serializer = UpdatedSchoolHolidaySerializer(school_holiday_qs,
+                                                                data=request.data, partial=True)
+
+            if holiday_serializer.is_valid():
+                holiday_serializer.save()
+                if 'validation_error' in holiday_serializer.data:
+
+                    context = {
+                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Holiday already exist in this date",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
+
+                context = {
+                    "isSuccess": True, "status": 200, "message": "Holiday Updated Successfully",
+                    "data": holiday_serializer.data
+                }
+                return Response(context)
+            else:
+                context = {
+                    "isSuccess": False, "status": 200, "message": "Holiday already exist in this date",
+                    "data": []
+                }
+                return Response(context)
+
+        except Exception as ex:
+            print("ERROR---------", ex)
+            print("TRACEBAcK---", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ School Weak off List and create """
@@ -289,7 +354,7 @@ class WeekOffByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
             week_off_qs = SchoolWeakOff.objects.filter(academic_session=pk)
             if week_off_qs:
                 week_off_qs_serializer = SchoolWeakOffListSerializer(
-                week_off_qs[0])
+                    week_off_qs[0])
                 return Response(week_off_qs_serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response("", status=status.HTTP_404_NOT_FOUND)

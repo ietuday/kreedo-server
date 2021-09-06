@@ -188,13 +188,14 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                         holiday_from=day.date()), academic_session=acad_session).count()
 
                     if schoolHoliday_count == 0:
-                        print("day$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",day)
+                        print(
+                            "day$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", day)
                         # print("day_according_to_date$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",day_according_to_date)
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
                         print("@@@@@@@@@@@@", period_list)
                         period_dict = {}
- 
+
                         for period in period_list:
                             print(period)
                             # pdb.set_trace()

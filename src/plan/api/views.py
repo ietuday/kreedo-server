@@ -83,8 +83,8 @@ class PlanRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView
             return PlanListSerailizer
         # if self.request.method == 'PUT':
         #     return PlanUpdateSerailizer
-        # if self.request.method == 'PATCH':
-        #     return PlanUpdateSerailizer
+        if self.request.method == 'PATCH':
+            return PlanPatchUpdateSerailizer
 
     def put(self, request, pk):
         try:
