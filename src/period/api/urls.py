@@ -44,6 +44,8 @@ urlpatterns = [
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
+    path('period_delete',
+         PeriodDelete.as_view(), name='PeriodDelete'),
     path('period_month_list',
          PeriodMonthList.as_view(), name='PeriodMonthList'),
     path('period_list_according_to_date',
