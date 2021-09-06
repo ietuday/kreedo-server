@@ -190,13 +190,16 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = ['child', 'academic_session',
-                  'subjects', 'curriculum_start_date']
+                   'curriculum_start_date']
 
 
 class ChildPlanUpdateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
+
+    # def validate(self,validated_data):
+    #     return validated_data
 
 
 class ChildPlanSerializer(serializers.ModelSerializer):
@@ -269,4 +272,18 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
 class SubjectSchoolGradePlanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
+        fields = '__all__'
+
+
+""" ChildSubjectPlan create serializer"""
+class ChildSubjectPlanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSubjectPlan
+        fields = '__all__'
+
+
+""" ChildSubjectPlan list serializer"""
+class ChildSubjectPlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSubjectPlan
         fields = '__all__'

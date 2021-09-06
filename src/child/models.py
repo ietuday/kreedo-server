@@ -186,3 +186,4 @@ class Block(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('Block_detail', kwargs={"pk": self.pk})
+

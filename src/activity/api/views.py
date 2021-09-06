@@ -30,6 +30,7 @@ import logging
 from rest_framework import status
 import ast
 from rest_framework.pagination import LimitOffsetPagination
+from .utils import *
 
 
 # Create your views here.
@@ -259,6 +260,10 @@ class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
             activity_updated_data = []
 
             for activity in activity_complete_data:
+                mandatory_act_done = check_mandatory_act_done(activity)
+                if not mandatory_act_done:
+                    return Response({"non_field_errors":"Dependant Activity Should Done First"})
+
                 activity_q = ActivityComplete.objects.filter(
                     child=activity.get('child'),
                     activity=activity.get('activity')

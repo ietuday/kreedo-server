@@ -1,6 +1,7 @@
-from plan.models import SubjectSchoolGradePlan
+from math import fabs
+from plan.models import Plan, SubjectSchoolGradePlan
 import traceback
-
+from django.db.models import Count
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -252,90 +253,213 @@ def get_seconds_removed(time):
 
 
 """Period Activity Association"""
-def period_activity_association(academic_session):
+def period_group_activity_association(academic_session):
 
-    subject_plan_based_on_grades = SubjectSchoolGradePlan.objects.filter(
-                                                            school=academic_session.school,
-                                                            grade=academic_session.grade
-                                        )
+    # subject_plan_based_on_grades = SubjectSchoolGradePlan.objects.filter(
+    #                                                         school=academic_session.school,
+    #                                                         grade=academic_session.grade
+    #                                                                     )
 
-    """ For now considering all the periods have group plan"""
-    for subject_plan in subject_plan_based_on_grades:
-        period_list = Period.objects.filter(
-                                            academic_session=academic_session,
-                                            subject=subject_plan.subject,
-                                            # subject__type='Group'
+    # """ For now considering all the periods have group plan"""
+    # for subject_plan in subject_plan_based_on_grades:
+    #     period_list = Period.objects.filter(
+    #                                         academic_session=academic_session,
+    #                                         subject=subject_plan.subject,
+    #                                         # subject__type='Group'
 
-                                            )
-        period_count = period_list.count()
-        release_activity_list = []
-        optional_activity_release_list = []
-        for period in period_list:
-            print("activity_list",release_activity_list)
-            print("opti_list",optional_activity_release_list)
-            # if period.subject.type == 'Individual':
-            #     """ Individual Plan Implementation Logic"""
-            #     pass
-            if period.subject.type == 'Group':
-                """ Group Plan Imlementation Logic """
-                mandatory_activities = subject_plan.plan.plan_activity.filter(
-                                                                            is_optional=False,
-                                                                            ).exclude(
-                                                                            id__in=release_activity_list
-                                                                            ).order_by('sort_no')
-                optional_activities = subject_plan.plan.plan_activity.filter(
-                                                                            is_optional=True,
-                                                                            ).exclude(
-                                                                            id__in=optional_activity_release_list
-                                                                            ).order_by('sort_no')
+    #                                         )
+    #     period_count = period_list.count()
+    #     release_activity_list = []
+    #     optional_activity_release_list = []
+    #     for period in period_list:
+    #         print("activity_list",release_activity_list)
+    #         print("opti_list",optional_activity_release_list)
+    #         # if period.subject.type == 'Individual':
+    #         #     """ Individual Plan Implementation Logic"""
+    #         #     pass
+    #         if period.subject.type == 'Group':
+    #             """ Group Plan Imlementation Logic """
+    #             mandatory_activities = subject_plan.plan.plan_activity.filter(
+    #                                                                         is_optional=False,
+    #                                                                         ).exclude(
+    #                                                                         id__in=release_activity_list
+    #                                                                         ).order_by('sort_no')
+    #             optional_activities = subject_plan.plan.plan_activity.filter(
+    #                                                                         is_optional=True,
+    #                                                                         ).exclude(
+    #                                                                         id__in=optional_activity_release_list
+    #                                                                         ).order_by('sort_no')
 
-                mandatory_activity_count = subject_plan.plan.plan_activity.filter(
-                                                                            is_optional=False
-                                                                            ).count()
-                print("mand_act",mandatory_activities)
-                # pdb.set_trace()
-                if mandatory_activity_count <= period_count:
-                    if mandatory_activity_count < period_count:
-                        """ When period count is greater than mandatory activity count """
-                        if mandatory_activities:
-                            mandatory_activities = list(mandatory_activities)
-                            activity = mandatory_activities[0].activity
-                            period.activity_to_be_release.add(activity)
-                            period.save()
-                            release_activity_list.append(mandatory_activities[0].id)
-                            # pdb.set_trace()
-                            mandatory_activities.pop(0)
-                        else:
-                            optional_activities = list(optional_activities)
-                            activity = optional_activities[0].activity
-                            period.activity_to_be_release.add(activity)
-                            period.save()
-                            optional_activity_release_list.append(optional_activities[0].id)
-                            # pdb.set_trace()
-                            optional_activity_release_list.pop(0)
+    #             mandatory_activity_count = subject_plan.plan.plan_activity.filter(
+    #                                                                         is_optional=False
+    #                                                                         ).count()
+    #             print("mand_act",mandatory_activities)
+    #             # pdb.set_trace()
+    #             if mandatory_activity_count <= period_count:
+    #                 if mandatory_activity_count < period_count:
+    #                     """ When period count is greater than mandatory activity count """
+    #                     if mandatory_activities:
+    #                         mandatory_activities = list(mandatory_activities)
+    #                         activity = mandatory_activities[0].activity
+    #                         period.activity_to_be_release.add(activity)
+    #                         period.save()
+    #                         release_activity_list.append(mandatory_activities[0].id)
+    #                         # pdb.set_trace()
+    #                         mandatory_activities.pop(0)
+    #                     else:
+    #                         optional_activities = list(optional_activities)
+    #                         activity = optional_activities[0].activity
+    #                         period.activity_to_be_release.add(activity)
+    #                         period.save()
+    #                         optional_activity_release_list.append(optional_activities[0].id)
+    #                         # pdb.set_trace()
+    #                         optional_activity_release_list.pop(0)
 
 
-                    else:
-                        """ One mandatory activity per period """
-                        mandatory_activities = list(mandatory_activities)
-                        activity = mandatory_activities[0].activity
-                        period.activity_to_be_release.add(activity)
-                        period.save()
-                        release_activity_list.append(mandatory_activities[0].id)
-                        # pdb.set_trace()
-                        mandatory_activities.pop(0)
-                else:
+    #                 else:
+    #                     """ One mandatory activity per period """
+    #                     mandatory_activities = list(mandatory_activities)
+    #                     activity = mandatory_activities[0].activity
+    #                     period.activity_to_be_release.add(activity)
+    #                     period.save()
+    #                     release_activity_list.append(mandatory_activities[0].id)
+    #                     # pdb.set_trace()
+    #                     mandatory_activities.pop(0)
+    #             else:
 
-                    message = "Period count is less than mandatory activity count"    
-                    print(message)
+    #                 message = "Period count is less than mandatory activity count"    
+    #                 print(message)
                 
+    #         else:
+    #             """Individual Plan Activity release logic"""
+    #             pass
+
+    
+
+    period_list_based_on_session = Period.objects.filter(
+                                                        academic_session=academic_session,
+                                                        subject__type='Group'
+                                                        )
+    subject_list_based_on_period = []
+
+    """ subject list """
+    for period in period_list_based_on_session:
+        if period.subject in subject_list_based_on_period:
+            continue
+        else:
+            subject_list_based_on_period.append(period.subject)
+
+    print("subject list",subject_list_based_on_period)
+
+    for subject in subject_list_based_on_period:
+        subject_based_plan = get_subject_based_plan(subject,academic_session.grade)
+        # pdb.set_trace()
+    period_based_on_subject = period_list_based_on_session.filter(subject=subject)
+
+    # pdb.set_trace()
+    for period in period_based_on_subject:
+        # period.activity_to_be_done = []
+        # period.save()
+
+        plan_mandatory_activities = subject_based_plan.plan_activity.filter(
+                                                                is_optional=False
+                                                                ).order_by('sort_no')
+        plan_optional_activities  = subject_based_plan.plan_activity.filter(
+                                                                is_optional=True
+                                                                ).order_by('sort_no')
         
-    
+        for plan_activity in plan_mandatory_activities:
+            # pdb.set_trace()
+            record_aval = period_based_on_subject.filter(
+                                                activity_to_be_release=plan_activity.activity
+                                                        )
+            if record_aval:
+                continue
+            else:
+                print("period",period)
+                print("activity",plan_activity.activity)
+                period.activity_to_be_release.add(plan_activity.activity)
+                period.save()
+                break
+        
+        # for plan_activity in plan_optional_activities:
+        #     # pdb.set_trace()
+        #     record_aval = period_based_on_subject.filter(
+        #                                         activity_to_be_release=plan_activity.activity
+        #                                                 )
+        #     if record_aval:
+        #         continue
+        #     else:
+        #         print("period",period)
+        #         print("activity",plan_activity.activity)
+        #         period.activity_to_be_release.add(plan_activity.activity)
+        #         period.save()
+        #         break
+        
 
 
 
-    
 
 
+
+def get_subject_based_plan(subject,grade):
+
+    plan = Plan.objects.filter(subject=subject,
+                                grade=grade
+                            )
+    # pdb.set_trace()
+    if plan:
+        return plan[0]
+    return "No Plan Found"                       
+
+
+
+
+
+
+
+
+
+
+
+
+
+# period_count = period_based_on_subject.count()
+
+#         mandatory_activities = period_based_on_subject.plan_activity.filter(
+#                                                                         is_optional=False,
+#                                                                         ).exclude(
+#                                                                         id__in=release_activity_list
+#                                                                         ).order_by('sort_no')
+#         optional_activities = period_based_on_subject.plan_activity.filter(
+#                                                                     is_optional=True,
+#                                                                     ).exclude(
+#                                                                     id__in=optional_activity_release_list
+#                                                                     ).order_by('sort_no')
+
+#         mandatory_activity_count = period_based_on_subject.plan_activity.filter(
+#                                                                     is_optional=False
+#                                                                     ).count()
+#         print("mand_act",mandatory_activities)
+#         # pdb.set_trace()
+#         if mandatory_activity_count <= period_count:
+#             if mandatory_activity_count < period_count:
+#                 """ When period count is greater than mandatory activity count """
+#                 if mandatory_activities:
+#                     mandatory_activities = list(mandatory_activities)
+#                     activity = mandatory_activities[0].activity
+#                     period.activity_to_be_release.add(activity)
+#                     period.save()
+#                     release_activity_list.append(mandatory_activities[0].id)
+#                     # pdb.set_trace()
+#                     mandatory_activities.pop(0)
+#                 else:
+#                     optional_activities = list(optional_activities)
+#                     activity = optional_activities[0].activity
+#                     period.activity_to_be_release.add(activity)
+#                     period.save()
+#                     optional_activity_release_list.append(optional_activities[0].id)
+#                     # pdb.set_trace()
+#                     optional_activity_release_list.pop(0)
 
 

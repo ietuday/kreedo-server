@@ -1,8 +1,10 @@
 from datetime import datetime
+from plan.models import ChildSubjectPlan, Plan
+from holiday.models import SchoolHoliday, SchoolWeakOff
 from django.core.exceptions import ValidationError
 from schools.models import Subject
 import random
-
+import pdb
 
 
 """ Calculate Working Days """
@@ -55,3 +57,65 @@ def ChildJsonData(Child_data,period_detail):
     return childs
 
     
+def get_range_of_days_in_session(start_date,academic_session):
+
+    return 100
+
+
+
+
+
+def calculate_no_of_working_days_in_session(academic_session):
+
+    total_week_offs = SchoolWeakOff.objects.filter(
+                                            academic_session=academic_session
+                                            ).count()
+
+    total_school_holidays = SchoolHoliday.objects.filter(
+                                            academic_session=academic_session
+                                            ).count()
+
+    date_diff = academic_session.session_till - academic_session.session_from
+    total_days = date_diff.days
+
+    total_working_days = total_days - (total_week_offs + total_school_holidays)
+
+    return total_working_days
+
+
+
+def get_subject_plan(subject_list,child,range_of_working_days):
+    pdb.set_trace()
+    for subject in subject_list:
+        subject = Subject.objects.get(pk=subject)
+        plan_list = []
+        if subject.type == 'Group':
+            plan = Plan.objects.filter(
+                                        subject=subject
+                                    )
+            child_sub_plan = ChildSubjectPlan.objects.create(
+                                                            child=child,
+                                                            subject=subject,
+                                                            plan=plan[0]
+                                                            )
+            plan_list.append(child_sub_plan.id)
+        else:
+            pdb.set_trace()
+            plan = Plan.objects.filter(
+                                        subject=subject,
+                                        range_from__lte=range_of_working_days,
+                                        range_to__gte=range_of_working_days
+                                    )
+            pdb.set_trace()
+            child_sub_plan = ChildSubjectPlan.objects.create(
+                                                            child=child,
+                                                            subject=subject,
+                                                            plan=plan[0]
+            
+                                                      )
+            pdb.set_trace() 
+            plan_list.append(child_sub_plan.id)
+    return plan_list
+            
+        
+# def update_subject_plan()

@@ -18,7 +18,7 @@ from material.models import*
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.api.serializer import*
-from .utils import period_activity_association
+from .utils import *
 
 # Create your views here.
 
@@ -620,6 +620,6 @@ class testView(ListCreateAPIView):
 
     def get(self,request):
         academic_session = AcademicSession.objects.get(pk=7)
-        period_activity_association(academic_session)
+        period_group_activity_association(academic_session)
         data = []
         return Response(data)
