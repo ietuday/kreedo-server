@@ -576,6 +576,30 @@ class PeriodCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class PeriodDelete(GeneralClass, Mixins, ListCreateAPIView):
+     def post(self, request):
+        try:
+
+            grade_dict = {
+                "start_date": request.data.get('start_date', None),
+                "end_date": request.data.get('end_date', None),
+                "acad_session": request.data.get('acad_session', None),
+                "period_template": request.data.get('period_template', None)
+            }
+            Period.objects.filter(academic_session=grade_dict['acad_session'],period_template_detail__period_template=grade_dict['period_template'],start_date__gte=grade_dict['start_date'], end_date__lte=grade_dict['end_date']).delete()
+            return Response("Period Deleted", status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("ERRROR", ex)
+            logger.info(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
 """ MONTH LIST """
 
 
