@@ -425,7 +425,8 @@ class PeriodTemplateToGradeSerializer(serializers.ModelSerializer):
 class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
-        fields = '__all__'
+        fields = ['academic_session', 'start_date',
+                  'end_date', 'period_template', 'is_active']
 
     def validate(self, validated_data):
         print("validated_data", validated_data)
@@ -438,7 +439,7 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
             Q(end_date__lt=start_date) |
             Q(start_date__gt=end_date)
         )
-
+        print("record_aval-----------", record_aval)
         if record_aval:
             print("% EXIST")
             raise ValidationError("Already exist")
