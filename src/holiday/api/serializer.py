@@ -196,6 +196,7 @@ class UpdatedSchoolHolidaySerializer(serializers.ModelSerializer):
 
                 )
                 print(" academic_session record_avl", record_avl)
+
                 if record_avl:
                     print("@@@@@@@@@")
                     validation_error = "Holiday already exists in this date"
