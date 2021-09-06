@@ -13,6 +13,8 @@ from rest_framework.serializers import (
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.models import*
+from child.api.utils import get_range_of_days_in_session
+from .utils import *
 
 """ Logging """
 
@@ -198,8 +200,19 @@ class ChildPlanUpdateSerailizer(serializers.ModelSerializer):
         model = ChildPlan
         fields = '__all__'
 
-    # def validate(self,validated_data):
-    #     return validated_data
+    def validate(self,validated_data):
+        instance = self.instance
+        context = self.context
+        pdb.set_trace()
+        if validated_data['curriculum_start_date'] != instance.curriculum_start_date:
+            range_of_working_days = get_range_of_days_in_session(validated_data['curriculum_start_date'],validated_data['academic_session'])
+        else:
+            range_of_working_days = instance.range_of_working_days
+        subject_plan = update_subject_plan(context['subjects'],instance.child,range_of_working_days)
+        instance.subject_plan.add(subject_plan)
+        instance.save()
+        pdb.set_trace()
+        return validated_data
 
 
 class ChildPlanSerializer(serializers.ModelSerializer):
