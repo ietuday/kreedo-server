@@ -185,15 +185,14 @@ class UpdatedSchoolHolidaySerializer(serializers.ModelSerializer):
                     print("Update")
                     return instance
             elif academic_session:
-                print("academic_session", academic_session)
+                print("academic_session----->", academic_session)
                 record_avl = SchoolHoliday.objects.filter(
                     ~Q(id=instance.pk),
                     academic_session=academic_session,
                     title=validated_data['title']
                 ).exclude(
                     Q(holiday_till__lte=holiday_from) |
-                    Q(holiday_from__gte=holiday_till),
-
+                    Q(holiday_from__gte=holiday_till)
                 )
                 print(" academic_session record_avl", record_avl)
 
@@ -204,7 +203,6 @@ class UpdatedSchoolHolidaySerializer(serializers.ModelSerializer):
                         {"validation_error": validation_error})
                     return validated_data
                 else:
-
                     period_template_qs = SchoolHoliday.objects.filter(
                         pk=instance.pk).update(**validated_data)
                     print("Update")
