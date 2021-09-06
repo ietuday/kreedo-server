@@ -204,6 +204,8 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
+                            period_dict['teacher'] = SectionSubjectTeacher.objects.filter(
+                                subject=period.subject.id, academic_session=acad_session)[0].id
                             period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time

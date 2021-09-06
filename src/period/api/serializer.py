@@ -425,7 +425,8 @@ class PeriodTemplateToGradeSerializer(serializers.ModelSerializer):
 class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
-        fields = '__all__'
+        fields = ['academic_session', 'start_date',
+                  'end_date', 'period_template', 'is_active']
 
     def validate(self, validated_data):
         print("validated_data", validated_data)
