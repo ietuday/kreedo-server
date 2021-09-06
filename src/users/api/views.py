@@ -478,6 +478,7 @@ class GenerateOTP(ListAPIView):
 
     def post(self, request):
         try:
+            import datetime
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
 
