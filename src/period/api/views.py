@@ -430,30 +430,78 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
 
 
 class PeriodTemplateSaveToGrade(ListCreateAPIView):
+    # def post(self, request):
+    #     try:
+    #         grade_list = request.data.get('grade_list')
+    #         failed_section = []
+    #         for grade in grade_list:
+
+    #             academic_qs = AcademicSession.objects.filter(
+    #                 grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])
+    #             if academic_qs:
+    #                 grade['academic_session'] = academic_qs[0].id
+    #             else:
+    #                 return Response("AcademicSession not found", status=status.HTTP_200_OK)
+    #             print("GRADE-------", grade)
+
+    #             period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
+    #                 data=grade)
+
+    #             if period_template_to_grade_serializer.is_valid():
+    #                 period_template_to_grade_serializer.save()
+    #                 print("SAVE")
+    #                 continue
+
+    #             else:
+    #                 section = Section.objects.get(pk=grade['section'])
+    #                 failed_section.append(section.name)
+    #                 continue
+    #         if failed_section:
+    #             sections = ",".join(failed_section)
+    #             context = {
+    #                 "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
+    #                 "data": None
+    #             }
+    #             return Response(context)
+
+    #         else:
+    #             context = {
+    #                 "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+    #             }
+    #             return Response(context)
+    #     except Exception as ex:
+    #         print("ERROR----", ex)
+    #         logger.debug(ex)
+    #         print(traceback.print_exc())
+    #         context = {
+    #             "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
+    #             "data": []
+    #         }
+    #         return Response(context)
+
     def post(self, request):
         try:
             grade_list = request.data.get('grade_list')
             failed_section = []
             for grade in grade_list:
-
                 academic_qs = AcademicSession.objects.filter(
-                    grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])
+                    grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])[0]
                 if academic_qs:
-                    grade['academic_session'] = academic_qs[0].id
+                    grade['academic_session'] = academic_qs.id
                 else:
                     return Response("AcademicSession not found", status=status.HTTP_200_OK)
-                print("GRADE-------", grade)
 
-                period_template_to_grade_serializer = PeriodTemplateToGradeCreateSerializer(
+                print("academic_qs====",academic_qs, grade)
+                period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
                     data=grade)
 
-                if period_template_to_grade_serializer.is_valid():
-                    period_template_to_grade_serializer.save()
-                    print("SAVE")
+                if period_template_qs_serializer.is_valid():
+                    print("@@@2")
+                    period_template_qs_serializer.save()
                     continue
-                    # return Response(period_template_to_grade_serializer.data, status=status.HTTP_200_OK)
-
                 else:
+                    print("ERROR------------",
+                          period_template_qs_serializer.errors)
                     section = Section.objects.get(pk=grade['section'])
                     failed_section.append(section.name)
                     continue
@@ -465,20 +513,15 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                 }
                 return Response(context)
 
-                # return Response(period_template_to_grade_serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                context = {
-                    "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
-                }
-                return Response(context)
-        except Exception as ex:
-            print("ERROR----", ex)
-            logger.debug(ex)
-            print(traceback.print_exc())
-            # return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             context = {
-                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
-                "data": []
+                "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+            }
+            return Response(context)
+        except Exception as ex:
+            print("ERROR--->", ex)
+            context = {
+                "isSuccess": False, "status": 200, "message": f"{ex}",
+                "data": None
             }
             return Response(context)
 

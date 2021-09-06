@@ -438,7 +438,7 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
             Q(end_date__lt=start_date) |
             Q(start_date__gt=end_date)
         )
-
+        print("record_aval-----------", record_aval)
         if record_aval:
             print("% EXIST")
             raise ValidationError("Already exist")
