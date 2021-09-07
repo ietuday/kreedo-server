@@ -404,13 +404,13 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
             registered_by = validated_data.pop('registered_by')
             school = validated_data.pop('school')
             print("validated_data", validated_data)
-            pdb.set_trace()
+    
             child_instance = Child.objects.create(**validated_data)
             child_instance.registered_by = registered_by
             child_instance.school = school
             child_instance.save()
             # return child_instance
-            pdb.set_trace()
+        
             parents_detail = self.context['parent_detail']['parents']
 
             parent_list = []
@@ -435,7 +435,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                             "type": type_id
 
                         }
-                        pdb.set_trace()
+            
                         parent_detail_serializer = ParentDetailSerializer(
                             data=dict(parent_data))
 
@@ -470,7 +470,6 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
             section = self.context['academic_session_detail']['section']
             grade = self.context['academic_session_detail']['grade']
             class_teacher = self.context['academic_session_detail']['class_teacher']
-            pdb.set_trace()
             acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,
                                                          grade=grade, section=section, class_teacher=class_teacher)
 
@@ -494,18 +493,17 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                 subject_list =  self.context['academic_session_detail']['subjects']
                 """  create child plan """
                 try:
-                    pdb.set_trace()
                     child_plan_serializer = ChildPlanCreateSerailizer(
                         data=dict(academic_session_detail))
                     if child_plan_serializer.is_valid():
                         child_plan_serializer.save()
-                        pdb.set_trace()
+        
                         child_plan = child_instance.child_plan.all()[0]
                         acad_session_qs = AcademicCalender.objects.filter(
                             id=acad_session)
 
                         subject_plan = get_subject_plan(subject_list,child_instance,range_of_working_days)
-                        pdb.set_trace()
+                        
                         child_plan.subject_plan.set(subject_plan)
                         child_plan.save()
                         child_session = [

@@ -85,7 +85,6 @@ def calculate_no_of_working_days_in_session(academic_session):
 
 
 def get_subject_plan(subject_list,child,range_of_working_days):
-    pdb.set_trace()
     for subject in subject_list:
         subject = Subject.objects.get(pk=subject)
         plan_list = []
@@ -100,20 +99,19 @@ def get_subject_plan(subject_list,child,range_of_working_days):
                                                             )
             plan_list.append(child_sub_plan.id)
         else:
-            pdb.set_trace()
             plan = Plan.objects.filter(
                                         subject=subject,
                                         range_from__lte=range_of_working_days,
                                         range_to__gte=range_of_working_days
                                     )
-            pdb.set_trace()
+        
             child_sub_plan = ChildSubjectPlan.objects.create(
                                                             child=child,
                                                             subject=subject,
                                                             plan=plan[0]
             
                                                       )
-            pdb.set_trace() 
+
             plan_list.append(child_sub_plan.id)
     return plan_list
             

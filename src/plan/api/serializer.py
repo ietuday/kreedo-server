@@ -203,15 +203,13 @@ class ChildPlanUpdateSerailizer(serializers.ModelSerializer):
     def validate(self,validated_data):
         instance = self.instance
         context = self.context
-        pdb.set_trace()
         if validated_data['curriculum_start_date'] != instance.curriculum_start_date:
             range_of_working_days = get_range_of_days_in_session(validated_data['curriculum_start_date'],validated_data['academic_session'])
         else:
             range_of_working_days = instance.range_of_working_days
         subject_plan = update_subject_plan(context['subjects'],instance.child,range_of_working_days)
-        instance.subject_plan.add(subject_plan)
+        instance.subject_plan.set(subject_plan)
         instance.save()
-        pdb.set_trace()
         return validated_data
 
 

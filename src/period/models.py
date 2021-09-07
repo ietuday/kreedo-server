@@ -66,6 +66,9 @@ class PeriodTemplate(TimestampAwareModel):
         return reverse('PeriodTemplate_detail', kwargs={"pk": self.pk})
 
 
+
+
+
 """ Period Model """
 
 class Period(TimestampAwareModel):
@@ -91,6 +94,8 @@ class Period(TimestampAwareModel):
     activity_to_be_release = models.ManyToManyField(
                                         to='activity.activity', blank=True,related_name='period_activity')
 
+    individual_activities = models.ManyToManyField(
+                                        to='activity.PeriodIndividualActivity', blank=True,related_name='individual_activity')
     class Meta:
         verbose_name = 'Period'
         verbose_name_plural = 'Periods'

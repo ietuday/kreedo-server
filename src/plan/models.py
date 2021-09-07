@@ -171,9 +171,6 @@ class ChildPlan(TimestampAwareModel):
         return reverse('ChildPlan_detail', kwargs={"pk": self.pk})
 
 
- 
-
-
 
 
 
