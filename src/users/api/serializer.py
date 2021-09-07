@@ -1093,7 +1093,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         print("serialized_data->", serialized_data['school']['id'])
         school_id = serialized_data['school']['id']
         school_grade = SchoolGradeSubject.objects.filter(school=school_id)
-        print("school_grade", school_grade)
+        print("school_grade----------->", school_grade)
         if school_grade:
             school_grade_qs_serializer = SchoolGradeSubjectListLicenseSerializer(
                 school_grade, many=True)
