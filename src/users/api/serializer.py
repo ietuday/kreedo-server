@@ -1101,3 +1101,156 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
                   school_grade_qs_serializer.data)
             serialized_data['selected_grades'] = school_grade_qs_serializer.data
         return serialized_data
+
+
+""" User Register API """
+
+
+class AccountCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name',
+                  'last_name']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def to_representation(self, instance):
+        try:
+            instance = super(AccountCreateSerializer,
+                             self).to_representation(instance)
+            """ Update details in RESPONSE """
+
+            instance['user_detail'] = self.context['user_detail_serializer_data']
+
+            instance['user_role'] = self.context['user_role']
+
+            return instance
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+
+    def create(self, validated_data):
+        try:
+            first_name = validated_data['first_name']
+            last_name = validated_data['last_name']
+            email = validated_data['email']
+            auth_user_created = False
+            address_created = False
+            user_role_created = False
+
+            password = get_random_string(8)
+            print("@@@@@@@@@@", password)
+            """ Validate Email and Password"""
+            try:
+                email_password = validate_auth_user(email, password)
+            except ValidationError:
+                raise ValidationError(
+                    "Email and Password is required")
+
+            """ Validate Email """
+            try:
+                if not email:
+                    raise ValidationError("Email is required")
+                else:
+                    email = user_validate_email(email)
+                    if email is True:
+                        validated_data['email'] = validated_data['email'].lower(
+                        ).strip()
+                    else:
+                        raise ValidationError(
+                            "Enter a valid email address")
+            except ValidationError:
+                raise ValidationError(
+                    "Enter a valid email address")
+
+            """ Genrate Username """
+            try:
+                username = create_unique_username()
+                validated_data['username'] = username
+            except ValidationError:
+                raise ValidationError("Failed to genrate username")
+
+            """ Creating Auth User and User detail """
+            try:
+                if User.objects.filter(email=validated_data['email']).exists():
+                    raise ValidationError("Email is already Exists")
+                else:
+                    """ Create User """
+                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'],
+                                                    first_name=first_name, last_name=last_name, is_active=False)
+                    user.set_password(password)
+                    user.save()
+                    print("AUTH USER CREATE")
+                    auth_user_created = True
+                    self.context['user_detail_data']['user_obj'] = user.id
+
+                    """ Pass request data of User detail"""
+
+                    user_detail_serializer = UserDetailSerializer(
+                        data=self.context['user_detail_data'])
+                    if user_detail_serializer.is_valid():
+                        user_detail_serializer.save()
+
+                        self.context.update(
+                            {"user_detail_serializer_data": user_detail_serializer.data})
+
+                        """ send User Detail Funation """
+                        send_temprorary_password_mail(
+                            user, user_detail_serializer.data, password)
+
+                        role_id = self.context['user_detail_data']['role']
+                        user_role = {
+                            "user": user_detail_serializer.data['user_obj'],
+                            "role": role_id[0],
+                            "school": ""
+                        }
+
+                        user_role_serializer = UserRoleSerializer(
+                            data=dict(user_role))
+                        if user_role_serializer.is_valid():
+                            user_role_serializer.save()
+
+                            self.context.update({
+                                "user_role": user_role_serializer.data
+                            })
+
+                        else:
+                            raise ValidationError(
+                                user_role_serializer.errors)
+                        user_reporting_data = {
+                            "user_detail": user_detail_serializer.data['user_obj'],
+                            "user_role": role_id[0],
+                            "reporting_to": ""
+                        }
+                        reporting_to_serializer = ReportingToUpdateSerializer(
+                            data=dict(user_reporting_data))
+                        if reporting_to_serializer.is_valid():
+                            reporting_to_serializer.save()
+                            return user
+                        else:
+                            raise ValidationError(
+                                user_role_serializer.errors)
+
+                            return user
+
+                    else:
+                        logger.info(user_detail_serializer.errors)
+                        logger.debug(user_detail_serializer.errors)
+                        raise ValidationError(user_detail_serializer.errors)
+
+            except Exception as ex:
+                # user_id = user.id
+
+                # user_obj = User.objects.get(pk=user_id)
+                # user_obj.delete()
+                print("1   SERIALIZER- ERROr", ex)
+                print("1    SERIALIZER  Traceback", traceback.print_exc())
+                logger.info(ex)
+                logger.debug(ex)
+                # raise ValidationError(ex)
+
+        except Exception as ex:
+            print("SERIALIZER- ERROr", ex)
+            print("SERIALIZER  Traceback", traceback.print_exc())
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
