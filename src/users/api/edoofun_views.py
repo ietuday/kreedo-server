@@ -23,7 +23,7 @@ from kreedo.general_views import Mixins, GeneralClass
 from users.api.custum_storage import FileStorage
 
 import traceback
-import datetime
+from datetime import date
 import random
 
 from kreedo.conf import logger
@@ -408,7 +408,7 @@ class EdoofunGenerateOTP(ListAPIView):
             print("request.data")
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
-
+            import datetime
             print("@@@@@@@@@@@@@@@----", user_obj)
             if user_obj == None:
                 context = {'error': "This phone number is not linked to any account. Please check again.",
@@ -453,6 +453,7 @@ class EdoofunGenerateOTP(ListAPIView):
                        "error": "", "data": data}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as error:
+            print("error----------", error)
             print("TRACEBACK-----------", traceback.print_exc())
 
             context = {'error': str(error), 'isSuccess': "false",
