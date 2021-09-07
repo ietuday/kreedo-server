@@ -546,16 +546,15 @@ class OTPVerification(ListAPIView):
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
                            'isSuccess': "false", 'message': 'User with this phone number does not exist'}
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
-            # datetime.datetime.strptime(str(_now),"%Y-%m-%d %H:%M:%S.%f")
             date_time = datetime.datetime.strptime(
                 request.data['datetime'], "%Y-%m-%d %H:%M:%S.%f")
 
             if datetime.datetime.now() - date_time >= datetime.timedelta(seconds=140):
                 context = {'error': "OTP expired",
                            'isSuccess': "false", 'message': 'OTP expired'}
-            return Response(context, status=status.HTTP_400_BAD_REQUEST)
+                return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
             # hashed_otp_combo = pbkdf2_sha256.hash(str(request.data['entered_otp']) + str(date_time) + str(user_obj.id))
             pbkdf2_sha256.hash(
@@ -1785,7 +1784,7 @@ class AddUserData(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class AccountListCreate(ListCreateAPIView):
+class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = UserDetail
     serializer_class = AccountUserListSerializer
     filterset_class = UserDetailFilter
@@ -1803,10 +1802,10 @@ class AccountListCreate(ListCreateAPIView):
 
             filtered_data = UserDetailFilter(
                 request.GET, queryset=user_obj)
-            print("filtered_data", filtered_data.qs)
+
             filtered_quersyet = filtered_data.qs
             user_obj_list = filtered_quersyet.all()
-
+            page = self.paginate_queryset(user_obj_list)
             if page is not None:
                 serializer = self.get_serializer(
                     page, many=True)
@@ -1814,9 +1813,10 @@ class AccountListCreate(ListCreateAPIView):
             user_obj_serializer = AccountUserListSerializer(
                 user_obj_list, many=True)
 
-            context = {'isSuccess': True, 'message': "Accounts List",
-                       'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
-            return Response(context, status=status.HTTP_200_OK)
+            # context = {'isSuccess': True, 'message': "Accounts List",
+            #            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
+            # print("context----", context)
+            return Response(user_obj_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print(ex)
@@ -1825,7 +1825,7 @@ class AccountListCreate(ListCreateAPIView):
             # return Response(ex)
             context = {"isSuccess": False, "message": "Issue in Accounts List",
                        "error": ex, "data": []}
-            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # def post(self, request):
     #     try:
