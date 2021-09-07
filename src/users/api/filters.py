@@ -34,8 +34,10 @@ class UserDetailFilter(filters.FilterSet):
         field_name='address__state', lookup_expr='icontains')
     city = filters.CharFilter(
         field_name='address__city', lookup_expr='icontains')
-    pincode = filters.CharFilter(
+    pincode = filters.NumberFilter(
         field_name='address__pincode', lookup_expr='icontains')
+    phone = filters.NumberFilter(
+        field_name='phone', lookup_expr='icontains')
     address = filters.CharFilter(
         field_name='address__address', lookup_expr='icontains')
     # date = filters.DateFilter(field_name='joining_date__date')
@@ -56,7 +58,7 @@ class UserRoleFilter(filters.FilterSet):
         field_name='user__user_obj__first_name', lookup_expr='icontains')
     username = filters.CharFilter(
         field_name='user__user_obj__username', lookup_expr='icontains')
-    pincode = filters.CharFilter(
+    pincode = filters.NumberFilter(
         field_name='user__address__pincode', lookup_expr='icontains')
 
     class Meta:
