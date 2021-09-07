@@ -1073,7 +1073,7 @@ class UserListBySchoolID(GeneralClass, Mixins, ListCreateAPIView):
 
 class LicenseListByLoggedInUser(GeneralClass, Mixins, ListCreateAPIView):
     model = UserRole
-    serializer_class = SchoolUserRoleSerializers
+    serializer_class = LicenseListByUserSerializers
     filterset_class = UserRoleFilter
 
     def get(self, request, pk):
@@ -1088,7 +1088,8 @@ class LicenseListByLoggedInUser(GeneralClass, Mixins, ListCreateAPIView):
 
             filtered_quersyet = filtered_data.qs
             user_role_list = filtered_quersyet.all()
-            print("user_role_qs-------,", user_role_qs)
+            print("user_role_qs-------,", user_role_list)
+
             page = self.paginate_queryset(user_role_list)
             if page is not None:
                 serializer = self.get_serializer(
