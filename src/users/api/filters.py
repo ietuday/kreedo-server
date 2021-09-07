@@ -66,6 +66,8 @@ class UserRoleFilter(filters.FilterSet):
         field_name='user__address__city', lookup_expr='icontains')
     pincode = filters.NumberFilter(
         field_name='user__address__pincode', lookup_expr='icontains')
+    pincode = filters.CharFilter(
+        field_name='user__address__pincode', lookup_expr='icontains')
     phone = filters.NumberFilter(
         field_name='phone', lookup_expr='icontains')
     address = filters.CharFilter(

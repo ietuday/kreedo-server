@@ -1137,43 +1137,45 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             address_created = False
             user_role_created = False
 
-            password = get_random_string(8)
-            print("@@@@@@@@@@", password)
-            """ Validate Email and Password"""
-            try:
-                email_password = validate_auth_user(email, password)
-            except ValidationError:
-                raise ValidationError(
-                    "Email and Password is required")
-
-            """ Validate Email """
-            try:
-                if not email:
-                    raise ValidationError("Email is required")
-                else:
-                    email = user_validate_email(email)
-                    if email is True:
-                        validated_data['email'] = validated_data['email'].lower(
-                        ).strip()
-                    else:
-                        raise ValidationError(
-                            "Enter a valid email address")
-            except ValidationError:
-                raise ValidationError(
-                    "Enter a valid email address")
-
-            """ Genrate Username """
-            try:
-                username = create_unique_username()
-                validated_data['username'] = username
-            except ValidationError:
-                raise ValidationError("Failed to genrate username")
-
-            """ Creating Auth User and User detail """
-
             if User.objects.filter(email=validated_data['email']).exists():
-                raise serializers.ValidationError("Email is already Exists")
+                raise ValidationError(
+                    "Email is already Exists")
             else:
+                password = get_random_string(8)
+                print("@@@@@@@@@@", password)
+
+                """ Validate Email and Password"""
+                try:
+                    email_password = validate_auth_user(email, password)
+                except ValidationError:
+                    raise ValidationError(
+                        "Email and Password is required")
+
+                """ Validate Email """
+                try:
+                    if not email:
+                        raise ValidationError("Email is required")
+                    else:
+                        email = user_validate_email(email)
+                        if email is True:
+                            validated_data['email'] = validated_data['email'].lower(
+                            ).strip()
+                        else:
+                            raise ValidationError(
+                                "Enter a valid email address")
+                except ValidationError:
+                    raise ValidationError(
+                        "Enter a valid email address")
+
+                """ Genrate Username """
+                try:
+                    username = create_unique_username()
+                    validated_data['username'] = username
+                except ValidationError:
+                    raise ValidationError("Failed to genrate username")
+
+                """ Creating Auth User and User detail """
+
                 """ Create User """
                 user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'],
                                                 first_name=first_name, last_name=last_name, is_active=False)
@@ -1208,14 +1210,10 @@ class AccountCreateSerializer(serializers.ModelSerializer):
                         data=dict(user_role))
                     if user_role_serializer.is_valid():
                         user_role_serializer.save()
-
-                        self.context.update({
-                            "user_role": user_role_serializer.data
-                        })
-
                     else:
-                        raise serializers.ValidationError(
+                        raise ValidationError(
                             user_role_serializer.errors)
+
                     user_reporting_data = {
                         "user_detail": user_detail_serializer.data['user_obj'],
                         "user_role": role_id[0],
@@ -1227,29 +1225,19 @@ class AccountCreateSerializer(serializers.ModelSerializer):
                         reporting_to_serializer.save()
                         # return user
                     else:
-                        raise serializers.ValidationError(
+                        raise ValidationError(
                             user_role_serializer.errors)
 
                 else:
                     logger.info(user_detail_serializer.errors)
                     logger.debug(user_detail_serializer.errors)
-                    raise serializers.ValidationError(
+                    raise ValidationError(
                         user_detail_serializer.errors)
-            return user
-            # except Exception as ex:
-            #     # user_id = user.id
-
-            #     # user_obj = User.objects.get(pk=user_id)
-            #     # user_obj.delete()
-            #     print("1   SERIALIZER- ERROr", ex)
-            #     print("1    SERIALIZER  Traceback", traceback.print_exc())
-            #     logger.info(ex)
-            #     logger.debug(ex)
-            #     raise serializers.ValidationError(ex)
+                return user
 
         except Exception as ex:
             print("SERIALIZER- ERROr", ex)
             print("SERIALIZER  Traceback", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
-            raise serializers.ValidationError(ex)
+            raise ValidationError(ex)
