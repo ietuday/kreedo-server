@@ -1872,11 +1872,11 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
             if user_detail.is_valid():
                 user_detail.save()
 
-                return Response(user_detail.data, status=status.HTTP_200_OK)
+                return Response(user_detail.data)
             else:
                 logger.debug(user_detail.errors)
-
-                return Response(user_detail.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                print("user_detail.errors-------", user_detail.errors)
+                return Response(user_detail.errors)
 
         except Exception as ex:
             print("ERROR---------", ex)
@@ -1887,7 +1887,7 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 address_obj.delete()
             logger.debug(ex)
 
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex)
 
 
 """ Get role by loggin id """

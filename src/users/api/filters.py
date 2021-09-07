@@ -46,11 +46,6 @@ class UserDetailFilter(filters.FilterSet):
         model = UserDetail
         fields = '__all__'
 
-    # def my_custom_filter(self, queryset, name, value):
-    #     return queryset.filter(**{
-    #         name: value,
-    #     })
-
 
 class ReportingToFilter(filters.FilterSet):
     class Meta:
@@ -63,8 +58,20 @@ class UserRoleFilter(filters.FilterSet):
         field_name='user__user_obj__first_name', lookup_expr='icontains')
     username = filters.CharFilter(
         field_name='user__user_obj__username', lookup_expr='icontains')
+    country = filters.CharFilter(
+        field_name='user__address__country', lookup_expr='icontains')
+    state = filters.CharFilter(
+        field_name='user__address__state', lookup_expr='icontains')
+    city = filters.CharFilter(
+        field_name='user__address__city', lookup_expr='icontains')
     pincode = filters.NumberFilter(
         field_name='user__address__pincode', lookup_expr='icontains')
+    phone = filters.NumberFilter(
+        field_name='phone', lookup_expr='icontains')
+    address = filters.CharFilter(
+        field_name='address__address', lookup_expr='icontains')
+    school = filters.CharFilter(
+        field_name='school__name', lookup_expr='icontains')
 
     class Meta:
         model = UserRole
