@@ -46,6 +46,11 @@ class UserDetailFilter(filters.FilterSet):
         model = UserDetail
         fields = '__all__'
 
+    # def my_custom_filter(self, queryset, name, value):
+    #     return queryset.filter(**{
+    #         name: value,
+    #     })
+
 
 class ReportingToFilter(filters.FilterSet):
     class Meta:
