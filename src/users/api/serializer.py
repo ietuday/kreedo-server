@@ -1170,87 +1170,86 @@ class AccountCreateSerializer(serializers.ModelSerializer):
                 raise ValidationError("Failed to genrate username")
 
             """ Creating Auth User and User detail """
-            try:
-                if User.objects.filter(email=validated_data['email']).exists():
-                    raise ValidationError("Email is already Exists")
-                else:
-                    """ Create User """
-                    user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'],
-                                                    first_name=first_name, last_name=last_name, is_active=False)
-                    user.set_password(password)
-                    user.save()
-                    print("AUTH USER CREATE")
-                    auth_user_created = True
-                    self.context['user_detail_data']['user_obj'] = user.id
 
-                    """ Pass request data of User detail"""
+            if User.objects.filter(email=validated_data['email']).exists():
+                raise serializers.ValidationError("Email is already Exists")
+            else:
+                """ Create User """
+                user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'],
+                                                first_name=first_name, last_name=last_name, is_active=False)
+                user.set_password(password)
+                user.save()
+                print("AUTH USER CREATE")
+                auth_user_created = True
+                self.context['user_detail_data']['user_obj'] = user.id
 
-                    user_detail_serializer = UserDetailSerializer(
-                        data=self.context['user_detail_data'])
-                    if user_detail_serializer.is_valid():
-                        user_detail_serializer.save()
+                """ Pass request data of User detail"""
 
-                        self.context.update(
-                            {"user_detail_serializer_data": user_detail_serializer.data})
+                user_detail_serializer = UserDetailSerializer(
+                    data=self.context['user_detail_data'])
+                if user_detail_serializer.is_valid():
+                    user_detail_serializer.save()
 
-                        """ send User Detail Funation """
-                        send_temprorary_password_mail(
-                            user, user_detail_serializer.data, password)
+                    self.context.update(
+                        {"user_detail_serializer_data": user_detail_serializer.data})
 
-                        role_id = self.context['user_detail_data']['role']
-                        user_role = {
-                            "user": user_detail_serializer.data['user_obj'],
-                            "role": role_id[0],
-                            "school": ""
-                        }
+                    """ send User Detail Funation """
+                    send_temprorary_password_mail(
+                        user, user_detail_serializer.data, password)
 
-                        user_role_serializer = UserRoleSerializer(
-                            data=dict(user_role))
-                        if user_role_serializer.is_valid():
-                            user_role_serializer.save()
+                    role_id = self.context['user_detail_data']['role']
+                    user_role = {
+                        "user": user_detail_serializer.data['user_obj'],
+                        "role": role_id[0],
+                        "school": ""
+                    }
 
-                            self.context.update({
-                                "user_role": user_role_serializer.data
-                            })
+                    user_role_serializer = UserRoleSerializer(
+                        data=dict(user_role))
+                    if user_role_serializer.is_valid():
+                        user_role_serializer.save()
 
-                        else:
-                            raise ValidationError(
-                                user_role_serializer.errors)
-                        user_reporting_data = {
-                            "user_detail": user_detail_serializer.data['user_obj'],
-                            "user_role": role_id[0],
-                            "reporting_to": ""
-                        }
-                        reporting_to_serializer = ReportingToUpdateSerializer(
-                            data=dict(user_reporting_data))
-                        if reporting_to_serializer.is_valid():
-                            reporting_to_serializer.save()
-                            return user
-                        else:
-                            raise ValidationError(
-                                user_role_serializer.errors)
-
-                            return user
+                        self.context.update({
+                            "user_role": user_role_serializer.data
+                        })
 
                     else:
-                        logger.info(user_detail_serializer.errors)
-                        logger.debug(user_detail_serializer.errors)
-                        raise ValidationError(user_detail_serializer.errors)
+                        raise serializers.ValidationError(
+                            user_role_serializer.errors)
+                    user_reporting_data = {
+                        "user_detail": user_detail_serializer.data['user_obj'],
+                        "user_role": role_id[0],
+                        "reporting_to": ""
+                    }
+                    reporting_to_serializer = ReportingToUpdateSerializer(
+                        data=dict(user_reporting_data))
+                    if reporting_to_serializer.is_valid():
+                        reporting_to_serializer.save()
+                        # return user
+                    else:
+                        raise serializers.ValidationError(
+                            user_role_serializer.errors)
 
-            except Exception as ex:
-                # user_id = user.id
+                else:
+                    logger.info(user_detail_serializer.errors)
+                    logger.debug(user_detail_serializer.errors)
+                    raise serializers.ValidationError(
+                        user_detail_serializer.errors)
+            return user
+            # except Exception as ex:
+            #     # user_id = user.id
 
-                # user_obj = User.objects.get(pk=user_id)
-                # user_obj.delete()
-                print("1   SERIALIZER- ERROr", ex)
-                print("1    SERIALIZER  Traceback", traceback.print_exc())
-                logger.info(ex)
-                logger.debug(ex)
-                # raise ValidationError(ex)
+            #     # user_obj = User.objects.get(pk=user_id)
+            #     # user_obj.delete()
+            #     print("1   SERIALIZER- ERROr", ex)
+            #     print("1    SERIALIZER  Traceback", traceback.print_exc())
+            #     logger.info(ex)
+            #     logger.debug(ex)
+            #     raise serializers.ValidationError(ex)
 
         except Exception as ex:
             print("SERIALIZER- ERROr", ex)
             print("SERIALIZER  Traceback", traceback.print_exc())
             logger.info(ex)
             logger.debug(ex)
-            raise ValidationError(ex)
+            raise serializers.ValidationError(ex)
