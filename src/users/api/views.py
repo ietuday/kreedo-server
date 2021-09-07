@@ -1792,14 +1792,8 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def get(self, request):
         try:
-
-            # roles = Role.objects.get(name=)
-            # roles = roles.id
-
             user_obj = UserDetail.objects.filter(
                 role__name__in=['School Account Owner'])
-            print("#######", user_obj)
-            page = self.paginate_queryset(user_obj)
 
             filtered_data = UserDetailFilter(
                 request.GET, queryset=user_obj)
@@ -1813,10 +1807,6 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 return self.get_paginated_response(serializer.data)
             user_obj_serializer = AccountUserListSerializer(
                 user_obj_list, many=True)
-
-            # context = {'isSuccess': True, 'message': "Accounts List",
-            #            'data': user_obj_serializer.data, "statusCode": status.HTTP_200_OK}
-            # print("context----", context)
             return Response(user_obj_serializer.data, status=status.HTTP_200_OK)
 
         except Exception as ex:
@@ -1828,16 +1818,76 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
                        "error": ex, "data": []}
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    # def post(self, request):
-    #     try:
-    #         user_details_data = {
-    #             'first_name': request.data.get('first_name', None),
-    #             'last_name': request.data.get('last_name', None),
+    def post(self, request):
+        try:
 
-    #         }
+            address_detail = {
+                "country": request.data.get('country', None),
+                "state": request.data.get('state', None),
+                "city": request.data.get('city', None),
+                "address": request.data.get('address', None),
+                "pincode": request.data.get('pincode', None)
+            }
+            address_created = False
+            address_serializer = AddressSerializer(data=address_detail)
+            if address_serializer.is_valid():
+                address_serializer.save()
+                print("ADDRESS---->")
+                address_created = True
 
-    #     except Exception as ex:
-    #         return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                print("address_serializer._errors", address_serializer._errors)
+                raise ValidationError(address_serializer.errors)
+
+            user_data = {
+                "username": "test",
+                "first_name": request.data.get('first_name', None),
+                "last_name": request.data.get('last_name', None),
+                "email": request.data.get('email', None)
+
+            }
+            role = Role.objects.filter(name="School Account Owner")[0]
+
+            print("role-------------------", role.id, role.type.id)
+            user_detail_data = {
+                "phone": request.data.get('phone', None),
+                "role": [role.id],
+                "type": role.type.id,
+                "address": address_serializer.data['id']
+            }
+
+            """  Pass dictionary through Context """
+            context = super().get_serializer_context()
+            context.update(
+                {"user_data": user_data, "user_detail_data": user_detail_data})
+            try:
+                user_detail = AccountCreateSerializer(
+                    data=dict(user_data), context=context)
+            except Exception as ex:
+
+                context = {"error": ex,
+                           "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(context)
+
+            if user_detail.is_valid():
+                user_detail.save()
+
+                return Response(user_detail.data, status=status.HTTP_200_OK)
+            else:
+                logger.debug(user_detail.errors)
+
+                return Response(user_detail.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        except Exception as ex:
+            print("ERROR---------", ex)
+            print("Traceback------->", traceback.print_exc())
+            if address_created == True:
+                address_id = address_serializer.data['id']
+                address_obj = Address.objects.get(pk=address_id)
+                address_obj.delete()
+            logger.debug(ex)
+
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Get role by loggin id """
