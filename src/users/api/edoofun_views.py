@@ -2,6 +2,7 @@
     DJANGO LIBRARY IMPORT
 """
 
+import os
 from passlib.hash import pbkdf2_sha256
 from kreedo.settings import AWS_SNS_CLIENT, EMAIL_HOST_USER
 from schools.models import*
@@ -489,11 +490,15 @@ class EdoofunOTPVerification(ListAPIView):
                 str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj))
 
             if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj), "$pbkdf2-sha256" + request.data['otp']):
-                activation_key = urlsafe_base64_encode(force_bytes(str(user_obj.user_obj.pk))).decode(
-                    'utf-8') + '-' + default_token_generator.make_token(user_obj.user_obj)
-                link = os.environ.get(
-                    'kreedo_url') + '/users/reset_password_confirm/' + activation_key
-
+                print("%$$$$$$$$$$$$$$$$$$$#")
+                activation_key = urlsafe_base64_encode(force_bytes(str(
+                    user_obj.user_obj.pk))) + '-' + default_token_generator.make_token(user_obj.user_obj)
+                print("activation_key-----------", activation_key)
+                # link = os.environ.get(
+                #     'KREEDO_URL') + '/users/reset_password_confirm/' + activation_key
+                link = link = os.environ.get('KREEDO_URL') + \
+                    '/users/reset_password_confirm/' + activation_key
+                print("link---------", link)
                 # Add activation key and expiration date to user profile
                 user_obj.activation_key = activation_key
                 user_obj.key_expires = datetime.datetime.strftime(

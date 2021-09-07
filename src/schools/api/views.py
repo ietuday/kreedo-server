@@ -290,7 +290,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             if school_serializer.is_valid():
                 school_serializer.save()
                 return Response(school_serializer.data)
-            return Response(school_serializer.errors)
+            # return Response(school_serializer.errors)
 
             school_calender_detail = {
                 "school": school_serializer.data['id'],
@@ -305,7 +305,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 schoolCalendarCreateSerializer.save()
             else:
                 raise ValidationError(schoolCalendarCreateSerializer.errors)
-
+            return Response(school_serializer.errors)
         except Exception as ex:
             logger.debug(ex)
             return Response(ex)
