@@ -1120,9 +1120,6 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             """ Update details in RESPONSE """
 
             instance['user_detail'] = self.context['user_detail_serializer_data']
-
-            instance['user_role'] = self.context['user_role']
-
             return instance
         except Exception as ex:
             print("error", ex)
