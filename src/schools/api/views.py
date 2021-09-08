@@ -1,3 +1,4 @@
+from datetime import date
 import itertools
 import ast
 from session.api.serializer import*
@@ -253,6 +254,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             address_serializer = AddressSerializer(data=address_detail)
             if address_serializer.is_valid():
                 address_serializer.save()
+                print("Address created")
             else:
                 raise serializers.ValidationError(
                     "address_serializer._errors", address_serializer._errors)
@@ -261,7 +263,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "total_no_of_children": request.data.get('total_no_of_children', None),
                 "licence_from": request.data.get('licence_start_date', None),
                 "licence_till": month_calculation(request.data.get('licence_start_date', None), request.data.get('no_of_months', None)),
-
+                "created_by": request.data.get('created_by', None),
             }
             print("licence_detail", licence_detail)
             licenseCreateSerializer = LicenseCreateSerializer(
@@ -269,6 +271,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             if licenseCreateSerializer.is_valid():
                 licenseCreateSerializer.save()
+                print("License  Saved")
             else:
                 raise ValidationError(licenseCreateSerializer.errors)
 
@@ -289,13 +292,15 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 data=dict(school_data), context=context)
             if school_serializer.is_valid():
                 school_serializer.save()
-                return Response(school_serializer.data)
+                print("SCHHOL SAVE", school_serializer.data)
+            else:
+                print("School Error", school_serializer.errors)
             # return Response(school_serializer.errors)
 
             school_calender_detail = {
                 "school": school_serializer.data['id'],
-                "session_from": datetime.date.today(),
-                "session_till": addYears(datetime.date.today(), request.data.get('school_calender_for_no_of_yrs', None)),
+                "session_from": date.today(),
+                "session_till": addYears(date.today(), request.data.get('school_calender_for_no_of_yrs', None)),
             }
 
             schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(
@@ -303,10 +308,13 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             if schoolCalendarCreateSerializer.is_valid():
                 schoolCalendarCreateSerializer.save()
+                print("SAVE CALENDER")
             else:
                 raise ValidationError(schoolCalendarCreateSerializer.errors)
-            return Response(school_serializer.errors)
+            return Response(school_serializer.data)
         except Exception as ex:
+            print("ERROR----------", ex)
+            print("TRACEBACK----------", traceback.print_exc())
             logger.debug(ex)
             return Response(ex)
 
