@@ -11,10 +11,12 @@ urlpatterns = [
          name='SchoolPackageListCreate'),
     path('school-package_retrive_update_delete/<int:pk>', SchoolPackageRetriveUpdateDelete.as_view(),
          name='SchoolPackageRetriveUpdateDelete'),
-
+    path('material_list_by_package/<int:pk>', MaterialListByPackage.as_view(),
+         name='MaterialListByPackage'),
 
     path('bulk-upload/add-package',
          AddPackage.as_view(), name='AddPackage'),
+
 
 
 ]
