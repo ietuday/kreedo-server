@@ -996,17 +996,35 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
 """ School list according to User """
 
 
-class SchoolListByUser(GeneralClass, Mixins, ListCreateAPIView):
+class SchoolListsByUser(GeneralClass, Mixins, ListCreateAPIView):
     model = UserRole
+    serializer_class = SchoolListByUserSerializer
     filterset_class = UserRoleFilter
 
     def get(self, request, pk):
         try:
+            print("#########")
             user_school_qs = UserRole.objects.filter(
                 user=pk).exclude(school__isnull=True)
 
+            # filter
+            filtered_data = UserRoleFilter(
+                request.GET, queryset=user_school_qs)
+            print("filtered_data------", filtered_data.qs)
+
+            filtered_quersyet = filtered_data.qs
+            user_school_qs_list = filtered_quersyet.all()
+            print("user_school_qs_list-------,", user_school_qs_list)
+
+            # pagination
+            page = self.paginate_queryset(user_school_qs_list)
+            if page is not None:
+                serializer = self.get_serializer(
+                    page, many=True)
+                return self.get_paginated_response(serializer.data)
+
             user_school_qs_serializer = SchoolListByUserSerializer(
-                user_school_qs, many=True)
+                user_school_qs_list, many=True)
             return Response(user_school_qs_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
             logger.debug(ex)
