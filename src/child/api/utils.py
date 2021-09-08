@@ -58,28 +58,29 @@ def ChildJsonData(Child_data,period_detail):
 
     
 def get_range_of_days_in_session(start_date,academic_session):
-
+    calculate_no_of_working_days_for_child(academic_session,start_date)
+    pdb.set_trace()
     return 100
 
 
 
 
 
-def calculate_no_of_working_days_in_session(academic_session):
+def calculate_no_of_working_days_for_child(academic_session,start_date):
 
-    total_week_offs = SchoolWeakOff.objects.filter(
-                                            academic_session=academic_session
-                                            ).count()
+    # total_week_offs = SchoolWeakOff.objects.filter(
+    #                                         academic_session=academic_session
+    #                                         ).count()
 
-    total_school_holidays = SchoolHoliday.objects.filter(
-                                            academic_session=academic_session
-                                            ).count()
+    # total_school_holidays = SchoolHoliday.objects.filter(
+    #                                         academic_session=academic_session
+    #                                         ).count()
 
-    date_diff = academic_session.session_till - academic_session.session_from
+    date_diff = academic_session.session_till - start_date
     total_days = date_diff.days
 
-    total_working_days = total_days - (total_week_offs + total_school_holidays)
-
+    # total_working_days = total_days - (total_week_offs + total_school_holidays)
+    pdb.set_trace()
     return total_working_days
 
 

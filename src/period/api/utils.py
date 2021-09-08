@@ -1,10 +1,13 @@
 from math import fabs
+
+from django.db.models.query_utils import PathInfo
 from plan.models import Plan, SubjectSchoolGradePlan
 import traceback
 from django.db.models import Count
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.core.exceptions import ValidationError
+from activity.models import *
 
 import json
 import pdb
@@ -252,8 +255,8 @@ def get_seconds_removed(time):
         return time
 
 
-"""Period Activity Association"""
-def period_group_activity_association(academic_session):
+# """Period Activity Association"""
+# def period_group_activity_association(academic_session):
 
     # subject_plan_based_on_grades = SubjectSchoolGradePlan.objects.filter(
     #                                                         school=academic_session.school,
@@ -334,72 +337,89 @@ def period_group_activity_association(academic_session):
     #             """Individual Plan Activity release logic"""
     #             pass
 
-    
 
-    period_list_based_on_session = Period.objects.filter(
+
+"""Period  Group Activity Association"""
+def period_group_activity_association(academic_session):   
+    try:
+        period_list_based_on_session = Period.objects.filter(
                                                         academic_session=academic_session,
                                                         subject__type='Group'
                                                         )
-    subject_list_based_on_period = []
+        subject_list_based_on_period = []
 
-    """ subject list """
-    for period in period_list_based_on_session:
-        if period.subject in subject_list_based_on_period:
-            continue
-        else:
-            subject_list_based_on_period.append(period.subject)
-
-    print("subject list",subject_list_based_on_period)
-
-    for subject in subject_list_based_on_period:
-        subject_based_plan = get_subject_based_plan(subject,academic_session.grade)
-        # pdb.set_trace()
-    period_based_on_subject = period_list_based_on_session.filter(subject=subject)
-
-    # pdb.set_trace()
-    for period in period_based_on_subject:
-        # period.activity_to_be_done = []
-        # period.save()
-
-        plan_mandatory_activities = subject_based_plan.plan_activity.filter(
-                                                                is_optional=False
-                                                                ).order_by('sort_no')
-        plan_optional_activities  = subject_based_plan.plan_activity.filter(
-                                                                is_optional=True
-                                                                ).order_by('sort_no')
-        
-        for plan_activity in plan_mandatory_activities:
-            # pdb.set_trace()
-            record_aval = period_based_on_subject.filter(
-                                                activity_to_be_release=plan_activity.activity
-                                                        )
-            if record_aval:
+        """ subject list """
+        for period in period_list_based_on_session:
+            if period.subject in subject_list_based_on_period:
                 continue
             else:
-                print("period",period)
-                print("activity",plan_activity.activity)
-                period.activity_to_be_release.add(plan_activity.activity)
-                period.save()
-                break
+                subject_list_based_on_period.append(period.subject)
+
+        print("subject list",subject_list_based_on_period)
+
+        for subject in subject_list_based_on_period:
+            subject_based_plan = get_subject_based_plan(subject,academic_session.grade)
         
-        # for plan_activity in plan_optional_activities:
-        #     # pdb.set_trace()
-        #     record_aval = period_based_on_subject.filter(
-        #                                         activity_to_be_release=plan_activity.activity
-        #                                                 )
-        #     if record_aval:
-        #         continue
-        #     else:
-        #         print("period",period)
-        #         print("activity",plan_activity.activity)
-        #         period.activity_to_be_release.add(plan_activity.activity)
-        #         period.save()
-        #         break
-        
+        period_based_on_subject = period_list_based_on_session.filter(subject=subject)
+
+        plan_mandatory_activities = subject_based_plan.plan_activity.filter(
+                                                                    is_optional=False
+                                                                    ).order_by('sort_no')
+        plan_optional_activities  = subject_based_plan.plan_activity.filter(
+                                                                    is_optional=True
+                                                                    ).order_by('sort_no')
+
+        activity_release_rec = []
+        # pdb.set_trace()
+        for period in period_based_on_subject:
+            # period.activity_to_be_release.clear()
+            # period.save()
+
+            # continue
+            mandatory_activities = plan_mandatory_activities.exclude(
+                                                                    id__in=activity_release_rec
+                                                                        )
+            print("mand act",mandatory_activities)
+            if mandatory_activities:
+                """ Mandatory activity release logic """
+                for plan_activity in mandatory_activities:
+                    # pdb.set_trace()
+                    record_aval = period_based_on_subject.filter(
+                                                        activity_to_be_release=plan_activity.activity
+                                                                )
+                    if record_aval:
+                        continue
+                    else:
+                        print("period",period)
+                        print("activity",plan_activity.activity)
+                        period.activity_to_be_release.add(plan_activity.activity)
+                        period.save()
+                        activity_release_rec.append(plan_activity.id)
+                        break
+            else:
+                """ Optional Activity Release logic """
+                for plan_activity in plan_optional_activities:
+                
+                    record_aval = period_based_on_subject.filter(
+                                                        activity_to_be_release=plan_activity.activity
+                                                                )
+                    if record_aval:
+                        continue
+                    else:
+                        print("period",period)
+                        print("activity",plan_activity.activity)
+                        period.activity_to_be_release.add(plan_activity.activity)
+                        period.save()
+                        activity_release_rec.append(plan_activity.id)
+                        break
+            
+
+    except Exception as ex:
+        print("ex",ex)
+        print("traceback",traceback.print_exc())
 
 
-
-
+    
 
 
 def get_subject_based_plan(subject,grade):
@@ -407,59 +427,184 @@ def get_subject_based_plan(subject,grade):
     plan = Plan.objects.filter(subject=subject,
                                 grade=grade
                             )
-    # pdb.set_trace()
     if plan:
         return plan[0]
-    return "No Plan Found"                       
+    raise Exception("No Plan Found")                       
+
+
+
+""" Period Individual Sequantial Activity Release"""
+
+def period_individual_seq_activity_association(academic_session): 
+    try:
+        child_plans = ChildPlan.objects.filter(academic_session=academic_session)
+    
+        for child_plan in child_plans:
+
+            period_list_based_on_child = Period.objects.filter(
+                                                            start_date__gte=child_plan.curriculum_start_date,
+                                                            academic_session=academic_session,
+                                                            subject__type='Individual',
+                                                            )
+            
+            subject_plan_qs = child_plan.subject_plan.all()
+            subject_list_based_on_period = []
+            # pdb.set_trace()
+            """ subject list """
+            for period in period_list_based_on_child:
+                if period.subject in subject_list_based_on_period:
+                    continue
+                else:
+                    subject_list_based_on_period.append(period.subject)
+            
+            print('subject_list',subject_list_based_on_period)
+
+            for subject in subject_list_based_on_period:
+                    
+            
+                    subject_based_plan = subject_plan_qs.filter(
+                                                            subject=subject,
+                                                            child=child_plan.child
+                                                            )
+                    if subject_based_plan:
+                        subject_based_plan = subject_based_plan[0]
+                        print('subjct_plan',subject_based_plan)
+                    else:
+                        continue
+
+                    period_based_on_subject = period_list_based_on_child.filter(subject=subject)
+                    if subject_based_plan.plan.sub_type == 'Sequential':
+                        plan_mandatory_activities = subject_based_plan.plan.plan_activity.filter(
+                                                                        is_optional=False
+                                                                        ).order_by('sort_no')
+
+                        plan_optional_activities  = subject_based_plan.plan.plan_activity.filter(
+                                                                                is_optional=True
+                                                                                ).order_by('sort_no')
+
+                        print("subject",subject)
+                        # pdb.set_trace()
+                        activity_release_rec = []
+                        for period in period_based_on_subject:
+                            print("period",period)
+                            mandatory_activities = plan_mandatory_activities.exclude(
+                                                                                id__in=activity_release_rec
+                                                                                    )
+
+                            # pdb.set_trace()
+                            if mandatory_activities:
+                                for plan_activity in mandatory_activities:
+                                    print("inside",period)
+                                    record_aval = PeriodIndividualActivity.objects.filter(
+                                                                        child=child_plan.child,
+                                                                        activity=plan_activity.activity,
+                                                                        # period=period
+                                                                            )
+                                    
+                                    if record_aval:
+                                        continue
+                                    else:
+                                        print("period",period)
+                                        print("activity",plan_activity.activity)
+                                        child_indiv_activity = PeriodIndividualActivity.objects.create(
+                                                                                                child=child_plan.child,
+                                                                                                period=period, 
+                                                                                                )
+                                        
+
+                                        child_indiv_activity.activity.add(plan_activity.activity)
+                                        child_indiv_activity.save()
+                                        print("activity added to period")
+                                        period.individual_activities.add(child_indiv_activity)
+                                        period.save()
+                                        activity_release_rec.append(plan_activity.id)
+                                        break
+                                        
+                            else:
+                                    for plan_activity in plan_optional_activities:
+                                    
+                                        record_aval = PeriodIndividualActivity.objects.filter(
+                                                                            child=child_plan.child,
+                                                                            activity=plan_activity.activity,
+                                                                            # period=period
+                                                                                )
+                                        
+                                        if record_aval:
+                                            continue
+                                        else:
+                                            print("period",period)
+                                            print("activity",plan_activity.activity)
+                                            child_indiv_activity = PeriodIndividualActivity.objects.create(
+                                                                                                    child=child_plan.child,
+                                                                                                    period=period, 
+                                                                                                    )
+                                            
+
+                                            child_indiv_activity.activity.add(plan_activity.activity)
+                                            child_indiv_activity.save()
+                                            print("activity added to period")
+                                            period.individual_activities.add(child_indiv_activity)
+                                            period.save()
+                                            activity_release_rec.append(plan_activity.id)
+                                            break
+                    else:
+                        print("randamized")
+                        plan_mandatory_activities = subject_based_plan.plan.plan_activity.filter(
+                                                                        is_optional=False
+                                                                        ).order_by('sort_no')
+                        no_of_blocks = get_no_of_blocks(period_based_on_subject)
+                        activity_per_block = get_activity_per_block(no_of_blocks,plan_mandatory_activities)
+                        print("blocks",no_of_blocks)
+                        print("act/block",activity_per_block)
+                        # no_of_blocks = 8
+                        period_per_block = 20
+                        start = 0
+                        end = period_per_block
+                        for count in range(0,no_of_blocks):
+                            print("s,e",start,end)
+                            if count == no_of_blocks-1:
+                                print("@@")
+                                period_for_block = period_based_on_subject[start:]
+                                # pdb.set_trace()
+                                print(f"period for block {count}",period_for_block)
+                            else:
+                                period_for_block = period_based_on_subject[start:end]
+                                start += 20
+                                end = start + 20
+                                print(f"period for block {count}",period_for_block)
+                                # pdb.set_trace()
+
+    except Exception as ex:
+                print("ex",ex)
+                print("traceback",traceback.print_exc())
+
+                                
 
 
 
 
+""" def to find no. of blocks"""
+def get_no_of_blocks(period_based_on_subject):
+    no_of_periods = 121
+    no_of_blocks = no_of_periods // 20
+    # pdb.set_trace()
+    if no_of_periods % 20 == 0:
+        return no_of_blocks
+    else:
+        no_of_blocks = no_of_periods // 20
+        return no_of_blocks+1
+
+
+
+""" def to find no. of activities per block """
+def get_activity_per_block(no_of_blocks,plan_activities):
+    activity_count = plan_activities.count()
+    print("activity count",activity_count)
+    activity_per_block = activity_count // no_of_blocks
+    return activity_per_block
 
 
 
 
-
-
-
-
-
-# period_count = period_based_on_subject.count()
-
-#         mandatory_activities = period_based_on_subject.plan_activity.filter(
-#                                                                         is_optional=False,
-#                                                                         ).exclude(
-#                                                                         id__in=release_activity_list
-#                                                                         ).order_by('sort_no')
-#         optional_activities = period_based_on_subject.plan_activity.filter(
-#                                                                     is_optional=True,
-#                                                                     ).exclude(
-#                                                                     id__in=optional_activity_release_list
-#                                                                     ).order_by('sort_no')
-
-#         mandatory_activity_count = period_based_on_subject.plan_activity.filter(
-#                                                                     is_optional=False
-#                                                                     ).count()
-#         print("mand_act",mandatory_activities)
-#         # pdb.set_trace()
-#         if mandatory_activity_count <= period_count:
-#             if mandatory_activity_count < period_count:
-#                 """ When period count is greater than mandatory activity count """
-#                 if mandatory_activities:
-#                     mandatory_activities = list(mandatory_activities)
-#                     activity = mandatory_activities[0].activity
-#                     period.activity_to_be_release.add(activity)
-#                     period.save()
-#                     release_activity_list.append(mandatory_activities[0].id)
-#                     # pdb.set_trace()
-#                     mandatory_activities.pop(0)
-#                 else:
-#                     optional_activities = list(optional_activities)
-#                     activity = optional_activities[0].activity
-#                     period.activity_to_be_release.add(activity)
-#                     period.save()
-#                     optional_activity_release_list.append(optional_activities[0].id)
-#                     # pdb.set_trace()
-#                     optional_activity_release_list.pop(0)
 
 

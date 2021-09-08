@@ -19,6 +19,7 @@ from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.api.serializer import*
 from .utils import *
+from child.api.utils import get_range_of_days_in_session
 
 # Create your views here.
 
@@ -620,6 +621,9 @@ class testView(ListCreateAPIView):
 
     def get(self,request):
         academic_session = AcademicSession.objects.get(pk=7)
-        period_group_activity_association(academic_session)
+        # period_group_activity_association(academic_session)
+        period_individual_seq_activity_association(academic_session)
+        start_date = date(2025,8,30)
+        # get_range_of_days_in_session(start_date,academic_session)
         data = []
         return Response(data)
