@@ -251,11 +251,11 @@ class SchoolSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            school = super(SchoolSerializer, self).create(validated_data)
             school_package = self.context.pop('school_package_dict')
-            plan = super(SchoolSerializer, self).create(validated_data)
 
             for school_package_obj in school_package:
-                school_package_obj['plan'] = plan.id
+                school_package_obj['school'] = school.id
 
             """ calling SchoolPackageCreateSerializer  with school_package data. """
 
@@ -268,7 +268,7 @@ class SchoolSerializer(serializers.ModelSerializer):
                     {"school_package_serializer_data": school_package_serializer.data})
             else:
                 raise ValidationError(school_package_serializer.errors)
-            return plan
+            return school
         except Exception as ex:
             logger.debug(ex)
             logger.info(ex)

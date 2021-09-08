@@ -131,7 +131,7 @@ class School(TimestampAwareModel):
     name = models.CharField(max_length=50)
     type = models.CharField(
         max_length=50, choices=School_Type_Choice, null=True, blank=True)
-    logo = models.URLField(null=True, blank=True)
+    logo = models.CharField(max_length=100, null=True, blank=True)
     address = models.ForeignKey(
         to='address.Address', on_delete=models.CASCADE, null=True, blank=True)
     license = models.ForeignKey(
