@@ -284,7 +284,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "logo": request.data.get('logo', None),
                 "address": address_serializer.data['id'],
                 "license": licenseCreateSerializer.data['id'],
-                "is_active": request.data.get('is_active', None),
+                "is_active": True,
             }
 
             context = self.get_serializer_context()
