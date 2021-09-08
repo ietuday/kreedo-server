@@ -102,12 +102,13 @@ class PlanActivity(TimestampAwareModel):
 
 class SubjectSchoolGradePlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
-    subject = models.ForeignKey(to='schools.Subject', on_delete=models.PROTECT)
+    subject = models.ForeignKey(
+        to='schools.Subject', on_delete=models.PROTECT, blank=True, null=True)
     subject_label = models.CharField(max_length=100, blank=True, null=True)
-    grade = models.ForeignKey(to='schools.Grade', on_delete=models.PROTECT)
+    grade = models.ForeignKey(
+        to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
     grade_label = models.CharField(max_length=100, blank=True, null=True)
-    plan = models.ForeignKey(
-        'Plan', on_delete=models.PROTECT, blank=True, null=True)
+    plan = models.ManyToManyField('Plan', blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:
