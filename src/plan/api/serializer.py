@@ -316,4 +316,4 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
 class SubjectSchoolGradePlanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
-        fields = '__all__'
+        fields = ['school', 'grade', 'grade_label']
