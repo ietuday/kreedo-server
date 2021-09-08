@@ -201,9 +201,6 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-            print(request)
-            grade_list = request.data.get(
-                'grade_list', None)
 
             subject_school_grade_plan = SubjectSchoolGradePlanCreateSerializer(
                 data=request.data.get(

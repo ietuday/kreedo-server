@@ -1,6 +1,8 @@
 from datetime import date
 import itertools
 import ast
+
+from rest_framework.decorators import permission_classes
 from session.api.serializer import*
 from collections import ChainMap
 from .utils import*
@@ -233,6 +235,7 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 """ School List and Create """
 
 
+@permission_classes((IsAuthenticated,))
 class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = School
     filterset_class = SchoolFilter
@@ -263,7 +266,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "total_no_of_children": request.data.get('total_no_of_children', None),
                 "licence_from": request.data.get('licence_start_date', None),
                 "licence_till": month_calculation(request.data.get('licence_start_date', None), request.data.get('no_of_months', None)),
-                "created_by": request.data.get('created_by', None),
+                "created_by": request.user,
             }
             print("licence_detail", licence_detail)
             licenseCreateSerializer = LicenseCreateSerializer(
