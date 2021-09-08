@@ -1,4 +1,6 @@
 
+from package.models import*
+from package.api.serializer import *
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 from rest_framework.serializers import (
@@ -777,6 +779,23 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = ['school']
         depth = 2
+
+    def to_representation(self, obj):
+        from session.api.serializer import AcademicSessionListSerializer
+        serialized_data = super(
+            SchoolListByUserSerializer, self).to_representation(obj)
+        school = serialized_data.get('school')
+
+        school_id = school.get('id')
+        print("school_id", school_id)
+        if SchoolPackage.objects.filter(school=school_id).exists():
+            school_package_data = SchoolPackage.objects.filter(
+                school=school_id)
+            school_package_data_serializer = SchoolPackageListSerializer(
+                school_package_data, many=True)
+            serialized_data['packages'] = school_package_data_serializer.data
+
+        return serialized_data
 
 
 """ Logged In User Serializer """
