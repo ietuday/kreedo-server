@@ -14,6 +14,8 @@ from re import U
 from pandas import DataFrame
 import json
 
+from rest_framework import response
+
 from .serializer import*
 from ..models import*
 from .filters import*
@@ -1785,6 +1787,9 @@ class AddUserData(ListCreateAPIView):
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" Account List Create API"""
+
+
 class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = UserDetail
     serializer_class = AccountUserListSerializer
@@ -1888,6 +1893,76 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
             logger.debug(ex)
 
             return Response(ex)
+
+
+""" Update Account API """
+
+
+class UpdateAccount(ListCreateAPIView):
+    serializer_class = UpdateUserSerializer
+
+    def patch(self, request, pk):
+        try:
+            address_detail = {
+                "address": request.data.get('address', None),
+                "city": request.data.get('city', None),
+                "state": request.data.get('state', None),
+                "country": request.data.get('country', None),
+                "pincode": request.data.get('pincode', None),
+
+            }
+            address_qs = Address.objects.get(
+                id=request.data.get('address_id', None))
+            address_qs_serializer = AddressSerializer(
+                address_qs, data=dict(address_detail), partial=True)
+            if address_qs_serializer.is_valid():
+                address_qs_serializer.save()
+
+            else:
+                raise ValidationError(address_qs.errors)
+
+            user_data = {
+                "first_name": request.data.get('first_name', None),
+                "last_name": request.data.get('last_name', None),
+                "email": request.data.get('email', None)
+            }
+
+            user_role = UserDetail.objects.get(user_obj=pk)
+
+            user_details_data = {
+                "phone": request.data.get('phone', None),
+                "address": request.data.get('address_id', None)
+            }
+            user_qs = User.objects.get(id=pk)
+
+            user_qs_serializer = UpdateUserSerializer(
+                user_qs, data=dict(user_data), partial=True)
+            if user_qs_serializer.is_valid():
+                user_qs_serializer.save()
+                print("SAVE")
+            else:
+                print("user_qs_serializer.errors---->",
+                      user_qs_serializer.errors)
+
+            user_details_qs = UserDetail.objects.filter(user_obj=pk)[0]
+
+            user_detail_qs_serializer = UserDetailSerializer(
+                user_details_qs, data=dict(user_details_data), partial=True)
+            if user_detail_qs_serializer.is_valid():
+                user_detail_qs_serializer.save()
+            else:
+                return Response(user_detail_qs_serializer.errors)
+
+            context = {"message": "User Updated successfully.", "isSuccess": True,
+                       "data": user_detail_qs_serializer.data, "statusCode": status.HTTP_200_OK}
+            return Response(context)
+
+        except Exception as ex:
+            print("ERROR------>", ex)
+            print("traceback----->", traceback.print_exc())
+            context = {
+                "message": ex, "isSuccess": False, "data": [], "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """ Get role by loggin id """
