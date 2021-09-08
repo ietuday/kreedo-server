@@ -57,6 +57,9 @@ urlpatterns = [
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
     path('account_list_create',
          AccountListCreate.as_view(), name='Account List Create'),
+    path('update_account/<int:pk>',
+         UpdateAccount.as_view(), name='Update Account'),
+
 
     path('license_list_by_logged_in_user_id/<int:pk>',
          LicenseListByLoggedInUser.as_view(), name='License List By Logged In User'),
