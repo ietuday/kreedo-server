@@ -16,7 +16,7 @@ urlpatterns = [
          PlanActivityListCreate.as_view(), name='PlanActivityListCreate'),
     path('plan-activity_retrive_update_delete/<int:pk>', PlanActivityRetriveUpdateDestroy.as_view(),
          name='PlanActivityRetriveUpdateDestroy'),
-    path('subject-school-grade-plan_list_create',
+    path('subject_school_grade_plan_list_create',
          SubjectSchoolGradePlanListCreate.as_view(), name='SubjectSchoolGradePlanListCreate'),
     path('subject-school-grade-plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
          name='SubjectSchoolGradePlanRetriveUpdateDestroy'),
