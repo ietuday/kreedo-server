@@ -1103,7 +1103,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         return serialized_data
 
 
-""" User Register API """
+""" Account Create API """
 
 
 class AccountCreateSerializer(serializers.ModelSerializer):
@@ -1238,3 +1238,6 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             logger.info(ex)
             logger.debug(ex)
             raise ValidationError(ex)
+
+
+"""UPDATE  Account Serializer"""
