@@ -41,7 +41,7 @@ urlpatterns = [
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
     path('add_role_of_user_list_create',
          AddRoleOfUserListCreate.as_view(), name='AddRoleOfUserListCreate'),
-    path('reporting_to_list_by_user_deatil/<int:pk>', ReportingToListByUserDetailList.as_view(),
+    path('reporting_to_list_by_user_detail/<int:pk>', ReportingToListByUserDetailList.as_view(),
          name='ReportingToListByUserDetailList'),
     path('update_reporting_to_list_by_user_detail', UpdateReportingToListByUserDetail.as_view(),
          name='UpdateReportingToListByUserDetail'),
