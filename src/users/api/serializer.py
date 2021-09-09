@@ -1,4 +1,3 @@
-from plan.api.serializer import*
 from plan.models import*
 from package.models import*
 from package.api.serializer import *
@@ -1107,14 +1106,17 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         depth = 2
 
     def to_representation(self, obj):
+
         serialized_data = super(
             LicenseListByUserSerializers, self).to_representation(obj)
         # user_id = serialized_data['user_obj']['id']
         print("serialized_data->", serialized_data['school']['id'])
         school_id = serialized_data['school']['id']
+
         school_grade = SubjectSchoolGradePlan.objects.filter(
             school=school_id)
         print("school_grade----------->", school_grade)
+
         if school_grade:
             school_grade_qs_serializer = SubjectSchoolGradeSerializer(
                 school_grade, many=True)
