@@ -263,6 +263,14 @@ class SchoolSerializer(serializers.ModelSerializer):
         model = School
         fields = '__all__'
 
+    # def to_representation(self, instance):
+    #     instance = super(SchoolSerializer,
+    #                      self).to_representation(instance)
+
+    #     instance['school_id'] = self.context['school_id']
+
+    #     return instance
+
     def create(self, validated_data):
         try:
             school = super(SchoolSerializer, self).create(validated_data)
@@ -278,13 +286,20 @@ class SchoolSerializer(serializers.ModelSerializer):
 
             if school_package_serializer.is_valid():
                 school_package_serializer.save()
+                print("SAVE PACKAGE-------")
                 self.context.update(
                     {"school_package_serializer_data": school_package_serializer.data})
             else:
                 raise ValidationError(school_package_serializer.errors)
-
+            # school_id = school.id
+            # self.context.update(
+            #     {"school_id": school_id})
+            print("@@@@@@@@@@@@@@@@@@@@@@@", school)
+            print("############", school.id)
             return school
         except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
             return ValidationError(ex)
