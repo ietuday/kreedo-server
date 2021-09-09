@@ -273,7 +273,9 @@ class SchoolSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print("CALL ---- create")
             school = super(SchoolSerializer, self).create(validated_data)
+            print("SCHHOL-------------", school)
             school_package = self.context.pop('school_package_dict')
 
             for school_package_obj in school_package:
