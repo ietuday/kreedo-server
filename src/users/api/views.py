@@ -1999,7 +1999,8 @@ class getRolesByLoggedinUserId(GeneralClass, Mixins, ListCreateAPIView):
                 user=logged_user.id, role=pk)[0]
 
             if user_obj.role.name == "School Account Owner":
-                role_obj = Role.objects.filter(name="School Admin")
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
                 role_obj_serilaizer = RoleListSerializer(
                     role_obj, many=True)
                 return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
