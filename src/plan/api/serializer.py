@@ -310,10 +310,17 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SubjectSchoolGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = ['grade']
+        depth = 1
+
+
 """ SubjectSchoolGradePlan Create Serializer """
 
 
 class SubjectSchoolGradePlanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
-        fields = '__all__'
+        fields = ['school', 'grade', 'grade_label']

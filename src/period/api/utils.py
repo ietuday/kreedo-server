@@ -1,3 +1,4 @@
+from schools.models import *
 import traceback
 
 from django.core.serializers import serialize
@@ -13,7 +14,7 @@ import logging
 from holiday.models import*
 from kreedo.conf.logger import*
 from .serializer import*
-from ..models import * 
+from ..models import *
 # from holiday.api.serializer import *
 
 """ Create Log for Utils"""
@@ -172,11 +173,11 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
         from_date = datetime.strptime(start_date, '%Y-%m-%d')
         to_date = datetime.strptime(end_date, '%Y-%m-%d')
         delta = to_date - from_date  # as timedelta
-        print("grade",grade_dict)
+        print("grade", grade_dict)
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                                         start_date=start_date, end_date=end_date,period_template = period_template )
-        
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",period_qs)
+                                                         start_date=start_date, end_date=end_date, period_template=period_template)
+
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", period_qs)
         if period_qs:
             period_qs[0].period_status = "PENDING"
             period_qs[0].save()
@@ -195,9 +196,17 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
+
                         period_dict = {}
 
                         for period in period_list:
+                            print("period.subject.id----", period.subject.id)
+                            print("acad_session-----", acad_session)
+                            print("SectionSubjectTeacher---",
+                                  SectionSubjectTeacher.objects.all())
+                            teacher_id = SectionSubjectTeacher.objects.filter(
+                                subject=period.subject.id, academic_session=acad_session)[0]
+                            print("teacher_id---", teacher_id.teacher)
                             print(period)
                             # pdb.set_trace()
                             period_dict['period_template_detail'] = period.id
@@ -205,6 +214,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
+                            period_dict['teacher'] = [teacher_id.teacher]
                             period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time
@@ -215,6 +225,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             period_dict['type'] = period.type
                             period_dict['is_active'] = True
 
+                            print("period_dict-----------", period_dict)
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time'], period_template_detail=period.id, room=period.room.id).count()
                             if p_qs == 0:
@@ -231,7 +242,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             else:
                                 print("Period Already Created")
         period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date,period_template = period_template)
+                                                                  start_date=start_date, end_date=end_date, period_template=period_template)
         if period_to_grade_qs:
             period_to_grade_qs[0].is_applied = True
             period_to_grade_qs[0].period_status = "COMPLETE"
@@ -239,9 +250,10 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
 
         return "Period Creating....."
     except Exception as ex:
-        print(traceback.print_exc())
+        print("%%%%%%%55", ex)
+        print("@@@@@@@", traceback.print_exc())
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                                         start_date=start_date, end_date=end_date, period_template = period_template)
+                                                         start_date=start_date, end_date=end_date, period_template=period_template)
         if period_qs:
             period_qs[0].period_status = "FAILED"
             period_qs[0].save()

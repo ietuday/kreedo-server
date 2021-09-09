@@ -1,5 +1,8 @@
+from datetime import date
 import itertools
 import ast
+
+from rest_framework.decorators import permission_classes
 from session.api.serializer import*
 from collections import ChainMap
 from .utils import*
@@ -232,6 +235,7 @@ class LicenseRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
 """ School List and Create """
 
 
+@permission_classes((IsAuthenticated,))
 class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = School
     filterset_class = SchoolFilter
@@ -242,7 +246,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-
+            print("@@@@@@@@", request.data)
             address_detail = {
                 "country": request.data.get('country', None),
                 "state": request.data.get('state', None),
@@ -253,6 +257,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             address_serializer = AddressSerializer(data=address_detail)
             if address_serializer.is_valid():
                 address_serializer.save()
+                print("Address created")
             else:
                 raise serializers.ValidationError(
                     "address_serializer._errors", address_serializer._errors)
@@ -261,7 +266,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "total_no_of_children": request.data.get('total_no_of_children', None),
                 "licence_from": request.data.get('licence_start_date', None),
                 "licence_till": month_calculation(request.data.get('licence_start_date', None), request.data.get('no_of_months', None)),
-
+                "created_by": request.user,
             }
             print("licence_detail", licence_detail)
             licenseCreateSerializer = LicenseCreateSerializer(
@@ -269,16 +274,18 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             if licenseCreateSerializer.is_valid():
                 licenseCreateSerializer.save()
+                print("License  Saved")
             else:
                 raise ValidationError(licenseCreateSerializer.errors)
 
             school_data = {
+
                 "name": request.data.get('name', None),
                 "type": request.data.get('type', None),
                 "logo": request.data.get('logo', None),
                 "address": address_serializer.data['id'],
                 "license": licenseCreateSerializer.data['id'],
-                "is_active": request.data.get('is_active', None),
+                "is_active": True,
             }
 
             context = self.get_serializer_context()
@@ -289,13 +296,39 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 data=dict(school_data), context=context)
             if school_serializer.is_valid():
                 school_serializer.save()
-                return Response(school_serializer.data)
-            return Response(school_serializer.errors)
+                print("SCHHOL SAVE", school_serializer.data)
 
+            else:
+                print("School Error", school_serializer.errors)
+
+            user_id = UserDetail.objects.filter(user_obj=request.user)[0]
+
+            school_id = School.objects.filter(
+                id=school_serializer.data['id'])[0]
+            print("user_id----------", user_id, school_id)
+
+            if UserRole.objects.filter(user=user_id, school__isnull=True):
+                print("EXIST")
+
+                user_role_qs = UserRole.objects.filter(user=user_id, role__name__in=[
+                                                       'School Account Owner'], school__isnull=True)[0]
+                school_ids = School.objects.filter(
+                    id=school_serializer.data['id'])[0]
+                user_role_qs.school = school_ids
+                user_role_qs.save()
+                print("add user to school")
+            else:
+                role_name = Role.objects.filter(name='School Account Owner')[0]
+                user_role_qs = UserRole.objects.create(
+                    user=user_id, role=role_name, school=school_id)
+                user_role_qs.save()
+                print("NEW CREATE ")
+            school_qs = school_ids = School.objects.filter(
+                id=school_serializer.data['id'])[0]
             school_calender_detail = {
-                "school": school_serializer.data['id'],
-                "session_from": datetime.date.today(),
-                "session_till": addYears(datetime.date.today(), request.data.get('school_calender_for_no_of_yrs', None)),
+                "school": school_qs.id,
+                "session_from": date.today(),
+                "session_till": addYears(date.today(), request.data.get('school_calender_for_no_of_yrs', None)),
             }
 
             schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(
@@ -303,10 +336,15 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             if schoolCalendarCreateSerializer.is_valid():
                 schoolCalendarCreateSerializer.save()
+                print("SAVE CALENDER")
             else:
-                raise ValidationError(schoolCalendarCreateSerializer.errors)
+                print("CALENDER ERROR--------------",
+                      schoolCalendarCreateSerializer.errors)
 
+            return Response(school_serializer.data)
         except Exception as ex:
+            print("ERROR----------", ex)
+            print("TRACEBACK----------", traceback.print_exc())
             logger.debug(ex)
             return Response(ex)
 
@@ -570,6 +608,21 @@ class SessionGradeSectionTeacherSubject(GeneralClass, Mixins, ListCreateAPIView)
 
             return Response(resultant_dict, status=status.HTTP_200_OK)
 
+        except Exception as ex:
+            print("Error", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Grade List by kreedo"""
+
+
+class GradeListByKreedo(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    def get(self, request):
+        try:
+            grade_qs = Grade.objects.filter(school__isnull=True)
+            grade_qs_serializer = GradeKreedoSerializer(grade_qs, many=True)
+            return Response(grade_qs_serializer.data)
         except Exception as ex:
             print("Error", ex)
             logger.debug(ex)

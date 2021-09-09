@@ -1,6 +1,8 @@
 import traceback
 
 from period.models import *
+from plan.models import *
+from plan.api.serializer import*
 from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
@@ -14,6 +16,12 @@ from period.api.serializer import *
 
 
 class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+
+class GradeKreedoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
         fields = '__all__'
@@ -216,10 +224,22 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
         print("user_role_qs-", user_role_qs)
         user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
         print("USER- DETAIL", user_detail_qs)
-        user_detail_qs_serializer = UserDetailListSerializer(
-            user_detail_qs, many=True)
+        if user_detail_qs:
+            user_detail_qs_serializer = UserDetailListSerializer(
+                user_detail_qs, many=True)
 
-        serialized_data['user_list'] = user_detail_qs_serializer.data
+            serialized_data['user_list'] = user_detail_qs_serializer.data
+
+        school_grade = SubjectSchoolGradePlan.objects.filter(
+            school=school_data_id)
+        print("school_grade----------->", school_grade)
+        if school_grade:
+            school_grade_qs_serializer = SubjectSchoolGradeSerializer(
+                school_grade, many=True)
+            print("school_grade_qs_serializer.data",
+                  school_grade_qs_serializer.data)
+            serialized_data['selected_grades'] = school_grade_qs_serializer.data
+
         return serialized_data
 
 
@@ -249,13 +269,23 @@ class SchoolSerializer(serializers.ModelSerializer):
         model = School
         fields = '__all__'
 
+    # def to_representation(self, instance):
+    #     instance = super(SchoolSerializer,
+    #                      self).to_representation(instance)
+
+    #     instance['school_id'] = self.context['school_id']
+
+    #     return instance
+
     def create(self, validated_data):
         try:
+            print("CALL ---- create")
+            school = super(SchoolSerializer, self).create(validated_data)
+            print("SCHHOL-------------", school)
             school_package = self.context.pop('school_package_dict')
-            plan = super(SchoolSerializer, self).create(validated_data)
 
             for school_package_obj in school_package:
-                school_package_obj['plan'] = plan.id
+                school_package_obj['school'] = school.id
 
             """ calling SchoolPackageCreateSerializer  with school_package data. """
 
@@ -264,12 +294,20 @@ class SchoolSerializer(serializers.ModelSerializer):
 
             if school_package_serializer.is_valid():
                 school_package_serializer.save()
+                print("SAVE PACKAGE-------")
                 self.context.update(
                     {"school_package_serializer_data": school_package_serializer.data})
             else:
                 raise ValidationError(school_package_serializer.errors)
-            return plan
+            # school_id = school.id
+            # self.context.update(
+            #     {"school_id": school_id})
+            print("@@@@@@@@@@@@@@@@@@@@@@@", school)
+            print("############", school.id)
+            return school
         except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
             return ValidationError(ex)

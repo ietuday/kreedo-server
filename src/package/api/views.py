@@ -1,4 +1,16 @@
 # from .filters import*
+import ast
+from rest_framework import status
+import logging
+from kreedo.conf.logger import CustomFormatter
+from users.api.custum_storage import FileStorage
+from rest_framework.response import Response
+from kreedo.conf import logger
+import traceback
+import csv
+import json
+import math as m
+import pandas as pd
 from .serializer import*
 from package.models import*
 from kreedo.general_views import*
@@ -17,18 +29,6 @@ from .filters import *
 """ 
     Packages for uploading csv
 """
-import pandas as pd
-import math as m
-import json
-import csv
-import traceback
-from kreedo.conf import logger
-from rest_framework.response import Response
-from users.api.custum_storage import FileStorage
-from kreedo.conf.logger import CustomFormatter
-import logging
-from rest_framework import status
-import ast
 
 # Create your views here.
 
@@ -78,7 +78,8 @@ class PackageRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPI
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
-   
+
+
 """ School Package List and Create """
 
 
@@ -108,8 +109,24 @@ class SchoolPackageRetriveUpdateDelete(GeneralClass, Mixins, RetrieveUpdateDestr
             return SchoolPackageCreateSerializer
 
 
+""" Material list by Package"""
+
+
+class MaterialListByPackage(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    def get(self, request, pk):
+        try:
+            print(pk)
+            material_qs = Package.objects.filter(id=pk)[0]
+            material_serializer = PackageMaterialListSerializer(material_qs)
+            return Response(material_serializer.data)
+        except Exception as ex:
+            print("EEEEROR------", ex)
+            return Response(ex)
+
 
 """ Upload Package """
+
+
 class AddPackage(ListCreateAPIView):
     def post(self, request):
         try:
@@ -118,7 +135,7 @@ class AddPackage(ListCreateAPIView):
             added_package = []
 
             for i, f in enumerate(df, start=1):
-                f['materials']= ast.literal_eval(f['materials'])
+                f['materials'] = ast.literal_eval(f['materials'])
                 if not m.isnan(f['id']) and f['isDeleted'] == False:
                     print("UPDATION")
                     package_qs = Package.objects.filter(id=f['id'])[0]
@@ -134,7 +151,7 @@ class AddPackage(ListCreateAPIView):
                     package_qs.delete()
                 else:
                     print("Create", f)
-                    
+
                     package_serializer = PackageCreateSerializer(
                         data=dict(f))
                     if package_serializer.is_valid():
@@ -143,7 +160,7 @@ class AddPackage(ListCreateAPIView):
                             package_serializer.data)
                         print(package_serializer.data)
                     else:
-                        
+
                         raise ValidationError(package_serializer.errors)
 
             keys = added_package[0].keys()
@@ -153,8 +170,10 @@ class AddPackage(ListCreateAPIView):
                 dict_writer.writerows(added_package)
 
             fs = FileStorage()
-            fs.bucket.meta.client.upload_file('output.csv', 'kreedo-new' , 'files/output.csv')
-            path_to_file =  'https://' + str(fs.custom_domain) + '/files/output.csv'
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {
                 "isSuccess": True, "message": "Package added successfully", "error": "", "data": path_to_file}
@@ -168,5 +187,3 @@ class AddPackage(ListCreateAPIView):
                 "isSuccess": False, "message": "Issue on Package ", "error": "", "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             # return Response(ex)
-
-
