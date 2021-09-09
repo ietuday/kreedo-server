@@ -614,6 +614,21 @@ class SessionGradeSectionTeacherSubject(GeneralClass, Mixins, ListCreateAPIView)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" Grade List by kreedo"""
+
+
+class GradeListByKreedo(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    def get(self, request):
+        try:
+            grade_qs = Grade.objects.filter(school__isnull=True)
+            grade_qs_serializer = GradeKreedoSerializer(grade_qs, many=True)
+            return Response(grade_qs_serializer.data)
+        except Exception as ex:
+            print("Error", ex)
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ Bulk Upload Subjects """
 
 

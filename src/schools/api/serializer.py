@@ -21,6 +21,12 @@ class GradeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GradeKreedoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+
 class GradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
