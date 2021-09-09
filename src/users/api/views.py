@@ -944,12 +944,45 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
 
             user_role = Role.objects.filter(
                 id=request_data['user_role'])[0]
-            if ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=user_role).exists():
+            if request_data['user_role'] != request.data.get('previous_user_role', None):
+                if ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=user_role).exists():
 
-                context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
-                           "statusCode": status.HTTP_200_OK}
+                    context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
+                            "statusCode": status.HTTP_200_OK}
 
-                return Response(context, status=status.HTTP_200_OK)
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    user_detail = UserDetail.objects.filter(
+                    user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                    print(user_detail.role.all())
+                    user_detail.role.remove(request_data['previous_user_role'])
+                    user_detail.save()
+                    print(user_detail.role.all())
+                    user_detail.role.add(request_data['user_role'])
+                    user_detail.save()
+                    print(user_detail.role.all())
+                    user_role = Role.objects.filter(
+                        id=request_data['user_role'])[0]
+
+                    user_role_qs = UserRole.objects.filter(
+                        user=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                    user_role_qs.role = user_role
+                    user_role_qs.save()
+
+                    user_detail_qs = UserDetail.objects.filter(
+                        user_obj=request_data['reporting_to'])[0]
+
+                    reporting_to_qs = ReportingTo.objects.filter(
+                        user_detail=request_data['user_detail'], user_role=request_data['previous_user_role'])[0]
+                    reporting_to_qs.reporting_to = user_detail_qs
+                    reporting_to_qs.user_role = user_role
+                    reporting_to_qs.save()
+
+                    context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
+                            "statusCode": status.HTTP_200_OK}
+
+                    return Response(context, status=status.HTTP_200_OK) 
+
             else:
 
                 user_detail = UserDetail.objects.filter(
