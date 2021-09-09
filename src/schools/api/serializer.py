@@ -282,6 +282,7 @@ class SchoolSerializer(serializers.ModelSerializer):
                     {"school_package_serializer_data": school_package_serializer.data})
             else:
                 raise ValidationError(school_package_serializer.errors)
+
             return school
         except Exception as ex:
             logger.debug(ex)
