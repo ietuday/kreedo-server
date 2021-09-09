@@ -53,6 +53,8 @@ urlpatterns = [
          UserListBySchoolID.as_view(), name='User List By School'),
     path('get_roles_by_loggedin_user_id/<int:pk>',
          getRolesByLoggedinUserId.as_view(), name='Get Roles by Login ID'),
+    path('get_roles_by_type',
+         GetRoleByType.as_view(), name='GetRoleByType'),
     path('get_reporting_to_based_on_selected_role',
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
     path('account_list_create',
