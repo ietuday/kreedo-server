@@ -246,7 +246,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-
+            print("@@@@@@@@", request.data)
             address_detail = {
                 "country": request.data.get('country', None),
                 "state": request.data.get('state', None),
@@ -295,13 +295,28 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 data=dict(school_data), context=context)
             if school_serializer.is_valid():
                 school_serializer.save()
-                print("SCHHOL SAVE", school_serializer.data)
+                print("SCHHOL SAVE", school_serializer.data['id'])
             else:
                 print("School Error", school_serializer.errors)
             # return Response(school_serializer.errors)
-            if UserRole.objects.filter(user=request.user, school__isnull=True):
-                user_role_qs = UserRole.objects.filter(user=request.user, role__name__in=[
-                                                       'School Account Owner'], school__isnull=True)
+            user_id = UserDetail.objects.filter(user_obj=request.user)[0]
+            school_id = School.objects.filter(
+                id=school_serializer.data['id'])[0]
+            print("user_id----------", user_id)
+            if UserRole.objects.filter(user=user_id, school__isnull=True):
+                user_role_qs = UserRole.objects.filter(user=user_id, role__name__in=[
+                                                       'School Account Owner'], school__isnull=True)[0]
+                school_ids = School.objects.filter(
+                    id=school_serializer.data['id'])[0]
+                user_role_qs.school = school_ids
+                user_role_qs.save()
+                print("add user to school")
+            else:
+                role_name = Role.objects.filter(name='School Account Owner')[0]
+                user_role_qs = UserRole.objects.create(
+                    user=user_id, role=role_name, school=school_id)
+                user_role_qs.save()
+                print("NEW CREATE ")
 
             school_calender_detail = {
                 "school": school_serializer.data['id'],
