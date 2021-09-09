@@ -1094,6 +1094,13 @@ class SchoolGradeSubjectListLicenseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SubjectSchoolGradeLincenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = ['grade']
+        depth = 1
+
+
 """ license list by user id """
 
 
@@ -1109,7 +1116,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
 
         serialized_data = super(
             LicenseListByUserSerializers, self).to_representation(obj)
-        # user_id = serialized_data['user_obj']['id']
+
         print("serialized_data->", serialized_data['school']['id'])
         school_id = serialized_data['school']['id']
 
@@ -1118,7 +1125,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         print("school_grade----------->", school_grade)
 
         if school_grade:
-            school_grade_qs_serializer = SubjectSchoolGradeSerializer(
+            school_grade_qs_serializer = SubjectSchoolGradeLincenseSerializer(
                 school_grade, many=True)
             print("school_grade_qs_serializer.data",
                   school_grade_qs_serializer.data)

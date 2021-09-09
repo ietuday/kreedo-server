@@ -299,6 +299,9 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             else:
                 print("School Error", school_serializer.errors)
             # return Response(school_serializer.errors)
+            if UserRole.objects.filter(user=request.user, school__isnull=True):
+                user_role_qs = UserRole.objects.filter(user=request.user, role__name__in=[
+                                                       'School Account Owner'], school__isnull=True)
 
             school_calender_detail = {
                 "school": school_serializer.data['id'],

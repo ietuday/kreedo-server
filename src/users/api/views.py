@@ -1121,6 +1121,8 @@ class LicenseListByLoggedInUser(GeneralClass, Mixins, ListCreateAPIView):
             return Response(user_role_qs_serializer.data)
 
         except Exception as ex:
+            print("EX---------", ex)
+            print("traceback-", traceback.print_exc())
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
