@@ -1,6 +1,8 @@
 import traceback
 
 from period.models import *
+from plan.models import *
+from plan.api.serializer import*
 from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
@@ -216,10 +218,22 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
         print("user_role_qs-", user_role_qs)
         user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
         print("USER- DETAIL", user_detail_qs)
-        user_detail_qs_serializer = UserDetailListSerializer(
-            user_detail_qs, many=True)
+        if user_detail_qs:
+            user_detail_qs_serializer = UserDetailListSerializer(
+                user_detail_qs, many=True)
 
-        serialized_data['user_list'] = user_detail_qs_serializer.data
+            serialized_data['user_list'] = user_detail_qs_serializer.data
+
+        school_grade = SubjectSchoolGradePlan.objects.filter(
+            school=school_data_id)
+        print("school_grade----------->", school_grade)
+        if school_grade:
+            school_grade_qs_serializer = SubjectSchoolGradeSerializer(
+                school_grade, many=True)
+            print("school_grade_qs_serializer.data",
+                  school_grade_qs_serializer.data)
+            serialized_data['selected_grades'] = school_grade_qs_serializer.data
+
         return serialized_data
 
 

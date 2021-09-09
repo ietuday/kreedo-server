@@ -1,4 +1,5 @@
-
+from plan.api.serializer import*
+from plan.models import*
 from package.models import*
 from package.api.serializer import *
 from rest_framework.validators import UniqueTogetherValidator
@@ -1111,14 +1112,16 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         # user_id = serialized_data['user_obj']['id']
         print("serialized_data->", serialized_data['school']['id'])
         school_id = serialized_data['school']['id']
-        school_grade = SchoolGradeSubject.objects.filter(school=school_id)
+        school_grade = SubjectSchoolGradePlan.objects.filter(
+            school=school_id)
         print("school_grade----------->", school_grade)
         if school_grade:
-            school_grade_qs_serializer = SchoolGradeSubjectListLicenseSerializer(
+            school_grade_qs_serializer = SubjectSchoolGradeSerializer(
                 school_grade, many=True)
             print("school_grade_qs_serializer.data",
                   school_grade_qs_serializer.data)
             serialized_data['selected_grades'] = school_grade_qs_serializer.data
+
         return serialized_data
 
 
