@@ -2025,6 +2025,47 @@ class getRolesByLoggedinUserId(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+"""GetRoleByType"""
+
+
+@permission_classes((IsAuthenticated,))
+class GetRoleByType(GeneralClass, Mixins, ListCreateAPIView):
+    def post(self, request):
+        try:
+            logged_user = request.user
+            role = request.data.get('type', None)
+            print("ROLE-------", role)
+            print("user-----", logged_user)
+            user_obj = UserRole.objects.filter(
+                user=logged_user.id, role__name=role)[0]
+
+            if user_obj.role.name == "School Account Owner":
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            elif user_obj.role.name == "School Admin":
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            elif user_obj.role.name == "School Associate":
+                role_obj = Role.objects.filter(
+                    name__in=["School Admin", "School Associate", "Teacher"])
+                role_obj_serilaizer = RoleListSerializer(
+                    role_obj, many=True)
+                return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
+            else:
+                return Response("Role Not Found", status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as ex:
+            print("ERROR-----", ex)
+            print("TRACEBACK---------", traceback.print_exc())
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """get reportings to based on selected role """
 
 
