@@ -201,11 +201,9 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
     def post(self, request):
         try:
-
             subject_school_grade_plan = SubjectSchoolGradePlanCreateSerializer(
                 data=request.data.get(
                     'grade_list', None), many=True)
-
             if subject_school_grade_plan.is_valid():
                 subject_school_grade_plan.save()
                 return Response(subject_school_grade_plan.data)
