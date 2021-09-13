@@ -256,6 +256,25 @@ class ChildActivity(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" Grade and subject list by school"""
+
+
+class GradeSubjectListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            grade_subject_qs = SubjectSchoolGradePlan.objects.filter(school=pk)
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_qs, many=True)
+            return Response(grade_subject_serializer.data, status=status.HTTP_200_OK)
+        except Exception as ex:
+
+            logger.debug(ex)
+            # context = {"error": ex,
+            #            "isSuccess": False,
+            #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ Bilk Upload Plan """
 
 
