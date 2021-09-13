@@ -56,20 +56,6 @@ class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
         fields = ['subjects']
         depth = 1
 
-    def to_representation(self, obj):
-        serialized_data = super(
-            ChildPlanOfSubjectChildSerializer, self).to_representation(obj)
-        print("SERialized Data---------", serialized_data.get('subjects'))
-        # child_id = serialized_data.get('id')
-
-        # child_id_qs = ChildPlan.objects.filter(child__id=child_id)
-        # print("child_id_qschild_id_qschild_id_qschild_id_qs", child_id_qs)
-        # if child_id_qs:
-        #     child_id_serializer = ChildPlanSerializer(
-        #         child_id_qs, many=True)
-        #     serialized_data['academic_session_data'] = child_id_serializer.data
-        return serialized_data
-
 
 """ block Create Serailizer """
 
@@ -302,18 +288,14 @@ class ChildSerializer(serializers.ModelSerializer):
             else:
                 serialized_data['academic_session_data'] = ""
             """ Subject Population"""
-            child_subject_id_qs = ChildPlan.objects.filter(child=child_id)
+            child_subject_id_qs = ChildPlan.objects.filter(child=child_id)[0]
             if child_subject_id_qs:
                 child_subject_serializer = ChildPlanOfSubjectChildSerializer(
-                    child_subject_id_qs, many=True)
-                # print("child_subject_serializer.data----------->",
-                #       child_subject_serializer.data)
-                for subject in child_subject_serializer.data:
-                    print("Subject-------->", subject)
-                    for sub in subject:
-                        print("SUB----------", sub)
+                    child_subject_id_qs)
+                print("child_subject_serializer.data----------->",
+                      child_subject_serializer.data['subjects'])
 
-                        serialized_data['subject_list'] = sub
+                serialized_data['subject_list'] = child_subject_serializer.data['subjects']
 
             else:
                 serialized_data['subject_list'] = ""
