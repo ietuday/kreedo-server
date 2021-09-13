@@ -48,6 +48,15 @@ class ChildPlanOfChildSerializer(serializers.ModelSerializer):
         depth = 2
 
 
+class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
+    # academic_session = AcademicSessionListForChildSerializer()
+
+    class Meta:
+        model = ChildPlan
+        fields = ['subjects']
+        depth = 2
+
+
 """ block Create Serailizer """
 
 
@@ -277,6 +286,16 @@ class ChildSerializer(serializers.ModelSerializer):
 
         else:
             serialized_data['academic_session_data'] = ""
+        """ Subject Population"""
+        child_subject_id_qs = ChildPlan.objects.filter(child=child_id)
+        if child_subject_id_qs:
+            child_subject_serializer = ChildPlanOfSubjectChildSerializer(
+                child_subject_id_qs, many=True)
+            serialized_data['subject_list'] = child_subject_serializer.data
+
+        else:
+            serialized_data['subject_list'] = ""
+
         child_session_qs = ChildSession.objects.filter(child=child_id)
         if child_session_qs:
             child_session_serializer = ChildSessionListSerializer(

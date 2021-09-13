@@ -128,6 +128,7 @@ class PlanUpdateSerailizer(serializers.ModelSerializer):
 
             """ Update Plan Activity"""
             for plan_activity_obj in plan_activity:
+
                 plan_activity_id = plan_activity_obj.pop('id')
 
                 plan_activity_qss = PlanActivity.objects.filter(
