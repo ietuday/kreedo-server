@@ -345,7 +345,7 @@ class AddActivity(ListCreateAPIView):
                     f['supporting_material'])
                 f['subject'] = ast.literal_eval(f['subject'])
                 if not m.isnan(f['id']) and f['is_Deleted'] == False:
-                    print("UPDATION")
+                    print("UPDATION") 
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
 
                     activity_qs.name = f['name']
@@ -409,7 +409,7 @@ class AddActivity(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Added sucessfully",
-                       "error": "", "data": path_to_file}
+                       "statusCode": status.HTTP_200_OK, "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 
@@ -483,7 +483,7 @@ class AddActivityAsset(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Asset Added sucessfully",
-                       "error": "", "data": path_to_file}
+                       "statusCode": status.HTTP_200_OK, "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 
