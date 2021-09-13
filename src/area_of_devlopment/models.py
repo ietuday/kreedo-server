@@ -19,6 +19,7 @@ class AreaOfDevlopment(TimestampAwareModel):
         verbose_name = 'AreaOfDevlopment'
         verbose_name_plural = 'AreaOfDevlopments'
         ordering = ['-id']
+        unique_together = ['name', 'description', 'concept']
 
     def __str__(self):
         return str(self.name)
