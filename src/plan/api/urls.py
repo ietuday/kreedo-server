@@ -18,10 +18,16 @@ urlpatterns = [
          name='PlanActivityRetriveUpdateDestroy'),
     path('subject_school_grade_plan_list_create',
          SubjectSchoolGradePlanListCreate.as_view(), name='SubjectSchoolGradePlanListCreate'),
-    path('subject-school-grade-plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
+    path('subject_school_grade_plan_retrive_update_delete/<int:pk>', SubjectSchoolGradePlanRetriveUpdateDestroy.as_view(),
          name='SubjectSchoolGradePlanRetriveUpdateDestroy'),
     path('child-activity',
          ChildActivity.as_view(), name='ChildActivity'),
+    path('grade_subject_list_by_school/<int:pk>',
+         GradeSubjectListBySchool.as_view(), name='GradeSubjectListBySchool'),
+    path('add_subject_by_grade',
+         AddSubjectByGrade.as_view(), name='AddSubjectByGrade'),
+
+
 
 
     path('bulk-upload/add-plan',

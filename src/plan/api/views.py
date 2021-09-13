@@ -14,7 +14,7 @@ from kreedo.conf.logger import CustomFormatter
 import logging
 from rest_framework import status
 
-""" 
+"""
     Packages for uploading csv
 """
 import pandas as pd
@@ -227,6 +227,8 @@ class SubjectSchoolGradePlanRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveU
             return SubjectSchoolGradePlanListSerializer
         if self.request.method == 'PUT':
             return SubjectSchoolGradePlanCreateSerializer
+        if self.request.method == 'PATCH':
+            return SubjectSchoolGradeCreateSerializer
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -253,6 +255,38 @@ class ChildActivity(GeneralClass, Mixins, ListCreateAPIView):
             # context = {"error": ex,
             #            "isSuccess": False,
             #            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" Grade and subject list by school"""
+
+
+class GradeSubjectListBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            grade_subject_qs = SubjectSchoolGradePlan.objects.filter(school=pk)
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_qs, many=True)
+            return Response(grade_subject_serializer.data, status=status.HTTP_200_OK)
+        except Exception as ex:
+
+            logger.debug(ex)
+
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AddSubjectByGrade(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    def put(self, request):
+        try:
+            grade_subject_qs = SubjectSchoolGradePlan.objects.filter(grade=request.data.get('grade', None),
+                                                                     school=request.data.get('school', None))
+            grade_subject_serializer = SubjectSchoolGradeCreateSerializer(
+                grade_subject_qs, data=request.data, many=True)
+            return Response(grade_subject_serializer.data, status=status.HTTP_200_OK)
+        except Exception as ex:
+
+            logger.debug(ex)
+
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

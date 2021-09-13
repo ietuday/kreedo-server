@@ -9,7 +9,7 @@ from activity.models import*
 
 
 class AreaOfDevlopment(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     concept = models.ManyToManyField(
         to='Concept', related_name='aod_concept', blank=True)
@@ -32,7 +32,7 @@ class AreaOfDevlopment(TimestampAwareModel):
 
 
 class Concept(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     aod = models.ForeignKey('AreaOfDevlopment', related_name='concept_aod',
                             on_delete=models.PROTECT, null=True, blank=True)
@@ -54,7 +54,7 @@ class Concept(TimestampAwareModel):
 
 
 class Skill(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     concept = models.ForeignKey('Concept', on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
