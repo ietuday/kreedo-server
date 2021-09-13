@@ -45,7 +45,7 @@ class ChildPlanOfChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        depth = 1
+        # depth = 1
 
 
 class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
