@@ -393,8 +393,12 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 raise ValidationError(address_qs.errors)
             school_qs = School.objects.get(id=pk)
 
-            school_qs_serailzer = SchoolUpdateSerializer(
-                school_qs, data=dict(school_data), partial=True)
+            context = self.get_serializer_context()
+            context.update({"school_data": school_data,
+                            "school_package_dict": request.data.get('school_package', None)})
+
+            school_qs_serailzer = SchoolUpdateWithPackageSerializer(
+                school_qs, data=dict(school_data), context=context, partial=True)
             if school_qs_serailzer.is_valid():
                 school_qs_serailzer.save()
                 return Response(school_qs_serailzer.data, status=status.HTTP_200_OK)
