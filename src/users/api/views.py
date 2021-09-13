@@ -949,12 +949,12 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
                 if ReportingTo.objects.filter(user_detail=request_data['user_detail'], user_role=user_role).exists():
 
                     context = {"message": ['Role already exists'], "isSuccess": False, "data": [],
-                            "statusCode": status.HTTP_200_OK}
+                               "statusCode": status.HTTP_200_OK}
 
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     user_detail = UserDetail.objects.filter(
-                    user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
+                        user_obj=request_data['user_detail'], role=request_data['previous_user_role'])[0]
                     print(user_detail.role.all())
                     user_detail.role.remove(request_data['previous_user_role'])
                     user_detail.save()
@@ -980,9 +980,9 @@ class UpdateReportingToListByUserDetail(RetrieveUpdateDestroyAPIView):
                     reporting_to_qs.save()
 
                     context = {"message": "Updated Successfully", "isSuccess": True, "data": "Updated Successfully",
-                            "statusCode": status.HTTP_200_OK}
+                               "statusCode": status.HTTP_200_OK}
 
-                    return Response(context, status=status.HTTP_200_OK) 
+                    return Response(context, status=status.HTTP_200_OK)
 
             else:
 
@@ -2091,7 +2091,7 @@ class GetRoleByType(GeneralClass, Mixins, ListCreateAPIView):
                     role_obj, many=True)
                 return Response(role_obj_serilaizer.data, status=status.HTTP_200_OK)
             else:
-                return Response("Role Not Found", status=status.HTTP_404_NOT_FOUND)
+                return Response([], status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR-----", ex)
