@@ -791,7 +791,7 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
         if SchoolPackage.objects.filter(school=school_id).exists():
             school_package_data = SchoolPackage.objects.filter(
                 school=school_id)
-            school_package_data_serializer = SchoolPackageListSerializer(
+            school_package_data_serializer = SchoolPackageByAccountListSerializer(
                 school_package_data, many=True)
             serialized_data['packages'] = school_package_data_serializer.data
 
