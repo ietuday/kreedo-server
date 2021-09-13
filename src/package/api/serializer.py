@@ -34,7 +34,7 @@ class SchoolPackageListSerializer(serializers.ModelSerializer):
 class SchoolPackageByAccountListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolPackage
-        fields = ['package']
+        fields = ['id', 'package', 'custom_materials']
         depth = 1
 
 
