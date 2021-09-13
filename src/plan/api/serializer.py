@@ -125,23 +125,38 @@ class PlanUpdateSerailizer(serializers.ModelSerializer):
 
             plan_qs = Plan.objects.filter(
                 pk=instance.pk).update(**validated_data)
-
+            print("plan_qs----------", plan_qs)
             """ Update Plan Activity"""
             for plan_activity_obj in plan_activity:
+                if plan_activity_obj['id']:
+                    plan_activity_id = plan_activity_obj.pop('id')
 
-                plan_activity_id = plan_activity_obj.pop('id')
+                    plan_activity_qss = PlanActivity.objects.filter(
+                        id=plan_activity_id)[0]
 
-                plan_activity_qss = PlanActivity.objects.filter(
-                    id=plan_activity_id)[0]
+                    plan_activity_serializer = PlanActivityCreateSerializer(
+                        plan_activity_qss, data=dict(plan_activity_obj), partial=True)
+                    if plan_activity_serializer.is_valid():
+                        plan_activity_serializer.save()
+                        print("UPDATE")
+                    else:
 
-                plan_activity_serializer = PlanActivityCreateSerializer(
-                    plan_activity_qss, data=dict(plan_activity_obj), partial=True)
-                if plan_activity_serializer.is_valid():
-                    plan_activity_serializer.save()
-                    print("UPDATE")
+                        print("%%%%%5", plan_activity_serializer.errors)
                 else:
+                    for plan_activity_obj in plan_activity:
+                        plan_activity_obj['plan'] = instance.pk
 
-                    print("%%%%%5", plan_activity_serializer.errors)
+                    """ calling PlanActivityCreate Serializer with order_items data. """
+
+                    plan_activity_serializer = PlanActivityCreateSerializer(
+                        data=list(plan_activity), many=True)
+
+                    if plan_activity_serializer.is_valid():
+                        plan_activity_serializer.save()
+                        print("Plan Activtiy Create")
+
+                    else:
+                        print(plan_activity_serializer.errors)
 
             # plan_activity_qs= PlanActivity.objects.filter
             return instance
