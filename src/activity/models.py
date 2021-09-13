@@ -40,8 +40,10 @@ Activity_Asset_Choice = [
 
 
 """ Activity Model """
+
+
 class Activity(TimestampAwareModel):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     type = models.CharField(max_length=50, choices=Activity_Type_Choice)
     objective = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -71,6 +73,8 @@ class Activity(TimestampAwareModel):
 
 
 """ Activity Asset Model """
+
+
 class ActivityAsset(TimestampAwareModel):
     activity = models.ForeignKey(
         'Activity', on_delete=models.PROTECT, null=True, blank=True)
@@ -85,8 +89,7 @@ class ActivityAsset(TimestampAwareModel):
         verbose_name = 'ActivityAsset'
         verbose_name_plural = 'ActivityAssets'
         ordering = ['-id']
-        unique_together = ['activity','type']
-
+        unique_together = ['activity', 'type']
 
     def __str__(self):
         return str(self.id)
@@ -96,6 +99,8 @@ class ActivityAsset(TimestampAwareModel):
 
 
 """ Activity Complete """
+
+
 class ActivityComplete(TimestampAwareModel):
     child = models.ForeignKey(to='child.Child', on_delete=models.PROTECT)
     period = models.ForeignKey(to='period.Period', on_delete=models.PROTECT)
@@ -103,7 +108,8 @@ class ActivityComplete(TimestampAwareModel):
         to='activity.Activity', on_delete=models.PROTECT, related_name='activity_complete')
     is_completed = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
-    activity_reschedule_period = models.ForeignKey(to='period.Period',on_delete=PROTECT,null=True,blank=True,related_name='reschedule_period')
+    activity_reschedule_period = models.ForeignKey(
+        to='period.Period', on_delete=PROTECT, null=True, blank=True, related_name='reschedule_period')
 
     class Meta:
         verbose_name = 'ActivityComplete'
