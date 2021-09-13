@@ -54,7 +54,21 @@ class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = ['subjects']
-        depth = 2
+        depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            ChildPlanOfSubjectChildSerializer, self).to_representation(obj)
+        print("SERialized Data---------", serialized_data.get('subjects'))
+        # child_id = serialized_data.get('id')
+
+        # child_id_qs = ChildPlan.objects.filter(child__id=child_id)
+        # print("child_id_qschild_id_qschild_id_qschild_id_qs", child_id_qs)
+        # if child_id_qs:
+        #     child_id_serializer = ChildPlanSerializer(
+        #         child_id_qs, many=True)
+        #     serialized_data['academic_session_data'] = child_id_serializer.data
+        return serialized_data
 
 
 """ block Create Serailizer """
@@ -263,48 +277,59 @@ class ChildSerializer(serializers.ModelSerializer):
         # depth= 2
 
     def to_representation(self, obj):
-        serialized_data = super(
-            ChildSerializer, self).to_representation(obj)
+        try:
+            serialized_data = super(
+                ChildSerializer, self).to_representation(obj)
 
-        child_id = serialized_data.get('id')
+            child_id = serialized_data.get('id')
 
-        parent_list = serialized_data.get('parent')
+            parent_list = serialized_data.get('parent')
 
-        print("$$$$$$$$$$", parent_list)
-        user_qs = UserDetail.objects.filter(
-            user_obj__in=parent_list).order_by('user_obj')
-        user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
+            print("$$$$$$$$$$", parent_list)
+            user_qs = UserDetail.objects.filter(
+                user_obj__in=parent_list).order_by('user_obj')
+            user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
 
-        serialized_data['parents'] = user_qs_serializer.data
+            serialized_data['parents'] = user_qs_serializer.data
 
-        child_id_qs = ChildPlan.objects.filter(child=child_id)
-        if child_id_qs:
-            print("child_id_qs----", child_id_qs)
-            child_id_serializer = ChildPlanOfChildSerializer(
-                child_id_qs, many=True)
-            serialized_data['academic_session_data'] = child_id_serializer.data
+            child_id_qs = ChildPlan.objects.filter(child=child_id)
+            if child_id_qs:
+                print("child_id_qs----", child_id_qs)
+                child_id_serializer = ChildPlanOfChildSerializer(
+                    child_id_qs, many=True)
+                serialized_data['academic_session_data'] = child_id_serializer.data
 
-        else:
-            serialized_data['academic_session_data'] = ""
-        """ Subject Population"""
-        child_subject_id_qs = ChildPlan.objects.filter(child=child_id)
-        if child_subject_id_qs:
-            child_subject_serializer = ChildPlanOfSubjectChildSerializer(
-                child_subject_id_qs, many=True)
-            serialized_data['subject_list'] = child_subject_serializer.data
+            else:
+                serialized_data['academic_session_data'] = ""
+            """ Subject Population"""
+            child_subject_id_qs = ChildPlan.objects.filter(child=child_id)
+            if child_subject_id_qs:
+                child_subject_serializer = ChildPlanOfSubjectChildSerializer(
+                    child_subject_id_qs, many=True)
+                # print("child_subject_serializer.data----------->",
+                #       child_subject_serializer.data)
+                for subject in child_subject_serializer.data:
+                    print("Subject-------->", subject)
+                    for sub in subject:
+                        print("SUB----------", sub)
 
-        else:
-            serialized_data['subject_list'] = ""
+                        serialized_data['subject_list'] = sub
 
-        child_session_qs = ChildSession.objects.filter(child=child_id)
-        if child_session_qs:
-            child_session_serializer = ChildSessionListSerializer(
-                child_session_qs, many=True)
-            serialized_data['session_details'] = child_session_serializer.data
-        else:
-            serialized_data['session_details'] = ""
+            else:
+                serialized_data['subject_list'] = ""
 
-        return serialized_data
+            child_session_qs = ChildSession.objects.filter(child=child_id)
+            if child_session_qs:
+                child_session_serializer = ChildSessionListSerializer(
+                    child_session_qs, many=True)
+                serialized_data['session_details'] = child_session_serializer.data
+            else:
+                serialized_data['session_details'] = ""
+
+            return serialized_data
+        except Exception as ex:
+            print("ERROR@@@@@@@@@@@", ex)
+            print("TRACEBACK-------------->", traceback.print_exc())
 
 
 """ Child Detail list """
