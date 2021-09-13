@@ -264,6 +264,36 @@ class SchoolUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SchoolUpdateWithPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+
+        try:
+            period_template_qs = School.objects.filter(
+                pk=instance.pk).update(**validated_data)
+            print("Update")
+            print("Self-------------context", self.context)
+            school_package = self.context.pop('school_package_dict')
+
+            for school_package_obj in school_package:
+                print("Package Loop---->", school_package_obj['id'])
+                if school_package_obj['id']:
+                    print("school_package_obj['id']---",
+                          school_package_obj['id'])
+                    school_packages_qs = SchoolPackage.objects.filter(
+                        id=school_package_obj['id'])
+                else:
+                    print("create")
+
+            return instance
+        except Exception as ex:
+            print("ex------------", ex)
+            raise ValidationError(ex)
+
+
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
