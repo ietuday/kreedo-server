@@ -19,6 +19,7 @@ class AreaOfDevlopment(TimestampAwareModel):
         verbose_name = 'AreaOfDevlopment'
         verbose_name_plural = 'AreaOfDevlopments'
         ordering = ['-id']
+        unique_together = ['name', 'description']
 
     def __str__(self):
         return str(self.name)
@@ -41,6 +42,7 @@ class Concept(TimestampAwareModel):
         verbose_name = 'Concept'
         verbose_name_plural = 'Concepts'
         ordering = ['-id']
+        unique_together = ['name', 'description', 'aod']
 
     def __str__(self):
         return str(self.name)
@@ -67,6 +69,8 @@ class Skill(TimestampAwareModel):
         verbose_name = 'Skill'
         verbose_name_plural = 'Skills'
         ordering = ['-id']
+        unique_together = ['name', 'description', 'concept']
+
 
     def __str__(self):
         return str(self.name)
