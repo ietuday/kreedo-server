@@ -301,7 +301,8 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
             else:
                 print("School Error", school_serializer.errors)
 
-            user_id = UserDetail.objects.filter(user_obj=request.user)[0]
+            user_id = UserDetail.objects.filter(
+                user_obj=request.data.get('account_id', None))[0]
 
             school_id = School.objects.filter(
                 id=school_serializer.data['id'])[0]
@@ -322,7 +323,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 user_role_qs = UserRole.objects.create(
                     user=user_id, role=role_name, school=school_id)
                 user_role_qs.save()
-                print("NEW CREATE ")
+                print("NEW CREATE User Role for account ")
             school_qs = school_ids = School.objects.filter(
                 id=school_serializer.data['id'])[0]
             school_calender_detail = {
