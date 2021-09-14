@@ -318,8 +318,7 @@ class CheckActivtiyDependency(GeneralClass, Mixins,  RetrieveUpdateDestroyAPIVie
     def get(self, request,  pk):
         try:
             print(pk)
-            # activty_qs = Activity.objects.get(id=pk)
-            # print("activty_qs----", activty_qs)
+
             if Activity.objects.filter(id=pk).exists():
                 context = {"isSuccess": True, "message": "True",
                            "statusCode": status.HTTP_200_OK, "data": True}
