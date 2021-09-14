@@ -471,7 +471,10 @@ class EdoofunOTPVerification(ListAPIView):
         try:
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
-            print("user_obj----", user_obj)
+
+            user_id = User.objects.filter(
+                username=user_obj)[0]
+
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
                            'isSuccess': "false", 'message': 'User with this phone number does not exist'}
@@ -507,7 +510,7 @@ class EdoofunOTPVerification(ListAPIView):
 
                 data = {
                     "link": link,
-                    "user_id": user_obj
+                    "user_id": user_id.id
                 }
 
                 context = {
