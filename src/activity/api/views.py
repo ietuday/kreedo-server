@@ -314,7 +314,7 @@ class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
 """ Check activity Dependency"""
 
 
-class CheckActivtiyDependency(GeneralClass, Mixins,  RetrieveUpdateDestroyAPIView):
+class CheckActivtiyDependency(RetrieveUpdateDestroyAPIView):
     def get(self, request,  pk):
         try:
             print(pk)
