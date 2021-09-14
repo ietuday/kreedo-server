@@ -1,3 +1,4 @@
+import datetime
 from functools import partial
 from inspect import trace
 from django.shortcuts import render
@@ -290,6 +291,11 @@ class AddSubjectByGrade(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def myconverter(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
+
+
 """ Grade  By School """
 
 
@@ -301,10 +307,10 @@ class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
             grades = []
             for grade in grade_qs:
                 grade_dict = {}
-                grade_dict['grade_name'] = grade.grade.name
-                grade_dict['grade_id'] = grade.grade.id
-                grade_dict['school_name'] = grade.school.name
-                grade_dict['school_id'] = grade.school.id
+                grade_dict['name'] = grade.grade.name
+                grade_dict['id'] = grade.grade.id
+                grade_dict['school'] = grade.school.name
+
                 grades.append(grade_dict)
                 grade_dict = {}
 
@@ -312,6 +318,8 @@ class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
             #     grade_qs, many=True)
             return Response(grades, status=status.HTTP_200_OK)
         except Exception as ex:
+            print("ex-----", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
