@@ -321,6 +321,11 @@ class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+# """ Add Subject by Grade"""
+# class AddSubjectByGrade(RetrieveUpdateDestroyAPIView):
+#     d
+
+
 """ Bilk Upload Plan """
 
 
