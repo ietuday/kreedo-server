@@ -318,9 +318,9 @@ class CheckActivtiyDependency(GeneralClass, Mixins,  RetrieveUpdateDestroyAPIVie
     def get(self, request,  pk):
         try:
             print(pk)
-            activty_qs = Activity.objects.get(id=pk)
-            print("activty_qs----", activty_qs)
-            if activty_qs:
+            # activty_qs = Activity.objects.get(id=pk)
+            # print("activty_qs----", activty_qs)
+            if Activity.objects.filter(id=pk).exists():
                 return Response("True")
             else:
                 return Response("False")
@@ -345,7 +345,7 @@ class AddActivity(ListCreateAPIView):
                     f['supporting_material'])
                 f['subject'] = ast.literal_eval(f['subject'])
                 if not m.isnan(f['id']) and f['is_Deleted'] == False:
-                    print("UPDATION") 
+                    print("UPDATION")
                     activity_qs = Activity.objects.filter(id=f['id'])[0]
 
                     activity_qs.name = f['name']
