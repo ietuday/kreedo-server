@@ -336,10 +336,117 @@ class SubjectSchoolGradeSerializer(serializers.ModelSerializer):
 """ SubjectSchoolGradePlan Create Serializer """
 
 
-class SubjectSchoolGradePlanCreateSerializer(serializers.ModelSerializer):
+# {
+# 	"grade_list":[
+# 		{
+# 			"school":1,
+# 			"grade":1,
+# 			"grade_label":"ds",
+# 			"is_active":"true"
+# 		},
+# 			{
+# 			"school":1,
+# 			"grade":2,
+# 			"grade_label":"ABCE",
+# 			"is_active":"true"
+# 		}
+
+# ]
+
+# }
+class SubjectSchoolGradePlanBySchoolCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
-        fields = ['school', 'grade', 'grade_label']
+        fields = '__all__'
+
+
+class SubjectSchoolGradePlanUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GradeSubjectPlan
+        fields = '__all__'
+
+
+class SubjectSchoolGradePlanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GradeSubjectPlan
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            print("VALUE------", validated_data)
+            print("SELF---->", self.context['grade_label_data'])
+            grade_list = self.context['grade_label_data']
+            grades_list = []
+            for grades in grade_list:
+                grades_list.append(grades['grade'])
+
+            for grade in grade_list:
+                print("GRADE----------", grade['school'])
+                if GradeSubjectPlan.objects.filter(school=grade['school'],
+                                                   grade=grade['grade']).exists():
+                    print("EXIST")
+                    grade_qs = GradeSubjectPlan.objects.filter(school=grade['school'],
+                                                               grade=grade['grade'])[0]
+                    print("@@@@@@@@@@@@", grade_qs)
+
+                    if SubjectSchoolGradePlan.objects.filter(
+                            grade_subjects=grade_qs).exists():
+                        print("LABEL update ")
+                        grade_label_qs = SubjectSchoolGradePlan.objects.filter(
+                            grade_subjects=grade_qs)[0]
+
+                        grade_label_qs.grade_label = grade['grade_label']
+                        grade_label_qs.save()
+                        print("LABEL SAVE")
+
+                    plan_qs = GradeSubjectPlan.objects.filter(
+                        school=grade['school']).exclude(grade__in=grades_list)
+                    print("DELETEEE-----------", plan_qs)
+
+                    if plan_qs:
+                        plan_qs = plan_qs[0]
+                        print("plan_qs id----", plan_qs)
+                        plan_id = plan_qs.id
+
+                        grade_delete_qs = SubjectSchoolGradePlan.objects.filter(
+                            grade_subjects=plan_id)
+                        if grade_delete_qs:
+                            grade_delete_qs.delete()
+
+                            plan_qs.delete()
+                            print("DELTED")
+
+                else:
+
+                    # grades_list = []
+                    print("grade['grade')]--",)
+                    school_id = School.objects.filter(id=grade['school'])[0]
+
+                    grade_id = Grade.objects.filter(id=grade['grade'])[0]
+                    print("SCHOOL", school_id, grade_id)
+
+                    grade_qs = GradeSubjectPlan.objects.create(
+                        grade=grade_id, school=school_id)
+
+                    print("grade_qs", grade_qs.id)
+
+                    grade_subject_plan_dict = {
+                        "grade_label": grade['grade_label'],
+                        "grade_subjects": [grade_qs.id]
+                    }
+                    grade_subject_plan_serializer = SubjectSchoolGradePlanBySchoolCreateSerializer(
+                        data=dict(grade_subject_plan_dict))
+                    if grade_subject_plan_serializer.is_valid():
+                        grade_subject_plan_serializer.save()
+                        print("CREATE  LABEL")
+                    else:
+                        print("ERROR-------> in label creation",
+                              grade_subject_plan_serializer.errors)
+
+            return validated_data
+        except Exception as ex:
+            print("ERROR----------", ex)
+            print("TRACEBACK-------------", traceback.print_exc())
 
 
 class SubjectSchoolGradeCreateSerializer(serializers.ModelSerializer):
