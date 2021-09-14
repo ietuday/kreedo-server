@@ -346,3 +346,10 @@ class SubjectSchoolGradeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = '__all__'
+
+
+class GradesBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = ['grade', 'school']
+        depth = 1

@@ -290,6 +290,32 @@ class AddSubjectByGrade(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+""" Grade  By School """
+
+
+class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
+    def get(self, request, pk):
+        try:
+            grade_qs = SubjectSchoolGradePlan.objects.filter(
+                school=pk)
+            grades = []
+            for grade in grade_qs:
+                grade_dict = {}
+                grade_dict['grade_name'] = grade.grade.name
+                grade_dict['grade_id'] = grade.grade.id
+                grade_dict['school_name'] = grade.school.name
+                grade_dict['school_id'] = grade.school.id
+                grades.append(grade_dict)
+                grade_dict = {}
+
+            # grade_serializer = GradesBySchoolSerializer(
+            #     grade_qs, many=True)
+            return Response(grades, status=status.HTTP_200_OK)
+        except Exception as ex:
+            logger.debug(ex)
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 """ Bilk Upload Plan """
 
 
