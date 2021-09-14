@@ -321,9 +321,15 @@ class CheckActivtiyDependency(GeneralClass, Mixins,  RetrieveUpdateDestroyAPIVie
             # activty_qs = Activity.objects.get(id=pk)
             # print("activty_qs----", activty_qs)
             if Activity.objects.filter(id=pk).exists():
-                return Response("True")
+                context = {"isSuccess": True, "message": "True",
+                           "statusCode": status.HTTP_200_OK, "data": True}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response("True")
             else:
-                return Response("False")
+                context = {"isSuccess": False, "message": "False",
+                           "statusCode": status.HTTP_200_OK, "data": False}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response("False")
         except Exception as ex:
             print(ex)
             return Response(ex)
