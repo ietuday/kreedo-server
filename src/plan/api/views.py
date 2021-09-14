@@ -309,13 +309,10 @@ class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
                 grade_dict = {}
                 grade_dict['name'] = grade.grade.name
                 grade_dict['id'] = grade.grade.id
-                grade_dict['school'] = grade.school.name
+                grade_dict['school'] = grade.school.id
 
                 grades.append(grade_dict)
                 grade_dict = {}
-
-            # grade_serializer = GradesBySchoolSerializer(
-            #     grade_qs, many=True)
             return Response(grades, status=status.HTTP_200_OK)
         except Exception as ex:
             print("ex-----", ex)
