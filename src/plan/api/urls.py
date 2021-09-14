@@ -26,6 +26,9 @@ urlpatterns = [
          GradeSubjectListBySchool.as_view(), name='GradeSubjectListBySchool'),
     path('add_subject_by_grade',
          AddSubjectByGrade.as_view(), name='AddSubjectByGrade'),
+    path('grades_by_school/<int:pk>',
+         GradesBySchool.as_view(), name='GradesBySchool'),
+
 
 
 
