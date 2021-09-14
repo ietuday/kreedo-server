@@ -97,37 +97,18 @@ class PlanActivity(TimestampAwareModel):
         return reverse('PlanActivity_detail', kwargs={"pk": self.pk})
 
 
-class SubjectPlan(TimestampAwareModel):
-    subject = models.ForeignKey(
-        to='schools.Subject', on_delete=models.PROTECT, blank=True, null=True)
-    subject_label = models.CharField(max_length=100, blank=True, null=True)
-    plan = models.ManyToManyField('Plan', blank=True)
-    is_active = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'SubjectPlan'
-        verbose_name_plural = 'SubjectPlans'
-        ordering = ['-id']
-
-    def __str__(self):
-        return str(self.id)
-
-    def get_absolute_url(self):
-        return reverse('SubjectPlan_detail', kwargs={"pk": self.pk})
-
-
 """ Subject School Grade Plan Model """
 
 
 class SubjectSchoolGradePlan(TimestampAwareModel):
-    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    # school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     # subject = models.ForeignKey(
     #     to='schools.Subject', on_delete=models.PROTECT, blank=True, null=True)
-    # subject_label = models.CharField(max_length=100, blank=True, null=True)
-    grade = models.ForeignKey(
-        to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
+    subject_label = models.CharField(max_length=100, blank=True, null=True)
+    # grade = models.ForeignKey(
+    #     to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
     grade_label = models.CharField(max_length=100, blank=True, null=True)
-    subjects = models.ManyToManyField('SubjectPlan', blank=True)
+    grade_subjects = models.ManyToManyField('GradeSubjectPlan', blank=True)
     # plan = models.ManyToManyField('Plan', blank=True)
     is_active = models.BooleanField(default=False)
 
@@ -141,6 +122,27 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('SubjectSchoolGradePlan_detail', kwargs={"pk": self.pk})
+
+
+class GradeSubjectPlan(TimestampAwareModel):
+    school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
+    grade = models.ForeignKey(
+        to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
+    subject = models.ForeignKey(
+        to='schools.Subject', on_delete=models.PROTECT, blank=True, null=True)
+    plan = models.ManyToManyField('Plan', blank=True)
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'GradeSubjectPlan'
+        verbose_name_plural = 'GradeSubjectPlans'
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.id)
+
+    def get_absolute_url(self):
+        return reverse('GradeSubjectPlan_detail', kwargs={"pk": self.pk})
 
 
 """ Child Plan Model """
