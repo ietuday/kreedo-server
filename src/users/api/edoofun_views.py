@@ -507,6 +507,7 @@ class EdoofunOTPVerification(ListAPIView):
 
                 data = {
                     "link": link,
+                    "user_id": user_obj
                 }
 
                 context = {
