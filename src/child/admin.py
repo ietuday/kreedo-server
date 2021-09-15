@@ -56,3 +56,9 @@ class AttendanceAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                      'attendance_date', 'is_active']
     list_filter = ['id', 'academic_session', 'marked_status',
                    'attendance_date', 'is_active']
+
+
+
+@admin.register(Block)
+class BlockAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+        list_display = ['id', 'block_no','is_active','is_done']

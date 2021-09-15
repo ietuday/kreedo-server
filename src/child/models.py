@@ -169,11 +169,11 @@ class Block(TimestampAwareModel):
     block_no = models.CharField(max_length=100, null=True, blank=True)
     child_plan = models.ForeignKey(
         to='plan.ChildPlan', on_delete=models.PROTECT, null=True, blank=True)
-    activity = models.ForeignKey(
-        to='activity.Activity', on_delete=models.PROTECT, null=True, blank=True)
+    activity = models.ManyToManyField(
+        to='activity.Activity',blank=True)
     is_done = models.BooleanField(default=False)
-    period = models.ForeignKey(
-        to='period.Period', on_delete=models.PROTECT, null=True, blank=True)
+    period = models.ManyToManyField(
+        to='period.Period', blank=True)
     is_active = models.BooleanField(default=False)
 
     class Meta:

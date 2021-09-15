@@ -1,3 +1,4 @@
+from child.models import Block
 from math import fabs
 
 from django.db.models.query_utils import PathInfo
@@ -449,7 +450,7 @@ def period_individual_seq_activity_association(academic_session):
             
             subject_plan_qs = child_plan.subject_plan.all()
             subject_list_based_on_period = []
-            # pdb.set_trace()
+    
             """ subject list """
             for period in period_list_based_on_child:
                 if period.subject in subject_list_based_on_period:
@@ -458,7 +459,6 @@ def period_individual_seq_activity_association(academic_session):
                     subject_list_based_on_period.append(period.subject)
             
             print('subject_list',subject_list_based_on_period)
-
             for subject in subject_list_based_on_period:
                     
             
@@ -549,30 +549,52 @@ def period_individual_seq_activity_association(academic_session):
                                             break
                     else:
                         print("randamized")
-                        plan_mandatory_activities = subject_based_plan.plan.plan_activity.filter(
+                        plan_activities = subject_based_plan.plan.plan_activity.filter(
                                                                         is_optional=False
                                                                         ).order_by('sort_no')
                         no_of_blocks = get_no_of_blocks(period_based_on_subject)
-                        activity_per_block = get_activity_per_block(no_of_blocks,plan_mandatory_activities)
+                        activity_per_block = get_activity_per_block(no_of_blocks,plan_activities)
                         print("blocks",no_of_blocks)
                         print("act/block",activity_per_block)
-                        # no_of_blocks = 8
-                        period_per_block = 20
-                        start = 0
-                        end = period_per_block
-                        for count in range(0,no_of_blocks):
-                            print("s,e",start,end)
-                            if count == no_of_blocks-1:
+                        no_of_blocks = 4
+                        period_per_block = 2
+                        pstart = 0
+                        pend = period_per_block
+                        astart = 0
+                        aend = activity_per_block
+                        for count in range(1,no_of_blocks+1):
+                            print('s,e',pstart,pend)
+                            if count == no_of_blocks:
                                 print("@@")
-                                period_for_block = period_based_on_subject[start:]
-                                # pdb.set_trace()
+                                period_for_block = period_based_on_subject[pstart:]
+                                activity_for_block = plan_activities[astart:]
                                 print(f"period for block {count}",period_for_block)
+                                print(f"activity for block {count}",activity_for_block)
+                                activities = [plan_act.activity for plan_act in activity_for_block]
+                                print("activit",activities)
                             else:
-                                period_for_block = period_based_on_subject[start:end]
-                                start += 20
-                                end = start + 20
+                                period_for_block = period_based_on_subject[pstart:pend]
+                                activity_for_block = plan_activities[astart:aend]
+                                pstart += period_per_block
+                                pend = pstart + period_per_block
+                                astart += activity_per_block
+                                aend = astart + activity_per_block
                                 print(f"period for block {count}",period_for_block)
-                                # pdb.set_trace()
+                                print(f"activity for block {count}",activity_for_block)
+                                activities = [plan_act.activity for plan_act in activity_for_block ]
+                                print("activit",activities)
+                            """ Create Block"""
+                            block = Block.objects.create(
+                                                        block_no=count,
+                                                        child_plan=child_plan,
+                                                        is_active=True
+                                                        )
+                            block.period.set(period_for_block)
+                            block.activity.set(activities)
+                            block.save()
+                            print(f"block {count} created")
+
+                                
 
     except Exception as ex:
                 print("ex",ex)

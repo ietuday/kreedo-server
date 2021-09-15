@@ -608,8 +608,6 @@ class PeriodCountListByAcademicSession(GeneralClass,Mixins, ListCreateAPIView):
 
             return Response(period_list,status=status.HTTP_200_OK)
 
-            
-
         except Exception as ex:
             print("ERROR", ex)
             logger.info(ex)
