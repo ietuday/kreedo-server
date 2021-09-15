@@ -92,13 +92,18 @@ class ActivityListBySubject(GeneralClass, Mixins,  ListAPIView):
 
 
 "activity list by subject for web"
+
+
 class ActivityListBySubjectWeb(GeneralClass, Mixins,  ListAPIView):
     model = Activity
     filterset_class = ActivityFilter
     # pagination_class = LimitOffsetPagination
     serializer_class = ActivityListWebSerializer
 
+
 """ Activity Retrive Update and delete"""
+
+
 class ActivityRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = Activity
     filterset_class = ActivityFilter
@@ -189,16 +194,15 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
             record_aval = ActivityComplete.objects.filter(
                 child=activity.get('child'),
                 activity=activity.get('activity')
-            ) 
-            
+            )
 
             if activity['is_completed'] == False:
                 period = Period.objects.get(pk=activity['period'])
                 next_period = Period.objects.filter(
-                                period_template_detail=period.period_template_detail,
-                                subject=period.subject,
-                                id__gt=period.id).order_by('id').first()
-                print("next period",next_period)
+                    period_template_detail=period.period_template_detail,
+                    subject=period.subject,
+                    id__gt=period.id).order_by('id').first()
+                print("next period", next_period)
                 if next_period:
                     activity['activity_reschedule_period'] = next_period.id
                 else:
@@ -216,35 +220,32 @@ class ActivityCompleteListCreateMob(GeneralClass, Mixins, ListCreateAPIView):
                 activity_complete_serializer.save()
                 activity_complete_data.append(
                     activity_complete_serializer.data)
-                
 
-                if activity['is_completed'] == True and (activity['behind_activity'] == True or activity['behind_activity'] == False) :
+                if activity['is_completed'] == True and (activity['behind_activity'] == True or activity['behind_activity'] == False):
                     chk_activity_complete = ActivityComplete.objects.filter(
-                                                            activity=activity['activity'],
-                                                            period=activity['period']
-                                                        ).exclude(
-                                                            is_completed=True
-                                                        )
+                        activity=activity['activity'],
+                        period=activity['period']
+                    ).exclude(
+                        is_completed=True
+                    )
 
-                    # pdb.set_trace()                                 
+                    # pdb.set_trace()
                     if len(chk_activity_complete) == 0:
                         period_b = Period.objects.get(pk=activity['period'])
-                        activity_b = Activity.objects.get(pk=activity['activity'])
+                        activity_b = Activity.objects.get(
+                            pk=activity['activity'])
                         # pdb.set_trace()
                         period_b.activity_done.add(activity_b)
                         period_b.save()
                         # pdb.set_trace()
                 continue
             return Response(activity_complete_serializer.errors)
-            
 
         return Response(activity_complete_data)
 
 
-
-
-
 """ Activity complete list create for group activtity completion"""
+
 
 class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
     model = ActivityComplete
@@ -267,7 +268,7 @@ class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
                 activity_q = ActivityComplete.objects.filter(
                     child=activity.get('child'),
                     activity=activity.get('activity')
-                      )
+                )
 
                 if activity_q:
                     activity_complete = ActivityCompleteCreateSerilaizer(
@@ -290,6 +291,7 @@ class ActivityCompleteListCreateGroup(GeneralClass, Mixins, ListCreateAPIView):
 
 """ ActivityComplete Retrive update Delete """
 
+
 class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = ActivityComplete
     filterset_class = ActivityCompleteFilter
@@ -311,6 +313,29 @@ class ActivityCompleteRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateD
                 return Response(serializer.errors)
             return Response(serializer.data)
         except Exception as ex:
+            return Response(ex)
+
+
+""" Check activity Dependency"""
+
+
+class CheckActivtiyDependency(RetrieveUpdateDestroyAPIView):
+    def get(self, request,  pk):
+        try:
+            print(pk)
+
+            if Activity.objects.filter(id=pk).exists():
+                context = {"isSuccess": True, "message": "True",
+                           "statusCode": status.HTTP_200_OK, "data": True}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response("True")
+            else:
+                context = {"isSuccess": False, "message": "False",
+                           "statusCode": status.HTTP_200_OK, "data": False}
+                return Response(context, status=status.HTTP_200_OK)
+                # return Response("False")
+        except Exception as ex:
+            print(ex)
             return Response(ex)
 
 
@@ -394,7 +419,7 @@ class AddActivity(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Added sucessfully",
-                       "error": "", "data": path_to_file}
+                       "statusCode": status.HTTP_200_OK, "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 
@@ -468,7 +493,7 @@ class AddActivityAsset(ListCreateAPIView):
                 str(fs.custom_domain) + '/files/output.csv'
             print(path_to_file)
             context = {"isSuccess": True, "message": "Activity Asset Added sucessfully",
-                       "error": "", "data": path_to_file}
+                       "statusCode": status.HTTP_200_OK, "data": path_to_file}
             return Response(context, status=status.HTTP_200_OK)
             # return Response(path_to_file, status=status.HTTP_200_OK)
 

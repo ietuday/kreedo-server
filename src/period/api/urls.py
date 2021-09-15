@@ -16,6 +16,8 @@ urlpatterns = [
     path('period_template_detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
 
+    path('update_period_template_detail/<int:pk>', UpdatePeriodTemplateDetail.as_view(),
+         name='UpdatePeriodTemplateDetail'),
     path('period_list_create',
          PeriodListCreate.as_view(), name='PeriodListCreate'),
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
@@ -33,12 +35,17 @@ urlpatterns = [
          name='ActivityDetail'),
     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
          name='PeriodTemplateAppyToGradesListCreate'),
+    path('period_template_save_to_grade', PeriodTemplateSaveToGrade.as_view(),
+         name='PeriodTemplateSaveToGrade'),
+
 
 
     path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
+    path('period_delete',
+         PeriodDelete.as_view(), name='PeriodDelete'),
     path('period_month_list',
          PeriodMonthList.as_view(), name='PeriodMonthList'),
     path('period_list_according_to_date',

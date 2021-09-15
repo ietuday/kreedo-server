@@ -1,4 +1,6 @@
-
+from plan.models import*
+from package.models import*
+from package.api.serializer import *
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework import serializers
 from rest_framework.serializers import (
@@ -14,6 +16,8 @@ from django.core.exceptions import ValidationError
 
 
 from django.contrib.auth.models import User
+
+from schools.models import SchoolGradeSubject
 from ..models import*
 from address.api.serializer import AddressSerializer
 
@@ -98,10 +102,12 @@ class UserDetailListSerializer(serializers.ModelSerializer):
     def get_reporting_to(self, obj):
         print("@@@@@@@@", obj)
         try:
-            reporting_obj = ReportingTo.objects.filter(user_detail=obj).first()
+            reporting_obj = ReportingTo.objects.filter(user_detail=obj)
+            print("reporting_obj--------", reporting_obj)
             if reporting_obj == None:
                 return {}
-            return ReportingToListSerializer(reporting_obj).data
+
+            return ReportingToListSerializer(reporting_obj, many=True).data
         except Exception as e:
             print(e)
             return None
@@ -774,6 +780,29 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
         fields = ['school']
         depth = 2
 
+    def to_representation(self, obj):
+        from session.api.serializer import AcademicSessionListSerializer
+        serialized_data = super(
+            SchoolListByUserSerializer, self).to_representation(obj)
+        school = serialized_data.get('school')
+
+        school_id = school.get('id')
+        print("school_id", school_id)
+        if SchoolPackage.objects.filter(school=school_id).exists():
+            school_package_data = SchoolPackage.objects.filter(
+                school=school_id)
+            school_package_data_serializer = SchoolPackageByAccountListSerializer(
+                school_package_data, many=True)
+            serialized_data['packages'] = school_package_data_serializer.data
+        if SchoolCalendar.objects.filter(school=school_id).exists():
+            from session.api.serializer import SchoolCalendarCreateSerializer
+            school_calender_qs = SchoolCalendar.objects.filter(
+                school=school_id)
+            school_calender_serializer = SchoolCalendarCreateSerializer(
+                school_calender_qs, many=True)
+            serialized_data['school_calender'] = school_calender_serializer.data
+        return serialized_data
+
 
 """ Logged In User Serializer """
 
@@ -1021,3 +1050,236 @@ class ReportingToRoleSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = '__all__'
         depth = 1
+
+
+""" Account List Serializer"""
+
+
+class AccountUserListSerializer(serializers.ModelSerializer):
+
+    user_obj = AuthUserSerializer()
+
+    class Meta:
+        model = UserDetail
+        exclude = ('activation_key', 'activation_key_expires')
+        depth = 3
+
+    """ no of license add """
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            AccountUserListSerializer, self).to_representation(obj)
+        user_id = serialized_data['user_obj']['id']
+        print("user id", user_id)
+        # role_id = [entry['id'] for entry in serialized_data['role']]
+        role_list = serialized_data['role']
+        for role in role_list:
+            print("@@@@@@@@2", role['name'])
+            try:
+                if UserRole.objects.filter(
+                        user=user_id, role__name=role['name']).exists():
+                    print("%")
+                    user_license_count = UserRole.objects.filter(
+                        user=user_id, role__name=role['name']).count()
+                    print("user-----", user_license_count)
+                    if user_license_count:
+                        serialized_data['no_of_license'] = user_license_count
+            except Exception as ex:
+                print(ex)
+                print(traceback.print_exc())
+        return serialized_data
+
+
+""" SchoolGradeSubjectListLicense"""
+
+
+class SchoolGradeSubjectListLicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolGradeSubject
+        fields = ['grade']
+        depth = 1
+
+
+class SubjectSchoolGradeLincenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = ['grade']
+        depth = 1
+
+
+class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = '__all__'
+        depth = 1
+
+
+""" license list by user id """
+
+
+class LicenseListByUserSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
+
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 2
+
+    def to_representation(self, obj):
+
+        serialized_data = super(
+            LicenseListByUserSerializers, self).to_representation(obj)
+
+        print("serialized_data->", serialized_data['school']['id'])
+        school_id = serialized_data['school']['id']
+        school_grade = GradeSubjectPlan.objects.filter(school=school_id)
+        if school_grade:
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                    grade_subjects__in=school_grade)
+            school_grade_qs_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_plan_qs, many=True)
+            print("school_grade_qs_serializer.data",
+                  school_grade_qs_serializer.data)
+            serialized_data['selected_grades'] = school_grade_qs_serializer.data
+
+        return serialized_data
+
+
+""" Account Create API """
+
+
+class AccountCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name',
+                  'last_name']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def to_representation(self, instance):
+        try:
+            instance = super(AccountCreateSerializer,
+                             self).to_representation(instance)
+            """ Update details in RESPONSE """
+
+            instance['user_detail'] = self.context['user_detail_serializer_data']
+            return instance
+        except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
+
+    def create(self, validated_data):
+        try:
+            first_name = validated_data['first_name']
+            last_name = validated_data['last_name']
+            email = validated_data['email']
+            auth_user_created = False
+            address_created = False
+            user_role_created = False
+
+            if User.objects.filter(email=validated_data['email']).exists():
+                raise ValidationError(
+                    "Email is already Exists")
+            else:
+                password = get_random_string(8)
+                print("@@@@@@@@@@", password)
+
+                """ Validate Email and Password"""
+                try:
+                    email_password = validate_auth_user(email, password)
+                except ValidationError:
+                    raise ValidationError(
+                        "Email and Password is required")
+
+                """ Validate Email """
+                try:
+                    if not email:
+                        raise ValidationError("Email is required")
+                    else:
+                        email = user_validate_email(email)
+                        if email is True:
+                            validated_data['email'] = validated_data['email'].lower(
+                            ).strip()
+                        else:
+                            raise ValidationError(
+                                "Enter a valid email address")
+                except ValidationError:
+                    raise ValidationError(
+                        "Enter a valid email address")
+
+                """ Genrate Username """
+                try:
+                    username = create_unique_username()
+                    validated_data['username'] = username
+                except ValidationError:
+                    raise ValidationError("Failed to genrate username")
+
+                """ Creating Auth User and User detail """
+
+                """ Create User """
+                user = User.objects.create_user(email=validated_data['email'], username=validated_data['username'],
+                                                first_name=first_name, last_name=last_name, is_active=False)
+                user.set_password(password)
+                user.save()
+                print("AUTH USER CREATE")
+                auth_user_created = True
+                self.context['user_detail_data']['user_obj'] = user.id
+
+                """ Pass request data of User detail"""
+
+                user_detail_serializer = UserDetailSerializer(
+                    data=self.context['user_detail_data'])
+                if user_detail_serializer.is_valid():
+                    user_detail_serializer.save()
+
+                    self.context.update(
+                        {"user_detail_serializer_data": user_detail_serializer.data})
+
+                    """ send User Detail Funation """
+                    send_temprorary_password_mail(
+                        user, user_detail_serializer.data, password)
+
+                    role_id = self.context['user_detail_data']['role']
+                    user_role = {
+                        "user": user_detail_serializer.data['user_obj'],
+                        "role": role_id[0],
+                        "school": ""
+                    }
+
+                    user_role_serializer = UserRoleSerializer(
+                        data=dict(user_role))
+                    if user_role_serializer.is_valid():
+                        user_role_serializer.save()
+                    else:
+                        raise ValidationError(
+                            user_role_serializer.errors)
+
+                    user_reporting_data = {
+                        "user_detail": user_detail_serializer.data['user_obj'],
+                        "user_role": role_id[0],
+                        "reporting_to": ""
+                    }
+                    reporting_to_serializer = ReportingToUpdateSerializer(
+                        data=dict(user_reporting_data))
+                    if reporting_to_serializer.is_valid():
+                        reporting_to_serializer.save()
+                        # return user
+                    else:
+                        raise ValidationError(
+                            user_role_serializer.errors)
+
+                else:
+                    logger.info(user_detail_serializer.errors)
+                    logger.debug(user_detail_serializer.errors)
+                    raise ValidationError(
+                        user_detail_serializer.errors)
+                return user
+
+        except Exception as ex:
+            print("SERIALIZER- ERROr", ex)
+            print("SERIALIZER  Traceback", traceback.print_exc())
+            logger.info(ex)
+            logger.debug(ex)
+            raise ValidationError(ex)
+
+
+"""UPDATE  Account Serializer"""

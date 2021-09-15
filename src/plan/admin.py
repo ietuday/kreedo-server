@@ -22,11 +22,11 @@ class PlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(ChildPlan)
 class ChildPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
+    list_display = ['id', 'name', 'child', 'range_of_working_days', 'academic_session', 'current_start_date',
                     'current_end_date', 'published', 'is_active', 'is_close']
-    search_fields = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
+    search_fields = ['id', 'name', 'child', 'range_of_working_days', 'academic_session', 'current_start_date',
                      'current_end_date', 'published', 'is_active', 'is_close']
-    list_filter = ['id', 'name', 'child','range_of_working_days', 'academic_session', 'current_start_date',
+    list_filter = ['id', 'name', 'child', 'range_of_working_days', 'academic_session', 'current_start_date',
                    'current_end_date', 'published', 'is_active', 'is_close']
 
 
@@ -47,16 +47,37 @@ class PlanActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(SubjectSchoolGradePlan)
 class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):
-    list_display = ['id', 'school', 'subject',
-                    'subject_label', 'grade', 'grade_label', 'is_active']
-    search_fields = ['id', 'school', 'subject',
-                     'subject_label', 'grade', 'grade_label', 'is_active']
-    list_filter = ['id', 'school', 'subject',
-                   'subject_label', 'grade', 'grade_label', 'is_active']
+    list_display = ['id',
+                    'grade_label', 'is_active']
+    search_fields = ['id',
+                     'grade_label', 'is_active']
+    list_filter = ['id',  'grade_label', 'is_active']
+
 
 
 @admin.register(ChildSubjectPlan)
-class PlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+class ChildSubjectPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'child','subject','plan']
     search_fields = ['id', 'child','subject','plan']
     list_filter = ['id', 'child','subject','plan']
+    
+
+
+""" GradeSubjectPlan Admin"""
+
+
+@admin.register(GradeSubjectPlan)
+class GradeSubjectPlanAdmin(admin.ModelAdmin):
+    list_display = ['id', 'grade', 'is_active']
+    search_fields = ['id', 'grade', 'is_active']
+    list_filter = ['id', 'grade', 'is_active']
+
+
+""" Subject Plan"""
+
+
+@admin.register(SubjectPlan)
+class SubjectPlanAdmin(admin.ModelAdmin):
+    list_display = ['id', 'subject', 'subject_label', 'is_active']
+    search_fields = ['id', 'subject', 'subject_label', 'is_active']
+    list_filter = ['id', 'subject', 'subject_label', 'is_active']

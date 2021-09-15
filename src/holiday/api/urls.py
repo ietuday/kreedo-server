@@ -12,8 +12,17 @@ urlpatterns = [
 
     path('school_holiday_list_create',
          SchoolHolidayListCreate.as_view(), name='SchoolHolidayListCreate'),
+
+    path('create_school_holiday',
+         CreateSchoolHoliday.as_view(), name='CreateSchoolHoliday'),
+
     path('school_holiday_retrive_update_delete/<int:pk>', SchoolHolidayRetriveUpdateDestroy.as_view(),
          name='SchoolHolidayRetriveUpdateDestroy'),
+
+    path('update_school_holiday/<int:pk>', UpdateSchoolHoliday.as_view(),
+         name='UpdateSchoolHoliday'),
+
+
     path('school_weak_off_list_create',
          SchoolWeakOffListCreate.as_view(), name='SchoolWeakOffListCreate'),
     path('school_weak_off_retrive_update_delete/<int:pk>', SchoolWeakOffRetriveUpdateDestroy.as_view(),
@@ -22,8 +31,8 @@ urlpatterns = [
     path('holiday_list_by_date_and_type',
          HolidayListByType.as_view(), name='HolidayListByType'),
 
-#     path('week_off_by_academic_session/<int:pk>', SchoolWeakOffByAcademicSession.as_view(),
-#          name='SchoolWeakOffByAcademicSession'),
+    #     path('week_off_by_academic_session/<int:pk>', SchoolWeakOffByAcademicSession.as_view(),
+    #          name='SchoolWeakOffByAcademicSession'),
 
     path('week_off_by_academic_calender/<int:pk>', WeekOffByAcademicCalender.as_view(),
          name='WeekOffByAcademicCalender'),

@@ -89,6 +89,7 @@ class ConceptListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return ConceptCreateSerializer
 
 
+
 """ Retrive update and delete Concept """
 
 class ConceptRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
@@ -120,6 +121,9 @@ class SkillListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return SkillListSerializer
         if self.request.method == 'POST':
             return SkillCreateSerializer
+    
+
+
 
 
 
@@ -155,22 +159,48 @@ class AddConceptSkill(ListCreateAPIView):
                 f['activity']= ast.literal_eval(f['activity'])
                 f['remed_activity']= ast.literal_eval(f['remed_activity'])
                 if not m.isnan(f['id']) and f['is_Deleted'] == False:
-                    print("UPDATION")
+                    print("UPDATION",f)
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
                     concept_qs.name = f['concept_name']
                     concept_qs.description = f['concept_description']
-                    concept_qs.aod = f['aod']
+                    concept_qs.aod = AreaOfDevlopment.objects.filter(id=f['aod'])[0]
                     concept_qs.is_active = f['is_active']
                     concept_qs.save()
-                    skill_qs = Skill.objects.filter(id=f['skill_id'],concept=f['id'])
-                    skill_qs.name= f['skill_name']
-                    skill_qs.description=f['skill_description']
-                    skill_qs.threshold_percentage=f['threshold_percentage']
-                    skill_qs.activity = f['activity']
-                    skill_qs.remed_activity=f['remed_activity']
-                    skill_qs.save()
-                    # added_conept_skill.append(concept_qs)
-                    added_conept_skill.append(skill_qs)
+                    print("UPDATION",f['skill_id'])
+                    if not m.isnan(f['skill_id']):
+                        skill_qs = Skill.objects.filter(id=f['skill_id'],concept=f['id'])[0]
+                        print("skill_qs",skill_qs)
+                        skill_qs.name= f['skill_name']
+                        skill_qs.description=f['skill_description']
+                        skill_qs.threshold_percentage=f['threshold_percentage']
+                        skill_qs.activity = f['activity']
+                        print("UPDATION",f)
+
+                        skill_qs.remed_activity=f['remed_activity']
+                        skill_qs.save()
+                        added_conept_skill.append(skill_qs)
+                    else:
+                        skill_data = {
+                            "name":f.get('skill_name', None),
+                            "description":f.get('skill_description', None),
+                            "concept":concept_qs.id,
+                            "is_active":"TRUE",
+                            "threshold_percentage":f.get('threshold_percentage', None),
+                            "activity":f['activity'],
+                            "remed_activity":f['remed_activity'],
+                        }
+                        skill_serializer = SkillCreateSerializer(
+                            data=dict(skill_data))
+                        if skill_serializer.is_valid():
+                            skill_serializer.save()
+                            print("skill_serializer.data",skill_serializer.data)
+                            added_conept_skill.append(
+                                skill_serializer.data)
+
+                        else:
+                            print(skill_serializer.errors)
+                        # added_conept_skill.append(concept_qs)
+                        
                 elif not m.isnan(f['id']) and f['is_Deleted'] == True:
                     print("DELETION")
                     concept_qs = Concept.objects.filter(id=f['id'])[0]
@@ -214,7 +244,7 @@ class AddConceptSkill(ListCreateAPIView):
                         "is_active":"TRUE",
                         "threshold_percentage":f.get('threshold_percentage', None),
                         "activity":f['activity'],
-                        "remed_activity":f['activity'],
+                        "remed_activity":f['remed_activity'],
                     }
                     try:
                         skill_serializer = SkillCreateSerializer(

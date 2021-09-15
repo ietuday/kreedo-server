@@ -2,6 +2,7 @@
     DJANGO LIBRARY IMPORT
 """
 
+import os
 from passlib.hash import pbkdf2_sha256
 from kreedo.settings import AWS_SNS_CLIENT, EMAIL_HOST_USER
 from schools.models import*
@@ -23,7 +24,7 @@ from kreedo.general_views import Mixins, GeneralClass
 from users.api.custum_storage import FileStorage
 
 import traceback
-import datetime
+from datetime import date
 import random
 
 from kreedo.conf import logger
@@ -71,27 +72,38 @@ class RegisterParent(ListCreateAPIView):
                 "is_platform_user": request.data.get('is_platform_user', None)
             }
 
-            print("user_detail_data----------", user_detail_data)
-
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
                 {"user_data": user_data, "user_detail_data": user_detail_data})
-
-            user_detail_serialzer = RegisterParentSerializer(
-                data=dict(user_data), context=context)
-
-            if user_detail_serialzer.is_valid():
-                user_detail_serialzer.save()
-
-                context = {"isSuccess": True, "message": "Parent created sucessfully",
-                           "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+            if User.objects.filter(email=request.data.get('email', None)).exists():
+                context = {"isSuccess": False, "message": "Email is already exists.",
+                           "error": "Email is already exists.", "data": [], "status": status.HTTP_200_OK}
                 return Response(context, status=status.HTTP_200_OK)
-            else:
 
-                context = {"isSuccess": False, "message": "Issue in Parent Creation",
-                           "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif UserDetail.objects.filter(phone=request.data.get('phone', None)).exists():
+                # raise ValidationError(
+                #     "Phone already regsitered for another user provide different number.")
+                context = {"isSuccess": False, "message": "Phone already regsitered for another user provide different number.",
+                           "error": "Phone already regsitered for another user provide different number.", "data": [], "status": status.HTTP_200_OK}
+                return Response(context, status=status.HTTP_200_OK)
+
+            else:
+                user_detail_serialzer = RegisterParentSerializer(
+                    data=dict(user_data), context=context)
+
+                if user_detail_serialzer.is_valid():
+                    user_detail_serialzer.save()
+
+                    context = {"isSuccess": True, "message": "Parent created sucessfully",
+                               "error": "", "data": user_detail_serialzer.data, "status": status.HTTP_200_OK}
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
+                    print("@@@@@@@@@@@@@@@@@@ERROR----1",
+                          user_detail_serialzer.errors)
+                    context = {"isSuccess": False, "message": "Issue in Parent Creation",
+                               "error": user_detail_serialzer.errors, "data": "", "status": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                    return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         except Exception as ex:
             print("Error------>", ex)
@@ -207,7 +219,7 @@ class GetAllAccounts(ListCreateAPIView):
                     return Response(context, status=status.HTTP_200_OK)
                 else:
                     context = {'isSuccess': False, 'message': "Accounts List Not Found",
-                               'data': user_obj_serializer.errors, "statusCode": status.HTTP_404_NOT_FOUND}
+                               'data': [], "statusCode": status.HTTP_404_NOT_FOUND}
                     return Response(context, status=status.HTTP_404_NOT_FOUND)
         except Exception as ex:
             print("@@@@@@@@", ex)
@@ -394,9 +406,10 @@ class EdoofunGenerateOTP(ListAPIView):
 
     def post(self, request):
         try:
+            print("request.data")
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
-
+            import datetime
             print("@@@@@@@@@@@@@@@----", user_obj)
             if user_obj == None:
                 context = {'error': "This phone number is not linked to any account. Please check again.",
@@ -441,6 +454,7 @@ class EdoofunGenerateOTP(ListAPIView):
                        "error": "", "data": data}
             return Response(context, status=status.HTTP_200_OK)
         except Exception as error:
+            print("error----------", error)
             print("TRACEBACK-----------", traceback.print_exc())
 
             context = {'error': str(error), 'isSuccess': "false",
@@ -457,7 +471,10 @@ class EdoofunOTPVerification(ListAPIView):
         try:
             user_obj = UserDetail.objects.filter(
                 phone=request.data['phone']).first()
-            print("user_obj----", user_obj)
+
+            user_id = User.objects.filter(
+                username=user_obj)[0]
+
             if user_obj == None:
                 context = {'error': "User with this phone number does not exist",
                            'isSuccess': "false", 'message': 'User with this phone number does not exist'}
@@ -476,11 +493,15 @@ class EdoofunOTPVerification(ListAPIView):
                 str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj))
 
             if pbkdf2_sha256.verify(str(request.data['entered_otp']) + str(date_time) + str(user_obj.user_obj), "$pbkdf2-sha256" + request.data['otp']):
-                activation_key = urlsafe_base64_encode(force_bytes(str(user_obj.user_obj.pk))).decode(
-                    'utf-8') + '-' + default_token_generator.make_token(user_obj.user_obj)
-                link = os.environ.get(
-                    'kreedo_url') + '/users/reset_password_confirm/' + activation_key
-
+                print("%$$$$$$$$$$$$$$$$$$$#")
+                activation_key = urlsafe_base64_encode(force_bytes(str(
+                    user_obj.user_obj.pk))) + '-' + default_token_generator.make_token(user_obj.user_obj)
+                print("activation_key-----------", activation_key)
+                # link = os.environ.get(
+                #     'KREEDO_URL') + '/users/reset_password_confirm/' + activation_key
+                link = link = os.environ.get('KREEDO_URL') + \
+                    '/users/reset_password_confirm/' + activation_key
+                print("link---------", link)
                 # Add activation key and expiration date to user profile
                 user_obj.activation_key = activation_key
                 user_obj.key_expires = datetime.datetime.strftime(
@@ -489,6 +510,7 @@ class EdoofunOTPVerification(ListAPIView):
 
                 data = {
                     "link": link,
+                    "user_id": user_id.id
                 }
 
                 context = {
@@ -536,4 +558,30 @@ class GetUserList(ListCreateAPIView):
             print("TRACEBACK----", traceback.print_exc())
             context = {'error': str(ex), 'isSuccess': "false",
                        'message': 'Unable to validate OTP'}
+            return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+""" CurriculumDashboardData """
+
+
+class CurriculumDashboardData(ListCreateAPIView):
+    def get(self, request):
+        try:
+            count_dict = {
+                "no_of_school": School.objects.count(),
+                "no_of_children": Child.objects.count(),
+                "no_of_parents": UserDetail.objects.filter(is_platform_user=True, role__name__in=['Parent']).count(),
+                "no_of_parents_active": UserDetail.objects.filter(user_obj__is_active=True, role__name__in=['Parent'], is_platform_user=True).count(),
+                "no_of_teacher": UserRole.objects.filter(role__name__in=['Teacher']).count()
+            }
+
+            context = {'isSuccess': True, 'message': "Dashboard data", 'data': count_dict,
+                       "statusCode": status.HTTP_200_OK}
+            return Response(context, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("@ERROR---------", ex)
+            print("TRACEBACK----", traceback.print_exc())
+            context = {'error': ex, 'isSuccess': False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                       'message': "Issue in Curriculum  Dashboard  Data"}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

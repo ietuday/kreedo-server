@@ -29,7 +29,7 @@ urlpatterns = [
     re_path('reset_password/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)',
             ResetPassword.as_view(), name='ResetPassword'),
     path('logged-in-user-detail', LoggedIn.as_view(), name='LoggedIn'),
-    path('logged-in-user-detail_mob',LoggedInMob.as_view(), name='LoggedIn'),
+    path('logged-in-user-detail_mob', LoggedInMob.as_view(), name='LoggedIn'),
     path('add_user', AddUser.as_view(), name='AddUser'),
     path('update_user/<int:pk>', UpdateUser.as_view(), name='UpdateUser'),
 
@@ -41,21 +41,32 @@ urlpatterns = [
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
     path('add_role_of_user_list_create',
          AddRoleOfUserListCreate.as_view(), name='AddRoleOfUserListCreate'),
-    path('reporting_to_list_by_user_deatil/<int:pk>', ReportingToListByUserDetailList.as_view(),
+    path('reporting_to_list_by_user_detail/<int:pk>', ReportingToListByUserDetailList.as_view(),
          name='ReportingToListByUserDetailList'),
-    path('update_reporting_to_list_by_user_deatil', UpdateReportingToListByUserDetail.as_view(),
+    path('update_reporting_to_list_by_user_detail', UpdateReportingToListByUserDetail.as_view(),
          name='UpdateReportingToListByUserDetail'),
-    path('school_list_by_user/<int:pk>', SchoolListByUser.as_view(),
-         name='SchoolListByUser'),
+    path('school_list_by_user/<int:pk>', SchoolListsByUser.as_view(),
+         name='SchoolListsByUser'),
     path('user_role_retrive_update_delete/<int:pk>', UserRoleRetriveUpdateDestroy.as_view(),
          name='UserRoleRetriveUpdateDestroy'),
     path('user_list_by_school/<int:pk>',
          UserListBySchoolID.as_view(), name='User List By School'),
-    path('get_roles_by_loggedin_user_id',
+    path('get_roles_by_loggedin_user_id/<int:pk>',
          getRolesByLoggedinUserId.as_view(), name='Get Roles by Login ID'),
+    path('get_roles_by_type',
+         GetRoleByType.as_view(), name='GetRoleByType'),
     path('get_reporting_to_based_on_selected_role',
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
+    path('account_list_create',
+         AccountListCreate.as_view(), name='Account List Create'),
+    path('update_account/<int:pk>',
+         UpdateAccount.as_view(), name='Update Account'),
 
+
+    path('license_list_by_logged_in_user_id/<int:pk>',
+         LicenseListByLoggedInUser.as_view(), name='License List By Logged In User'),
+    path('kreedo_roles_list',
+         kreedoroleslist.as_view(), name='kreedo roles list'),
 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 
@@ -90,6 +101,8 @@ urlpatterns = [
          name='Edoofun OTP Verification'),
     path('edoofun/get_users_list', GetUserList.as_view(),
          name='Get User List'),
+    path('edoofun/curriculum_dashboard_data', CurriculumDashboardData.as_view(),
+         name='Curriculum Dashboard Data'),
 
 
 

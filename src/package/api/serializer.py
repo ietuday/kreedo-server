@@ -31,6 +31,20 @@ class SchoolPackageListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SchoolPackageByAccountListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolPackage
+        fields = ['id', 'package', 'custom_materials']
+        depth = 1
+
+
+class PackageMaterialListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = ['materials']
+        depth = 1
+
+
 """ School Package Create Serializer """
 
 

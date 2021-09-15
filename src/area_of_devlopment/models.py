@@ -9,7 +9,7 @@ from activity.models import*
 
 
 class AreaOfDevlopment(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     concept = models.ManyToManyField(
         to='Concept', related_name='aod_concept', blank=True)
@@ -19,6 +19,7 @@ class AreaOfDevlopment(TimestampAwareModel):
         verbose_name = 'AreaOfDevlopment'
         verbose_name_plural = 'AreaOfDevlopments'
         ordering = ['-id']
+        unique_together = ['name', 'description']
 
     def __str__(self):
         return str(self.name)
@@ -31,7 +32,7 @@ class AreaOfDevlopment(TimestampAwareModel):
 
 
 class Concept(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     aod = models.ForeignKey('AreaOfDevlopment', related_name='concept_aod',
                             on_delete=models.PROTECT, null=True, blank=True)
@@ -41,6 +42,7 @@ class Concept(TimestampAwareModel):
         verbose_name = 'Concept'
         verbose_name_plural = 'Concepts'
         ordering = ['-id']
+        unique_together = ['name', 'description', 'aod']
 
     def __str__(self):
         return str(self.name)
@@ -53,7 +55,7 @@ class Concept(TimestampAwareModel):
 
 
 class Skill(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     concept = models.ForeignKey('Concept', on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
@@ -67,6 +69,8 @@ class Skill(TimestampAwareModel):
         verbose_name = 'Skill'
         verbose_name_plural = 'Skills'
         ordering = ['-id']
+        unique_together = ['name', 'description', 'concept']
+
 
     def __str__(self):
         return str(self.name)

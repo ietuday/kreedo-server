@@ -1,6 +1,8 @@
 import traceback
 
 from period.models import *
+from plan.models import *
+from plan.api.serializer import*
 from users.api.serializer import*
 from users.models import*
 from rest_framework import serializers
@@ -19,6 +21,12 @@ class GradeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GradeKreedoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+
 class GradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grade
@@ -28,31 +36,35 @@ class GradeListSerializer(serializers.ModelSerializer):
         try:
             serialized_data = super(
                 GradeListSerializer, self).to_representation(obj)
-            context=self.context
+            context = self.context
             grade_id = serialized_data.get('id')
             section_qs = Section.objects.filter(grade=grade_id)
             section_qs_serializer = SectionSerializer(section_qs, many=True)
             section_data = section_qs_serializer.data
             for section in section_data:
-                academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
-                                                    school=context['school'],
-                                                    grade=grade_id,
-                                                    section=section['id'])
-                    
+                if context and context['academic_calender']:
+                    academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+                                                                      school=context['school'],
+                                                                      grade=grade_id,
+                                                                      section=section['id'])
+
                 # pdb.set_trace()
-                if academic_session:
-                    academic_session_serializer = AcademicSessionRetriveSerializer(academic_session[0])
-                    academic_session_data = academic_session_serializer.data
-                    if academic_session_data['period_template']:
-                        section['template']  = academic_session_data['period_template']
-                    else: 
-                        section['template']  = {}
-                    periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(academic_session=academic_session[0])
-                    if periodTemplateToGrade_qs:
-                        periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(periodTemplateToGrade_qs[0])
-                        section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
-                else:
-                    section['template']  = {}
+                    if academic_session:
+                        academic_session_serializer = AcademicSessionRetriveSerializer(
+                            academic_session[0])
+                        academic_session_data = academic_session_serializer.data
+                        if academic_session_data['period_template']:
+                            section['template'] = academic_session_data['period_template']
+                        else:
+                            section['template'] = {}
+                        periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(
+                            academic_session=academic_session[0])
+                        if periodTemplateToGrade_qs:
+                            periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(
+                                periodTemplateToGrade_qs[0])
+                            section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
+                    else:
+                        section['template'] = {}
             serialized_data['sections'] = section_data
             return serialized_data
         except Exception as ex:
@@ -60,6 +72,56 @@ class GradeListSerializer(serializers.ModelSerializer):
             print(traceback.print_exc())
 
 
+class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+    def to_representation(self, obj):
+        try:
+            serialized_data = super(
+                GradeListBasedAcademicSerializer, self).to_representation(obj)
+            context = self.context
+            grade_id = serialized_data.get('id')
+            print(context)
+            acad_qs = AcademicSession.objects.filter(
+                grade=grade_id, is_applied=True, school=context['school'], academic_calender=context['academic_calender'])
+            sections = []
+            for acad in acad_qs:
+                if acad.section not in sections:
+                    sections.append(acad.section)
+            section_qs_serializer = SectionSerializer(sections, many=True)
+            section_data = section_qs_serializer.data
+            for section in section_data:
+                if context and context['academic_calender']:
+                    academic_session = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+                                                                      period_template=context['period_template'],
+                                                                      school=context['school'],
+                                                                      grade=grade_id,
+                                                                      section=section['id'])
+
+                # pdb.set_trace()
+                    if academic_session:
+                        academic_session_serializer = AcademicSessionRetriveSerializer(
+                            academic_session[0])
+                        academic_session_data = academic_session_serializer.data
+                        if academic_session_data['period_template']:
+                            section['template'] = academic_session_data['period_template']
+                        else:
+                            section['template'] = {}
+                        periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(
+                            academic_session=academic_session[0])
+                        if periodTemplateToGrade_qs:
+                            periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(
+                                periodTemplateToGrade_qs[0])
+                            section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
+                    else:
+                        section['template'] = {}
+            serialized_data['sections'] = section_data
+            return serialized_data
+        except Exception as ex:
+            print(ex)
+            print(traceback.print_exc())
 
 
 """Section List Serializer """
@@ -96,10 +158,12 @@ class SubjectListSerializer(serializers.ModelSerializer):
         fields = '__all__'
         depth = 1
 
+
 class SubjectListBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = '__all__'
+
 
 """ Subject Create Serializer """
 
@@ -160,10 +224,25 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
         print("user_role_qs-", user_role_qs)
         user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
         print("USER- DETAIL", user_detail_qs)
-        user_detail_qs_serializer = UserDetailListSerializer(
-            user_detail_qs, many=True)
+        if user_detail_qs:
+            user_detail_qs_serializer = UserDetailListSerializer(
+                user_detail_qs, many=True)
 
-        serialized_data['user_list'] = user_detail_qs_serializer.data
+            serialized_data['user_list'] = user_detail_qs_serializer.data
+
+        grade_subject_qs = GradeSubjectPlan.objects.filter(
+            school=school_data_id)
+        print("grade_subject_qs------------", grade_subject_qs)
+
+        if grade_subject_qs:
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                grade_subjects__in=grade_subject_qs)
+            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_plan_qs, many=True)
+
+            serialized_data['selected_grades'] = grade_subject_serializer.data
+
         return serialized_data
 
 
@@ -188,18 +267,58 @@ class SchoolUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SchoolUpdateWithPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+
+        try:
+            period_template_qs = School.objects.filter(
+                pk=instance.pk).update(**validated_data)
+            print("Update")
+            print("Self-------------context", self.context)
+            school_package = self.context.pop('school_package_dict')
+
+            for school_package_obj in school_package:
+                print("Package Loop---->", school_package_obj['id'])
+                if school_package_obj['id']:
+                    print("school_package_obj['id']---",
+                          school_package_obj['id'])
+                    school_packages_qs = SchoolPackage.objects.filter(
+                        id=school_package_obj['id'])
+                else:
+                    print("create")
+
+            return instance
+        except Exception as ex:
+            print("ex------------", ex)
+            raise ValidationError(ex)
+
+
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
 
+    # def to_representation(self, instance):
+    #     instance = super(SchoolSerializer,
+    #                      self).to_representation(instance)
+
+    #     instance['school_id'] = self.context['school_id']
+
+    #     return instance
+
     def create(self, validated_data):
         try:
+            print("CALL ---- create")
+            school = super(SchoolSerializer, self).create(validated_data)
+            print("SCHHOL-------------", school)
             school_package = self.context.pop('school_package_dict')
-            plan = super(SchoolSerializer, self).create(validated_data)
 
             for school_package_obj in school_package:
-                school_package_obj['plan'] = plan.id
+                school_package_obj['school'] = school.id
 
             """ calling SchoolPackageCreateSerializer  with school_package data. """
 
@@ -208,12 +327,20 @@ class SchoolSerializer(serializers.ModelSerializer):
 
             if school_package_serializer.is_valid():
                 school_package_serializer.save()
+                print("SAVE PACKAGE-------")
                 self.context.update(
                     {"school_package_serializer_data": school_package_serializer.data})
             else:
                 raise ValidationError(school_package_serializer.errors)
-            return plan
+            # school_id = school.id
+            # self.context.update(
+            #     {"school_id": school_id})
+            print("@@@@@@@@@@@@@@@@@@@@@@@", school)
+            print("############", school.id)
+            return school
         except Exception as ex:
+            print("error", ex)
+            print("traceback", traceback.print_exc())
             logger.debug(ex)
             logger.info(ex)
             return ValidationError(ex)
@@ -235,7 +362,7 @@ class AcademicSessionSectionSubjectTeacherListSerializer(serializers.ModelSerial
 
     class Meta:
         model = SectionSubjectTeacher
-        fields = ['subject','teacher']
+        fields = ['subject', 'teacher']
         depth = 1
 
 
@@ -300,6 +427,7 @@ class SchoolGradeSubjectListSerializer(serializers.ModelSerializer):
         fields = ['id', 'grade', 'is_active']
         depth = 1
 
+
 class SchoolSubjectListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolGradeSubject
@@ -307,13 +435,11 @@ class SchoolSubjectListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-
 class SchoolGradeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolGradeSubject
         fields = '__all__'
         depth = 1
-
 
 
 """ SchoolGradeSubject Create Serializer """
@@ -333,7 +459,6 @@ class SchoolGradeSubjectSerializer(serializers.ModelSerializer):
         model = SchoolGradeSubject
         fields = ['grade']
         depth = 1
-
 
 
 class SchoolGradeSubjectCreateSerializer(serializers.ModelSerializer):
@@ -357,23 +482,25 @@ class AccountManagerAssignSerializer(serializers.ModelSerializer):
         model = School
         fields = ['account_manager']
 
-    def validate(self,validated_data):
+    def validate(self, validated_data):
         instance = self.instance
-        instance = super(AccountManagerAssignSerializer,self).update(instance,validated_data)
+        instance = super(AccountManagerAssignSerializer,
+                         self).update(instance, validated_data)
         return instance
 
 
 class TeacherListForSchoolSerializer(serializers.ModelSerializer):
     user = UserDetailListForAcademicSessionSerializer()
+
     class Meta:
         model = UserRole
         fields = '__all__'
         depth = 1
-    
+
     def to_representation(self, obj):
         serialized_data = super(
             TeacherListForSchoolSerializer, self).to_representation(obj)
-        
+
         serialized_data.update(serialized_data['user'])
         del serialized_data['user']
         return serialized_data
