@@ -223,7 +223,7 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
-""" School Grade Plan Api of List and Create """
+""" School Subject Plan Api of List and Create """
 
 
 class SubjectSchoolPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
@@ -236,17 +236,17 @@ class SubjectSchoolPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
             context = super().get_serializer_context()
             context.update(
-                {"grade_label_data": request.data.get(
-                    'grade_list', None)})
+                {"subject_label_data": request.data.get(
+                    'subject_list', None)})
 
-            subject_school_grade_plan = SubjectSchoolGradePlanCreateSerializer(
+            subject_school_plan = SubjectSchoolPlanCreateSerializer(
                 data=request.data.get(
-                    'grade_list', None)[0], context=context)
-            if subject_school_grade_plan.is_valid():
-                subject_school_grade_plan.save()
+                    'subject_list', None)[0], context=context)
+            if subject_school_plan.is_valid():
+                subject_school_plan.save()
                 return Response("Created")
             else:
-                return Response(subject_school_grade_plan.errors)
+                return Response(subject_school_plan.errors)
 
         except Exception as ex:
             print(ex)

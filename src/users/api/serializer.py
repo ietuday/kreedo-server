@@ -794,7 +794,13 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
             school_package_data_serializer = SchoolPackageByAccountListSerializer(
                 school_package_data, many=True)
             serialized_data['packages'] = school_package_data_serializer.data
-
+        if SchoolCalendar.objects.filter(school=school_id).exists():
+            from session.api.serializer import SchoolCalendarCreateSerializer
+            school_calender_qs = SchoolCalendar.objects.filter(
+                school=school_id)
+            school_calender_serializer = SchoolCalendarCreateSerializer(
+                school_calender_qs, many=True)
+            serialized_data['school_calender'] = school_calender_serializer.data
         return serialized_data
 
 
