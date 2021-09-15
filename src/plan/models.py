@@ -102,7 +102,6 @@ class PlanActivity(TimestampAwareModel):
 
 class SubjectSchoolGradePlan(TimestampAwareModel):
 
-    subject_label = models.CharField(max_length=100, blank=True, null=True)
     grade_label = models.CharField(max_length=100, blank=True, null=True)
     grade_subjects = models.ManyToManyField('GradeSubjectPlan', blank=True)
     is_active = models.BooleanField(default=True)
@@ -142,6 +141,7 @@ class SubjectPlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, blank=True, null=True)
+    subject_label = models.CharField(max_length=100, blank=True, null=True)
     plan = models.ManyToManyField('Plan', blank=True)
     is_active = models.BooleanField(default=True)
 

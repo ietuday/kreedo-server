@@ -230,15 +230,18 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
 
             serialized_data['user_list'] = user_detail_qs_serializer.data
 
-        school_grade = SubjectSchoolGradePlan.objects.filter(
+        grade_subject_qs = GradeSubjectPlan.objects.filter(
             school=school_data_id)
-        print("school_grade----------->", school_grade)
-        if school_grade:
-            school_grade_qs_serializer = SubjectSchoolGradeSerializer(
-                school_grade, many=True)
-            print("school_grade_qs_serializer.data",
-                  school_grade_qs_serializer.data)
-            serialized_data['selected_grades'] = school_grade_qs_serializer.data
+        print("grade_subject_qs------------", grade_subject_qs)
+
+        if grade_subject_qs:
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                grade_subjects__in=grade_subject_qs)
+            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_plan_qs, many=True)
+
+            serialized_data['selected_grades'] = grade_subject_serializer.data
 
         return serialized_data
 

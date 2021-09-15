@@ -48,10 +48,10 @@ class PlanActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 @admin.register(SubjectSchoolGradePlan)
 class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):
     list_display = ['id',
-                    'subject_label', 'grade_label', 'is_active']
+                    'grade_label', 'is_active']
     search_fields = ['id',
-                     'subject_label', 'grade_label', 'is_active']
-    list_filter = ['id',  'subject_label', 'grade_label', 'is_active']
+                     'grade_label', 'is_active']
+    list_filter = ['id',  'grade_label', 'is_active']
 
 
 """ GradeSubjectPlan Admin"""
@@ -69,6 +69,6 @@ class GradeSubjectPlanAdmin(admin.ModelAdmin):
 
 @admin.register(SubjectPlan)
 class SubjectPlanAdmin(admin.ModelAdmin):
-    list_display = ['id', 'subject', 'is_active']
-    search_fields = ['id', 'subject', 'is_active']
-    list_filter = ['id', 'subject', 'is_active']
+    list_display = ['id', 'subject', 'subject_label', 'is_active']
+    search_fields = ['id', 'subject', 'subject_label', 'is_active']
+    list_filter = ['id', 'subject', 'subject_label', 'is_active']
