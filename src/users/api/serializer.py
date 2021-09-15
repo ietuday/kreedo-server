@@ -149,6 +149,15 @@ class SchoolUserRoleSerializers(serializers.ModelSerializer):
         depth = 2
 
 
+class KreedoUserRoleSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
+
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 2
+
+
 """ Reporting To  Serializer """
 
 
@@ -1135,7 +1144,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         school_grade = GradeSubjectPlan.objects.filter(school=school_id)
         if school_grade:
             grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
-                    grade_subjects__in=school_grade)
+                grade_subjects__in=school_grade)
             school_grade_qs_serializer = SubjectSchoolGradePlanListSerializer(
                 grade_subject_plan_qs, many=True)
             print("school_grade_qs_serializer.data",

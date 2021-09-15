@@ -67,6 +67,8 @@ urlpatterns = [
          LicenseListByLoggedInUser.as_view(), name='License List By Logged In User'),
     path('kreedo_roles_list',
          kreedoroleslist.as_view(), name='kreedo roles list'),
+    path('kreedo_user_list',
+         KreedoUserList.as_view(), name='kreedo user list'),
 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 
