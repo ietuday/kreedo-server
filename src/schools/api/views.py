@@ -353,6 +353,7 @@ class SchoolListCreate(GeneralClass, Mixins, ListCreateAPIView):
 """ School update Retrive and Delete """
 
 
+@permission_classes((IsAuthenticated,))
 class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = School
     filterset_class = SchoolFilter
@@ -375,6 +376,7 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 "address": request.data.get('address_id', None)
 
             }
+            """ Address Updation """
             address_detail = {
                 "country": request.data.get('country', None),
                 "state": request.data.get('state', None),
@@ -389,8 +391,28 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 address_qs, data=dict(address_detail), partial=True)
             if address_qs_serializer.is_valid():
                 address_qs_serializer.save()
+                print("Address update")
             else:
                 raise ValidationError(address_qs.errors)
+            """license Updation """
+            licence_detail = {
+                "total_no_of_user": request.data.get('total_no_of_user', None),
+                "total_no_of_children": request.data.get('total_no_of_children', None),
+                "licence_from": request.data.get('licence_start_date', None),
+                "licence_till": month_calculation(request.data.get('licence_start_date', None), request.data.get('no_of_months', None)),
+                "created_by": request.user,
+            }
+            print("licence_detail", licence_detail)
+            license_qs = License.objects.filter(
+                id=request.data.get('license_id', None))[0]
+            licenseCreateSerializer = LicenseCreateSerializer(license_qs,
+                                                              data=dict(licence_detail))
+            if licenseCreateSerializer.is_valid():
+                licenseCreateSerializer.save()
+                print("License Update")
+            else:
+                raise ValidationError(licenseCreateSerializer.errors)
+
             school_qs = School.objects.get(id=pk)
 
             context = self.get_serializer_context()
@@ -401,10 +423,29 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 school_qs, data=dict(school_data), context=context, partial=True)
             if school_qs_serailzer.is_valid():
                 school_qs_serailzer.save()
-                return Response(school_qs_serailzer.data, status=status.HTTP_200_OK)
+                # return Response(school_qs_serailzer.data, status=status.HTTP_200_OK)
             else:
                 print("errors------>", school_qs_serailzer.errors)
-                return Response(school_qs_serailzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # return Response(school_qs_serailzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            school_calender_qs = SchoolCalendar.objects.filter(
+                school=school_qs.id)[0]
+            school_calender_detail = {
+                "school": school_qs.id,
+                "session_from": date.today(),
+                "session_till": addYears(date.today(), request.data.get('school_calender_for_no_of_yrs', None)),
+            }
+
+            schoolCalendarCreateSerializer = SchoolCalendarCreateSerializer(
+                school_calender_qs, data=dict(school_calender_detail), partial=True)
+
+            if schoolCalendarCreateSerializer.is_valid():
+                schoolCalendarCreateSerializer.save()
+                print("SAVE CALENDER")
+            else:
+                print("CALENDER ERROR--------------",
+                      schoolCalendarCreateSerializer.errors)
+
+            return Response("school updated successfully", status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("TRaceback-----", traceback.print_exc())

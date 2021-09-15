@@ -1,4 +1,6 @@
 import traceback
+import material
+import package
 
 from period.models import *
 from plan.models import *
@@ -275,25 +277,60 @@ class SchoolUpdateWithPackageSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         try:
-            period_template_qs = School.objects.filter(
+            school_qs = School.objects.filter(
                 pk=instance.pk).update(**validated_data)
-            print("Update")
-            print("Self-------------context", self.context)
-            school_package = self.context.pop('school_package_dict')
 
+            school_package = self.context.pop('school_package_dict')
+            school_id = instance.pk
+            print("school_id------------", school_id)
             for school_package_obj in school_package:
-                print("Package Loop---->", school_package_obj['id'])
+
                 if school_package_obj['id']:
-                    print("school_package_obj['id']---",
-                          school_package_obj['id'])
+
                     school_packages_qs = SchoolPackage.objects.filter(
-                        id=school_package_obj['id'])
+                        id=school_package_obj['id'])[0]
+
+                    print("PAckage -------->", school_packages_qs)
+                    school_packages_dict = {
+                        "school": school_id,
+                        "package": school_package_obj['package'],
+                        "custom_materials": school_package_obj['custom_materials']
+                    }
+
+                    school_package_qs_serializer = SchoolPackageUpdateSerializer(
+                        school_packages_qs, data=dict(school_packages_dict), partial=True)
+
+                    if school_package_qs_serializer.is_valid():
+                        school_package_qs_serializer.save()
+                        print("SAVE PACKAGE Update------")
+                    else:
+                        print("ERRor in package",
+                              school_package_qs_serializer.errors)
+
                 else:
                     print("create")
+
+                    school_packages_dict = {
+                        "school": school_id,
+                        "package": school_package_obj['package'],
+                        "custom_materials": school_package_obj['custom_materials']
+                    }
+                    school_package_serializer = SchoolPackageCreateSerializer(
+                        data=dict(school_packages_dict))
+
+                    if school_package_serializer.is_valid():
+                        school_package_serializer.save()
+                        print("SAVE PACKAGE-------")
+                        self.context.update(
+                            {"school_package_serializer_data": school_package_serializer.data})
+                    else:
+                        print("Create package errorr",
+                              school_package_serializer.errors)
 
             return instance
         except Exception as ex:
             print("ex------------", ex)
+            print("TRACEBACK------------------", traceback.print_exc())
             raise ValidationError(ex)
 
 
@@ -301,14 +338,6 @@ class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
-
-    # def to_representation(self, instance):
-    #     instance = super(SchoolSerializer,
-    #                      self).to_representation(instance)
-
-    #     instance['school_id'] = self.context['school_id']
-
-    #     return instance
 
     def create(self, validated_data):
         try:
