@@ -1,3 +1,4 @@
+from django.forms.fields import IntegerField
 from django_filters.filters import NumberFilter
 from ..models import*
 from django_filters import rest_framework as filters
@@ -40,11 +41,24 @@ class UserDetailFilter(filters.FilterSet):
         field_name='phone', lookup_expr='icontains')
     address = filters.CharFilter(
         field_name='address__address', lookup_expr='icontains')
+    role = filters.CharFilter(method='my_custom_filter')
+
     # date = filters.DateFilter(field_name='joining_date__date')
 
     class Meta:
         model = UserDetail
         fields = '__all__'
+
+    def my_custom_filter(self, queryset, role, value):
+        print("role", role)
+        print("value---->", value)
+        print("queryset-----", queryset)
+        value_list = value.split(u',')  # split the values by ,
+        print(value_list)
+        # return queryset.filter(**{
+        #     role+"__in": value_list,  # add __in to get each value of the list
+        # })
+        return queryset.filter(role__in=value_list)
 
 
 class ReportingToFilter(filters.FilterSet):

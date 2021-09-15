@@ -188,7 +188,7 @@ class PlanActivityRetriveUpdateDestroy(GeneralClass, Mixins,  RetrieveUpdateDest
         return Response(status=status.HTTP_200_OK)
 
 
-""" Subject school Grade Plan Api of List and Create """
+""" School Grade Plan Api of List and Create """
 
 
 class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
@@ -197,6 +197,37 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SubjectSchoolGradePlanListSerializer
+
+    def post(self, request):
+        try:
+            print("request---------------")
+            """  Pass dictionary through Context """
+
+            context = super().get_serializer_context()
+            context.update(
+                {"grade_label_data": request.data.get(
+                    'grade_list', None)})
+
+            subject_school_grade_plan = SubjectSchoolGradePlanCreateSerializer(
+                data=request.data.get(
+                    'grade_list', None)[0], context=context)
+            if subject_school_grade_plan.is_valid():
+                subject_school_grade_plan.save()
+                return Response("Created")
+            else:
+                return Response(subject_school_grade_plan.errors)
+
+        except Exception as ex:
+            print(ex)
+            print("TRACEBAK----", traceback.print_exc())
+            return Response(ex)
+
+
+""" School Grade Plan Api of List and Create """
+
+
+class SubjectSchoolPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
+    model = SubjectSchoolGradePlan
 
     def post(self, request):
         try:
@@ -271,12 +302,18 @@ class ChildActivity(GeneralClass, Mixins, ListCreateAPIView):
 class GradeSubjectListBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
-            grade_subject_qs = SubjectSchoolGradePlan.objects.filter(school=pk)
+            grade_subject_qs = GradeSubjectPlan.objects.filter(school=pk)
+            print("grade_subject_qs------------", grade_subject_qs)
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                grade_subjects__in=grade_subject_qs)
+            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
+
             grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
-                grade_subject_qs, many=True)
+                grade_subject_plan_qs, many=True)
             return Response(grade_subject_serializer.data, status=status.HTTP_200_OK)
         except Exception as ex:
-
+            print("ERROR--------", ex)
+            print("TRACEBACK----", traceback.print_exc())
             logger.debug(ex)
 
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
