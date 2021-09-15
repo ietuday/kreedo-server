@@ -323,7 +323,7 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 class GradeSubjectPlanUpdateSubjectSerializer(serializers.ModelSerializer):
