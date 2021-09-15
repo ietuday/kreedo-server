@@ -1107,6 +1107,13 @@ class SubjectSchoolGradeLincenseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubjectSchoolGradePlan
+        fields = '__all__'
+        depth = 1
+
+
 """ license list by user id """
 
 
@@ -1125,14 +1132,12 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
 
         print("serialized_data->", serialized_data['school']['id'])
         school_id = serialized_data['school']['id']
-
-        school_grade = SubjectSchoolGradePlan.objects.filter(
-            school=school_id)
-        print("school_grade----------->", school_grade)
-
+        school_grade = GradeSubjectPlan.objects.filter(school=school_id)
         if school_grade:
-            school_grade_qs_serializer = SubjectSchoolGradeLincenseSerializer(
-                school_grade, many=True)
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                    grade_subjects__in=school_grade)
+            school_grade_qs_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_plan_qs, many=True)
             print("school_grade_qs_serializer.data",
                   school_grade_qs_serializer.data)
             serialized_data['selected_grades'] = school_grade_qs_serializer.data
