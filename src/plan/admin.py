@@ -59,6 +59,16 @@ class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):
 
 @admin.register(GradeSubjectPlan)
 class GradeSubjectPlanAdmin(admin.ModelAdmin):
-    list_display = ['id', 'grade', 'subject', 'is_active']
-    search_fields = ['id', 'grade', 'subject', 'is_active']
-    list_filter = ['id', 'grade', 'subject', 'is_active']
+    list_display = ['id', 'grade', 'is_active']
+    search_fields = ['id', 'grade', 'is_active']
+    list_filter = ['id', 'grade', 'is_active']
+
+
+""" Subject Plan"""
+
+
+@admin.register(SubjectPlan)
+class SubjectPlanAdmin(admin.ModelAdmin):
+    list_display = ['id', 'subject', 'is_active']
+    search_fields = ['id', 'subject', 'is_active']
+    list_filter = ['id', 'subject', 'is_active']
