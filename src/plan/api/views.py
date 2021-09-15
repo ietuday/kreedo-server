@@ -197,8 +197,6 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return SubjectSchoolGradePlanListSerializer
-        # if self.request.method == 'POST':
-        #     return SubjectSchoolGradePlanCreateSerializer
 
     def post(self, request):
         try:
@@ -215,7 +213,6 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
                     'grade_list', None)[0], context=context)
             if subject_school_grade_plan.is_valid():
                 subject_school_grade_plan.save()
-                # print("CREATED----------->", subject_school_grade_plan.data)
                 return Response("Created")
             else:
                 return Response(subject_school_grade_plan.errors)
@@ -311,7 +308,7 @@ def myconverter(o):
 class GradesBySchool(GeneralClass, Mixins, ListCreateAPIView):
     def get(self, request, pk):
         try:
-            grade_qs = SubjectSchoolGradePlan.objects.filter(
+            grade_qs = GradeSubjectPlan.objects.filter(
                 school=pk)
             grades = []
             for grade in grade_qs:
