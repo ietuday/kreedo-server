@@ -476,7 +476,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                                                             subject=sub['subject'])[0]
                     print("@@@@@@@@@@@@", subject_qs)
                     if subject_qs:
-                        subject_qs.subject_label = sub['subject_lable']
+                        subject_qs.subject_label = sub['subject_label']
                         subject_qs.save()
                         print(" Subject LABEL update")
 
@@ -506,7 +506,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                     print("SCHOOL", school_id, subject_id)
 
                     subject_qs = SubjectPlan.objects.create(
-                        subject=subject_id, school=school_id, subject_label=sub['subject_lable'])
+                        subject=subject_id, school=school_id, subject_label=sub['subject_label'])
 
                     print("grade_qs", subject_qs.id)
                     grade_qs = GradeSubjectPlan.objects.filter(
