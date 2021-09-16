@@ -29,17 +29,12 @@ urlpatterns = [
     path('activity_by_child', ActivityByChild.as_view(), name='ActivityByChild'),
     path('activity_list_by_child', ActivityListByChild.as_view(),
          name='ActivityListByChild'),
-
-
     path('activity-detail_retrive_by_child/<int:pk>', ActivityDetail.as_view(),
          name='ActivityDetail'),
     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
          name='PeriodTemplateAppyToGradesListCreate'),
     path('period_template_save_to_grade', PeriodTemplateSaveToGrade.as_view(),
          name='PeriodTemplateSaveToGrade'),
-
-
-
     path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
     path('period_create',
