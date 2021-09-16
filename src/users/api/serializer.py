@@ -477,6 +477,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
             """ validate email and password """
             try:
                 email_password = validate_auth_user(email, password)
+                print("email_password------", email_password)
             except Exception as ex:
                 raise ValidationError("Email and Password is required")
 
@@ -484,9 +485,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
             try:
 
                 if email is not None:
-
+                    print("email", email)
                     username = User.objects.get(
                         email=email, is_active=True).username
+                    print("username", username)
 
                 else:
                     raise ValidationError("Email is required")

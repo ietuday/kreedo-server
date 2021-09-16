@@ -366,14 +366,15 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
         if self.request.method == 'PATCH':
             return SchoolSerializer
 
-    def put(self, request, pk):
+    def patch(self, request, pk):
         try:
 
             school_data = {
                 "name": request.data.get('name', None),
                 "type": request.data.get('type', None),
                 "logo": request.data.get('logo', None),
-                "address": request.data.get('address_id', None)
+                "address": request.data.get('address_id', None),
+                "is_active": request.data.get('is_active', None),
 
             }
             """ Address Updation """

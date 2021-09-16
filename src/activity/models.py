@@ -43,7 +43,7 @@ Activity_Asset_Choice = [
 
 
 class Activity(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     type = models.CharField(max_length=50, choices=Activity_Type_Choice)
     objective = models.TextField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
