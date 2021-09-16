@@ -1168,14 +1168,17 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         school_id = serialized_data['school']['id']
         school_grade = GradeSubjectPlan.objects.filter(school=school_id)
         if school_grade:
-            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
-                grade_subjects__in=school_grade)
-            school_grade_qs_serializer = SubjectSchoolGradePlanListSerializer(
-                grade_subject_plan_qs, many=True)
-            print("school_grade_qs_serializer.data",
-                  school_grade_qs_serializer.data)
-            serialized_data['selected_grades'] = school_grade_qs_serializer.data
+    
+            grades = []
+            for grade in school_grade:
+                grade_dict = {}
+                grade_dict['name'] = grade.grade.name
+                grade_dict['id'] = grade.grade.id
+                grade_dict['school'] = grade.school.id
 
+                grades.append(grade_dict)
+                grade_dict = {}
+            serialized_data['selected_grades'] =grades
         return serialized_data
 
 
