@@ -469,33 +469,31 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                 subjects_list.append(sub['subject'])
             print("subjects_list---->", subjects_list)
             for sub in subject_list:
-                print("GRADE----------", sub['school'])
+                print("@SUBJECT----------", sub['school'])
                 if SubjectPlan.objects.filter(school=sub['school'], subject=sub['subject']).exists():
                     print("EXIST")
                     subject_qs = SubjectPlan.objects.filter(school=sub['school'],
                                                             subject=sub['subject'])[0]
-                    print("@@@@@@@@@@@@", subject_qs)
                     if subject_qs:
                         subject_qs.subject_label = sub['subject_label']
                         subject_qs.save()
                         print(" Subject LABEL update")
 
-                    plan_qs = SubjectPlan.objects.filter(
-                        school=sub['school']).exclude(subject__in=subjects_list)
+                    plan_qs = GradeSubjectPlan.objects.filter(
+                        school=sub['school'], grade=sub['grade']).exclude(subject_plan__in=subjects_list)
                     print("DELETEEE-----------", plan_qs)
 
-                    if plan_qs:
-                        plan_qs = plan_qs[0]
-                        print("plan_qs id----", plan_qs)
-                        plan_id = plan_qs.id
+                    # if plan_qs:
+                    #     plan_qs = plan_qs[0]
+                    #     print("plan_qs id----", plan_qs)
+                    #     plan_id = plan_qs.id
 
-                        subject_delete_qs = GradeSubjectPlan.objects.filter(
-                            subject_plan=plan_id)
-                        if subject_delete_qs:
-                            print("@@@@@@@", subject_delete_qs)
-
-                            plan_qs.delete()
-                            print("DELTED")
+                    #     subject_delete_qs = SubjectPlan.objects.filter(
+                    #         subject=plan_id)
+                    #     if subject_delete_qs:
+                    #         print("@@@@@@@", subject_delete_qs)
+                    #         plan_qs.delete()
+                    #         print("DELTED")
 
                 else:
                     # grades_list = []

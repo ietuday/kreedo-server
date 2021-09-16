@@ -8,12 +8,12 @@ from .managers import*
 
 
 class Material(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     photo = models.CharField(max_length=100, null=True, blank=True)
     code = models.CharField(max_length=200, null=True, blank=True)
     no_of_material = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     objects = MaterialManager
 
     class Meta:
@@ -37,7 +37,7 @@ class ActivityMasterSupportingMaterial(TimestampAwareModel):
     master_material = models.ManyToManyField('Material', blank=True)
     supporting_material = models.ManyToManyField(
         'Material', related_name='supporting_material', blank=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'ActivityMasterSupportingMaterial'
