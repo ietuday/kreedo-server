@@ -430,26 +430,46 @@ class PeriodTemplateAppyToGradesListCreate(GeneralClass, Mixins, ListCreateAPIVi
 
 
 class PeriodTemplateSaveToGrade(ListCreateAPIView):
+    model = PeriodTemplateToGrade
+    serializer_class = PeriodTemplateToGradeListSerializer
 
+    def get_queryset(self):
+        return PeriodTemplateToGrade.objects.all()
+    
     def post(self, request):
         try:
             grade_list = request.data.get('grade_list')
             failed_section = []
+            print("grade_list----", grade_list)
             for grade in grade_list:
+                print("GRADE---------")
 
                 academic_qs = AcademicSession.objects.filter(
-                    grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])[0]
-                print("academic_qs------", academic_qs)
+                    grade=grade['grade'], section=grade['section'], academic_calender=grade['academic_calender'])
+                print("academic_qs------", academic_qs[0].id)
 
-                if PeriodTemplateToGrade.objects.filter(academic_session=academic_qs.id).exists():
-                    period_acade_qs = PeriodTemplateToGrade.objects.filter(
-                        academic_session=academic_qs.id)
+                if academic_qs:
+                    academic_qs = academic_qs[0]
+                    print("academic_qs", academic_qs)
+                    if PeriodTemplateToGrade.objects.filter(academic_session=academic_qs.id).exists():
+                        period_acade_qs = PeriodTemplateToGrade.objects.filter(
+                            academic_session=academic_qs.id)
+                        from datetime import datetime
+                        import datetime as dt
 
-                    if period_acade_qs.filter(Q(start_date=grade['start_date'], end_date=grade['end_date']) |
-                                              Q(start_date__gte=grade['start_date'], end_date__lte=grade['end_date'])).exists():
+                        start_time = dt.datetime.strptime(
+                            grade['start_date'], '%Y-%m-%d').date()
 
-                        period_acade_qs = period_acade_qs.filter(Q(start_date=grade['start_date'], end_date=grade['end_date']) | Q(start_date__gte=grade['start_date'], end_date__lte=grade['end_date']))
+                        end_time = dt.datetime.strptime(
+                            grade['end_date'], '%Y-%m-%d').date()
 
+                        if PeriodTemplateToGrade.objects.filter(
+                             academic_session=academic_qs.id).exclude(start_date__gte=start_time, end_date__lte=end_time).exists():
+                            period_acade_qs = PeriodTemplateToGrade.objects.filter(
+                             academic_session=academic_qs.id).exclude(start_date__gte=start_time, end_date__lte=end_time)
+
+                        else:
+                            print("ERROR")
                         if period_acade_qs:
                             section = Section.objects.get(pk=grade['section'])
                             failed_section.append(section.name)
@@ -457,16 +477,15 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                             if academic_qs:
                                 grade['academic_session'] = academic_qs.id
                             else:
-                                return Response("AcademicSession not found", status=status.HTTP_200_OK)
-
+                                continue
                             print("academic_qs====", academic_qs, grade)
                             period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
                                 data=grade)
 
                             if period_template_qs_serializer.is_valid():
                                 print("@@@2")
-                                period_template_qs_serializer.save()
                                 continue
+
                             else:
                                 print("ERROR------------",
                                       period_template_qs_serializer.errors)
@@ -474,40 +493,12 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                                     pk=grade['section'])
                                 failed_section.append(section.name)
                                 continue
-                        if failed_section:
-                            sections = ",".join(failed_section)
-                            context = {
-                                "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
-                                "data": None
-                            }
-                            return Response(context)
-                        else:
 
-                            if academic_qs:
-                                grade['academic_session'] = academic_qs.id
-                            else:
-                                return Response("AcademicSession not found", status=status.HTTP_200_OK)
-
-                            print("academic_qs====", academic_qs, grade)
-                            period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
-                                data=grade)
-
-                            if period_template_qs_serializer.is_valid():
-                                print("@@@2")
-                                period_template_qs_serializer.save()
-                                continue
-                            else:
-                                print("ERROR------------",
-                                      period_template_qs_serializer.errors)
-                                section = Section.objects.get(
-                                    pk=grade['section'])
-                                failed_section.append(section.name)
-                                continue
                     else:
                         if academic_qs:
                             grade['academic_session'] = academic_qs.id
                         else:
-                            return Response("AcademicSession not found", status=status.HTTP_200_OK)
+                            continue
 
                         print("academic_qs====", academic_qs, grade)
                         period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
@@ -515,21 +506,23 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
 
                         if period_template_qs_serializer.is_valid():
                             print("@@@2")
-                            period_template_qs_serializer.save()
+
                             continue
+
                         else:
                             print("ERROR------------",
-                                    period_template_qs_serializer.errors)
+                                  period_template_qs_serializer.errors)
                             section = Section.objects.get(
                                 pk=grade['section'])
                             failed_section.append(section.name)
                             continue
+
                 else:
 
                     if academic_qs:
                         grade['academic_session'] = academic_qs.id
                     else:
-                        return Response("AcademicSession not found", status=status.HTTP_200_OK)
+                        continue
 
                     print("academic_qs====", academic_qs, grade)
                     period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
@@ -537,26 +530,27 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
 
                     if period_template_qs_serializer.is_valid():
                         print("@@@2")
-                        period_template_qs_serializer.save()
                         continue
+
                     else:
                         print("ERROR------------",
                               period_template_qs_serializer.errors)
                         section = Section.objects.get(pk=grade['section'])
                         failed_section.append(section.name)
                         continue
-                if failed_section:
-                    sections = ",".join(failed_section)
-                    context = {
-                        "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
-                        "data": None
-                    }
-                    return Response(context)
 
+            if failed_section:
+                sections = ",".join(failed_section)
                 context = {
-                    "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+                    "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
+                    "data": None
                 }
                 return Response(context)
+
+            context = {
+                "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+            }
+            return Response(context)
         except Exception as ex:
             print("ERROR--->", ex)
             context = {
