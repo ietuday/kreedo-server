@@ -470,51 +470,51 @@ class SchoolUpdate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     filterset_class = SchoolFilter
 
     def patch(self, request, pk):
-           try:
+        try:
 
-                school_data = {
-                    "name": request.data.get('name', None),
-                    "type": request.data.get('type', None),
-                    "logo": request.data.get('logo', None),
-                    "address": request.data.get('address_id', None),
-                    "is_active": request.data.get('is_active', None),
+            school_data = {
+                "name": request.data.get('name', None),
+                "type": request.data.get('type', None),
+                "logo": request.data.get('logo', None),
+                "address": request.data.get('address_id', None),
+                "is_active": request.data.get('is_active', None),
 
-                }
-                """ Address Updation """
-                address_detail = {
-                    "country": request.data.get('country', None),
-                    "state": request.data.get('state', None),
-                    "city": request.data.get('city', None),
-                    "address": request.data.get('address', None),
-                    "pincode": request.data.get('pincode', None),
-                }
-                print("address_detail", address_detail)
+            }
+            """ Address Updation """
+            address_detail = {
+                "country": request.data.get('country', None),
+                "state": request.data.get('state', None),
+                "city": request.data.get('city', None),
+                "address": request.data.get('address', None),
+                "pincode": request.data.get('pincode', None),
+            }
+            print("address_detail", address_detail)
 
-                address_qs = Address.objects.get(
-                    id=request.data.get('address_id', None))
+            address_qs = Address.objects.get(
+                id=request.data.get('address_id', None))
 
-                address_qs_serializer = AddressSerializer(
-                    address_qs, data=dict(address_detail), partial=True)
-                if address_qs_serializer.is_valid():
-                    address_qs_serializer.save()
-                    print("Address update")
-                else:
-                    raise ValidationError(address_qs.errors)
+            address_qs_serializer = AddressSerializer(
+                address_qs, data=dict(address_detail), partial=True)
+            if address_qs_serializer.is_valid():
+                address_qs_serializer.save()
+                print("Address update")
+            else:
+                raise ValidationError(address_qs.errors)
 
-                school_qs = School.objects.get(id=pk)
-                school_qs_serailzer = SchoolUpdateSerializer(
-                    school_qs, data=dict(school_data), partial=True)
-                if school_qs_serailzer.is_valid():
-                    school_qs_serailzer.save()
-                    return Response(school_qs_serailzer.data, status=status.HTTP_200_OK)
-                else:
-                    print("errors------>", school_qs_serailzer.errors)
-                    return Response(school_qs_serailzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            except Exception as ex:
-                print("TRaceback-----", traceback.print_exc())
-                print("ERROR----------->", ex)
-                logger.debug(ex)
-                return Response(ex)
+            school_qs = School.objects.get(id=pk)
+            school_qs_serailzer = SchoolUpdateSerializer(
+                school_qs, data=dict(school_data), partial=True)
+            if school_qs_serailzer.is_valid():
+                school_qs_serailzer.save()
+                return Response(school_qs_serailzer.data, status=status.HTTP_200_OK)
+            else:
+                print("errors------>", school_qs_serailzer.errors)
+                return Response(school_qs_serailzer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as ex:
+            print("TRaceback-----", traceback.print_exc())
+            print("ERROR----------->", ex)
+            logger.debug(ex)
+            return Response(ex)
 
 
 """ Section Subject Teacher List and Create """
