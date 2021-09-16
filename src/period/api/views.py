@@ -448,8 +448,7 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                     if period_acade_qs.filter(Q(start_date=grade['start_date'], end_date=grade['end_date']) |
                                               Q(start_date__gte=grade['start_date'], end_date__lte=grade['end_date'])).exists():
 
-                        period_acade_qs = period_acade_qs.filter(Q(start_date=grade['start_date'], end_date=grade['end_date']) |
-                                                                 Q(start_date__gte=grade['start_date'], end_date__lte=grade['end_date'])).exists():
+                        period_acade_qs = period_acade_qs.filter(Q(start_date=grade['start_date'], end_date=grade['end_date']) | Q(start_date__gte=grade['start_date'], end_date__lte=grade['end_date']))
 
                         if period_acade_qs:
                             section = Section.objects.get(pk=grade['section'])
