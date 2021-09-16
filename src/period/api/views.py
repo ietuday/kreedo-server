@@ -454,7 +454,27 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                         if period_acade_qs:
                             section = Section.objects.get(pk=grade['section'])
                             failed_section.append(section.name)
+                        else:
+                            if academic_qs:
+                                grade['academic_session'] = academic_qs.id
+                            else:
+                                return Response("AcademicSession not found", status=status.HTTP_200_OK)
 
+                            print("academic_qs====", academic_qs, grade)
+                            period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
+                                data=grade)
+
+                            if period_template_qs_serializer.is_valid():
+                                print("@@@2")
+                                period_template_qs_serializer.save()
+                                continue
+                            else:
+                                print("ERROR------------",
+                                      period_template_qs_serializer.errors)
+                                section = Section.objects.get(
+                                    pk=grade['section'])
+                                failed_section.append(section.name)
+                                continue
                         if failed_section:
                             sections = ",".join(failed_section)
                             context = {
@@ -484,19 +504,27 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
                                     pk=grade['section'])
                                 failed_section.append(section.name)
                                 continue
-                        if failed_section:
-                            sections = ",".join(failed_section)
-                            context = {
-                                "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
-                                "data": None
-                            }
-                            return Response(context)
+                    else:
+                        if academic_qs:
+                            grade['academic_session'] = academic_qs.id
+                        else:
+                            return Response("AcademicSession not found", status=status.HTTP_200_OK)
 
-                        context = {
-                            "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
-                        }
-                        return Response(context)
+                        print("academic_qs====", academic_qs, grade)
+                        period_template_qs_serializer = PeriodTemplateToGradeCreateSerializer(
+                            data=grade)
 
+                        if period_template_qs_serializer.is_valid():
+                            print("@@@2")
+                            period_template_qs_serializer.save()
+                            continue
+                        else:
+                            print("ERROR------------",
+                                    period_template_qs_serializer.errors)
+                            section = Section.objects.get(
+                                pk=grade['section'])
+                            failed_section.append(section.name)
+                            continue
                 else:
 
                     if academic_qs:
