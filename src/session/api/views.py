@@ -418,7 +418,10 @@ class GradeAndSectionListBySchoolAcademic(GeneralClass, Mixins,ListCreateAPIView
                 "period_template":request.data.get('period_template', None), "school": request.data.get('school', None)})
                 grade_qs_serializer = GradeListBasedAcademicSerializer(grades, many=True, context=context)
 
-            return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
+                return Response(grade_qs_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response([], status=status.HTTP_404_NOT_FOUND)
+
 
         except Exception as ex:
             print("ERROR-------", ex)

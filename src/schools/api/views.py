@@ -386,17 +386,17 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 "pincode": request.data.get('pincode', None),
             }
             print("address_detail", address_detail)
-            if address_detail:
-                address_qs = Address.objects.get(
-                    id=request.data.get('address_id', None))
 
-                address_qs_serializer = AddressSerializer(
-                    address_qs, data=dict(address_detail), partial=True)
-                if address_qs_serializer.is_valid():
-                    address_qs_serializer.save()
-                    print("Address update")
-                else:
-                    raise ValidationError(address_qs.errors)
+            address_qs = Address.objects.get(
+                id=request.data.get('address_id', None))
+
+            address_qs_serializer = AddressSerializer(
+                address_qs, data=dict(address_detail), partial=True)
+            if address_qs_serializer.is_valid():
+                address_qs_serializer.save()
+                print("Address update")
+            else:
+                raise ValidationError(address_qs.errors)
             """license Updation """
             licence_detail = {
                 "total_no_of_user": request.data.get('total_no_of_user', None),
