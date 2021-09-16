@@ -8,10 +8,10 @@ from package.managers import *
 
 
 class Package(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
     materials = models.ManyToManyField(to='material.Material', blank=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     objects = PackageManager
 
     class Meta:
@@ -31,7 +31,7 @@ class SchoolPackage(TimestampAwareModel):
     package = models.ForeignKey('Package', on_delete=models.PROTECT)
     from_date = models.DateField(null=True, blank=True)
     to_date = models.DateField(null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     custom_materials = models.ManyToManyField(
         to='material.Material', blank=True)
     objects = SchoolPackageManager

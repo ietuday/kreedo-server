@@ -44,7 +44,7 @@ Previous_Session_Choice = [
 
 
 class Plan(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     type = models.CharField(
         max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
     sub_type = models.CharField(
