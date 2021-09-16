@@ -461,52 +461,49 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("VALUE------", validated_data)
-            print("SELF---->", self.context['subject_label_data'])
+
             subject_list = self.context['subject_label_data']
             subjects_list = []
             for sub in subject_list:
                 subjects_list.append(sub['subject'])
-            print("subjects_list---->", subjects_list)
             for sub in subject_list:
-                print("@SUBJECT----------", sub['school'])
-                if SubjectPlan.objects.filter(school=sub['school'], subject=sub['subject']).exists():
-                    print("EXIST")
-                    subject_qs = SubjectPlan.objects.filter(school=sub['school'],
-                                                            subject=sub['subject'])[0]
-                    if subject_qs:
-                        subject_qs.subject_label = sub['subject_label']
-                        subject_qs.save()
-                        print(" Subject LABEL update")
 
-                    plan_qs = GradeSubjectPlan.objects.filter(
-                        school=sub['school'], grade=sub['grade']).exclude(subject_plan__in=subjects_list)
-                    print("DELETEEE-----------", plan_qs)
+                if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
 
-                    # if plan_qs:
-                    #     plan_qs = plan_qs[0]
-                    #     print("plan_qs id----", plan_qs)
-                    #     plan_id = plan_qs.id
+                    if sub['subject_plan_id']:
+                        subject_qs = SubjectPlan.objects.filter(id=sub['subject_plan_id'], school=sub['school'],
+                                                                subject=sub['subject'])[0]
+                        if subject_qs:
+                            subject_qs.subject_label = sub['subject_label']
+                            subject_qs.save()
+                        else:
+                            pass
+                    else:
 
-                    #     subject_delete_qs = SubjectPlan.objects.filter(
-                    #         subject=plan_id)
-                    #     if subject_delete_qs:
-                    #         print("@@@@@@@", subject_delete_qs)
-                    #         plan_qs.delete()
-                    #         print("DELTED")
+                        school_id = School.objects.filter(id=sub['school'])[0]
+                        subject_id = Subject.objects.filter(
+                            id=sub['subject'])[0]
+
+                        subject_qs = SubjectPlan.objects.create(
+                            subject=subject_id, school=school_id, subject_label=sub['subject_label'])
+
+                        plan_grade_qs = GradeSubjectPlan.objects.filter(
+                            school=sub['school'], grade=sub['grade'])[0]
+
+                        plan_grade_qs.subject_plan.add(subject_qs.id)
+                        plan_grade_qs.save()
+                        print("ADDED in Grade subject plan")
 
                 else:
                     # grades_list = []
-                    print("sub['subject')]--",)
+
                     school_id = School.objects.filter(id=sub['school'])[0]
 
                     subject_id = Subject.objects.filter(id=sub['subject'])[0]
-                    print("SCHOOL", school_id, subject_id)
 
                     subject_qs = SubjectPlan.objects.create(
                         subject=subject_id, school=school_id, subject_label=sub['subject_label'])
 
-                    print("grade_qs", subject_qs.id)
                     grade_qs = GradeSubjectPlan.objects.filter(
                         school=school_id, grade=sub['grade'])[0]
                     grade_qs.subject_plan.add(subject_qs.id)
