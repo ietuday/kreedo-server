@@ -185,8 +185,6 @@ class PeriodTemplateToGrade(TimestampAwareModel):
         verbose_name = 'PeriodTemplateToGrade'
         verbose_name_plural = 'PeriodTemplateToGrades'
         ordering = ['-id']
-        unique_together = ['academic_session',
-                           'start_date', 'end_date', 'period_template', 'is_applied', 'is_active']
 
     def __str__(self):
         return str(self.id)

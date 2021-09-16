@@ -517,6 +517,15 @@ class SchoolUpdate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
             return Response(ex)
 
 
+class SchoolRetrive(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = School
+    filterset_class = SchoolFilter
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return SchoolDetailListSerializer
+
+
 """ Section Subject Teacher List and Create """
 
 
