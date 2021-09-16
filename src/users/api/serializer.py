@@ -112,6 +112,22 @@ class UserDetailListSerializer(serializers.ModelSerializer):
             print(e)
             return None
 
+    def to_representation(self, obj):
+
+        serialized_data = super(
+            UserDetailListSerializer, self).to_representation(obj)
+
+        print("serialized_data->", serialized_data)
+        user_obj_id = serialized_data.get('user_obj')
+
+        user_id = user_obj_id.get('id')
+        if UserRole.objects.filter(user=user_id).exists():
+            user_role_data = UserRole.objects.filter(user=user_id)
+            user_role_data_serializer = UserRoleSchoolListSerializer(
+                user_role_data, many=True)
+            serialized_data['user_role_data'] = user_role_data_serializer.data
+        return serialized_data
+
 
 """ User Detail List Serializer """
 
@@ -774,6 +790,13 @@ class UserRoleListSerializer(serializers.ModelSerializer):
         model = UserRole
         fields = '__all__'
         depth = 2
+
+
+class UserRoleSchoolListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = ['school']
+        depth = 1
 
 
 class UserRoleListForSchoolSerializer(serializers.ModelSerializer):
