@@ -432,29 +432,29 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
         print("validated_data", validated_data)
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
-        record_aval = PeriodTemplateToGrade.objects.filter(
-            academic_session=validated_data['academic_session'],
-            period_template=validated_data['period_template'],
-        ).exclude(
-            Q(end_date__lt=start_date) |
-            Q(start_date__gt=end_date)
-        )
-        print("record_aval-----------", record_aval)
-        if record_aval:
-            print("% EXIST")
-            raise ValidationError("Already exist")
-        else:
+        # record_aval = PeriodTemplateToGrade.objects.filter(
+        #     academic_session=validated_data['academic_session'],
+        #     period_template=validated_data['period_template'],
+        # ).exclude(
+        #     Q(end_date__lt=start_date) |
+        #     Q(start_date__gt=end_date)
+        # )
+        # print("record_aval-----------", record_aval)
+        # if record_aval:
+        #     print("% EXIST")
+        #     raise ValidationError("Already exist")
+        # else:
 
-            instance = super(PeriodTemplateToGradeCreateSerializer,
-                             self).create(validated_data)
-            print("instance------", instance)
-            academic_session = instance.academic_session
-            academic_session.period_template.add(instance.period_template)
-            academic_session.is_applied = True
-            academic_session.save()
-            instance.save()
-            print("SAVE")
-            return validated_data
+        instance = super(PeriodTemplateToGradeCreateSerializer,
+                         self).create(validated_data)
+        print("instance------", instance)
+        academic_session = instance.academic_session
+        academic_session.period_template.add(instance.period_template)
+        academic_session.is_applied = True
+        academic_session.save()
+        instance.save()
+        print("SAVE")
+        return validated_data
 
 
 class PeriodTemplateToGradeUpdateSerializer(serializers.ModelSerializer):
