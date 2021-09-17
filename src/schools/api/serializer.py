@@ -291,7 +291,7 @@ class SchoolDetailBySchoolSerializer(serializers.ModelSerializer):
                         material_dict['name'] = m.name
                         material_dict['is_active'] = m.is_active
                         material_list.append(material_dict)
-                    package_dict['material'] = material_list
+                    package_dict['materials'] = material_list
                 custom_material_qs = i.custom_materials.all()
                 if custom_material_qs:
                     custom_material_list = []
