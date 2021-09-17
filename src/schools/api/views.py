@@ -374,7 +374,7 @@ class SchoolRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
                 "type": request.data.get('type', None),
                 "logo": request.data.get('logo', None),
                 "address": request.data.get('address_id', None),
-                "is_active": request.data.get('is_active', None),
+                # "is_active": request.data.get('is_active', None),
 
             }
             """ Address Updation """
