@@ -526,6 +526,29 @@ class SchoolRetrive(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
             return SchoolDetailBySchoolSerializer
 
 
+class SchoolActivateDeactivate(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+    model = School
+    filterset_class = SchoolFilter
+
+    def patch(self, request, pk):
+        try:
+            school_data = {
+                "is_active": request.data.get('is_active', None),
+
+            }
+            school_qs = School.objects.filter(id=pk)[0]
+            school_qs_serializer = SchoolUpdateSerializer(
+                school_qs, data=dict(school_data), partial=True)
+            if school_qs_serializer.is_valid():
+                school_qs_serializer.save()
+                return Response(school_qs_serializer.data)
+            else:
+                return Response(school_qs_serializer.errors)
+
+        except Exception as ex:
+            return Response(ex)
+
+
 """ Section Subject Teacher List and Create """
 
 
