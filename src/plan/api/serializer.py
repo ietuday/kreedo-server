@@ -473,11 +473,12 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                     if sub['subject_plan_id']:
                         subject_qs = SubjectPlan.objects.filter(id=sub['subject_plan_id'], school=sub['school'],
                                                                 subject=sub['subject'])[0]
+                        print("subject_qs-----------", subject_qs)
                         if subject_qs:
                             subject_qs.subject_label = sub['subject_label']
                             subject_qs.save()
                         else:
-                            pass
+                            subject_qs.delete()
                     else:
 
                         school_id = School.objects.filter(id=sub['school'])[0]
@@ -495,20 +496,8 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                         print("ADDED in Grade subject plan")
 
                 else:
-                    # grades_list = []
 
-                    school_id = School.objects.filter(id=sub['school'])[0]
-
-                    subject_id = Subject.objects.filter(id=sub['subject'])[0]
-
-                    subject_qs = SubjectPlan.objects.create(
-                        subject=subject_id, school=school_id, subject_label=sub['subject_label'])
-
-                    grade_qs = GradeSubjectPlan.objects.filter(
-                        school=school_id, grade=sub['grade'])[0]
-                    grade_qs.subject_plan.add(subject_qs.id)
-                    grade_qs.save()
-                    print("ADDED in Grade subject plan")
+                    print("Not Exist")
 
             return validated_data
         except Exception as ex:

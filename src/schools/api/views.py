@@ -523,7 +523,7 @@ class SchoolRetrive(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return SchoolDetailListSerializer
+            return SchoolDetailBySchoolSerializer
 
 
 """ Section Subject Teacher List and Create """
