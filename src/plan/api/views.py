@@ -228,7 +228,7 @@ class SubjectSchoolGradePlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
 
 class SubjectSchoolPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
     model = SubjectSchoolGradePlan
-
+ 
     def post(self, request):
         try:
             print("request---------------")
