@@ -266,33 +266,31 @@ class SchoolDetailBySchoolSerializer(serializers.ModelSerializer):
         serialized_data = super(
             SchoolDetailBySchoolSerializer, self).to_representation(obj)
 
-        # print("serialized_data-----",
-        #   serialized_data.get('license'))
         school_data_id = serialized_data.get('id')
         license_data = serialized_data.get('license')
-        print("license data -----", license_data.get('id'))
 
         if SchoolPackage.objects.filter(school=school_data_id).exists():
             school_package_qs = SchoolPackage.objects.filter(
                 school=school_data_id)
             package_list = []
-            for i in school_package_qs:
+            for package in school_package_qs:
                 package_dict = {}
-                print("PACKAGE----------", i)
-                package_dict['id'] = i.id
-                package_dict['name'] = i.package.name
-                package_dict['is_active'] = i.is_active
-                material_qs = i.package.materials.all()
+                print("PACKAGE----------", package)
+                package_dict['id'] = package.id
+                package_dict['package_id'] = package.package.id
+                package_dict['name'] = package.package.name
+                package_dict['is_active'] = package.is_active
+                material_qs = package.package.materials.all()
                 if material_qs:
                     material_list = []
-                    for m in material_qs:
+                    for material in material_qs:
                         material_dict = {}
-                        material_dict['id'] = m.id
-                        material_dict['name'] = m.name
-                        material_dict['is_active'] = m.is_active
+                        material_dict['id'] = material.id
+                        material_dict['name'] = material.name
+                        material_dict['is_active'] = material.is_active
                         material_list.append(material_dict)
                     package_dict['materials'] = material_list
-                custom_material_qs = i.custom_materials.all()
+                custom_material_qs = package.custom_materials.all()
                 if custom_material_qs:
                     custom_material_list = []
                     for custom in custom_material_qs:
