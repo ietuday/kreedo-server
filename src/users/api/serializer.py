@@ -841,7 +841,7 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
             from plan.api.serializer import GradeSubjectPlanSerializer
             grade_subject_plan_qs = GradeSubjectPlan.objects.filter(school=school_id)
             grade_sub_plan_serializer = GradeSubjectPlanSerializer(
-                grade_subject-plan_qs, many=True)
+                grade_subject_plan_qs, many=True)
             serialized_data['grade_subject_plan'] = grade_sub_plan_serializer.data
 
         return serialized_data
