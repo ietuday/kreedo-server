@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from holiday.models import*
 from users.api.serializer import*
 from rest_framework import serializers
@@ -357,6 +358,28 @@ class SchoolCalendarSchoolSerializer(serializers.ModelSerializer):
         model = SchoolCalendar
         fields = '__all__'
         depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolCalendarSchoolSerializer, self).to_representation(obj)
+        print("@@@@@@@@@@",
+              serialized_data['session_from'], serialized_data['session_till'])
+
+        start_date = serialized_data['session_from']
+        end_date = serialized_data['session_till']
+
+        # time_difference = end_date - start_date
+        from dateutil import relativedelta
+        from_date = datetime.strptime(start_date, '%Y-%m-%d')
+        to_date = datetime.strptime(end_date, '%Y-%m-%d')
+        # result = to_date - from_date
+        # no_of_year = result.years
+        time_difference = relativedelta.relativedelta(to_date, from_date)
+        difference_in_years = time_difference.years
+
+        print("@@@@@@@@@@", difference_in_years)
+        serialized_data['no_of_year'] = difference_in_years
+        return serialized_data
 
 
 """ SchoolCalendar Create Serializer """

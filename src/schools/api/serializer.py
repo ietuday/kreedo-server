@@ -195,6 +195,12 @@ class LicenseCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SchoolLicenseYearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = License
+        fields = '__all__'
+
+
 """ School  List Serializer"""
 
 
@@ -260,19 +266,70 @@ class SchoolDetailBySchoolSerializer(serializers.ModelSerializer):
         serialized_data = super(
             SchoolDetailBySchoolSerializer, self).to_representation(obj)
 
+        # print("serialized_data-----",
+        #   serialized_data.get('license'))
         school_data_id = serialized_data.get('id')
+        license_data = serialized_data.get('license')
+        print("license data -----", license_data.get('id'))
+
         if SchoolPackage.objects.filter(school=school_data_id).exists():
             school_package_qs = SchoolPackage.objects.filter(
                 school=school_data_id)
-            school_package_serializer = SchoolPackageListSerializer(
-                school_package_qs, many=True)
-            serialized_data['school_package'] = school_package_serializer.data
+            package_list = []
+            for i in school_package_qs:
+                package_dict = {}
+                print("PACKAGE----------", i)
+                package_dict['id'] = i.id
+                package_dict['name'] = i.package.name
+                package_dict['is_active'] = i.is_active
+                material_qs = i.package.materials.all()
+                if material_qs:
+                    material_list = []
+                    for m in material_qs:
+                        material_dict = {}
+                        material_dict['id'] = m.id
+                        material_dict['name'] = m.name
+                        material_dict['is_active'] = m.is_active
+                        material_list.append(material_dict)
+                    package_dict['material'] = material_list
+                custom_material_qs = i.custom_materials.all()
+                if custom_material_qs:
+                    custom_material_list = []
+                    for custom in custom_material_qs:
+                        custom_material_dict = {}
+                        custom_material_dict['id'] = custom.id
+                        custom_material_dict['name'] = custom.name
+                        custom_material_dict['is_active'] = custom.is_active
+                        custom_material_list.append(custom_material_dict)
+                    package_dict['custom_material'] = custom_material_list
+
+                package_list.append(package_dict)
+                package_dict = {}
+
+            # school_package_serializer = SchoolPackageListSerializer(
+            #     school_package_qs, many=True)
+            serialized_data['school_package'] = package_list
+
         if SchoolCalendar.objects.filter(school=school_data_id).exists():
             school_calender = SchoolCalendar.objects.filter(
-                school=school_data_id)
+                school=school_data_id)[0]
             school_calender_serializer = SchoolCalendarSchoolSerializer(
-                school_calender, many=True)
-            serialized_data['school_calender'] = school_calender_serializer.data
+                school_calender)
+            serialized_data['school_calender_no_of_year'] = school_calender_serializer.data['no_of_year']
+        if License.objects.filter(id=license_data.get('id')).exists():
+            license_data_qs = License.objects.filter(
+                id=license_data.get('id'))[0]
+
+            start_date = license_data_qs.licence_from
+            end_date = license_data_qs.licence_till
+            from datetime import datetime, date
+            from_date = datetime.strptime(str(start_date), '%Y-%m-%d')
+            to_date = datetime.strptime(str(end_date), '%Y-%m-%d')
+
+            num_months = (to_date.year - from_date.year) * \
+                12 + (to_date.month - from_date.month)
+            serialized_data['no_of_months'] = num_months
+
         return serialized_data
 
 
