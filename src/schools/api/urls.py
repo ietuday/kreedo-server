@@ -28,6 +28,9 @@ urlpatterns = [
          name='SchoolRetriveUpdateDestroy'),
     path('school_update/<int:pk>', SchoolUpdate.as_view(),
          name='SchoolUpdate'),
+    path('school_retrive/<int:pk>', SchoolRetrive.as_view(),
+         name='SchoolRetrive'),
+
 
     path('section-subject-teacher_list_create', SectionSubjectTeacherListCreate.as_view(),
          name='SectionSubjectTeacherListCreate'),
