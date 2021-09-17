@@ -244,14 +244,35 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
 
                 grades.append(grade_dict)
                 grade_dict = {}
-        #     grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
-        #         grade_subjects__in=grade_subject_qs)
-        #     print("grade_subject_plan_qs---------", grade_subject_plan_qs)
-        #     grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
-        #         grade_subject_plan_qs, many=True)
 
             serialized_data['selected_grades'] = grades
 
+        return serialized_data
+
+
+class SchoolDetailBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+        depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolDetailBySchoolSerializer, self).to_representation(obj)
+
+        school_data_id = serialized_data.get('id')
+        if SchoolPackage.objects.filter(school=school_data_id).exists():
+            school_package_qs = SchoolPackage.objects.filter(
+                school=school_data_id)
+            school_package_serializer = SchoolPackageListSerializer(
+                school_package_qs, many=True)
+            serialized_data['school_package'] = school_package_serializer.data
+        if SchoolCalendar.objects.filter(school=school_data_id).exists():
+            school_calender = SchoolCalendar.objects.filter(
+                school=school_data_id)
+            school_calender_serializer = SchoolCalendarSchoolSerializer(
+                school_calender, many=True)
+            serialized_data['school_calender'] = school_calender_serializer.data
         return serialized_data
 
 
