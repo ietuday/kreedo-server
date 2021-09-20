@@ -118,7 +118,7 @@ class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
                                 period_template_qs, many=True)
                             section['saved_template'] = period_template_qs_serializer.data
                         else:
-                            section['saved_template'] = {}
+                            section['saved_template'] = []
                         # periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(
                         #     academic_session=academic_session_qs[0])
                         # if periodTemplateToGrade_qs:
@@ -126,7 +126,7 @@ class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
                         #         periodTemplateToGrade_qs[0])
                         #     section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
                     else:
-                        section['saved_template'] = {}
+                        section['saved_template'] = []
             serialized_data['sections'] = section_data
             return serialized_data
         except Exception as ex:
