@@ -111,7 +111,7 @@ class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
                 # pdb.set_trace()
                     if academic_session_qs:
                         period_template_qs = PeriodTemplateToGrade.objects.filter(
-                            academic_session=academic_session_qs[0].id)
+                            academic_session=academic_session_qs[0].id).order_by('start_date')
 
                         if period_template_qs:
                             period_template_qs_serializer = PeriodTemplateForGradeListSerializer(
