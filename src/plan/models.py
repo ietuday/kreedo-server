@@ -121,7 +121,7 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
 class GradeSubjectPlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     grade = models.ForeignKey(
-        to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
+        to='schools.Grade', related_name="grade_subject_plan", on_delete=models.PROTECT, blank=True, null=True)
     subject_plan = models.ManyToManyField('SubjectPlan', blank=True)
     is_active = models.BooleanField(default=True)
 
