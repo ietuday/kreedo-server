@@ -461,3 +461,13 @@ class PeriodTemplateToGradeUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodTemplateToGrade
         fields = '__all__'
+
+
+"""PeriodTemplateToGrade  for template listSerializer """
+
+
+class PeriodTemplateForGradeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PeriodTemplateToGrade
+        fields = ['start_date', 'end_date', 'period_template']
+        depth = 1
