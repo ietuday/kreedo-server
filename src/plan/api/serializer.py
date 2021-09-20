@@ -532,7 +532,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
             print("@@@@@@@@2", subject_listtt)
 
             subject_plan_delet_qs = SubjectPlan.objects.filter(
-                school=sub['school'], grade=sub['grade'])
+                school=sub['school'], grade_subject_plan__grade=sub['grade'])
 
             # subject_plan_delet_qs.filter(subject_plan)
             # if subject_plan_delet_qs.filter(subject_plan)
