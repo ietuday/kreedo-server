@@ -471,14 +471,19 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                 if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
 
                     if sub['subject_plan_id']:
-                        subject_qs = SubjectPlan.objects.filter(id=sub['subject_plan_id'], school=sub['school'],
-                                                                subject=sub['subject'])[0]
-                        print("subject_qs-----------", subject_qs)
-                        if subject_qs:
+                        grade_subject_plan = GradeSubjectPlan.objects.filter(
+                            school=sub['school'], grade=sub['grade'])[0]
+                        print("GRADE---plannn--", grade_subject_plan)
+                        if grade_subject_plan:
+
+                            subject_qs = SubjectPlan.objects.filter(id=sub['subject_plan_id'], school=sub['school'],
+                                                                    subject=sub['subject'])[0]
+
                             subject_qs.subject_label = sub['subject_label']
                             subject_qs.save()
                         else:
-                            subject_qs.delete()
+                            print("@@@@@@@")
+
                     else:
 
                         school_id = School.objects.filter(id=sub['school'])[0]
