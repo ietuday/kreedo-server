@@ -465,16 +465,22 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
             subject_list = self.context['subject_label_data']
 
             for sub in subject_list:
+                print("sub['subject_plan_id']",
+                      sub['subject_plan_id'])
                 if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
                     grade_sub_plan_qs = GradeSubjectPlan.objects.filter(
                         school=sub['school'], grade=sub['grade'])[0]
                     print(grade_sub_plan_qs)
                     sub_plan_qs = SubjectPlan.objects.filter(
                         id__in=grade_sub_plan_qs.subject_plan.all())
-                    print(sub_plan_qs)
-                    if(sub and sub['subject_plan_id']):
+                    print("sub_plan_qs", sub_plan_qs)
+                    if sub['subject_plan_id']:
                         for sub_plan in sub_plan_qs:
+                            print("sub_plan.id -", sub_plan.id)
+                            print("sub['subject_plan_id']",
+                                  sub['subject_plan_id'])
                             if sub_plan.id == sub['subject_plan_id']:
+                                print("Update")
                                 sub_plan.subject_label = sub['subject_label']
                                 sub_plan .save()
                                 print("Updated......")
@@ -483,7 +489,6 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                                 print("Deleteting...............", sub_plan)
                                 grade_sub_plan_qs.subject_plan.remove(
                                     sub_plan.id)
-                                # sub_plan_delete.append(sub_plan.id)
                                 sub_plan.delete()
 
                     else:
