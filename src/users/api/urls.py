@@ -35,8 +35,6 @@ urlpatterns = [
 
     path('user_activate_deactivate/<int:pk>',
          UserActivateDeactivate.as_view(), name='UserActivate Deactivate'),
-
-
     path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
     path('add_role_of_user_list_create',
