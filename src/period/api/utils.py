@@ -285,88 +285,12 @@ def get_seconds_removed(time):
         return time
 
 
-# """Period Activity Association"""
-# def period_group_activity_association(academic_session):
 
-    # subject_plan_based_on_grades = SubjectSchoolGradePlan.objects.filter(
-    #                                                         school=academic_session.school,
-    #                                                         grade=academic_session.grade
-    #                                                                     )
-
-    # """ For now considering all the periods have group plan"""
-    # for subject_plan in subject_plan_based_on_grades:
-    #     period_list = Period.objects.filter(
-    #                                         academic_session=academic_session,
-    #                                         subject=subject_plan.subject,
-    #                                         # subject__type='Group'
-
-    #                                         )
-    #     period_count = period_list.count()
-    #     release_activity_list = []
-    #     optional_activity_release_list = []
-    #     for period in period_list:
-    #         print("activity_list",release_activity_list)
-    #         print("opti_list",optional_activity_release_list)
-    #         # if period.subject.type == 'Individual':
-    #         #     """ Individual Plan Implementation Logic"""
-    #         #     pass
-    #         if period.subject.type == 'Group':
-    #             """ Group Plan Imlementation Logic """
-    #             mandatory_activities = subject_plan.plan.plan_activity.filter(
-    #                                                                         is_optional=False,
-    #                                                                         ).exclude(
-    #                                                                         id__in=release_activity_list
-    #                                                                         ).order_by('sort_no')
-    #             optional_activities = subject_plan.plan.plan_activity.filter(
-    #                                                                         is_optional=True,
-    #                                                                         ).exclude(
-    #                                                                         id__in=optional_activity_release_list
-    #                                                                         ).order_by('sort_no')
-
-    #             mandatory_activity_count = subject_plan.plan.plan_activity.filter(
-    #                                                                         is_optional=False
-    #                                                                         ).count()
-    #             print("mand_act",mandatory_activities)
-    #             # pdb.set_trace()
-    #             if mandatory_activity_count <= period_count:
-    #                 if mandatory_activity_count < period_count:
-    #                     """ When period count is greater than mandatory activity count """
-    #                     if mandatory_activities:
-    #                         mandatory_activities = list(mandatory_activities)
-    #                         activity = mandatory_activities[0].activity
-    #                         period.activity_to_be_release.add(activity)
-    #                         period.save()
-    #                         release_activity_list.append(mandatory_activities[0].id)
-    #                         # pdb.set_trace()
-    #                         mandatory_activities.pop(0)
-    #                     else:
-    #                         optional_activities = list(optional_activities)
-    #                         activity = optional_activities[0].activity
-    #                         period.activity_to_be_release.add(activity)
-    #                         period.save()
-    #                         optional_activity_release_list.append(optional_activities[0].id)
-    #                         # pdb.set_trace()
-    #                         optional_activity_release_list.pop(0)
-
-
-    #                 else:
-    #                     """ One mandatory activity per period """
-    #                     mandatory_activities = list(mandatory_activities)
-    #                     activity = mandatory_activities[0].activity
-    #                     period.activity_to_be_release.add(activity)
-    #                     period.save()
-    #                     release_activity_list.append(mandatory_activities[0].id)
-    #                     # pdb.set_trace()
-    #                     mandatory_activities.pop(0)
-    #             else:
-
-    #                 message = "Period count is less than mandatory activity count"    
-    #                 print(message)
-                
-    #         else:
-    #             """Individual Plan Activity release logic"""
-    #             pass
-
+def validation_time_for_period_template_detail():
+    try:
+        print("@@@@@@@@")
+    except Exception as ex:
+        raise ValidationError(ex)
 
 
 """Period  Group Activity Association"""
@@ -463,9 +387,14 @@ def get_subject_based_plan(subject,grade):
 
 
 
+
+
+
+
+
 """ Period Individual Sequantial Activity Release"""
 
-def period_individual_seq_activity_association(academic_session): 
+def period_individual_activity_association(academic_session): 
     try:
         child_plans = ChildPlan.objects.filter(academic_session=academic_session)
     
@@ -502,129 +431,14 @@ def period_individual_seq_activity_association(academic_session):
                         continue
 
                     period_based_on_subject = period_list_based_on_child.filter(subject=subject)
+
                     if subject_based_plan.plan.sub_type == 'Sequential':
-                        plan_mandatory_activities = subject_based_plan.plan.plan_activity.filter(
-                                                                        is_optional=False
-                                                                        ).order_by('sort_no')
-
-                        plan_optional_activities  = subject_based_plan.plan.plan_activity.filter(
-                                                                                is_optional=True
-                                                                                ).order_by('sort_no')
-
-                        print("subject",subject)
-                        # pdb.set_trace()
-                        activity_release_rec = []
-                        for period in period_based_on_subject:
-                            print("period",period)
-                            mandatory_activities = plan_mandatory_activities.exclude(
-                                                                                id__in=activity_release_rec
-                                                                                    )
-
-                            # pdb.set_trace()
-                            if mandatory_activities:
-                                for plan_activity in mandatory_activities:
-                                    print("inside",period)
-                                    record_aval = PeriodIndividualActivity.objects.filter(
-                                                                        child=child_plan.child,
-                                                                        activity=plan_activity.activity,
-                                                                        # period=period
-                                                                            )
-                                    
-                                    if record_aval:
-                                        continue
-                                    else:
-                                        print("period",period)
-                                        print("activity",plan_activity.activity)
-                                        child_indiv_activity = PeriodIndividualActivity.objects.create(
-                                                                                                child=child_plan.child,
-                                                                                                period=period, 
-                                                                                                )
-                                        
-
-                                        child_indiv_activity.activity.add(plan_activity.activity)
-                                        child_indiv_activity.save()
-                                        print("activity added to period")
-                                        period.individual_activities.add(child_indiv_activity)
-                                        period.save()
-                                        activity_release_rec.append(plan_activity.id)
-                                        break
-                                        
-                            else:
-                                    for plan_activity in plan_optional_activities:
-                                    
-                                        record_aval = PeriodIndividualActivity.objects.filter(
-                                                                            child=child_plan.child,
-                                                                            activity=plan_activity.activity,
-                                                                            # period=period
-                                                                                )
-                                        
-                                        if record_aval:
-                                            continue
-                                        else:
-                                            print("period",period)
-                                            print("activity",plan_activity.activity)
-                                            child_indiv_activity = PeriodIndividualActivity.objects.create(
-                                                                                                    child=child_plan.child,
-                                                                                                    period=period, 
-                                                                                                    )
-                                            
-
-                                            child_indiv_activity.activity.add(plan_activity.activity)
-                                            child_indiv_activity.save()
-                                            print("activity added to period")
-                                            period.individual_activities.add(child_indiv_activity)
-                                            period.save()
-                                            activity_release_rec.append(plan_activity.id)
-                                            break
+                        sequential_logic(subject_based_plan,period_based_on_subject,child_plan)
+                        
                     else:
-                        print("randamized")
-                        plan_activities = subject_based_plan.plan.plan_activity.filter(
-                                                                        is_optional=False
-                                                                        ).order_by('sort_no')
-                        no_of_blocks = get_no_of_blocks(period_based_on_subject)
-                        activity_per_block = get_activity_per_block(no_of_blocks,plan_activities)
-                        print("blocks",no_of_blocks)
-                        print("act/block",activity_per_block)
-                        no_of_blocks = 4
-                        period_per_block = 2
-                        pstart = 0
-                        pend = period_per_block
-                        astart = 0
-                        aend = activity_per_block
-                        for count in range(1,no_of_blocks+1):
-                            print('s,e',pstart,pend)
-                            if count == no_of_blocks:
-                                print("@@")
-                                period_for_block = period_based_on_subject[pstart:]
-                                activity_for_block = plan_activities[astart:]
-                                print(f"period for block {count}",period_for_block)
-                                print(f"activity for block {count}",activity_for_block)
-                                activities = [plan_act.activity for plan_act in activity_for_block]
-                                print("activit",activities)
-                            else:
-                                period_for_block = period_based_on_subject[pstart:pend]
-                                activity_for_block = plan_activities[astart:aend]
-                                pstart += period_per_block
-                                pend = pstart + period_per_block
-                                astart += activity_per_block
-                                aend = astart + activity_per_block
-                                print(f"period for block {count}",period_for_block)
-                                print(f"activity for block {count}",activity_for_block)
-                                activities = [plan_act.activity for plan_act in activity_for_block ]
-                                print("activit",activities)
-                            """ Create Block"""
-                            block = Block.objects.create(
-                                                        block_no=count,
-                                                        child_plan=child_plan,
-                                                        is_active=True
-                                                        )
-                            block.period.set(period_for_block)
-                            block.activity.set(activities)
-                            block.save()
-                            print(f"block {count} created")
+                        randomized_logic(subject_based_plan,period_based_on_subject,child_plan)
 
                                 
-
     except Exception as ex:
                 print("ex",ex)
                 print("traceback",traceback.print_exc())
@@ -633,34 +447,240 @@ def period_individual_seq_activity_association(academic_session):
 
 
 
+""" def to find get block list"""
+def get_period_list(period_based_on_subject):
+    try:
+        no_of_block = 10
+        no_of_periods = period_based_on_subject.count()
+        period_per_block = no_of_periods // 10
+        if no_of_periods % 10 == 0:
+            period_per_block
+        else:
+            no_of_block_with_Extra_period = no_of_periods % 10
+        start = 0
+        end = period_per_block
+        blockwise_period_list = [] 
+        for block_no in range(1,no_of_block + 1):
+          
+            if block_no <= no_of_block_with_Extra_period:
+                print("s,e",start,end)
+                if block_no == 1:
+                    end += 1
+                block_period_list = period_based_on_subject[start:end]
+                blockwise_period_list.append(block_period_list)
+                start = end
+                end += period_per_block + 1
+                print("block list if",block_period_list)
+               
+            else:
 
-""" def to find no. of blocks"""
-def get_no_of_blocks(period_based_on_subject):
-    no_of_periods = 121
-    no_of_blocks = no_of_periods // 20
-    # pdb.set_trace()
-    if no_of_periods % 20 == 0:
-        return no_of_blocks
-    else:
-        no_of_blocks = no_of_periods // 20
-        return no_of_blocks+1
+                if block_no == no_of_block_with_Extra_period + 1:
+                    start = start
+                    end = end - 1
+                print("s,e",start,end)
+                block_period_list = period_based_on_subject[start:end]
+                blockwise_period_list.append(block_period_list)
+                start = end
+                end = end + period_per_block
+                print("block list",block_period_list)
+
+        # pdb.set_trace()
+        return blockwise_period_list
+        
+    except Exception as ex:
+        print("error in get_period_list",ex)
+        raise ex
 
 
 
 """ def to find no. of activities per block """
-def get_activity_per_block(no_of_blocks,plan_activities):
-    activity_count = plan_activities.count()
-    print("activity count",activity_count)
-    activity_per_block = activity_count // no_of_blocks
-    return activity_per_block
-
-
-
-
-
-
-def validation_time_for_period_template_detail():
+def get_activity_list(plan_activity_qs):
     try:
-        print("@@@@@@@@")
+        """ sort plan_activities based on sort_no"""
+        plan_activities = plan_activity_qs.order_by('sort_no')
+
+        no_of_block = 10
+        no_of_activities = plan_activities.count()
+        activity_per_block = no_of_activities // 10
+        if no_of_activities % 10 == 0:
+            activity_per_block
+        else:
+            no_of_block_with_Extra_period = no_of_activities % 10
+        start = 0
+        end = activity_per_block
+        blockwise_activity_list = [] 
+        # pdb.set_trace()
+        for block_no in range(1,no_of_block + 1):
+          
+            if block_no <= no_of_block_with_Extra_period:
+                print("s,e",start,end)
+                if block_no == 1:
+                    end += 1
+                block_activity_list = plan_activities[start:end]
+                blockwise_activity_list.append(block_activity_list)
+                start = end
+                end += activity_per_block + 1
+                print("block list if",block_activity_list)
+               
+            else:
+
+                if block_no == no_of_block_with_Extra_period + 1:
+                    start = start
+                    end = end - 1
+                print("s,e",start,end)
+                block_activity_list = plan_activities[start:end]
+                blockwise_activity_list.append(block_activity_list)
+                start = end
+                end = end + activity_per_block
+                print("block list",block_activity_list)
+        # pdb.set_trace()
+        return blockwise_activity_list
+
     except Exception as ex:
-        raise ValidationError(ex)
+        print("error in get_activity_list",ex)
+        raise ex
+
+
+
+""" get block list based on activity and periods"""
+def get_block_list(period_list,plan_activity_list,child_plan):
+    try:
+        block_obj_list = []
+        block_no = 0
+        # pdb.set_trace()
+        for period,plan_activity in zip(period_list,plan_activity_list):
+            block_no += 1
+            print("p,a",period,plan_activity)
+            activity_list = [plan_activity.activity for plan_activity in plan_activity]
+            print("block activity",activity_list)
+            block_obj = Block.objects.create(
+                                        block_no = block_no,
+                                        child_plan = child_plan,
+                                        is_active = True
+                                            )
+            block_obj.activity.set(activity_list)
+            block_obj.period.set(period),
+            block_obj.save()
+            block_obj_list.append(block_obj)
+        return block_obj_list
+
+    except Exception as ex:
+        print("error in get_block_list",ex)
+        raise ex
+
+
+
+""" activity period distribution in block seq."""
+def activity_period_distribution_seq(block_obj_list,child_plan):
+    try:
+
+        for block in block_obj_list:
+            period_qs = block.period.all()
+            activity_qs = block.activity.all()
+            activity_per_period = activity_qs.count() // period_qs.count()
+            if activity_qs.count() % period_qs.count() == 0:
+                no_of_period_with_Extra_activity = 0
+            else:
+                no_of_period_with_Extra_activity = activity_qs.count() % period_qs.count()
+            start = 0
+            end = activity_per_period
+            print("activity_block",activity_qs)
+            # pdb.set_trace()
+            for period_no,period in enumerate(period_qs):
+                print("period_no,period",period_no,period)
+                if period_no <= no_of_period_with_Extra_activity:
+                    if period == 0:
+                        end += 1
+                    activity_list = activity_qs[start:end]
+                    start = end
+                    end = activity_per_period + 1
+                else:
+                    activity_list = activity_qs[start:end]
+                    start = end
+                    end += activity_per_period
+
+                print("activity list",activity_list)
+                period_individual_activity_obj = PeriodIndividualActivity.objects.create(
+                                                            period = period,
+                                                            child = child_plan.child,
+                                            
+                                                                                        )   
+                period_individual_activity_obj.activity.set(activity_list)
+                period_individual_activity_obj.save()  
+                period.individual_activities.add(period_individual_activity_obj)
+                period.save()
+                # pdb.set_trace()
+    except Exception as ex:
+        print("error in activity_period_distribution_seq",ex)
+        raise ex
+
+
+            
+
+        
+
+def sequential_logic(subject_based_plan,period_based_on_subject,child_plan):
+    try:
+        plan_activity_qs = subject_based_plan.plan_activity.all()
+        period_list = get_period_list(period_based_on_subject)
+        plan_activity_list = get_activity_list(plan_activity_qs)
+        block_list = get_block_list(period_list,plan_activity_list,child_plan)
+        activity_period_distribution_seq(block_list,child_plan)
+
+    except Exception as ex:
+        print("error in sequential_logic",ex)
+        raise ex
+
+
+
+def randomized_logic(subject_based_plan,period_based_on_subject,child_plan):
+    try:
+        print("randamized")
+        plan_activities = subject_based_plan.plan.plan_activity.filter(
+                                                        is_optional=False
+                                                        ).order_by('sort_no')
+        no_of_blocks = get_block_list(period_based_on_subject,child_plan)
+        activity_per_block = get_activity_per_block(no_of_blocks,plan_activities)
+        print("blocks",no_of_blocks)
+        print("act/block",activity_per_block)
+        no_of_blocks = 4
+        period_per_block = 2
+        pstart = 0
+        pend = period_per_block
+        astart = 0
+        aend = activity_per_block
+        for count in range(1,no_of_blocks+1):
+            print('s,e',pstart,pend)
+            if count == no_of_blocks:
+                print("@@")
+                period_for_block = period_based_on_subject[pstart:]
+                activity_for_block = plan_activities[astart:]
+                print(f"period for block {count}",period_for_block)
+                print(f"activity for block {count}",activity_for_block)
+                activities = [plan_act.activity for plan_act in activity_for_block]
+                print("activit",activities)
+            else:
+                period_for_block = period_based_on_subject[pstart:pend]
+                activity_for_block = plan_activities[astart:aend]
+                pstart += period_per_block
+                pend = pstart + period_per_block
+                astart += activity_per_block
+                aend = astart + activity_per_block
+                print(f"period for block {count}",period_for_block)
+                print(f"activity for block {count}",activity_for_block)
+                activities = [plan_act.activity for plan_act in activity_for_block ]
+                print("activit",activities)
+            """ Create Block"""
+            block = Block.objects.create(
+                                        block_no=count,
+                                        child_plan=child_plan,
+                                        is_active=True
+                                        )
+            block.period.set(period_for_block)
+            block.activity.set(activities)
+            block.save()
+            print(f"block {count} created")
+
+    except Exception as ex:
+        print("error in randomized_logic",ex)
+        raise ex

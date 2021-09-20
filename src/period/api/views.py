@@ -735,8 +735,20 @@ class testView(ListCreateAPIView):
     def get(self,request):
         academic_session = AcademicSession.objects.get(pk=7)
         # period_group_activity_association(academic_session)
-        period_individual_seq_activity_association(academic_session)
+        period_qs = Period.objects.filter(academic_session=academic_session,
+                                            )
+        # pdb.set_trace()
+        period_list = get_period_list(period_qs,None)
+        plan_activity_qs = PlanActivity.objects.filter(is_optional=False)
+        plan_activity_list = get_activity_list(plan_activity_qs)
+        child_plan = ChildPlan.objects.get(pk=8)
+        print("period_list",period_list)
+        print("activity list",plan_activity_list)
+        pdb.set_trace()
+        block_list = get_block_list(period_list,plan_activity_list,child_plan)
         start_date = date(2025,8,30)
+        pdb.set_trace()
+        activity_period_distribution_seq(block_list,child_plan)
         # get_range_of_days_in_session(start_date,academic_session)
         data = []
         return Response(data)
