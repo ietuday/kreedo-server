@@ -837,7 +837,7 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
             serialized_data['school_calender'] = school_calender_serializer.data
 
         if GradeSubjectPlan.objects.filter(school=school_id).exists():
-            from plan.api.serializer import GradeSubjectPlanSerializer
+            from plan.api.serializer import SubjectSchoolGradePlanListSerializer
             grade_subject_qs = GradeSubjectPlan.objects.filter(
                 school=school_id)
             grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
