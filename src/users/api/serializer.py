@@ -835,6 +835,15 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
             school_calender_serializer = SchoolCalendarCreateSerializer(
                 school_calender_qs, many=True)
             serialized_data['school_calender'] = school_calender_serializer.data
+
+
+        if GradeSubjectPlan.objects.filter(school=school_id).exists():
+            from plan.api.serializer import GradeSubjectPlanSerializer
+            grade_subject_plan_qs = GradeSubjectPlan.objects.filter(school=school_id)
+            grade_sub_plan_serializer = GradeSubjectPlanSerializer(
+                grade_subject_plan_qs, many=True)
+            serialized_data['grade_subject_plan'] = grade_sub_plan_serializer.data
+
         return serialized_data
 
 

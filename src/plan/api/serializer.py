@@ -463,29 +463,30 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
         try:
 
             subject_list = self.context['subject_label_data']
-            subjects_list = []
-            for sub in subject_list:
-                subjects_list.append(sub['subject'])
-            for sub in subject_list:
 
+            for sub in subject_list:
                 if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
+                    grade_sub_plan_qs = GradeSubjectPlan.objects.filter(
+                        school=sub['school'], grade=sub['grade'])[0]
+                    print(grade_sub_plan_qs)
+                    sub_plan_qs = SubjectPlan.objects.filter(
+                        id__in=grade_sub_plan_qs.subject_plan.all())
+                    print(sub_plan_qs)
+                    if(sub and sub['subject_plan_id']):
+                        for sub_plan in sub_plan_qs:
+                            if sub_plan.id == sub['subject_plan_id']:
+                                sub_plan.subject_label = sub['subject_label']
+                                sub_plan .save()
+                                print("Updated......")
 
-                    if sub['subject_plan_id']:
-                        grade_subject_plan = GradeSubjectPlan.objects.filter(
-                            school=sub['school'], grade=sub['grade'])[0]
-                        print("GRADE---plannn--", grade_subject_plan)
-                        if grade_subject_plan:
-
-                            subject_qs = SubjectPlan.objects.filter(id=sub['subject_plan_id'], school=sub['school'],
-                                                                    subject=sub['subject'])[0]
-
-                            subject_qs.subject_label = sub['subject_label']
-                            subject_qs.save()
-                        else:
-                            print("@@@@@@@")
+                            else:
+                                print("Deleteting...............", sub_plan)
+                                grade_sub_plan_qs.subject_plan.remove(
+                                    sub_plan.id)
+                                # sub_plan_delete.append(sub_plan.id)
+                                sub_plan.delete()
 
                     else:
-
                         school_id = School.objects.filter(id=sub['school'])[0]
                         subject_id = Subject.objects.filter(
                             id=sub['subject'])[0]
@@ -499,10 +500,6 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                         plan_grade_qs.subject_plan.add(subject_qs.id)
                         plan_grade_qs.save()
                         print("ADDED in Grade subject plan")
-
-                else:
-
-                    print("Not Exist")
 
             return validated_data
         except Exception as ex:
@@ -520,4 +517,11 @@ class GradesBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = ['grade', 'school']
+        depth = 1
+
+
+class GradeSubjectPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GradeSubjectPlan
+        fields = '__all__'
         depth = 1
