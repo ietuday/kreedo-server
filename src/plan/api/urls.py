@@ -31,10 +31,6 @@ urlpatterns = [
     path('create_subject_by_school',
          SubjectSchoolPlanListCreate.as_view(), name='SubjectSchoolPlanListCreate'),
 
-
-
-
-
     path('bulk-upload/add-plan',
          AddPlan.as_view(), name='AddPlan'),
 
