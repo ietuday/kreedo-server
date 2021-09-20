@@ -836,13 +836,20 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
                 school_calender_qs, many=True)
             serialized_data['school_calender'] = school_calender_serializer.data
 
-
         if GradeSubjectPlan.objects.filter(school=school_id).exists():
             from plan.api.serializer import GradeSubjectPlanSerializer
-            grade_subject_plan_qs = GradeSubjectPlan.objects.filter(school=school_id)
-            grade_sub_plan_serializer = GradeSubjectPlanSerializer(
+            grade_subject_qs = GradeSubjectPlan.objects.filter(
+                school=school_id)
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                grade_subjects__in=grade_subject_qs)
+            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
+
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
                 grade_subject_plan_qs, many=True)
-            serialized_data['grade_subject_plan'] = grade_sub_plan_serializer.data
+
+            # grade_sub_plan_serializer = GradeSubjectPlanSerializer(
+            #     grade_subject_plan_qs, many=True)
+            serialized_data['grade_subject_plan'] = grade_subject_serializer.data
 
         return serialized_data
 
@@ -1177,7 +1184,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         school_id = serialized_data['school']['id']
         school_grade = GradeSubjectPlan.objects.filter(school=school_id)
         if school_grade:
-    
+
             grades = []
             for grade in school_grade:
                 grade_dict = {}
@@ -1187,7 +1194,7 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
 
                 grades.append(grade_dict)
                 grade_dict = {}
-            serialized_data['selected_grades'] =grades
+            serialized_data['selected_grades'] = grades
         return serialized_data
 
 
