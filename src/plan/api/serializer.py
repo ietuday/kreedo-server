@@ -2,6 +2,7 @@ from functools import partial
 from traceback import print_exc
 from child.api.serializer import*
 from child.models import*
+import plan
 from session.api.serializer import*
 from rest_framework import serializers
 from ..models import*
@@ -466,6 +467,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
             update_subject_list = []
             delet_subject_list = []
             subject_plan_id = []
+            plan_grade_list = []
             for sub in subject_list:
 
                 if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
@@ -483,7 +485,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                     # delet_subject_list.append(sub_plan_qs)
                     # print("DELETE LIST----->", delet_subject_list)
 
-                    if sub['subject_plan_id']:
+                    if sub['subject_plan_id'] != "":
                         print("###")
 
                         subject_plan_id.append(sub['subject_plan_id'])
@@ -518,12 +520,15 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                         plan_grade_qs = GradeSubjectPlan.objects.filter(
                             school=sub['school'], grade=sub['grade'])[0]
 
+                        plan_grade_list.append(subject_qs.id)
+
+                        print("plan_grade_list---", plan_grade_list)
                         plan_grade_qs.subject_plan.add(subject_qs.id)
                         plan_grade_qs.save()
                         print("ADDED in Grade subject plan")
 
-            subject_plan_update_qs = GradeSubjectPlan.objects.filter(
-                subject_plan__in=subject_plan_id, school=sub['school'], grade=sub['grade'])
+            subject_plan_update_qs = SubjectPlan.objects.filter(
+                id__in=subject_plan_id, school=sub['school'], grade_subject_plan__grade=sub['grade'])
             print("subject_plan_qs---IPDATE", subject_plan_update_qs)
             subject_listtt = []
             for subject in subject_plan_update_qs:
@@ -531,8 +536,11 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
 
             print("@@@@@@@@2", subject_listtt)
 
+            plan_subject_grade_list = [*plan_grade_list, *subject_listtt]
+            print("plan_subject_grade_list--", plan_subject_grade_list)
+
             subject_plan_delet_qs = SubjectPlan.objects.filter(
-                school=sub['school'], grade_subject_plan__grade=sub['grade'])
+                ~Q(id__in=plan_subject_grade_list), school=sub['school'], grade_subject_plan__grade=sub['grade'])
 
             # subject_plan_delet_qs.filter(subject_plan)
             # if subject_plan_delet_qs.filter(subject_plan)
