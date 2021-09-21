@@ -658,6 +658,7 @@ class PeriodDelete(GeneralClass, Mixins, ListCreateAPIView):
         try:
 
             grade_dict = {
+                "period_template_to_grade": request.data.get('period_template_to_grade', None),
                 "start_date": request.data.get('start_date', None),
                 "end_date": request.data.get('end_date', None),
                 "acad_session": request.data.get('acad_session', None),
@@ -665,6 +666,7 @@ class PeriodDelete(GeneralClass, Mixins, ListCreateAPIView):
             }
             Period.objects.filter(academic_session=grade_dict['acad_session'], period_template_detail__period_template=grade_dict[
                                   'period_template'], start_date__gte=grade_dict['start_date'], end_date__lte=grade_dict['end_date']).delete()
+            PeriodTemplateToGrade.objects.filter(id=grade_dict['period_template_to_grade']).update(is_applied=False, period_status="NOTHING")
             return Response("Period Deleted", status=status.HTTP_200_OK)
 
         except Exception as ex:
