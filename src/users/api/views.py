@@ -2069,8 +2069,13 @@ class GetRoleByType(GeneralClass, Mixins, ListCreateAPIView):
             role = request.data.get('type', None)
             print("ROLE-------", role)
             print("user-----", logged_user)
+            role_obj = Role.objects.get(
+                name=role)
+            print("ROLE", role_obj)
+
             user_obj = UserRole.objects.filter(
                 user=logged_user.id, role__name=role)[0]
+            print("@@@@@@@@@@@2", user_obj)
 
             if user_obj.role.name == "School Account Owner":
                 role_obj = Role.objects.filter(
