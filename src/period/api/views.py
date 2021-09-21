@@ -607,7 +607,7 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestr
                 if 'validation_error' in period_template_grade_serializer.data:
 
                     context = {
-                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Date already exist, please select correct dates",
                         "data": []
                     }
                     return Response(context, status=status.HTTP_200_OK)
@@ -619,7 +619,7 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestr
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "statusCode": 200, "message": "Time Exists",
+                    "isSuccess": False, "statusCode": 200, "message": "Date already exist, please select correct dates",
                     "data": []
                 }
                 return Response(context)
