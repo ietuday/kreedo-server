@@ -324,6 +324,24 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             logger.debug(ex)
             return Response(ex)
 
+    def patch(self, request, pk):
+        try:
+            child_qs = Child.objects.filter(id=pk)[0]
+            child_serializer = ChildUpdateSerializer(
+                child_qs, data=request.data, partial=True)
+            if child_serializer.is_valid():
+                child_serializer.save()
+                return Response("Child updated successfully", status=status.HTTP_200_OK)
+            else:
+                return Response([], status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print("EX", ex)
+            print("@@@@@@@@@", traceback.print_exc())
+            logger.info(ex)
+            logger.debug(ex)
+            return Response(ex)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
