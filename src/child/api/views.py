@@ -438,13 +438,13 @@ class ChildDetailByChild(ListCreateAPIView):
                     child_detail_serializer = ChildDetailListSerializer(
                         child_detail_qs)
                     context = {"isSuccess": True, "message": "Child detail by child",
-                               "status": status.HTTP_200_OK, "data": child_detail_serializer.data}
+                               "statusCode": status.HTTP_200_OK, "data": child_detail_serializer.data}
                     return Response(context, status=status.HTTP_200_OK)
 
             else:
                 # return Response([], status=status.HTTP_200_OK)
                 context = {"isSuccess": False, "message": "Child detail by child not found",
-                           "status": status.HTTP_200_OK, "data": []}
+                           "statusCode": status.HTTP_200_OK, "data": []}
                 return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
