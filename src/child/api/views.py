@@ -428,15 +428,28 @@ class ChildSessionByChild(GeneralClass, Mixins, ListCreateAPIView):
 """ Child According Child detail """
 
 
-class ChildDetailByChild(GeneralClass, Mixins, ListCreateAPIView):
+class ChildDetailByChild(ListCreateAPIView):
     def get(self, request, pk):
         try:
-            child_detail_qs = ChildDetail.objects.filter(child=pk)[0]
-            child_detail_serializer = ChildDetailListSerializer(
-                child_detail_qs)
-            return Response(child_detail_serializer.data, status=status.HTTP_200_OK)
+            if ChildDetail.objects.filter(child=pk).exists():
+                child_detail_qs = ChildDetail.objects.filter(child=pk)[0]
+                print("child_detail_qs", child_detail_qs)
+                if child_detail_qs:
+                    child_detail_serializer = ChildDetailListSerializer(
+                        child_detail_qs)
+                    context = {"isSuccess": True, "message": "Child detail by child",
+                               "error": "", "data": child_detail_serializer.data}
+                    return Response(context, status=status.HTTP_200_OK)
+
+            else:
+                # return Response([], status=status.HTTP_200_OK)
+                context = {"isSuccess": False, "message": "Child detail by child not found",
+                           "error": "", "data": []}
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
+            print("EEROR", ex)
+            print("TRACEBACK", traceback.print_exc())
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -547,8 +560,9 @@ class childListAccordingToClass(GeneralClass, Mixins, ListCreateAPIView):
                         for i in child_query:
                             child_activity_count = ActivityComplete.objects.filter(
                                 child__id=i.child.id, is_completed=False,
-                            activity_reschedule_period = request.data.get('period',None)
-                                ).count()
+                                activity_reschedule_period=request.data.get(
+                                    'period', None)
+                            ).count()
                             child = {
                                 "child_id": i.child.id,
                                 "name": i.child.first_name,
