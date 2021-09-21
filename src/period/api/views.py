@@ -565,25 +565,25 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
             if failed_section:
                 sections = ",".join(failed_section)
                 context = {
-                    "isSuccess": False, "status": 200, "message": f"Period Template not save for {sections} section",
+                    "isSuccess": False, "statusCode": 200, "message": f"Period Template not save for {sections} section",
                     "data": None
                 }
                 return Response(context)
 
             context = {
-                "isSuccess": True, "status": 200, "message": f"Period Template Applied Successfully", "data": None
+                "isSuccess": True, "statusCode": 200, "message": f"Period Template Applied Successfully", "data": None
             }
             return Response(context)
         except Exception as ex:
             print("ERROR--->", ex)
             context = {
-                "isSuccess": False, "status": 200, "message": f"{ex}",
+                "isSuccess": False, "statusCode": 200, "message": f"{ex}",
                 "data": None
             }
             return Response(context)
 
 
-class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
+class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestroyAPIView):
     model = PeriodTemplateToGrade
     filterset_class = PeriodTemplateToGradeFilter
 
@@ -592,8 +592,45 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins, Retri
             return PeriodTemplateToGradeListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateToGradeCreateSerializer
-        if self.request.method == 'PATCH':
-            return PeriodTemplateToGradeUpdateSerializer
+        # if self.request.method == 'PATCH':
+        #     return PeriodTemplateToGradeUpdateSerializer
+
+    def patch(self, request, pk):
+        try:
+            period_template_grade_qs = PeriodTemplateToGrade.objects.filter(id=pk)[
+                0]
+            period_template_grade_serializer = PeriodTemplateToGradeUpdateSerializer(
+                period_template_grade_qs, data=request.data, partial=True)
+            if period_template_grade_serializer.is_valid():
+
+                period_template_grade_serializer.save()
+                if 'validation_error' in period_template_grade_serializer.data:
+
+                    context = {
+                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
+
+                context = {
+                    "isSuccess": True, "statusCode": 200, "message": "Updated",
+                    "data": []
+                }
+                return Response(context)
+            else:
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "Time Exists",
+                    "data": []
+                }
+                return Response(context)
+
+        except Exception as ex:
+            print("ERROR--->", ex)
+            context = {
+                "isSuccess": False, "status": 200, "message": f"{ex}",
+                "data": []
+            }
+            return Response(context)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
