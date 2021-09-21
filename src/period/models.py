@@ -65,7 +65,7 @@ PERIOD_STATUS = [
 
 
 class PeriodTemplate(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=40)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -135,7 +135,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
         'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(
-        max_length=50, null=True, blank=True)
+        max_length=40, null=True, blank=True)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
