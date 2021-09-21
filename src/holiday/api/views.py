@@ -48,18 +48,28 @@ class CreateSchoolHoliday(ListCreateAPIView):
     def post(self, request):
         try:
             print(request)
+            holiday_from = request.data.get('holiday_from', None)
+            holiday_till = request.data.get('holiday_till', None)
+
+            if holiday_from > holiday_till:
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "End date should be greater than start date",
+                    "data": []
+                }
+                return Response(context)
+
             holiday_serializer = CreateSchoolHolidaySerializer(
                 data=request.data)
             if holiday_serializer.is_valid():
                 holiday_serializer.save()
                 context = {
-                    "isSuccess": True, "status": 200, "message": "Holiday Save successfully",
+                    "isSuccess": True, "statusCode": 200, "message": "Holiday Save successfully",
                     "data": holiday_serializer.data
                 }
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "status": 200, "message": "Holiday already exist in this date",
+                    "isSuccess": False, "statusCode": 200, "message": "Holiday already exist in this date",
                     "data": []
                 }
                 return Response(context)
@@ -115,6 +125,17 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
     def patch(self, request, pk):
         try:
             print(request)
+
+            holiday_from = request.data.get('holiday_from', None)
+            holiday_till = request.data.get('holiday_till', None)
+
+            if holiday_from > holiday_till:
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "End date should be greater than start date",
+                    "data": []
+                }
+                return Response(context)
+
             school_holiday_qs = SchoolHoliday.objects.filter(id=pk)[0]
             print("SCHHOL Holiday", school_holiday_qs)
             holiday_serializer = UpdatedSchoolHolidaySerializer(school_holiday_qs,
@@ -125,19 +146,19 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
                 if 'validation_error' in holiday_serializer.data:
 
                     context = {
-                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Holiday already exist in this date",
+                        "isSuccess": False, "statusCode": status.HTTP_200_OK, "message": "Holiday already exist in this date",
                         "data": []
                     }
                     return Response(context, status=status.HTTP_200_OK)
 
                 context = {
-                    "isSuccess": True, "status": 200, "message": "Holiday Updated Successfully",
+                    "isSuccess": True, "statusCode": 200, "message": "Holiday Updated Successfully",
                     "data": holiday_serializer.data
                 }
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "status": 200, "message": "Holiday already exist in this date",
+                    "isSuccess": False, "statusCode": 200, "message": "Holiday already exist in this date",
                     "data": []
                 }
                 return Response(context)
