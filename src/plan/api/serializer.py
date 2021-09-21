@@ -464,9 +464,7 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
         try:
             subject_list = self.context['subject_label_data']
             remove_subject_list = self.context['remove_subject_plan']
-            update_subject_list = []
-            delet_subject_list = []
-            subject_plan_id = []
+
             plan_grade_list = []
             for sub in subject_list:
 
@@ -497,18 +495,6 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
                         plan_grade_qs.subject_plan.add(subject_qs.id)
                         plan_grade_qs.save()
                         print("ADDED in Grade subject plan")
-
-            # for sub in subject_list:
-            #     subject_plan_update_qs = SubjectPlan.objects.filter(
-            #         id__in=subject_plan_id, school=sub['school'], grade_subject_plan__grade=sub['grade'])
-            #     subject_listtt = []
-            #     for subject in subject_plan_update_qs:
-            #         subject.subject_label = sub['subject_label']
-            #         subject.save()
-            #         subject_listtt.append(subject.id)
-            #         print("Updated", subject_listtt)
-
-            #     plan_subject_grade_list = [*plan_grade_list, *subject_listtt]
 
             subject_plan_delet_qs = SubjectPlan.objects.filter(
                 id__in=remove_subject_list, school=sub['school'])
