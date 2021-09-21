@@ -467,7 +467,7 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
 
                             print("@@@@")
                             period_acade_qs = PeriodTemplateToGrade.objects.filter(
-                                academic_session=academic_qs.id).exclude(start_date__gte=start_time, end_date__lte=end_time)
+                                academic_session=academic_qs.id).exclude(Q(end_date__lt=start_time) | Q(start_date__gt=end_time))
                             print("period_acade_qs", period_acade_qs)
                         else:
 
@@ -689,7 +689,8 @@ class PeriodDelete(GeneralClass, Mixins, ListCreateAPIView):
             }
             Period.objects.filter(academic_session=grade_dict['acad_session'], period_template_detail__period_template=grade_dict[
                                   'period_template'], start_date__gte=grade_dict['start_date'], end_date__lte=grade_dict['end_date']).delete()
-            PeriodTemplateToGrade.objects.filter(id=grade_dict['period_template_to_grade']).update(is_applied=False, period_status="NOTHING")
+            PeriodTemplateToGrade.objects.filter(id=grade_dict['period_template_to_grade']).update(
+                is_applied=False, period_status="NOTHING")
             return Response("Period Deleted", status=status.HTTP_200_OK)
 
         except Exception as ex:
