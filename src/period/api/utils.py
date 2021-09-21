@@ -205,16 +205,20 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             print("SectionSubjectTeacher---",
                                   SectionSubjectTeacher.objects.all())
                             teacher_id = SectionSubjectTeacher.objects.filter(
-                                subject=period.subject.id, academic_session=acad_session)[0]
-                            print("teacher_id---", teacher_id.teacher)
-                            print(period)
+                                subject=period.subject.id, academic_session=acad_session)
+                            if teacher_id: 
+                                teacher_id = teacher_id[0]
+                                period_dict['teacher'] = [teacher_id.teacher]
+
+                            # print("teacher_id---", teacher_id.teacher)
+                            # print(period)
                             # pdb.set_trace()
                             period_dict['period_template_detail'] = period.id
                             period_dict['academic_session'] = [acad_session]
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
-                            period_dict['teacher'] = [teacher_id.teacher]
+                            
                             period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time
