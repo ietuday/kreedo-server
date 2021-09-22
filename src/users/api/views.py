@@ -1948,6 +1948,57 @@ class AccountListCreate(GeneralClass, Mixins, ListCreateAPIView):
             return Response(ex)
 
 
+class ExportAccountList(GeneralClass, Mixins, ListAPIView):
+
+      def get(self, request):
+        try:
+            account_list = []
+            user_obj = UserDetail.objects.filter(
+                role__name__in=['School Account Owner'])
+                
+            user_obj_serializer = AccountUserListSerializer(
+                user_obj, many=True)
+            for user in user_obj_serializer.data:
+                account_list.append(
+                                {
+                                    "id":  user['user_obj']['id'],
+                                    "email": user['user_obj']['email'] if user['user_obj']['email'] else "",
+                                    "location": user['address']['city'] if user['address']['city'] else "",
+                                    "licence": user['no_of_license'] if user['no_of_license'] else 0,
+                                    "phone": user['phone'] if user['phone'] else "",
+                                    "registration_date": user['created_at'],
+                                    "is_active": user['user_obj']['is_active'] if user['user_obj']['is_active'] else False
+                                }
+                )
+
+
+            keys = account_list[0].keys()
+            with open('output.csv', 'w', newline='') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(account_list)
+
+            fs = FileStorage()
+            fs.bucket.meta.client.upload_file(
+                'output.csv', 'kreedo-new', 'files/output.csv')
+            path_to_file = 'https://' + \
+                str(fs.custom_domain) + '/files/output.csv'
+            print(path_to_file)
+                
+            return Response(path_to_file, status=status.HTTP_200_OK)
+
+        except Exception as ex:
+            print(ex)
+            print(traceback.format_exc())
+            logger.debug(ex)
+            # return Response(ex)
+            context = {"isSuccess": False, "message": "Issue in Accounts List",
+                       "error": ex, "data": []}
+            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 """ Update Account API """
 
 
