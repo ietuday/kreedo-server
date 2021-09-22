@@ -397,46 +397,46 @@ class PeriodTemplateToGradeUpdateSerializer(serializers.ModelSerializer):
         model = PeriodTemplateToGrade
         fields = '__all__'
 
-    def to_representation(self, instance):
-        instance = super(PeriodTemplateToGradeUpdateSerializer,
-                         self).to_representation(instance)
-        print("@@@@@@@@@ to representation", self.context)
-        if 'validation_error' in self.context:
-            instance['validation_error'] = self.context['validation_error']
-        return instance
+    # def to_representation(self, instance):
+    #     instance = super(PeriodTemplateToGradeUpdateSerializer,
+    #                      self).to_representation(instance)
+    #     print("@@@@@@@@@ to representation", self.context)
+    #     if 'validation_error' in self.context:
+    #         instance['validation_error'] = self.context['validation_error']
+    #     return instance
 
-    def update(self, instance, validated_data):
-        try:
-            print("################3")
-            # print("validated_data-----------", validated_data)
-            # print("###############", self)
+    # def update(self, instance, validated_data):
+    #     try:
+    #         print("################3")
+    #         # print("validated_data-----------", validated_data)
+    #         # print("###############", self)
 
-            start_date = validated_data['start_date']
-            end_date = validated_data['end_date']
-            instance = self.instance
-            if (instance.start_date != start_date and instance.end_date != end_date) or (instance.end_date != end_date) or (instance.start_date != start_date):
-                period_temp_qs = PeriodTemplateToGrade.objects.filter(~Q(id=instance.pk)).exclude(
-                    Q(end_date__lte=start_date) |
-                    Q(start_date__gte=end_date)
-                )
+    #         start_date = validated_data['start_date']
+    #         end_date = validated_data['end_date']
+    #         instance = self.instance
+    #         if (instance.start_date != start_date and instance.end_date != end_date) or (instance.end_date != end_date) or (instance.start_date != start_date):
+    #             period_temp_qs = PeriodTemplateToGrade.objects.filter(~Q(id=instance.pk)).exclude(
+    #                 Q(end_date__lte=start_date) |
+    #                 Q(start_date__gte=end_date)
+    #             )
 
-            print("Serializer---->", period_temp_qs)
+    #         print("Serializer---->", period_temp_qs)
 
-            if period_temp_qs:
-                validation_error = "Time Exist"
-                self.context.update({"validation_error": validation_error})
-                return validated_data
-            else:
-                period_template_qs = PeriodTemplateToGrade.objects.filter(
-                    pk=instance.pk).update(**validated_data)
-                print("Update")
-                return instance
-                # return validated_data
+    #         if period_temp_qs:
+    #             validation_error = "Time Exist"
+    #             self.context.update({"validation_error": validation_error})
+    #             return validated_data
+    #         else:
+    #             period_template_qs = PeriodTemplateToGrade.objects.filter(
+    #                 pk=instance.pk).update(**validated_data)
+    #             print("Update")
+    #             return instance
+    #             # return validated_data
 
-        except Exception as ex:
-            print("ERROR", ex)
-            print("TRACEBACK", traceback.print_exc())
-            return ValidationError(ex)
+    #     except Exception as ex:
+    #         print("ERROR", ex)
+    #         print("TRACEBACK", traceback.print_exc())
+    #         return ValidationError(ex)
 
 
 """PeriodTemplateToGrade  for template listSerializer """

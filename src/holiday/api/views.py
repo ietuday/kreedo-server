@@ -57,6 +57,14 @@ class CreateSchoolHoliday(ListCreateAPIView):
                     "data": []
                 }
                 return Response(context)
+            if SchoolHoliday.objects.filter(title=request.data.get('title', None)).exists():
+
+                print("EXIST")
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "Holiday with this name already exists",
+                    "data": []
+                }
+                return Response(context)
 
             holiday_serializer = CreateSchoolHolidaySerializer(
                 data=request.data)
@@ -69,8 +77,8 @@ class CreateSchoolHoliday(ListCreateAPIView):
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "statusCode": 200, "message": "Holiday already exist in this date",
-                    "data": []
+                    "isSuccess": False, "statusCode": 200, "message": "Issue in Holiday",
+                    "data": holiday_serializer.errors
                 }
                 return Response(context)
 
@@ -135,6 +143,15 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
                     "data": []
                 }
                 return Response(context)
+            if SchoolHoliday.objects.filter(title=request.data.get('title', None)).exists():
+
+                print("EXIST")
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "Holiday with this name already exists",
+                    "data": []
+                }
+
+                return Response(context)
 
             school_holiday_qs = SchoolHoliday.objects.filter(id=pk)[0]
             print("SCHHOL Holiday", school_holiday_qs)
@@ -143,13 +160,6 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
 
             if holiday_serializer.is_valid():
                 holiday_serializer.save()
-                if 'validation_error' in holiday_serializer.data:
-
-                    context = {
-                        "isSuccess": False, "statusCode": status.HTTP_200_OK, "message": "Holiday already exist in this date",
-                        "data": []
-                    }
-                    return Response(context, status=status.HTTP_200_OK)
 
                 context = {
                     "isSuccess": True, "statusCode": 200, "message": "Holiday Updated Successfully",
@@ -158,8 +168,8 @@ class UpdateSchoolHoliday(RetrieveUpdateDestroyAPIView):
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "statusCode": 200, "message": "Holiday already exist in this date",
-                    "data": []
+                    "isSuccess": False, "statusCode": 200, "message": "Issue in Holiday",
+                    "data": holiday_serializer.errors
                 }
                 return Response(context)
 
