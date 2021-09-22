@@ -592,8 +592,8 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins, Retri
             return PeriodTemplateToGradeListSerializer
         if self.request.method == 'PUT':
             return PeriodTemplateToGradeCreateSerializer
-        # if self.request.method == 'PATCH':
-        #     return PeriodTemplateToGradeUpdateSerializer
+        if self.request.method == 'PATCH':
+            return PeriodTemplateToGradeUpdateSerializer
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -605,7 +605,7 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, pk):
         try:
-            print("###########")
+
             start_date = request.data.get('start_date', None)
             end_date = request.data.get('end_date', None)
             period_template_grade_qs = PeriodTemplateToGrade.objects.filter(id=pk)[
@@ -642,8 +642,7 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
                     return Response(context)
 
         except Exception as ex:
-            print("ERROR--->", ex)
-            print("traceback", traceback.print_exc())
+
             context = {
                 "isSuccess": False, "status": 200, "message": f"{ex}",
                 "data": []

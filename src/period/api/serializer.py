@@ -388,7 +388,6 @@ class PeriodTemplateToGradeCreateSerializer(serializers.ModelSerializer):
         academic_session.is_applied = True
         academic_session.save()
         instance.save()
-        print("SAVE")
         return validated_data
 
 
