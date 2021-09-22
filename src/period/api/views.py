@@ -605,14 +605,14 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
 
     def patch(self, request, pk):
         try:
+            print("###########")
             start_date = request.data.get('start_date', None)
             end_date = request.data.get('end_date', None)
             period_template_grade_qs = PeriodTemplateToGrade.objects.filter(id=pk)[
                 0]
-            if PeriodTemplateToGrade.objects.filter(~Q(id=period_template_grade_qs.pk)).exclude(
-                Q(end_date__lte=start_date) |
-                Q(start_date__gte=end_date)
-            ).exist():
+            if PeriodTemplateToGrade.objects.filter(~Q(id=pk),
+                                                    academic_session=period_template_grade_qs.academic_session.id).exclude(Q(end_date__lt=start_date) | Q(start_date__gt=end_date)).exists():
+
                 print("EXIST")
                 context = {
                     "isSuccess": False, "statusCode": 200, "message": "Date already exist, please select correct dates",
@@ -640,8 +640,8 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
                 return Response(context)
             else:
                 context = {
-                    "isSuccess": False, "statusCode": 200, "message": "Date already exist, please select correct dates",
-                    "data": []
+                    "isSuccess": False, "statusCode": 200, "message": "Issue in Update Period template to grade",
+                    "data": period_template_grade_serializer.errors
                 }
                 return Response(context)
 
