@@ -187,20 +187,21 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
             print(week_off)
             logger.info("week_off",week_off)
             for key, value in week_off.items():
+                logger.info("week_off",key,value)
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=acad_session).count()
-
+                    logger.info("schoolHoliday_count",schoolHoliday_count)
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
 
                         period_dict = {}
-
+                        logger.info("schoolHoliday_count",schoolHoliday_count)
                         for period in period_list:
-                            print("period.subject.id----", period.subject.id)
-                            print("acad_session-----", acad_session)
-                            print("SectionSubjectTeacher---",
+                            logger.info("period.subject.id----", period.subject.id)
+                            logger.info("acad_session-----", acad_session)
+                            logger.info("SectionSubjectTeacher---",
                                   SectionSubjectTeacher.objects.all())
                             teacher_id = SectionSubjectTeacher.objects.filter(
                                 subject=period.subject.id, academic_session=acad_session)
