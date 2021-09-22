@@ -2,6 +2,7 @@ from schools.models import *
 import traceback
 
 from django.core.serializers import serialize
+from rest_framework import serializers
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 
@@ -29,19 +30,20 @@ logger.addHandler(handler)
 logger.info("UTILS Period CAlled ")
 
 
-class PeriodCreateSerializer(serializers.ModelSerializer):
+class PeriodThreadCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
 
     def create(self, validated_data):
         try:
+            print(validated_data)
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
                                          start_time=validated_data['start_time'], end_time=validated_data['end_time'],
-                                         academic_session=validated_data['academic_session']).count()
+                                         academic_session__in=validated_data['academic_session']).count()
             if p_qs == 0:
                 print("###################", validated_data)
-                data = super(PeriodCreateSerializer,
+                data = super(PeriodThreadCreateSerializer,
                              self).create(validated_data)
                 return data
             else:
@@ -185,24 +187,24 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
             week_off = weakoff_list(grade_dict)[0]
             day_according_to_date = day_according_to_date.lower()
             print(week_off)
-            logger.info("week_off",week_off)
+            logger.info("week_off")
+            logger.info("week_off.items()")
             for key, value in week_off.items():
-                logger.info("week_off",key,value)
+                logger.info("week_off")
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=acad_session).count()
-                    logger.info("schoolHoliday_count",schoolHoliday_count)
+                    logger.info("schoolHoliday_count")
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
 
                         period_dict = {}
-                        logger.info("schoolHoliday_count",schoolHoliday_count)
+                        logger.info("schoolHoliday_count")
                         for period in period_list:
-                            logger.info("period.subject.id----", period.subject.id)
-                            logger.info("acad_session-----", acad_session)
-                            logger.info("SectionSubjectTeacher---",
-                                  SectionSubjectTeacher.objects.all())
+                            logger.info("period.subject.id----")
+                            logger.info("acad_session-----")
+                            logger.info("SectionSubjectTeacher---")
                             teacher_id = SectionSubjectTeacher.objects.filter(
                                 subject=period.subject.id, academic_session=acad_session)
                             if teacher_id:
@@ -232,7 +234,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time'], period_template_detail=period.id, room=period.room.id).count()
                             if p_qs == 0:
-                                period_serializer = PeriodCreateSerializer(
+                                period_serializer = PeriodThreadCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
                                     period_serializer.save()
