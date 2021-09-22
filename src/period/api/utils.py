@@ -246,11 +246,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             else:
                                 print("Period Already Created")
         period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                                  start_date=start_date, end_date=end_date, period_template=period_template)
-        if period_to_grade_qs:
-            period_to_grade_qs[0].is_applied = True
-            period_to_grade_qs[0].period_status = "COMPLETE"
-            period_to_grade_qs[0].save()
+                                                                  start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="COMPLETE",is_applied = True)
 
         return "Period Creating....."
     except Exception as ex:
@@ -261,13 +257,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
         
         print("@@@@@@@", traceback.print_exc())
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date, period_template=period_template)
-        if period_qs:
-            logger.info(period_qs)
-            period_qs[0].period_status = "FAILED"
-            period_qs[0].save()
-
-
+                                                         start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="FAILED",is_applied = False)
         raise ValidationError(ex)
 
 
