@@ -37,6 +37,9 @@ urlpatterns = [
          name='PeriodTemplateSaveToGrade'),
     path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
+    path('update_period_template_apply_to_grade/<int:pk>', UpdatePeriodTemplateToGrade.as_view(),
+         name='UpdatePeriodTemplateToGrade'),
+
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
     path('period_delete',
