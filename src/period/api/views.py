@@ -610,6 +610,7 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
             end_date = request.data.get('end_date', None)
             period_template_grade_qs = PeriodTemplateToGrade.objects.filter(id=pk)[
                 0]
+            print("period_template_grade_qs", period_template_grade_qs)
             if PeriodTemplateToGrade.objects.filter(~Q(id=pk),
                                                     academic_session=period_template_grade_qs.academic_session.id).exclude(Q(end_date__lt=start_date) | Q(start_date__gt=end_date)).exists():
 
@@ -619,34 +620,30 @@ class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
                     "data": []
                 }
                 return Response(context)
-
-            period_template_grade_serializer = PeriodTemplateToGradeUpdateSerializer(
-                period_template_grade_qs, data=request.data, partial=True)
-            if period_template_grade_serializer.is_valid():
-
-                period_template_grade_serializer.save()
-                # if 'validation_error' in period_template_grade_serializer.data:
-
-                #     context = {
-                #         "isSuccess": False, "status": status.HTTP_200_OK, "message": "Date already exist, please select correct dates",
-                #         "data": []
-                #     }
-                #     return Response(context, status=status.HTTP_200_OK)
-
-                context = {
-                    "isSuccess": True, "statusCode": 200, "message": "Updated",
-                    "data": []
-                }
-                return Response(context)
             else:
-                context = {
-                    "isSuccess": False, "statusCode": 200, "message": "Issue in Update Period template to grade",
-                    "data": period_template_grade_serializer.errors
-                }
-                return Response(context)
+                period_template_grade_serializer = PeriodTemplateToGradeUpdateSerializer(
+                    period_template_grade_qs, data=request.data, partial=True)
+                if period_template_grade_serializer.is_valid():
+                    period_template_grade_serializer.save()
+
+                    context = {
+                        "isSuccess": True, "statusCode": 200, "message": "Updated Successfully",
+                        "data": period_template_grade_serializer.data
+                    }
+                    return Response(context)
+                else:
+
+                    print('period_template_grade_serializer.errors---',
+                          period_template_grade_serializer.errors)
+                    context = {
+                        "isSuccess": False, "statusCode": 200, "message": "Issue in Update Period template to grade",
+                        "data": period_template_grade_serializer.errors
+                    }
+                    return Response(context)
 
         except Exception as ex:
             print("ERROR--->", ex)
+            print("traceback", traceback.print_exc())
             context = {
                 "isSuccess": False, "status": 200, "message": f"{ex}",
                 "data": []
