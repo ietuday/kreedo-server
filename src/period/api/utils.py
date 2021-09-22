@@ -170,6 +170,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
             "acad_session": acad_session,
             "period_template": period_template
         }
+        logger.info("grade_dict",grade_dict)
         print(grade, section, start_date, end_date, acad_session)
         from_date = datetime.strptime(start_date, '%Y-%m-%d')
         to_date = datetime.strptime(end_date, '%Y-%m-%d')
