@@ -254,16 +254,19 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
 
         return "Period Creating....."
     except Exception as ex:
+        logger.debug(ex)
+        logger.info(ex)
         print("%%%%%%%55", ex)
+        
         print("@@@@@@@", traceback.print_exc())
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
                                                          start_date=start_date, end_date=end_date, period_template=period_template)
         if period_qs:
+            logger.info(period_qs)
             period_qs[0].period_status = "FAILED"
             period_qs[0].save()
 
-        logger.debug(ex)
-        logger.info(ex)
+
         raise ValidationError(ex)
 
 
