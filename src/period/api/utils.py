@@ -185,6 +185,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
             week_off = weakoff_list(grade_dict)[0]
             day_according_to_date = day_according_to_date.lower()
             print(week_off)
+            logger.info("week_off",week_off)
             for key, value in week_off.items():
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
