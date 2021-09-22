@@ -22,6 +22,9 @@ urlpatterns = [
          PeriodListCreate.as_view(), name='PeriodListCreate'),
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
          name='PeriodRetriveUpdateDestroy'),
+    path('update_period/<int:pk>', UpdatePeriod.as_view(),
+         name='UpdatePeriod'),
+
 
     path('classes_by_teacher_list',
          ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),

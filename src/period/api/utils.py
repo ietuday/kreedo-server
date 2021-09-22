@@ -37,7 +37,8 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
-                                         start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+                                         start_time=validated_data['start_time'], end_time=validated_data['end_time'],
+                                         academic_session=validated_data['academic_session']).count()
             if p_qs == 0:
                 print("###################", validated_data)
                 data = super(PeriodCreateSerializer,
@@ -206,7 +207,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                                   SectionSubjectTeacher.objects.all())
                             teacher_id = SectionSubjectTeacher.objects.filter(
                                 subject=period.subject.id, academic_session=acad_session)
-                            if teacher_id: 
+                            if teacher_id:
                                 teacher_id = teacher_id[0]
                                 period_dict['teacher'] = [teacher_id.teacher]
 
@@ -218,7 +219,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
-                            
+
                             period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time
