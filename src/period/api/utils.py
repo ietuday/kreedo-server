@@ -176,13 +176,8 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
         delta = to_date - from_date  # as timedelta
         print("grade", grade_dict)
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date, period_template=period_template)
-
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", period_qs)
-        if period_qs:
-            period_qs[0].period_status = "PENDING"
-            period_qs[0].save()
-
+                                                         start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="PENDING")
+        logger.info(period_qs)
         for i in range(delta.days + 1):
             day = from_date + timedelta(days=i)
             day_according_to_date = check_date_day(str(day.date()))
