@@ -254,8 +254,9 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
 
         return "Period Creating....."
     except Exception as ex:
+        
         logger.debug(ex)
-        logger.info(ex)
+        logger.info(traceback.print_exc())
         print("%%%%%%%55", ex)
         
         print("@@@@@@@", traceback.print_exc())
