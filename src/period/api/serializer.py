@@ -151,7 +151,8 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
         try:
             print("validated_data", validated_data)
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
-                                         start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+                                         start_time=validated_data['start_time'], end_time=validated_data['end_time'],
+                                         academic_session=validated_data['academic_session']).count()
             if p_qs == 0:
                 data = super(PeriodCreateSerializer,
                              self).create(validated_data)
