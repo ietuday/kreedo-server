@@ -1,4 +1,5 @@
 from functools import partial
+import re
 from django.shortcuts import render
 
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveAPIView
@@ -103,6 +104,61 @@ class PeriodRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIV
             return PeriodCreateSerializer
         if self.request.method == 'DELETE':
             return PeriodListSerializer
+
+
+class UpdatePeriod(RetrieveUpdateDestroyAPIView):
+    def put(self, request, pk):
+        try:
+            start_time = request.data.get('start_time', None)
+            end_time = request.data.get('end_time', None)
+            room = request.data.get('room', None)
+            period_template = request.data.get('period_template', None)
+            period_qs = Period.objects.filter(id=pk)[0]
+            period_qs_data = Period.objects.filter(~Q(id=pk), room=room, period_template_detail=period_template).exclude(
+                Q(end_time__lte=start_time) |
+                Q(start_time__gte=end_time),)
+            print("period_qs_data", period_qs_data)
+            if period_qs_data:
+                context = {
+                    "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                    "data": []
+                }
+                return Response(context, status=status.HTTP_200_OK)
+
+            period_qs_serializer = PeriodUpdateSerializer(
+                period_qs, data=request.data, partial=True)
+            if period_qs_serializer.is_valid():
+                period_qs_serializer.save()
+
+                # if 'validation_error' in period_qs_serializer.data:
+
+                #     context = {
+                #         "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                #         "data": []
+                #     }
+                #     return Response(context, status=status.HTTP_200_OK)
+
+                context = {
+                    "isSuccess": True, "status": 200, "message": "period updated sucessfully",
+                    "data": period_qs_serializer.data
+                }
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                print(period_qs_serializer.errors)
+                context = {
+                    "isSuccess": False, "status": 200, "message": "Issue in Period Updation",
+                    "data": period_qs_serializer.errors
+                }
+                return Response(context, status=status.HTTP_200_OK)
+        except Exception as ex:
+            print(ex)
+            print(traceback.print_exc)
+            context = {
+                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
+                "data": []
+            }
+            return Response(context, status=status.HTTP_200_OK)
+            # return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 """PeriodTemplateDetail List and Create """
