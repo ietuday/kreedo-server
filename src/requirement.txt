@@ -18,7 +18,6 @@ MarkupPy==1.14
 numpy==1.19.5
 odfpy==1.4.1
 openpyxl==3.0.7
-pandas==1.2.4
 passlib==1.7.4
 psycopg2-binary==2.8.6
 pycodestyle==2.7.0

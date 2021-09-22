@@ -751,7 +751,7 @@ class SchoolCalendarBySchool(RetrieveUpdateDestroyAPIView):
                 print(school_calander_qs)
                 context = {
                     "isSuccess": False, "message": "School calander not vailable", "statusCode": status.HTTP_200_OK, "data": ""}
-                return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR----->", ex)
