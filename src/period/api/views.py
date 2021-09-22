@@ -583,7 +583,7 @@ class PeriodTemplateSaveToGrade(ListCreateAPIView):
             return Response(context)
 
 
-class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestroyAPIView):
+class PeriodTemplateAppyToGradesRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIView):
     model = PeriodTemplateToGrade
     filterset_class = PeriodTemplateToGradeFilter
 
@@ -595,22 +595,43 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestr
         # if self.request.method == 'PATCH':
         #     return PeriodTemplateToGradeUpdateSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_200_OK)
+
+
+class UpdatePeriodTemplateToGrade(RetrieveUpdateDestroyAPIView):
+
     def patch(self, request, pk):
         try:
+            start_date = request.data.get('start_date', None)
+            end_date = request.data.get('end_date', None)
             period_template_grade_qs = PeriodTemplateToGrade.objects.filter(id=pk)[
                 0]
+            if PeriodTemplateToGrade.objects.filter(~Q(id=period_template_grade_qs.pk)).exclude(
+                Q(end_date__lte=start_date) |
+                Q(start_date__gte=end_date)
+            ).exist():
+                print("EXIST")
+                context = {
+                    "isSuccess": False, "statusCode": 200, "message": "Date already exist, please select correct dates",
+                    "data": []
+                }
+                return Response(context)
+
             period_template_grade_serializer = PeriodTemplateToGradeUpdateSerializer(
                 period_template_grade_qs, data=request.data, partial=True)
             if period_template_grade_serializer.is_valid():
 
                 period_template_grade_serializer.save()
-                if 'validation_error' in period_template_grade_serializer.data:
+                # if 'validation_error' in period_template_grade_serializer.data:
 
-                    context = {
-                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Date already exist, please select correct dates",
-                        "data": []
-                    }
-                    return Response(context, status=status.HTTP_200_OK)
+                #     context = {
+                #         "isSuccess": False, "status": status.HTTP_200_OK, "message": "Date already exist, please select correct dates",
+                #         "data": []
+                #     }
+                #     return Response(context, status=status.HTTP_200_OK)
 
                 context = {
                     "isSuccess": True, "statusCode": 200, "message": "Updated",
@@ -631,11 +652,6 @@ class PeriodTemplateAppyToGradesRetriveUpdateDestroy(Mixins, RetrieveUpdateDestr
                 "data": []
             }
             return Response(context)
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_200_OK)
 
 
 """ Period List and Create """
