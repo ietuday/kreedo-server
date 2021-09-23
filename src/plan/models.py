@@ -76,7 +76,7 @@ class Plan(TimestampAwareModel):
 
 class PlanActivity(TimestampAwareModel):
     plan = models.ForeignKey(
-        'Plan', on_delete=models.PROTECT, null=True, blank=True)
+        'Plan', on_delete=models.PROTECT, null=True, blank=True,related_name='plan_activity')
     activity = models.ForeignKey(
         to='activity.Activity', on_delete=models.PROTECT, null=True, blank=True)
     sort_no = models.IntegerField(null=True, blank=True)
@@ -117,6 +117,17 @@ class SubjectSchoolGradePlan(TimestampAwareModel):
     def get_absolute_url(self):
         return reverse('SubjectSchoolGradePlan_detail', kwargs={"pk": self.pk})
 
+
+class ChildSubjectPlan(TimestampAwareModel):
+    child = models.ForeignKey(
+        to='child.Child', on_delete=models.PROTECT, related_name='child_subject_plan', null=True, blank=True)
+    subject = models.ForeignKey(to='schools.Subject',related_name='child_subject',on_delete=models.PROTECT,null=True, blank=True)
+    plan = models.ForeignKey(to='plan.Plan', on_delete=models.PROTECT, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'ChildSubjectPlan'
+        verbose_name_plural = 'ChildSubjectPlans'
+        ordering = ['-id']
 
 class GradeSubjectPlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
@@ -170,13 +181,14 @@ class ChildPlan(TimestampAwareModel):
         'SubjectSchoolGradePlan', on_delete=models.PROTECT, null=True, blank=True)
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
-    subjects = models.ManyToManyField(to='schools.Subject')
+    # subjects = models.ManyToManyField(to='schools.Subject')
     current_start_date = models.DateField(null=True, blank=True)
     current_end_date = models.DateField(null=True, blank=True)
     class_teacher = models.ForeignKey(
         to='users.UserDetail', on_delete=models.PROTECT, null=True, blank=True)
     kreedo_previous_session = models.CharField(
         max_length=5, default="No")
+    subject_plan = models.ManyToManyField(to='plan.ChildSubjectPlan',blank=True)
     curriculum_start_date = models.DateField(null=True, blank=True)
 
     published = models.BooleanField(default=False)
@@ -194,3 +206,9 @@ class ChildPlan(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ChildPlan_detail', kwargs={"pk": self.pk})
+
+
+
+
+
+

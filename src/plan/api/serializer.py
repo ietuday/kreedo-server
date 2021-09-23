@@ -15,6 +15,8 @@ from rest_framework.serializers import (
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.models import*
+from child.api.utils import get_range_of_days_in_session
+from .utils import *
 
 """ Logging """
 
@@ -253,13 +255,25 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = ['child', 'academic_session',
-                  'subjects', 'curriculum_start_date']
+                   'curriculum_start_date']
 
 
 class ChildPlanUpdateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = '__all__'
+
+    def validate(self,validated_data):
+        instance = self.instance
+        context = self.context
+        if validated_data['curriculum_start_date'] != instance.curriculum_start_date:
+            range_of_working_days = get_range_of_days_in_session(validated_data['curriculum_start_date'],validated_data['academic_session'])
+        else:
+            range_of_working_days = instance.range_of_working_days
+        subject_plan = update_subject_plan(context['subjects'],instance.child,range_of_working_days)
+        instance.subject_plan.set(subject_plan)
+        instance.save()
+        return validated_data
 
 
 class ChildPlanSerializer(serializers.ModelSerializer):
@@ -517,6 +531,18 @@ class SubjectSchoolGradeCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+""" ChildSubjectPlan create serializer"""
+class ChildSubjectPlanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSubjectPlan
+        fields = '__all__'
+
+
+""" ChildSubjectPlan list serializer"""
+class ChildSubjectPlanListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChildSubjectPlan
+        fields = '__all__'
 class GradesBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
