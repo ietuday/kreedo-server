@@ -9,13 +9,10 @@ urlpatterns = [
          PeriodTemplateList.as_view(), name='PeriodTemplateList'),
     path('period_template_retrive_update_delete/<int:pk>', PeriodTemplateRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateRetriveUpdateDestroy'),
-
     path('period_template_detail_list_create',
          PeriodTemplateDetailListCreate.as_view(), name='PeriodTemplateDetailListCreate'),
-
     path('period_template_detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
-
     path('update_period_template_detail/<int:pk>', UpdatePeriodTemplateDetail.as_view(),
          name='UpdatePeriodTemplateDetail'),
     path('period_list_create',
@@ -24,11 +21,8 @@ urlpatterns = [
          name='PeriodRetriveUpdateDestroy'),
     path('update_period/<int:pk>', UpdatePeriod.as_view(),
          name='UpdatePeriod'),
-
-
     path('classes_by_teacher_list',
          ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),
-
     path('activity_by_child', ActivityByChild.as_view(), name='ActivityByChild'),
     path('activity_list_by_child', ActivityListByChild.as_view(),
          name='ActivityListByChild'),
@@ -42,7 +36,6 @@ urlpatterns = [
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
     path('update_period_template_apply_to_grade/<int:pk>', UpdatePeriodTemplateToGrade.as_view(),
          name='UpdatePeriodTemplateToGrade'),
-
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
     path('period_delete',
