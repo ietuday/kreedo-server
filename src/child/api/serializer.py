@@ -430,7 +430,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
             registered_by = validated_data.pop('registered_by')
             school = validated_data.pop('school')
             print("validated_data", validated_data)
-    
+            
             child_instance = Child.objects.create(**validated_data)
             child_instance.registered_by = registered_by
             child_instance.school = school
@@ -451,6 +451,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                             name="Parent")[0].id
                         type_id = UserType.objects.filter(
                             name='School Users-Parent')[0].id
+                       
                         parent_data = {
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
@@ -487,7 +488,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                     raise ValidationError(ex)
 
             validated_data['parent'] = parent_list
-
+            
             child_instance.parent.set(validated_data['parent'])
 
             child_instance.save()
@@ -527,7 +528,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                         child_plan = child_instance.child_plan.all()[0]
                         acad_session_qs = AcademicCalender.objects.filter(
                             id=acad_session)
-
+                       
                         subject_plan = get_subject_plan(subject_list,child_instance,range_of_working_days)
                         
                         child_plan.subject_plan.set(subject_plan)

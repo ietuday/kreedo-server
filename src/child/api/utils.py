@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from schools.models import Subject
 import random
 import pdb
+from datetime import date
 
 
 """ Calculate Working Days """
@@ -65,7 +66,7 @@ def get_range_of_days_in_session(start_date,academic_session):
 
 
 def calculate_no_of_working_days_for_child(academic_session,start_date):
-
+    
     total_week_offs = SchoolWeakOff.objects.filter(
                                             academic_session=academic_session
                                             ).count()
@@ -74,11 +75,12 @@ def calculate_no_of_working_days_for_child(academic_session,start_date):
                                             academic_session=academic_session
                                             ).count()
 
-    date_diff = academic_session.session_till - start_date
+    date_list = start_date.split('-')
+    start_date_list = [int(num) for num in date_list]
+    curriculum_start_date = date(start_date_list[0],start_date_list[1],start_date_list[2])
+    date_diff = academic_session.session_till - curriculum_start_date
     total_days = date_diff.days
-
     total_working_days = total_days - (total_week_offs + total_school_holidays)
-
     return total_working_days
 
 
@@ -102,7 +104,7 @@ def get_subject_plan(subject_list,child,range_of_working_days):
                                                             subject=subject,
                                                             plan=plan
                                                             )
-                
+
         else:
             plan_record = Plan.objects.filter(
                                         subject=subject,

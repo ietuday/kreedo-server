@@ -81,7 +81,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                "registered_by": request.user,
+                "registered_by": request.user, #request.user
                 "school": School.objects.filter(id=request.data.get('school', None))[0].id,
                 "is_active":  request.data.get('is_active', False)
 
@@ -103,6 +103,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
+            
             academic_session_detail = {
                 "academic_session": request.data.get('academic_session', None),
                 "section": request.data.get('section', None),
@@ -112,7 +113,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "subjects": request.data.get('subjects', []),
                 "kreedo_previous_session": request.data.get('kreedo_previous_session', "No"),
             }
-
+            
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
