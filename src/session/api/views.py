@@ -546,6 +546,7 @@ class AssociateAcademicSession(RetrieveUpdateDestroyAPIView):
 
 
 class DownloadCalendar(ListCreateAPIView):
+    from datetime import datetime
 
     def post(self, request, *args, **kwargs):
         try:
@@ -564,39 +565,52 @@ class DownloadCalendar(ListCreateAPIView):
             months_list = ["", "Jan", "Feb", "Mar", "Apr", "May",
                            "Jun", "Jul", "Aug", "Sep", "Oct",  "Nov", "Dec"]
             generated_month_list = Genrate_Month(start_date, end_date)
-            print("generated_month_list", generated_month_list)
+            print("generated_month_list------>", generated_month_list)
             if calendar_type == 'school-calender':
                 school_calender_qs = SchoolCalendar.objects.filter(
                     school=school)
+                print("school_calender_qs--------", school_calender_qs)
                 if len(school_calender_qs) is not 0:
                     # print(school_calender_qs[0].id)
                     school_calender_holiday_qs = SchoolHoliday.objects.filter(
                         school_calender=school_calender_qs[0].id, school=school)
                     schoolHolidayListSerializer = SchoolHolidaySerializer(
                         school_calender_holiday_qs, many=True)
-                    # print(school_calender_holiday_qs)
+                    print("@@@@@@SCHHOL HOLIDAY", school_calender_holiday_qs)
+                    print("schoolHolidayListSerializer------",
+                          schoolHolidayListSerializer)
                     result['holidays'] = schoolHolidayListSerializer.data
-                    start_date_time_obj = datetime.datetime.strptime(
+                    start_date_time_obj = datetime.strptime(
                         start_date, '%d-%m-%Y')
-                    end_date_time_obj = datetime.datetime.strptime(
+                    end_date_time_obj = datetime.strptime(
                         end_date, '%d-%m-%Y')
-
+                    print("start_date_time_obj------", start_date_time_obj)
+                    print("end_date_time_obj--------", end_date_time_obj)
                     months = []
                     for dt in daterange(start_date_time_obj, end_date_time_obj):
+                        print("DT-------->", dt.date().month,
+                              dt.date().year, dt.date(), request.data)
                         if months_list[dt.date().month] + "-" + str(dt.date().year) in generated_month_list:
-                            print(months_list[dt.date().month] +
-                                  "-" + str(dt.date().year))
+
                             month_dict = {
                                 "month": months_list[dt.date().month] + "-" + str(dt.date().year),
                                 "days": [],
                             }
+                            working_dict = {
+
+                                "month": dt.date().month,
+                                "year": dt.date().year,
+                                "date": dt.date(),
+                                "data": request.data
+                            }
+                            print("working_dict", working_dict)
                             month_dict['days'].append({
                                 'date': dt.date(),
                                 'isHoliday': checkHoliday(dt.date(), schoolHolidayListSerializer.data),
                                 'holidayType': checkHolidayType(dt.date(), schoolHolidayListSerializer.data),
                                 'color': checkHolidayColor(dt.date(), schoolHolidayListSerializer.data),
                                 'isweekend': False,
-                                'working_days': calculate_working_days(dt.date().month, dt.date().year, dt.date(), request.data),
+                                'working_days': calculate_working_days(working_dict),
                                 'isFirstDayofMonth': checkFirstDay(dt.date()),
                                 "weekday": dt.date().weekday(),
                                 "month": months_list[dt.date().month] + "-" + str(dt.date().year),
@@ -729,8 +743,8 @@ class DownloadCalendar(ListCreateAPIView):
             return Response(context, status=status.HTTP_200_OK)
 
         except Exception as ex:
-            print(traceback.print_exc)
-            print(ex)
+            print("@@@@@@@@@@@@@@@@@@@@2", traceback.print_exc)
+            print("Error", ex)
             context = {
                 "isSuccess": False, "message": "Error", "error": ex, "data": ""}
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
