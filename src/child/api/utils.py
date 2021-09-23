@@ -127,4 +127,3 @@ def get_subject_plan(subject_list,child,range_of_working_days):
     return plan_list
             
         
-# def update_subject_plan()

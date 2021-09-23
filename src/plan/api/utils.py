@@ -32,7 +32,6 @@ def update_subject_plan(subject_list,child,range_of_working_days):
                                 subject = subject
                                                     )
             plan_list.append(subject_plan_obj)
-            pdb.set_trace() 
         
     deletedSubjects = subject_list['deletedSubjects']
     for subject_id in deletedSubjects:
@@ -42,7 +41,6 @@ def update_subject_plan(subject_list,child,range_of_working_days):
         )
         subject_plan_obj.delete()
         print("object deleted")
-        pdb.set_trace()
     return plan_list
 
             
