@@ -1,3 +1,4 @@
+from enum import unique
 import pdb
 from django.core import validators
 from django.db import models
@@ -51,9 +52,9 @@ Days_Choice = [
     (saturday, 'SATURDAY'),
     (sunday, 'SUNDAY'),
 ]
- 
+
 PERIOD_STATUS = [
-     (nothing, 'NOTHING'),
+    (nothing, 'NOTHING'),
     (complete, 'COMPLETE'),
     (pending, 'PENDING'),
     (failed, 'FAILED')
@@ -64,7 +65,7 @@ PERIOD_STATUS = [
 
 
 class PeriodTemplate(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=40)
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     is_draft = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -134,7 +135,6 @@ def valid_time_slot(value):
     return val
 
 
-
 """ Period Template Detail """
 
 
@@ -142,7 +142,7 @@ class PeriodTemplateDetail(TimestampAwareModel):
     period_template = models.ForeignKey(
         'PeriodTemplate', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(
-        max_length=50, null=True, blank=True)
+        max_length=40, null=True, blank=True)
     subject = models.ForeignKey(
         to='schools.Subject', on_delete=models.PROTECT, null=True, blank=True)
     room = models.ForeignKey(
@@ -180,7 +180,7 @@ class PeriodTemplateToGrade(TimestampAwareModel):
     academic_session = models.ForeignKey(
         to='session.AcademicSession', on_delete=models.PROTECT, null=True, blank=True)
     period_status = models.CharField(
-        max_length=50, choices=PERIOD_STATUS)
+        max_length=50, choices=PERIOD_STATUS, default="NOTHING")
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     period_template = models.ForeignKey(

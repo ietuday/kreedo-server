@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from holiday.models import*
 from users.api.serializer import*
 from rest_framework import serializers
@@ -11,8 +12,6 @@ from kreedo.conf.logger import CustomFormatter
 import logging
 import traceback
 from django.contrib.auth.models import User
-
-
 
 
 """ Logging """
@@ -58,7 +57,6 @@ class teacherAuthUserSerializer(serializers.ModelSerializer):
                   'last_name', 'email', 'is_active']
 
 
-
 class TeacherListForAcademicSessionSerializer(serializers.ModelSerializer):
     user_obj = teacherAuthUserSerializer()
 
@@ -77,21 +75,21 @@ class AcademicSessionCreateSerializer(serializers.ModelSerializer):
         # fields = '__all__'
         fields = ['id', 'school', 'grade', 'academic_calender', 'session_from', 'session_till',
                   'section', 'is_active', 'is_applied']
-    
-    def validate(self,validated_data):
+
+    def validate(self, validated_data):
         session_from = validated_data['session_from']
         session_till = validated_data['session_till']
         record_aval = AcademicSession.objects.filter(
-                                                # academic_calender=validated_data['academic_calender'],
-                                                school=validated_data['school'],
-                                                grade=validated_data['grade'],
-                                                section=validated_data['section']
-                                                ).exclude(  
-                                Q(session_till__lt=session_from) |
-                                Q(session_from__gt=session_till) 
-                                              )
+            # academic_calender=validated_data['academic_calender'],
+            school=validated_data['school'],
+            grade=validated_data['grade'],
+            section=validated_data['section']
+        ).exclude(
+            Q(session_till__lt=session_from) |
+            Q(session_from__gt=session_till)
+        )
 
-        print("record_aval@@",record_aval)
+        print("record_aval@@", record_aval)
         # pdb.set_trace()
         if record_aval:
             raise ValidationError("Academic Session Over-Lap")
@@ -124,10 +122,11 @@ class AcademicSessionListSerializer(serializers.ModelSerializer):
 
 class AssociateSeactionListSerializer(serializers.ModelSerializer):
     class_teacher = TeacherListForAcademicSessionSerializer()
- 
+
     class Meta:
         model = AcademicSession
-        fields = ['academic_calender', 'grade', 'section', 'class_teacher', 'id', 'updated_at', 'created_at', 'is_active']
+        fields = ['academic_calender', 'grade', 'section',
+                  'class_teacher', 'id', 'updated_at', 'created_at', 'is_active']
         depth = 1
 
     def to_representation(self, obj):
@@ -140,15 +139,12 @@ class AssociateSeactionListSerializer(serializers.ModelSerializer):
             academic_session_qs = SectionSubjectTeacher.objects.filter(
                 academic_session=academic_session_id)
             academic_session_qs_serializer = AcademicSessionSectionSubjectTeacherRetriveSerializer(
-                                                    academic_session_qs, many=True)
+                academic_session_qs, many=True)
             serialized_data['subject_teacher_list'] = academic_session_qs_serializer.data
             return serialized_data
         except Exception as ex:
             print("ERROR--->", ex)
             print(traceback.print_exc())
-    
-  
-            
 
 
 class AcademicSessionRetriveSerializer(serializers.ModelSerializer):
@@ -168,15 +164,14 @@ class AcademicSessionForGradeSerializer(serializers.ModelSerializer):
         serialized_data = super(
             AcademicSessionForGradeSerializer, self).to_representation(obj)
         # grade_dict = {}
-        if obj.grade :
+        if obj.grade:
             grade_serializer = GradeSessionSerializer(obj.grade)
             data = grade_serializer.data
             # grade_dict.update(data)
-            
+
         else:
             data = {}
         return data
-        
 
 
 class AcademicSessionForCalender(serializers.ModelSerializer):
@@ -279,19 +274,20 @@ class AcademicCalenderCreateSerializer(serializers.ModelSerializer):
             #                             school = validated_data['school'],
             # ).exclude(
             #     Q(end_date__lte=start_date) |
-            #     Q(start_date__gte=end_date) 
+            #     Q(start_date__gte=end_date)
             # )
             academic_cal_aval = AcademicCalender.objects.filter(
-                                        school = validated_data['school'],
-                                        start_date=start_date,
-                                        end_date=end_date
+                school=validated_data['school'],
+                start_date=start_date,
+                end_date=end_date
             )
 
-            print("acdemic cal aval",academic_cal_aval)
+            print("acdemic cal aval", academic_cal_aval)
             # pdb.set_trace()
             # academic_cal_aval = []
             if academic_cal_aval:
-                raise ValidationError("Academic calender with this date already exists")
+                raise ValidationError(
+                    "Academic calender with this date already exists")
             academic_calender = super(
                 AcademicCalenderCreateSerializer, self).create(validated_data)
 
@@ -357,6 +353,35 @@ class SchoolCalendarListSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+class SchoolCalendarSchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolCalendar
+        fields = '__all__'
+        depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolCalendarSchoolSerializer, self).to_representation(obj)
+        print("@@@@@@@@@@",
+              serialized_data['session_from'], serialized_data['session_till'])
+
+        start_date = serialized_data['session_from']
+        end_date = serialized_data['session_till']
+
+        # time_difference = end_date - start_date
+        from dateutil import relativedelta
+        from_date = datetime.strptime(start_date, '%Y-%m-%d')
+        to_date = datetime.strptime(end_date, '%Y-%m-%d')
+        # result = to_date - from_date
+        # no_of_year = result.years
+        time_difference = relativedelta.relativedelta(to_date, from_date)
+        difference_in_years = time_difference.years
+
+        print("@@@@@@@@@@", difference_in_years)
+        serialized_data['no_of_year'] = difference_in_years
+        return serialized_data
+
+
 """ SchoolCalendar Create Serializer """
 
 
@@ -364,6 +389,7 @@ class SchoolCalendarCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolCalendar
         fields = '__all__'
+
 
 class AcademicSessionGroupBySection(serializers.ModelSerializer):
     class Meta:
@@ -377,19 +403,19 @@ class AcademicSessionSectionSubjectTeacherRetriveSerializer(serializers.ModelSer
 
     class Meta:
         model = SectionSubjectTeacher
-        fields = ['subject','teacher','id']
+        fields = ['subject', 'teacher', 'id']
         depth = 1
 
 
 class AcademicSessionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicSession
-        fields = ['section','grade','class_teacher','school','academic_calender']
-
-
+        fields = ['section', 'grade', 'class_teacher',
+                  'school', 'academic_calender']
 
 
 """ Logged In User Serializer """
+
 
 class LoggedInUserMobSerializer(serializers.ModelSerializer):
 
@@ -420,10 +446,10 @@ class LoggedInUserMobSerializer(serializers.ModelSerializer):
             serialized_data['is_ClassTeacher'] = True
         else:
             serialized_data['is_ClassTeacher'] = False
-        
+
         subject_teacher_list = SectionSubjectTeacher.objects.filter(
-                                                                    teacher=obj
-                                                                    )
+            teacher=obj
+        )
         if subject_teacher_list:
             # section_subject_serializer = SectionSubjectTeacherCreateSerializer(subject_teacher_list,many=True)
             serialized_data['is_SubjectTeacher'] = True

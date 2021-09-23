@@ -26,6 +26,14 @@ urlpatterns = [
     path('school_list_create', SchoolListCreate.as_view(), name='SchoolListCreate'),
     path('school_retrive_update_delete/<int:pk>', SchoolRetriveUpdateDestroy.as_view(),
          name='SchoolRetriveUpdateDestroy'),
+    path('school_update/<int:pk>', SchoolUpdate.as_view(),
+         name='SchoolUpdate'),
+    path('school_retrive/<int:pk>', SchoolRetrive.as_view(),
+         name='SchoolRetrive'),
+    path('school_activate_deactivate/<int:pk>', SchoolActivateDeactivate.as_view(),
+         name='SchoolActivateDeactivate'),
+
+
     path('section-subject-teacher_list_create', SectionSubjectTeacherListCreate.as_view(),
          name='SectionSubjectTeacherListCreate'),
     path('section-subject-teacher_retrive_update_delete/<int:pk>', SectionSubjectTeacherRetriveUpdateDestroy.as_view(),

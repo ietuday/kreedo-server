@@ -9,39 +9,33 @@ urlpatterns = [
          PeriodTemplateList.as_view(), name='PeriodTemplateList'),
     path('period_template_retrive_update_delete/<int:pk>', PeriodTemplateRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateRetriveUpdateDestroy'),
-
     path('period_template_detail_list_create',
          PeriodTemplateDetailListCreate.as_view(), name='PeriodTemplateDetailListCreate'),
-
     path('period_template_detail_retrive_update_delete/<int:pk>', PeriodTemplateDetailRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateDetailRetriveUpdateDestroy'),
-
     path('update_period_template_detail/<int:pk>', UpdatePeriodTemplateDetail.as_view(),
          name='UpdatePeriodTemplateDetail'),
     path('period_list_create',
          PeriodListCreate.as_view(), name='PeriodListCreate'),
     path('period_retrive_update_delete/<int:pk>', PeriodRetriveUpdateDestroy.as_view(),
          name='PeriodRetriveUpdateDestroy'),
-
+    path('update_period/<int:pk>', UpdatePeriod.as_view(),
+         name='UpdatePeriod'),
     path('classes_by_teacher_list',
          ClassAccordingToTeacher.as_view(), name='ClassAccordingToTeacher'),
-
     path('activity_by_child', ActivityByChild.as_view(), name='ActivityByChild'),
     path('activity_list_by_child', ActivityListByChild.as_view(),
          name='ActivityListByChild'),
-
-
     path('activity-detail_retrive_by_child/<int:pk>', ActivityDetail.as_view(),
          name='ActivityDetail'),
     path('period_template_apply_to_grade', PeriodTemplateAppyToGradesListCreate.as_view(),
          name='PeriodTemplateAppyToGradesListCreate'),
     path('period_template_save_to_grade', PeriodTemplateSaveToGrade.as_view(),
          name='PeriodTemplateSaveToGrade'),
-
-
-
     path('period_template_apply_to_grade_retrive_update_delete/<int:pk>', PeriodTemplateAppyToGradesRetriveUpdateDestroy.as_view(),
          name='PeriodTemplateAppyToGradesRetriveUpdateDestroy'),
+    path('update_period_template_apply_to_grade/<int:pk>', UpdatePeriodTemplateToGrade.as_view(),
+         name='UpdatePeriodTemplateToGrade'),
     path('period_create',
          PeriodCreate.as_view(), name='PeriodCreate'),
     path('period_delete',

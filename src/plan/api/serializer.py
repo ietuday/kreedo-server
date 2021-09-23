@@ -2,6 +2,7 @@ from functools import partial
 from traceback import print_exc
 from child.api.serializer import*
 from child.models import*
+import plan
 from session.api.serializer import*
 from rest_framework import serializers
 from ..models import*
@@ -337,7 +338,7 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 class GradeSubjectPlanUpdateSubjectSerializer(serializers.ModelSerializer):
@@ -475,59 +476,48 @@ class SubjectSchoolPlanCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            print("VALUE------", validated_data)
-            print("SELF---->", self.context['subject_label_data'])
             subject_list = self.context['subject_label_data']
-            subjects_list = []
+            remove_subject_list = self.context['remove_subject_plan']
+
+            plan_grade_list = []
             for sub in subject_list:
-                subjects_list.append(sub['subject'])
-            print("subjects_list---->", subjects_list)
-            for sub in subject_list:
-                print("GRADE----------", sub['school'])
-                if SubjectPlan.objects.filter(school=sub['school'], subject=sub['subject']).exists():
-                    print("EXIST")
-                    subject_qs = SubjectPlan.objects.filter(school=sub['school'],
-                                                            subject=sub['subject'])[0]
-                    print("@@@@@@@@@@@@", subject_qs)
-                    if subject_qs:
-                        subject_qs.subject_label = sub['subject_lable']
-                        subject_qs.save()
-                        print(" Subject LABEL update")
 
-                    plan_qs = SubjectPlan.objects.filter(
-                        school=sub['school']).exclude(subject__in=subjects_list)
-                    print("DELETEEE-----------", plan_qs)
+                if GradeSubjectPlan.objects.filter(school=sub['school'], grade=sub['grade']).exists():
 
-                    if plan_qs:
-                        plan_qs = plan_qs[0]
-                        print("plan_qs id----", plan_qs)
-                        plan_id = plan_qs.id
+                    if sub['subject_plan_id']:
+                        print("sub['subject_plan_id']", sub['subject_plan_id'])
+                        subject_plan_update_qs = SubjectPlan.objects.filter(
+                            id=sub['subject_plan_id'])[0]
+                        print("subject_plan_update_qs", subject_plan_update_qs)
+                        # for subject_update in subject_plan_update_qs:
+                        subject_plan_update_qs.subject_label = sub['subject_label']
+                        subject_plan_update_qs.save()
+                        print("Updated", subject_plan_update_qs)
 
-                        subject_delete_qs = GradeSubjectPlan.objects.filter(
-                            subject_plan=plan_id)
-                        if subject_delete_qs:
-                            print("@@@@@@@", subject_delete_qs)
+                    else:
+                        school_id = School.objects.filter(id=sub['school'])[0]
+                        subject_id = Subject.objects.filter(
+                            id=sub['subject'])[0]
 
-                            plan_qs.delete()
-                            print("DELTED")
+                        subject_qs = SubjectPlan.objects.create(
+                            subject=subject_id, school=school_id, subject_label=sub['subject_label'])
 
-                else:
-                    # grades_list = []
-                    print("sub['subject')]--",)
-                    school_id = School.objects.filter(id=sub['school'])[0]
+                        plan_grade_qs = GradeSubjectPlan.objects.filter(
+                            school=sub['school'], grade=sub['grade'])[0]
 
-                    subject_id = Subject.objects.filter(id=sub['subject'])[0]
-                    print("SCHOOL", school_id, subject_id)
+                        plan_grade_list.append(subject_qs.id)
+                        plan_grade_qs.subject_plan.add(subject_qs.id)
+                        plan_grade_qs.save()
+                        print("ADDED in Grade subject plan")
 
-                    subject_qs = SubjectPlan.objects.create(
-                        subject=subject_id, school=school_id, subject_label=sub['subject_lable'])
+            subject_plan_delet_qs = SubjectPlan.objects.filter(
+                id__in=remove_subject_list, school=sub['school'])
+            print("subject_plan_delet_qs", subject_plan_delet_qs)
+            for sub_delete in subject_plan_delet_qs:
+                sub_id = sub_delete.id
+                print("DELETED", sub_delete)
 
-                    print("grade_qs", subject_qs.id)
-                    grade_qs = GradeSubjectPlan.objects.filter(
-                        school=school_id, grade=sub['grade'])[0]
-                    grade_qs.subject_plan.add(subject_qs.id)
-                    grade_qs.save()
-                    print("ADDED in Grade subject plan")
+                sub_delete.delete()
 
             return validated_data
         except Exception as ex:
@@ -557,4 +547,11 @@ class GradesBySchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = ['grade', 'school']
+        depth = 1
+
+
+class GradeSubjectPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GradeSubjectPlan
+        fields = '__all__'
         depth = 1

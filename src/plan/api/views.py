@@ -237,7 +237,7 @@ class SubjectSchoolPlanListCreate(GeneralClass, Mixins, ListCreateAPIView):
             context = super().get_serializer_context()
             context.update(
                 {"subject_label_data": request.data.get(
-                    'subject_list', None)})
+                    'subject_list', None), "remove_subject_plan": request.data.get('remove_subject_plan', None)})
 
             subject_school_plan = SubjectSchoolPlanCreateSerializer(
                 data=request.data.get(

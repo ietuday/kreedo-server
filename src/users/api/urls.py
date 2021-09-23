@@ -35,8 +35,6 @@ urlpatterns = [
 
     path('user_activate_deactivate/<int:pk>',
          UserActivateDeactivate.as_view(), name='UserActivate Deactivate'),
-
-
     path('generate_otp', GenerateOTP.as_view(), name='GenerateOTP'),
     path('otp_verification', OTPVerification.as_view(), name='OTPVerification'),
     path('add_role_of_user_list_create',
@@ -59,6 +57,8 @@ urlpatterns = [
          GetReportingToBasedOnSelectedRole.as_view(), name='Get ReportingTo Based On SelectedRole'),
     path('account_list_create',
          AccountListCreate.as_view(), name='Account List Create'),
+    path('export_account_list',
+         ExportAccountList.as_view(), name='Export Account List'),
     path('update_account/<int:pk>',
          UpdateAccount.as_view(), name='Update Account'),
 
@@ -67,6 +67,8 @@ urlpatterns = [
          LicenseListByLoggedInUser.as_view(), name='License List By Logged In User'),
     path('kreedo_roles_list',
          kreedoroleslist.as_view(), name='kreedo roles list'),
+    path('kreedo_user_list',
+         KreedoUserList.as_view(), name='kreedo user list'),
 
     path('get_credentials', KeyAccessOfS3.as_view(), name='KeyAccessOfS3'),
 

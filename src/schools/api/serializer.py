@@ -1,4 +1,6 @@
 import traceback
+import material
+import package
 
 from period.models import *
 from plan.models import *
@@ -99,24 +101,32 @@ class GradeListBasedAcademicSerializer(serializers.ModelSerializer):
                                                                       school=context['school'],
                                                                       grade=grade_id,
                                                                       section=section['id'])
+                    academic_session_qs = AcademicSession.objects.filter(academic_calender=context['academic_calender'],
+
+                                                                         school=context['school'],
+                                                                         grade=grade_id,
+                                                                         section=section['id'])
+                    print("@@@@@@@@@@@@", academic_session_qs)
 
                 # pdb.set_trace()
-                    if academic_session:
-                        academic_session_serializer = AcademicSessionRetriveSerializer(
-                            academic_session[0])
-                        academic_session_data = academic_session_serializer.data
-                        if academic_session_data['period_template']:
-                            section['template'] = academic_session_data['period_template']
+                    if academic_session_qs:
+                        period_template_qs = PeriodTemplateToGrade.objects.filter(
+                            academic_session=academic_session_qs[0].id).order_by('start_date')
+
+                        if period_template_qs:
+                            period_template_qs_serializer = PeriodTemplateForGradeListSerializer(
+                                period_template_qs, many=True)
+                            section['saved_template'] = period_template_qs_serializer.data
                         else:
-                            section['template'] = {}
-                        periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(
-                            academic_session=academic_session[0])
-                        if periodTemplateToGrade_qs:
-                            periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(
-                                periodTemplateToGrade_qs[0])
-                            section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
+                            section['saved_template'] = []
+                        # periodTemplateToGrade_qs = PeriodTemplateToGrade.objects.filter(
+                        #     academic_session=academic_session_qs[0])
+                        # if periodTemplateToGrade_qs:
+                        #     periodTemplateToGradeSerializer = PeriodTemplateToGradeSerializer(
+                        #         periodTemplateToGrade_qs[0])
+                        #     section['periodTemplateToGrade'] = periodTemplateToGradeSerializer.data
                     else:
-                        section['template'] = {}
+                        section['saved_template'] = []
             serialized_data['sections'] = section_data
             return serialized_data
         except Exception as ex:
@@ -193,6 +203,12 @@ class LicenseCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SchoolLicenseYearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = License
+        fields = '__all__'
+
+
 """ School  List Serializer"""
 
 
@@ -217,13 +233,11 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
             SchoolDetailListSerializer, self).to_representation(obj)
 
         school_data_id = serialized_data.get('id')
-        print("School", school_data_id)
 
         user_role_qs = UserRole.objects.filter(
             school=school_data_id).values('user').distinct()
-        print("user_role_qs-", user_role_qs)
         user_detail_qs = UserDetail.objects.filter(user_obj__in=user_role_qs)
-        print("USER- DETAIL", user_detail_qs)
+
         if user_detail_qs:
             user_detail_qs_serializer = UserDetailListSerializer(
                 user_detail_qs, many=True)
@@ -235,13 +249,92 @@ class SchoolDetailListSerializer(serializers.ModelSerializer):
         print("grade_subject_qs------------", grade_subject_qs)
 
         if grade_subject_qs:
-            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
-                grade_subjects__in=grade_subject_qs)
-            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
-            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
-                grade_subject_plan_qs, many=True)
+            grades = []
+            for grade in grade_subject_qs:
+                grade_dict = {}
+                grade_dict['name'] = grade.grade.name
+                grade_dict['id'] = grade.grade.id
+                grade_dict['school'] = grade.school.id
 
-            serialized_data['selected_grades'] = grade_subject_serializer.data
+                grades.append(grade_dict)
+                grade_dict = {}
+
+            serialized_data['selected_grades'] = grades
+
+        return serialized_data
+
+
+class SchoolDetailBySchoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = '__all__'
+        depth = 1
+
+    def to_representation(self, obj):
+        serialized_data = super(
+            SchoolDetailBySchoolSerializer, self).to_representation(obj)
+
+        school_data_id = serialized_data.get('id')
+        license_data = serialized_data.get('license')
+
+        if SchoolPackage.objects.filter(school=school_data_id).exists():
+            school_package_qs = SchoolPackage.objects.filter(
+                school=school_data_id)
+            package_list = []
+            for package in school_package_qs:
+                package_dict = {}
+                print("PACKAGE----------", package)
+                package_dict['id'] = package.id
+                package_dict['package_id'] = package.package.id
+                package_dict['name'] = package.package.name
+                package_dict['is_active'] = package.is_active
+                material_qs = package.package.materials.all()
+                if material_qs:
+                    material_list = []
+                    for material in material_qs:
+                        material_dict = {}
+                        material_dict['id'] = material.id
+                        material_dict['name'] = material.name
+                        material_dict['is_active'] = material.is_active
+                        material_list.append(material_dict)
+                    package_dict['materials'] = material_list
+                custom_material_qs = package.custom_materials.all()
+                if custom_material_qs:
+                    custom_material_list = []
+                    for custom in custom_material_qs:
+                        custom_material_dict = {}
+                        custom_material_dict['id'] = custom.id
+                        custom_material_dict['name'] = custom.name
+                        custom_material_dict['is_active'] = custom.is_active
+                        custom_material_list.append(custom_material_dict)
+                    package_dict['custom_material'] = custom_material_list
+
+                package_list.append(package_dict)
+                package_dict = {}
+
+            # school_package_serializer = SchoolPackageListSerializer(
+            #     school_package_qs, many=True)
+            serialized_data['school_package'] = package_list
+
+        if SchoolCalendar.objects.filter(school=school_data_id).exists():
+            school_calender = SchoolCalendar.objects.filter(
+                school=school_data_id)[0]
+            school_calender_serializer = SchoolCalendarSchoolSerializer(
+                school_calender)
+            serialized_data['school_calender_no_of_year'] = school_calender_serializer.data['no_of_year']
+        if License.objects.filter(id=license_data.get('id')).exists():
+            license_data_qs = License.objects.filter(
+                id=license_data.get('id'))[0]
+
+            start_date = license_data_qs.licence_from
+            end_date = license_data_qs.licence_till
+            from datetime import datetime, date
+            from_date = datetime.strptime(str(start_date), '%Y-%m-%d')
+            to_date = datetime.strptime(str(end_date), '%Y-%m-%d')
+
+            num_months = (to_date.year - from_date.year) * \
+                12 + (to_date.month - from_date.month)
+            serialized_data['no_of_months'] = num_months
 
         return serialized_data
 
@@ -275,25 +368,60 @@ class SchoolUpdateWithPackageSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
 
         try:
-            period_template_qs = School.objects.filter(
+            school_qs = School.objects.filter(
                 pk=instance.pk).update(**validated_data)
-            print("Update")
-            print("Self-------------context", self.context)
-            school_package = self.context.pop('school_package_dict')
 
+            school_package = self.context.pop('school_package_dict')
+            school_id = instance.pk
+            print("school_id------------", school_id)
             for school_package_obj in school_package:
-                print("Package Loop---->", school_package_obj['id'])
+
                 if school_package_obj['id']:
-                    print("school_package_obj['id']---",
-                          school_package_obj['id'])
+
                     school_packages_qs = SchoolPackage.objects.filter(
-                        id=school_package_obj['id'])
+                        id=school_package_obj['id'])[0]
+
+                    print("PAckage -------->", school_packages_qs)
+                    school_packages_dict = {
+                        "school": school_id,
+                        "package": school_package_obj['package'],
+                        "custom_materials": school_package_obj['custom_materials']
+                    }
+
+                    school_package_qs_serializer = SchoolPackageUpdateSerializer(
+                        school_packages_qs, data=dict(school_packages_dict), partial=True)
+
+                    if school_package_qs_serializer.is_valid():
+                        school_package_qs_serializer.save()
+                        print("SAVE PACKAGE Update------")
+                    else:
+                        print("ERRor in package",
+                              school_package_qs_serializer.errors)
+
                 else:
                     print("create")
+
+                    school_packages_dict = {
+                        "school": school_id,
+                        "package": school_package_obj['package'],
+                        "custom_materials": school_package_obj['custom_materials']
+                    }
+                    school_package_serializer = SchoolPackageCreateSerializer(
+                        data=dict(school_packages_dict))
+
+                    if school_package_serializer.is_valid():
+                        school_package_serializer.save()
+                        print("SAVE PACKAGE-------")
+                        self.context.update(
+                            {"school_package_serializer_data": school_package_serializer.data})
+                    else:
+                        print("Create package errorr",
+                              school_package_serializer.errors)
 
             return instance
         except Exception as ex:
             print("ex------------", ex)
+            print("TRACEBACK------------------", traceback.print_exc())
             raise ValidationError(ex)
 
 
@@ -301,14 +429,6 @@ class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = School
         fields = '__all__'
-
-    # def to_representation(self, instance):
-    #     instance = super(SchoolSerializer,
-    #                      self).to_representation(instance)
-
-    #     instance['school_id'] = self.context['school_id']
-
-    #     return instance
 
     def create(self, validated_data):
         try:

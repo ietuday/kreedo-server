@@ -44,7 +44,7 @@ Previous_Session_Choice = [
 
 
 class Plan(TimestampAwareModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     type = models.CharField(
         max_length=50, choices=Plan_Type_Choice, null=True, blank=True)
     sub_type = models.CharField(
@@ -133,7 +133,8 @@ class GradeSubjectPlan(TimestampAwareModel):
     school = models.ForeignKey(to='schools.School', on_delete=models.PROTECT)
     grade = models.ForeignKey(
         to='schools.Grade', on_delete=models.PROTECT, blank=True, null=True)
-    subject_plan = models.ManyToManyField('SubjectPlan', blank=True)
+    subject_plan = models.ManyToManyField(
+        'SubjectPlan', related_name="grade_subject_plan", blank=True)
     is_active = models.BooleanField(default=True)
 
     class Meta:

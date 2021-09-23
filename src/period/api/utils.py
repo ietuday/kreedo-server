@@ -10,6 +10,7 @@ from plan.models import Plan, PlanActivity, SubjectSchoolGradePlan
 import traceback
 from django.db.models import Count
 from django.core.serializers import serialize
+from rest_framework import serializers
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from activity.models import *
@@ -38,18 +39,20 @@ logger.addHandler(handler)
 logger.info("UTILS Period CAlled ")
 
 
-class PeriodCreateSerializer(serializers.ModelSerializer):
+class PeriodThreadCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
         fields = '__all__'
 
     def create(self, validated_data):
         try:
+            print(validated_data)
             p_qs = Period.objects.filter(start_date=validated_data['start_date'], end_date=validated_data['end_date'],
-                                         start_time=validated_data['start_time'], end_time=validated_data['end_time']).count()
+                                         start_time=validated_data['start_time'], end_time=validated_data['end_time'],
+                                         academic_session__in=validated_data['academic_session']).count()
             if p_qs == 0:
                 print("###################", validated_data)
-                data = super(PeriodCreateSerializer,
+                data = super(PeriodThreadCreateSerializer,
                              self).create(validated_data)
                 return data
             else:
@@ -177,52 +180,54 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
             "acad_session": acad_session,
             "period_template": period_template
         }
+        logger.info("grade_dict",grade_dict)
         print(grade, section, start_date, end_date, acad_session)
         from_date = datetime.strptime(start_date, '%Y-%m-%d')
         to_date = datetime.strptime(end_date, '%Y-%m-%d')
         delta = to_date - from_date  # as timedelta
         print("grade", grade_dict)
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date, period_template=period_template)
-
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$", period_qs)
-        if period_qs:
-            period_qs[0].period_status = "PENDING"
-            period_qs[0].save()
-
+                                                         start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="PENDING")
+        logger.info(period_qs)
         for i in range(delta.days + 1):
             day = from_date + timedelta(days=i)
             day_according_to_date = check_date_day(str(day.date()))
             week_off = weakoff_list(grade_dict)[0]
             day_according_to_date = day_according_to_date.lower()
             print(week_off)
+            logger.info("week_off")
+            logger.info("week_off.items()")
             for key, value in week_off.items():
+                logger.info("week_off")
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(holiday_from=day.date()) | Q(
                         holiday_from=day.date()), academic_session=acad_session).count()
-
+                    logger.info("schoolHoliday_count")
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
 
                         period_dict = {}
-
+                        logger.info("schoolHoliday_count")
                         for period in period_list:
-                            print("period.subject.id----", period.subject.id)
-                            print("acad_session-----", acad_session)
-                            print("SectionSubjectTeacher---",
-                                  SectionSubjectTeacher.objects.all())
+                            logger.info("period.subject.id----")
+                            logger.info("acad_session-----")
+                            logger.info("SectionSubjectTeacher---")
                             teacher_id = SectionSubjectTeacher.objects.filter(
-                                subject=period.subject.id, academic_session=acad_session)[0]
-                            print("teacher_id---", teacher_id.teacher)
-                            print(period)
+                                subject=period.subject.id, academic_session=acad_session)
+                            if teacher_id:
+                                teacher_id = teacher_id[0]
+                                period_dict['teacher'] = [teacher_id.teacher]
+
+                            # print("teacher_id---", teacher_id.teacher)
+                            # print(period)
                             # pdb.set_trace()
                             period_dict['period_template_detail'] = period.id
                             period_dict['academic_session'] = [acad_session]
                             period_dict['name'] = period.name
                             # period_dict['description'] =  period.subject.name
                             period_dict['subject'] = period.subject.id
-                            period_dict['teacher'] = [teacher_id.teacher]
+
                             period_dict['room'] = period.room.id
                             period_date = day.date()
                             period_time = period.start_time
@@ -237,7 +242,7 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             p_qs = Period.objects.filter(start_date=period_dict['start_date'], end_date=period_dict[
                                                          'end_date'], start_time=period_dict['start_time'], end_time=period_dict['end_time'], period_template_detail=period.id, room=period.room.id).count()
                             if p_qs == 0:
-                                period_serializer = PeriodCreateSerializer(
+                                period_serializer = PeriodThreadCreateSerializer(
                                     data=period_dict)
                                 if period_serializer.is_valid():
                                     period_serializer.save()
@@ -250,24 +255,18 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                             else:
                                 print("Period Already Created")
         period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                                  start_date=start_date, end_date=end_date, period_template=period_template)
-        if period_to_grade_qs:
-            period_to_grade_qs[0].is_applied = True
-            period_to_grade_qs[0].period_status = "COMPLETE"
-            period_to_grade_qs[0].save()
+                                                                  start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="COMPLETE",is_applied = True)
 
         return "Period Creating....."
     except Exception as ex:
+        
+        logger.debug(ex)
+        logger.info(traceback.print_exc())
         print("%%%%%%%55", ex)
+        
         print("@@@@@@@", traceback.print_exc())
         period_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date, period_template=period_template)
-        if period_qs:
-            period_qs[0].period_status = "FAILED"
-            period_qs[0].save()
-
-        logger.debug(ex)
-        logger.info(ex)
+                                                         start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="FAILED",is_applied = False)
         raise ValidationError(ex)
 
 

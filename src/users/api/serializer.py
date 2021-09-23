@@ -112,6 +112,22 @@ class UserDetailListSerializer(serializers.ModelSerializer):
             print(e)
             return None
 
+    def to_representation(self, obj):
+
+        serialized_data = super(
+            UserDetailListSerializer, self).to_representation(obj)
+
+        print("serialized_data->", serialized_data)
+        user_obj_id = serialized_data.get('user_obj')
+
+        user_id = user_obj_id.get('id')
+        if UserRole.objects.filter(user=user_id).exists():
+            user_role_data = UserRole.objects.filter(user=user_id)
+            user_role_data_serializer = UserRoleSchoolListSerializer(
+                user_role_data, many=True)
+            serialized_data['user_role_data'] = user_role_data_serializer.data
+        return serialized_data
+
 
 """ User Detail List Serializer """
 
@@ -141,6 +157,15 @@ class UserDetailListForSectionSubjectSerializer(serializers.ModelSerializer):
 
 
 class SchoolUserRoleSerializers(serializers.ModelSerializer):
+    user = UserDetailListForSectionSubjectSerializer()
+
+    class Meta:
+        model = UserRole
+        fields = '__all__'
+        depth = 2
+
+
+class KreedoUserRoleSerializers(serializers.ModelSerializer):
     user = UserDetailListForSectionSubjectSerializer()
 
     class Meta:
@@ -468,6 +493,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
             """ validate email and password """
             try:
                 email_password = validate_auth_user(email, password)
+                print("email_password------", email_password)
             except Exception as ex:
                 raise ValidationError("Email and Password is required")
 
@@ -475,9 +501,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
             try:
 
                 if email is not None:
-
+                    print("email", email)
                     username = User.objects.get(
                         email=email, is_active=True).username
+                    print("username", username)
 
                 else:
                     raise ValidationError("Email is required")
@@ -765,6 +792,13 @@ class UserRoleListSerializer(serializers.ModelSerializer):
         depth = 2
 
 
+class UserRoleSchoolListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRole
+        fields = ['school']
+        depth = 1
+
+
 class UserRoleListForSchoolSerializer(serializers.ModelSerializer):
     user = UserDetailListForAcademicSessionSerializer()
 
@@ -801,6 +835,22 @@ class SchoolListByUserSerializer(serializers.ModelSerializer):
             school_calender_serializer = SchoolCalendarCreateSerializer(
                 school_calender_qs, many=True)
             serialized_data['school_calender'] = school_calender_serializer.data
+
+        if GradeSubjectPlan.objects.filter(school=school_id).exists():
+            from plan.api.serializer import SubjectSchoolGradePlanListSerializer
+            grade_subject_qs = GradeSubjectPlan.objects.filter(
+                school=school_id)
+            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
+                grade_subjects__in=grade_subject_qs)
+            print("grade_subject_plan_qs---------", grade_subject_plan_qs)
+
+            grade_subject_serializer = SubjectSchoolGradePlanListSerializer(
+                grade_subject_plan_qs, many=True)
+
+            # grade_sub_plan_serializer = GradeSubjectPlanSerializer(
+            #     grade_subject_plan_qs, many=True)
+            serialized_data['grade_subject_plan'] = grade_subject_serializer.data
+
         return serialized_data
 
 
@@ -1111,7 +1161,7 @@ class SubjectSchoolGradePlanListSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubjectSchoolGradePlan
         fields = '__all__'
-        depth = 1
+        depth = 2
 
 
 """ license list by user id """
@@ -1134,14 +1184,17 @@ class LicenseListByUserSerializers(serializers.ModelSerializer):
         school_id = serialized_data['school']['id']
         school_grade = GradeSubjectPlan.objects.filter(school=school_id)
         if school_grade:
-            grade_subject_plan_qs = SubjectSchoolGradePlan.objects.filter(
-                    grade_subjects__in=school_grade)
-            school_grade_qs_serializer = SubjectSchoolGradePlanListSerializer(
-                grade_subject_plan_qs, many=True)
-            print("school_grade_qs_serializer.data",
-                  school_grade_qs_serializer.data)
-            serialized_data['selected_grades'] = school_grade_qs_serializer.data
 
+            grades = []
+            for grade in school_grade:
+                grade_dict = {}
+                grade_dict['name'] = grade.grade.name
+                grade_dict['id'] = grade.grade.id
+                grade_dict['school'] = grade.school.id
+
+                grades.append(grade_dict)
+                grade_dict = {}
+            serialized_data['selected_grades'] = grades
         return serialized_data
 
 
