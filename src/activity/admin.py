@@ -37,3 +37,10 @@ class ActivityCompleteAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     search_fields = ['id','child', 'activity','period','is_completed', 'is_active']
     list_filter = ['id','child', 'activity','period','is_completed', 'is_active']
 
+
+@admin.register(PeriodIndividualActivity)
+class PeriodIndividualActivityAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'child','period',]
+    search_fields = ['id','child', 'activity','period']
+    list_filter = ['id','child', 'activity','period',]
+

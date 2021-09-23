@@ -51,3 +51,5 @@ class PeriodTemplateToGradeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
                      'end_date', 'period_template', 'is_applied', 'is_active']
     list_filter = ['id', 'academic_session', 'start_date',
                    'end_date', 'period_template', 'is_applied', 'is_active']
+
+

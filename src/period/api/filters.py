@@ -17,12 +17,13 @@ class PeriodTemplateFilter(filters.FilterSet):
 
 
 class PeriodFilter(filters.FilterSet):
-    subject = filters.CharFilter(
-        field_name='subject__name', lookup_expr='icontains')
+    # subject = filters.CharFilter(
+    #     field_name='subject__name', lookup_expr='icontains')
 
-    class Meta:
-        model = Period
-        fields = '__all__'
+    # class Meta:
+    #     model = Period
+    #     fields = '__all__'
+    pass
 
 
 """ Period Template Detail Filter """
