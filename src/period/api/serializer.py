@@ -175,64 +175,80 @@ class PeriodCreateSerializer(serializers.ModelSerializer):
 class PeriodUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Period
-        fields = '__all__'
+        fields = ['name', 'subject', 'room', 'start_time',
+                  'end_time', 'type']
 
-    # def to_representation(self, instance):
-    #     instance = super(PeriodUpdateSerializer,
-    #                      self).to_representation(instance)
-    #     print("@@@@@@@@@ to representation", self.context)
-    #     if 'validation_error' in self.context:
-    #         instance['validation_error'] = self.context['validation_error']
-    #     return instance
+    def to_representation(self, instance):
+        instance = super(PeriodUpdateSerializer,
+                         self).to_representation(instance)
+        print("@@@@@@@@@ to representation", self.context)
+        if 'validation_error' in self.context:
+            instance['validation_error'] = self.context['validation_error']
+        return instance
 
-    # def update(self, instance, validated_data):
+    def update(self, instance, validated_data):
 
-    #     try:
-    #         start_time = validated_data['start_time']
-    #         end_time = validated_data['end_time']
+        try:
+            start_time = validated_data['start_time']
+            end_time = validated_data['end_time']
+            start_date = self.context['todays_date']
+            academic_session = self.context['acad_session']
 
-    #         instance = self.instance
-    #         print("start time", start_time)
-    #         print("end time", end_time)
-    #         print("instance.end_time > end_time------",
-    #               instance.end_time > end_time)
-    #         print("instance.start_time < start_time",
-    #               instance.start_time < start_time)
-    #         record_avl = Period.objects.filter(start_time=start_time,
-    #                                            end_time=end_time,
-    #                                            room=validated_data['room'],
-    #                                            period_template=validated_data['period_template'])
-    #         if record_avl:
-    #             period_qs = Period.objects.filter(
-    #                 pk=instance.pk).update(**validated_data)
-    #             print("Update")
-    #             return instance
-    #         else:
-    #             record_avl = Period.objects.filter(
-    #                 ~Q(id=instance.pk),
-    #                 room=validated_data['room'],
-    #                 period_template=validated_data['period_template']
-    #             ).exclude(
-    #                 Q(end_time__lte=start_time) |
-    #                 Q(start_time__gte=end_time),
+            instance = self.instance
+            print("start time", start_time)
+            print("end time", end_time)
 
-    #             )
-    #             # record_avl_s = record_avl.exclude(instance)
-    #             print("record_avl------------", record_avl)
-    #             if record_avl:
-    #                 validation_error = "Period already exists in this time"
-    #                 self.context.update({"validation_error": validation_error})
-    #                 return validated_data
-    #             else:
-    #                 period_qs = Period.objects.filter(
-    #                     pk=instance.pk).update(**validated_data)
-    #                 print("Update")
-    #                 return instance
+            print("@@@@@@@@@@@@@@", academic_session)
+            record_avl = Period.objects.filter(start_time=start_time,
+                                               end_time=end_time,
+                                               room=validated_data['room'],
+                                               start_date=start_date,
+                                               academic_session__in=academic_session,
+                                               )
+            print("record_avl---------------->", record_avl)
+            if record_avl:
+                period_qs = Period.objects.filter(
+                    pk=instance.pk).update(**validated_data)
+                # period_qs.academic_session.set(
+                #     validated_data['academic_session'])
+                # period_qs.save()
+                print("Update")
+                return instance
+            else:
+                print("instance.academic_session----------->",
+                      instance.academic_session)
+                record_avl = Period.objects.filter(
+                    ~Q(id=instance.pk),
+                    room=validated_data['room'],
+                    start_date=start_date,
+                    academic_session__in=academic_session,
 
-    #     except Exception as ex:
-    #         print("@@@@@@@@ SERIALIZER", ex)
-    #         print("Traceback------>", traceback.print_exc())
-    #         raise ValidationError(ex)
+
+                ).exclude(
+                    Q(end_time__lte=start_time) |
+                    Q(start_time__gte=end_time),
+
+                )
+                # record_avl_s = record_avl.exclude(instance)
+                print("record_avl- ELSE", record_avl)
+                if record_avl:
+                    print("EXIST")
+                    validation_error = "Period already exists in this time"
+                    self.context.update({"validation_error": validation_error})
+                    return validated_data
+                else:
+                    period_qs = Period.objects.filter(
+                        pk=instance.pk).update(**validated_data)
+                    # period_qs.academic_session.set(
+                    #     validated_data['academic_session'])
+                    # period_qs.save()
+                    print("Update")
+                    return instance
+
+        except Exception as ex:
+            print("@@@@@@@@ SERIALIZER", ex)
+            print("Traceback------>", traceback.print_exc())
+            raise ValidationError(ex)
 
 
 class PeriodTemplateDetailListSerializer(serializers.ModelSerializer):
