@@ -17,7 +17,7 @@ def update_subject_plan(subject_list,child,range_of_working_days):
         if record_aval:
             subject_plan_obj = record_aval[0]
             plan = get_plan(sub,range_of_working_days)
-            subject_plan_obj.plan = plan[0]
+            subject_plan_obj.plan = plan
             subject_plan_obj.save()
             plan_list.append(subject_plan_obj)       
             
@@ -53,15 +53,18 @@ def get_plan(subject_id,range_of_working_days):
     subject = Subject.objects.get(pk=subject_id)
     print("range",range_of_working_days)
     if subject.type == 'Group':
-        plan = Plan.objects.filter(
+        plan_record = Plan.objects.filter(
                                     subject=subject
-                                    )
-        return plan
+                                    )     
     else:
-        plan = Plan.objects.filter(
+        plan_record = Plan.objects.filter(
                                         subject=subject,
                                         range_from__lte=range_of_working_days,
                                         range_to__gte=range_of_working_days
                                     )
-        pdb.set_trace()
-        return plan
+        
+    if plan_record:
+        plan = plan_record[0]
+    else:
+        plan = None
+    return plan
