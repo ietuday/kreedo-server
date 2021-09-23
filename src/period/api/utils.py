@@ -1,10 +1,12 @@
+from builtins import print
+from types import TracebackType
 from child.models import Block
 from math import fabs
 from schools.models import *
 import traceback
 
 from django.db.models.query_utils import PathInfo
-from plan.models import Plan, SubjectSchoolGradePlan
+from plan.models import Plan, PlanActivity, SubjectSchoolGradePlan
 import traceback
 from django.db.models import Count
 from django.core.serializers import serialize
@@ -599,7 +601,7 @@ def activity_period_distribution_seq(block_obj_list,child_plan):
                     start = end
                     end += activity_per_period
 
-                print("activity list",activity_list)
+                # print("activity list",activity_list)
                 period_individual_activity_obj = PeriodIndividualActivity.objects.create(
                                                             period = period,
                                                             child = child_plan.child,
@@ -615,13 +617,210 @@ def activity_period_distribution_seq(block_obj_list,child_plan):
         raise ex
 
 
+ 
+def get_period_bucket(period_list,block_activity_list):
+    period_count = period_list.count()
+    activity_count = block_activity_list.count()
+    period_bucket = {}
+    activity_per_period = activity_count // period_count
+    
+    if activity_count % period_count == 0:
+        no_of_period_with_Extra_activity = 0
+    else:
+        no_of_period_with_Extra_activity = activity_count % period_count
+    for p,period in enumerate(period_list,start=1):
+        period_detail = {}
+        if p <= no_of_period_with_Extra_activity:
+            period_detail['capacity'] = activity_per_period + 1
+            period_detail['empty'] = activity_per_period + 1
+        else:
+            period_detail['capacity'] = activity_per_period
+            period_detail['empty'] = activity_per_period 
+        
+        period_bucket[period.id] = period_detail
+    # print("bucket")
+    return period_bucket
+
+def get_activity_DP_value(plan_activity_l):
+    try:
+        
+        activity_DP_record = {}
+        for plan_activity in plan_activity_l:
+            # DP_record = {}
+            count = 0
+            activity = plan_activity.activity
+          
+            while True:
+                print("activity",activity)
+                record_aval = plan_activity_l.filter(
+                                                dependent_on = activity
+                                                    )      
+                if record_aval:
+                    count += 1
+                    activity = record_aval[0].activity
+                else:
+                    # print("break")
+                    break
+            # DP_record['DP'] = count
+        
+            activity_DP_record[plan_activity.id] = count
+      
+        return activity_DP_record
+    except Exception as ex:
+        print("error at get_activity_DP_value",ex)
+        raise ex
+
+
+
+def check_individual_period_record(period,child_plan):
+    try:
+        record_avl = PeriodIndividualActivity.objects.filter(
+                                                period = period,
+                                                child = child_plan.child
+                                                        )
+        if record_avl:
+            print("obj found")
+            period_individual_obj = record_avl[0]
+        else:
+            print("obj create")
+            period_individual_obj = PeriodIndividualActivity.objects.create(
+                                                    child = child_plan.child,
+                                                    period = period
+                                                            )
+        period.individual_activities.add(period_individual_obj)
+        period.save()
+        return period_individual_obj
+    except Exception as ex:
+        print("error in check_individual_period_record",ex)
+        raise ex
+
+
+
+
+
+def allot_activity_in_avl_period(avl_period_list,plan_activity,period_bucket,child_plan):
+    try:
+        print("plan activity",plan_activity)
+        CH = 2
+        # pdb.set_trace()
+        while True: 
+            while True:
+                    for period in avl_period_list:
+                        
+                        period_activity_capacity = period_bucket[period.id]['capacity']
+                        period_individual_obj = check_individual_period_record(period,child_plan)
+                        record_avl = PeriodIndividualActivity.objects.filter(
+                                                                period = period,
+                                                                activity = plan_activity.activity
+                                                                ).count()
+                        
+                        period_activity_count = period_individual_obj.activity.all().count()
+                        print(f"period:{period},record:{record_avl},capacity:{period_activity_capacity},count:{period_activity_count},CH:{CH}")
+                        # pdb.set_trace()
+                        if CH != record_avl and period_activity_count < period_activity_capacity:
+                            """ assign activity to that period"""
+                            print("inside iff")
+                            period_individual_obj.activity.add(plan_activity.activity)
+                            period_individual_obj.save()
+                            print(f"activity {plan_activity.activity} --> {period}" )
+                            return None
+                        else:
+                            continue
+                    print("CH incremented")
+                    CH += 1
+                    break  
+    except Exception as ex:
+        print("error in allot_activity_in_avl_period ",ex)  
+        raise ex
+        
+
+
+def get_avl_period_list(dp_value,plan_activity,period_list,child_plan):
+    try:
+        dep_activity = plan_activity.dependent_on
+        period_list = list(period_list)
+        record_avl = PeriodIndividualActivity.objects.filter(
+                                                activity = dep_activity,
+                                                child = child_plan.child
+                                                        )
+        if record_avl:
+            dep_activity_period = record_avl[0].period
+        else:
+            dep_activity_period = period_list[0]
+            # raise Exception("dependent activity is not already assign")
+        period_index = period_list.index(dep_activity_period)
+        revise_period_list = period_list[period_index + 1:]
+        
+        revise_period_count = len(revise_period_list)
+        print("@@")
+        avl_period_list = revise_period_list[0:revise_period_count-dp_value]
+        # pdb.set_trace()
+        return avl_period_list
+    except Exception as ex:
+        print("error in get_avl_period_list ---> ",ex)
+        raise ex
+        
+
+def assign_independent_activity(plan_activity_l,block_activity_list,period_list,child_plan,period_bucket): 
+    try:
+        independent_activities = plan_activity_l.filter(
+                                                    Q(dependent_on = None)|
+                                                    ~ Q(dependent_on__in=block_activity_list)
+                                                        )
+        indp_DP_record = get_activity_DP_value(independent_activities)
+        period_bucket = get_period_bucket(period_list,block_activity_list) # all block activiy input
+        period_count = period_list.count()
+                    
+        for plan_activity in independent_activities:
+            dp_value = indp_DP_record[plan_activity.id]
+            avl_period_list = period_list[0:period_count-dp_value]
+            allot_activity_in_avl_period(avl_period_list,plan_activity,period_bucket,child_plan)
+    except Exception as ex:
+        print("error in assign_independent_activity -- >",ex)
+        raise ex
+        
+                
+
+def assign_dependent_activity(plan_activity_l,block_activity_list,period_list,child_plan,period_bucket):
+    try:
+        dependent_activities = plan_activity_l.filter(
+                                                        dependent_on__in=block_activity_list
+                                                        ) 
+        dep_DP_record = get_activity_DP_value(dependent_activities)
+
+        for plan_activity in dependent_activities:
+            dp_value = dep_DP_record[plan_activity.id]
+            avl_period_list = get_avl_period_list(dp_value,plan_activity,period_list,child_plan)
             
+            allot_activity_in_avl_period(avl_period_list,plan_activity,period_bucket,child_plan)
+    except Exception as ex:
+        print("error in assign_dependent_activity -->",ex)
+        raise ex
+
+
+
+def activity_period_distribution_rad(block_list,plan_activity_qs_list,child_plan):
+    try:
+        for block,plan_activity_list in zip(block_list,plan_activity_qs_list):
+            period_list = block.period.all().order_by('id')
+            block_activity_list = block.activity.all()
+            plan_activity_ids = [plan_activity.id for plan_activity in plan_activity_list]
+            plan_activity_l = PlanActivity.objects.filter(id__in=plan_activity_ids)
+            period_bucket = get_period_bucket(period_list,block_activity_list) # all block activiy input
+            assign_independent_activity(plan_activity_l,block_activity_list,period_list,child_plan,period_bucket)
+            assign_dependent_activity(plan_activity_l,block_activity_list,period_list,child_plan,period_bucket)
+            
+
+    
+    except Exception as ex:
+        print("error in activity_period_distribution_rad --->",ex)
+        raise ex
 
         
 
 def sequential_logic(subject_based_plan,period_based_on_subject,child_plan):
     try:
-        plan_activity_qs = subject_based_plan.plan_activity.all()
+        plan_activity_qs = subject_based_plan.plan.plan_activity.all()
         period_list = get_period_list(period_based_on_subject)
         plan_activity_list = get_activity_list(plan_activity_qs)
         block_list = get_block_list(period_list,plan_activity_list,child_plan)
@@ -636,51 +835,54 @@ def sequential_logic(subject_based_plan,period_based_on_subject,child_plan):
 def randomized_logic(subject_based_plan,period_based_on_subject,child_plan):
     try:
         print("randamized")
-        plan_activities = subject_based_plan.plan.plan_activity.filter(
-                                                        is_optional=False
-                                                        ).order_by('sort_no')
-        no_of_blocks = get_block_list(period_based_on_subject,child_plan)
-        activity_per_block = get_activity_per_block(no_of_blocks,plan_activities)
-        print("blocks",no_of_blocks)
-        print("act/block",activity_per_block)
-        no_of_blocks = 4
-        period_per_block = 2
-        pstart = 0
-        pend = period_per_block
-        astart = 0
-        aend = activity_per_block
-        for count in range(1,no_of_blocks+1):
-            print('s,e',pstart,pend)
-            if count == no_of_blocks:
-                print("@@")
-                period_for_block = period_based_on_subject[pstart:]
-                activity_for_block = plan_activities[astart:]
-                print(f"period for block {count}",period_for_block)
-                print(f"activity for block {count}",activity_for_block)
-                activities = [plan_act.activity for plan_act in activity_for_block]
-                print("activit",activities)
-            else:
-                period_for_block = period_based_on_subject[pstart:pend]
-                activity_for_block = plan_activities[astart:aend]
-                pstart += period_per_block
-                pend = pstart + period_per_block
-                astart += activity_per_block
-                aend = astart + activity_per_block
-                print(f"period for block {count}",period_for_block)
-                print(f"activity for block {count}",activity_for_block)
-                activities = [plan_act.activity for plan_act in activity_for_block ]
-                print("activit",activities)
-            """ Create Block"""
-            block = Block.objects.create(
-                                        block_no=count,
-                                        child_plan=child_plan,
-                                        is_active=True
-                                        )
-            block.period.set(period_for_block)
-            block.activity.set(activities)
-            block.save()
-            print(f"block {count} created")
-
+        plan_activity_qs = subject_based_plan.plan.plan_activity.all()
+        period_list = get_period_list(period_based_on_subject)
+        plan_activity_list = get_activity_list(plan_activity_qs)
+        block_list = get_block_list(period_list,plan_activity_list,child_plan)
+        activity_period_distribution_rad(block_list,plan_activity_list,child_plan)     
+             
     except Exception as ex:
         print("error in randomized_logic",ex)
         raise ex
+
+
+
+
+
+
+
+
+
+
+
+# independent_activities = plan_activity_l.filter(
+            #                                             Q(dependent_on = None)|
+            #                                             ~ Q(dependent_on__in=block_activity_list)
+            #                                                 )
+            # indp_DP_record = get_activity_DP_value(independent_activities)
+            
+            # period_count = period_list.count()
+                      
+            # for plan_activity in independent_activities:
+            #     dp_value = indp_DP_record[plan_activity.id]
+            #     avl_period_list = period_list[0:period_count-dp_value]
+            #     allot_activity_in_avl_period(avl_period_list,plan_activity,period_bucket,child_plan)
+                
+        
+            # dependent_activities = plan_activity_l.filter(
+            #                                             dependent_on__in=block_activity_list
+            #                                             ) 
+            # dep_DP_record = get_activity_DP_value(dependent_activities)
+
+            # for plan_activity in dependent_activities:
+            #     dp_value = dep_DP_record[plan_activity.id]
+            #     avl_period_list = get_avl_period_list(dp_value,plan_activity,period_list,child_plan)
+                
+            #     allot_activity_in_avl_period(avl_period_list,plan_activity,period_bucket,child_plan)
+
+
+
+
+
+
+
