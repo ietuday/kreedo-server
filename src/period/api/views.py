@@ -112,49 +112,44 @@ class UpdatePeriod(RetrieveUpdateDestroyAPIView):
             start_time = request.data.get('start_time', None)
             end_time = request.data.get('end_time', None)
             room = request.data.get('room', None)
-            period_template = request.data.get('period_template', None)
+
+            context = self.get_serializer_context()
+            context.update(
+                {"todays_date": request.data.get('todays_date', None), "acad_session": request.data.get('acad_session', None)})
+
             period_qs = Period.objects.filter(id=pk)[0]
-            period_qs_data = Period.objects.filter(~Q(id=pk), room=room, period_template_detail=period_template).exclude(
-                Q(end_time__lte=start_time) |
-                Q(start_time__gte=end_time),)
-            print("period_qs_data", period_qs_data)
-            if period_qs_data:
-                context = {
-                    "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
-                    "data": []
-                }
-                return Response(context, status=status.HTTP_200_OK)
 
             period_qs_serializer = PeriodUpdateSerializer(
-                period_qs, data=request.data, partial=True)
+                period_qs, data=request.data, context=context, partial=True)
             if period_qs_serializer.is_valid():
                 period_qs_serializer.save()
 
-                # if 'validation_error' in period_qs_serializer.data:
+                if 'validation_error' in period_qs_serializer.data:
 
-                #     context = {
-                #         "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
-                #         "data": []
-                #     }
-                #     return Response(context, status=status.HTTP_200_OK)
+                    context = {
+                        "isSuccess": False, "statusCode": status.HTTP_200_OK, "message": "Period already exists in this time",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
+                else:
 
-                context = {
-                    "isSuccess": True, "status": 200, "message": "period updated sucessfully",
-                    "data": period_qs_serializer.data
-                }
-                return Response(context, status=status.HTTP_200_OK)
+                    context = {
+                        "isSuccess": True, "statusCode": 200, "message": "period updated sucessfully",
+                        "data": []
+                    }
+                    return Response(context, status=status.HTTP_200_OK)
             else:
                 print(period_qs_serializer.errors)
                 context = {
-                    "isSuccess": False, "status": 200, "message": "Issue in Period Updation",
-                    "data": period_qs_serializer.errors
+                    "isSuccess": False, "statusCode": 200, "message": "Issue in Period Updation",
+                    "data": []
                 }
                 return Response(context, status=status.HTTP_200_OK)
         except Exception as ex:
             print(ex)
-            print(traceback.print_exc)
+            print("!!!!!!!!!!!!!!!!!", traceback.print_exc())
             context = {
-                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
+                "isSuccess": False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
                 "data": []
             }
             return Response(context, status=status.HTTP_200_OK)
@@ -180,14 +175,14 @@ class PeriodTemplateDetailListCreate(Mixins, ListCreateAPIView):
             if period_temp_serializer.is_valid():
                 period_temp_serializer.save()
                 context = {
-                    "isSuccess": True, "status": 200, "message": "period template created sucessfully",
+                    "isSuccess": True, "statusCode": 200, "message": "period template created sucessfully",
                     "data": period_temp_serializer.data
                 }
                 return Response(context, status=status.HTTP_200_OK)
 
             else:
                 context = {
-                    "isSuccess": False, "status": 200, "message": "Period already exists in this time",
+                    "isSuccess": False, "statusCode": 200, "message": "Period already exists in this time",
                     "data": []
                 }
                 return Response(context, status=status.HTTP_200_OK)
@@ -230,13 +225,13 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                 if 'validation_error' in period_template_detail_serializer.data:
 
                     context = {
-                        "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                        "isSuccess": False, "statusCode": status.HTTP_200_OK, "message": "Period already exists in this time",
                         "data": []
                     }
                     return Response(context, status=status.HTTP_200_OK)
 
                 context = {
-                    "isSuccess": True, "status": 200, "message": "period template detail Updated sucessfully",
+                    "isSuccess": True, "statusCode": 200, "message": "period template detail Updated sucessfully",
                     "data": period_template_detail_serializer.data
                 }
                 return Response(context, status=status.HTTP_200_OK)
@@ -246,7 +241,7 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
                       period_template_detail_serializer.errors)
 
                 context = {
-                    "isSuccess": False, "status": status.HTTP_200_OK, "message": "Period already exists in this time",
+                    "isSuccess": False, "statusCode": status.HTTP_200_OK, "message": "Period already exists in this time",
                     "data": []
                 }
                 return Response(context, status=status.HTTP_200_OK)
@@ -258,7 +253,7 @@ class UpdatePeriodTemplateDetail(RetrieveUpdateDestroyAPIView):
 
             # return Response(ex)
             context = {
-                "isSuccess": False, "status": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
+                "isSuccess": False, "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": ex,
                 "data": []
             }
             return Response(context, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
