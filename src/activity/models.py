@@ -58,6 +58,7 @@ class Activity(TimestampAwareModel):
         to='users.UserDetail', on_delete=models.PROTECT)
     duration = models.IntegerField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_optional = models.BooleanField(default=False,null=True,blank=True)
     objects = ActivityManager
 
     class Meta:
@@ -122,3 +123,21 @@ class ActivityComplete(TimestampAwareModel):
 
     def get_absolute_url(self):
         return reverse('ActivityComplete_detail', kwargs={"pk": self.pk})
+
+
+"""Individual Period Activity """
+
+class PeriodIndividualActivity(TimestampAwareModel):
+    period = models.ForeignKey(to='period.Period',
+                                 null=True, blank=True,on_delete=models.PROTECT)
+    activity = models.ManyToManyField(
+                                        to='activity.Activity', blank=True)
+    child =  models.ForeignKey(to='child.Child',
+                                null=True, blank=True,on_delete=models.PROTECT)
+    
+    class Meta:
+        verbose_name = 'PeriodIndividualActivity'
+        verbose_name_plural = 'PeriodIndividualActivitys'
+        ordering = ['-id']
+
+    

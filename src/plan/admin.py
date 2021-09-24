@@ -54,6 +54,15 @@ class SubjectSchoolGradePlanAdmin(admin.ModelAdmin):
     list_filter = ['id',  'grade_label', 'is_active']
 
 
+
+@admin.register(ChildSubjectPlan)
+class ChildSubjectPlanAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    list_display = ['id', 'child','subject','plan']
+    search_fields = ['id', 'child','subject','plan']
+    list_filter = ['id', 'child','subject','plan']
+    
+
+
 """ GradeSubjectPlan Admin"""
 
 

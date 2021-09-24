@@ -1,8 +1,11 @@
 from datetime import datetime
+from plan.models import ChildSubjectPlan, Plan
+from holiday.models import SchoolHoliday, SchoolWeakOff
 from django.core.exceptions import ValidationError
 from schools.models import Subject
 import random
-
+import pdb
+from datetime import date
 
 
 """ Calculate Working Days """
@@ -55,3 +58,72 @@ def ChildJsonData(Child_data,period_detail):
     return childs
 
     
+def get_range_of_days_in_session(start_date,academic_session):
+    total_working_days = calculate_no_of_working_days_for_child(academic_session,start_date)
+    return total_working_days
+
+
+
+
+def calculate_no_of_working_days_for_child(academic_session,start_date):
+    
+    total_week_offs = SchoolWeakOff.objects.filter(
+                                            academic_session=academic_session
+                                            ).count()
+
+    total_school_holidays = SchoolHoliday.objects.filter(
+                                            academic_session=academic_session
+                                            ).count()
+
+    date_list = start_date.split('-')
+    start_date_list = [int(num) for num in date_list]
+    curriculum_start_date = date(start_date_list[0],start_date_list[1],start_date_list[2])
+    date_diff = academic_session.session_till - curriculum_start_date
+    total_days = date_diff.days
+    total_working_days = total_days - (total_week_offs + total_school_holidays)
+    return total_working_days
+
+
+
+def get_subject_plan(subject_list,child,range_of_working_days):
+    for subject in subject_list:
+        subject = Subject.objects.get(pk=subject)
+        plan_list = []
+        if subject.type == 'Group':
+            plan_record = Plan.objects.filter(
+                                        subject=subject
+                                    )
+            
+            if plan_record:
+                plan = plan_record[0]
+            else:
+                plan = None
+               
+            child_sub_plan = ChildSubjectPlan.objects.create(
+                                                            child=child,
+                                                            subject=subject,
+                                                            plan=plan
+                                                            )
+
+        else:
+            plan_record = Plan.objects.filter(
+                                        subject=subject,
+                                        range_from__lte=range_of_working_days,
+                                        range_to__gte=range_of_working_days
+                                      )
+            if plan_record:
+                plan = plan_record[0]
+            else:
+                plan = None
+        
+            child_sub_plan = ChildSubjectPlan.objects.create(
+                                                            child=child,
+                                                            subject=subject,
+                                                            plan=plan
+            
+                                                      )
+
+        plan_list.append(child_sub_plan.id)
+    return plan_list
+            
+        

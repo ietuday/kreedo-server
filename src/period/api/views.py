@@ -20,6 +20,8 @@ from material.models import*
 from kreedo.conf.logger import CustomFormatter
 import logging
 from activity.api.serializer import*
+from .utils import *
+from child.api.utils import get_range_of_days_in_session
 
 # Create your views here.
 
@@ -923,10 +925,43 @@ class PeriodCountListByAcademicSession(GeneralClass, Mixins, ListCreateAPIView):
                 period_list.append(period_dict)
                 period_dict = {}
 
-            return Response(period_list, status=status.HTTP_200_OK)
+            return Response(period_list,status=status.HTTP_200_OK)
 
         except Exception as ex:
             print("ERROR", ex)
             logger.info(ex)
             logger.debug(ex)
-            return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(ex,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class testView(ListCreateAPIView):
+
+    def get(self,request):
+        academic_session = AcademicSession.objects.get(pk=7)
+        # period_group_activity_association(academic_session)
+        period_qs = Period.objects.filter(academic_session=academic_session,
+                                            )
+        # pdb.set_trace()
+        period_list = get_period_list(period_qs)
+        plan_activity_qs = PlanActivity.objects.filter(is_optional=False)
+        # plan_activity_list = get_activity_list(plan_activity_qs)
+        child_plan = ChildPlan.objects.get(pk=8)
+        print("period_list",period_list)
+        
+        plan_activity_list = []
+        plan_activity_list.append( plan_activity_qs[0:7])
+        plan_activity_list.append( plan_activity_qs[7:])
+        # pdb.set_trace()
+
+        print("activity list",plan_activity_list)
+        # pdb.set_trace()
+        # block_list = get_block_list(period_list,plan_activity_list,child_plan)
+        start_date = date(2025,8,30)
+        # pdb.set_trace()
+        # activity_period_distribution_seq(block_list,child_plan)
+        # get_range_of_days_in_session(start_date,academic_session)
+        block_list = Block.objects.filter(id__gte=203)
+        activity_period_distribution_rad(block_list,plan_activity_list,child_plan)
+        data = []
+        return Response(data)
+            

@@ -13,7 +13,7 @@ import logging
 from kreedo.conf.logger import*
 import pdb
 from users.models import*
-
+from child.api.utils import get_range_of_days_in_session
 
 """ Create Log for Serializer"""
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class ChildPlanCreateSerailizer(serializers.ModelSerializer):
     class Meta:
         model = ChildPlan
         fields = ['child', 'academic_session',
-                  'subjects', 'curriculum_start_date']
+                   'curriculum_start_date']
 
 
 class ChildPlanSerializer(serializers.ModelSerializer):
@@ -40,7 +40,7 @@ class ChildPlanSerializer(serializers.ModelSerializer):
 
 
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
-    academic_session = AcademicSessionListForChildSerializer()
+    # academic_session = AcademicSessionListForChildSerializer()
 
     class Meta:
         model = ChildPlan
@@ -49,12 +49,12 @@ class ChildPlanOfChildSerializer(serializers.ModelSerializer):
 
 
 class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
-    # academic_session = AcademicSessionListForChildSerializer()
+    academic_session = AcademicSessionListForChildSerializer()
 
     class Meta:
         model = ChildPlan
-        fields = ['subjects']
-        depth = 1
+        fields = ['subject_plan','academic_session']
+        depth = 2
 
 
 """ block Create Serailizer """
@@ -277,8 +277,9 @@ class ChildSerializer(serializers.ModelSerializer):
             user_qs_serializer = UserDetailListSerializer(user_qs, many=True)
 
             serialized_data['parents'] = user_qs_serializer.data
-
+            
             child_id_qs = ChildPlan.objects.filter(child=child_id)
+            
             if child_id_qs:
                 print("child_id_qs----", child_id_qs)
                 child_id_serializer = ChildPlanOfChildSerializer(
@@ -287,19 +288,22 @@ class ChildSerializer(serializers.ModelSerializer):
 
             else:
                 serialized_data['academic_session_data'] = ""
+        
             """ Subject Population"""
+            
             child_subject_id_qs = ChildPlan.objects.filter(child=child_id)[0]
             if child_subject_id_qs:
+                print("@@")
                 child_subject_serializer = ChildPlanOfSubjectChildSerializer(
                     child_subject_id_qs)
-                print("child_subject_serializer.data----------->",
-                      child_subject_serializer.data['subjects'])
-
-                serialized_data['subject_list'] = child_subject_serializer.data['subjects']
-
+                child_subject_serializer_data = child_subject_serializer.data
+                # pdb.set_trace()
+                subject_list = [obj['subject'] for obj in child_subject_serializer_data['subject_plan']]
+                serialized_data['subject_list'] = subject_list
+                print('###')
             else:
                 serialized_data['subject_list'] = ""
-
+            
             child_session_qs = ChildSession.objects.filter(child=child_id)
             if child_session_qs:
                 child_session_serializer = ChildSessionListSerializer(
@@ -430,13 +434,13 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
             registered_by = validated_data.pop('registered_by')
             school = validated_data.pop('school')
             print("validated_data", validated_data)
-
+            
             child_instance = Child.objects.create(**validated_data)
             child_instance.registered_by = registered_by
             child_instance.school = school
             child_instance.save()
             # return child_instance
-
+        
             parents_detail = self.context['parent_detail']['parents']
 
             parent_list = []
@@ -451,6 +455,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                             name="Parent")[0].id
                         type_id = UserType.objects.filter(
                             name='School Users-Parent')[0].id
+                       
                         parent_data = {
                             "user_obj": parent_serializer.data['id'],
                             "relationship_with_child": parent['relationship_with_child'],
@@ -461,6 +466,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                             "type": type_id
 
                         }
+            
                         parent_detail_serializer = ParentDetailSerializer(
                             data=dict(parent_data))
 
@@ -486,7 +492,7 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                     raise ValidationError(ex)
 
             validated_data['parent'] = parent_list
-
+            
             child_instance.parent.set(validated_data['parent'])
 
             child_instance.save()
@@ -495,7 +501,6 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
             section = self.context['academic_session_detail']['section']
             grade = self.context['academic_session_detail']['grade']
             class_teacher = self.context['academic_session_detail']['class_teacher']
-
             acadmic_ids = AcademicSession.objects.filter(academic_calender=acad_session,
                                                          grade=grade, section=section, class_teacher=class_teacher)
 
@@ -508,20 +513,30 @@ class ChildParentCreateSerializer(serializers.ModelSerializer):
                 academic_session_detail = {
                     "child": child_id,
                     "academic_session": acadmic_ids[0].id,
-                    "subjects": self.context['academic_session_detail']['subjects'],
+                    # "subjects": self.context['academic_session_detail']['subjects'],
                     "curriculum_start_date": self.context['academic_session_detail']['curriculum_start_date'],
                     "kreedo_previous_session": self.context['academic_session_detail']['kreedo_previous_session'],
                     "is_active": True
                 }
+
+                start_date = academic_session_detail['curriculum_start_date']
+                range_of_working_days = get_range_of_days_in_session(start_date,acadmic_ids[0])
+                subject_list =  self.context['academic_session_detail']['subjects']
                 """  create child plan """
                 try:
-
                     child_plan_serializer = ChildPlanCreateSerailizer(
                         data=dict(academic_session_detail))
                     if child_plan_serializer.is_valid():
                         child_plan_serializer.save()
+        
+                        child_plan = child_instance.child_plan.all()[0]
                         acad_session_qs = AcademicCalender.objects.filter(
                             id=acad_session)
+                       
+                        subject_plan = get_subject_plan(subject_list,child_instance,range_of_working_days)
+                        
+                        child_plan.subject_plan.set(subject_plan)
+                        child_plan.save()
                         child_session = [
                             {
                                 "child": child_id,
