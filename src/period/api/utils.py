@@ -171,6 +171,7 @@ def total_working_days(grade_dict, count_weekday):
 
 
 def create_period(grade, section, start_date, end_date, acad_session, period_template):
+    
     try:
 
         grade_dict = {
@@ -203,9 +204,12 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                 logger.info("week_off")
                 if key == day_according_to_date and value == False:
                     schoolHoliday_count = SchoolHoliday.objects.filter(Q(
-                        holiday_from__gte=day.date()) | Q(
-                        holiday_till__lte=day.date()), academic_session=acad_session).count()
+                        holiday_from=day.date()) | Q(
+                        holiday_till=day.date()), academic_session=acad_session).count()
                     logger.info("schoolHoliday_count")
+                    print("schoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_countschoolHoliday_count",schoolHoliday_count)
+                    
+                    # pdb.set_trace()
                     if schoolHoliday_count == 0:
                         period_list = PeriodTemplateDetail.objects.filter(
                             day=day_according_to_date.upper(), period_template=period_template)
@@ -254,12 +258,14 @@ def create_period(grade, section, start_date, end_date, acad_session, period_tem
                                         period_serializer.errors)
                             else:
                                 print("Period Already Created")
-        if grade_dict['period_created'] == True:
-            period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
+
+        # print(grade_dict)
+        # if grade_dict['period_created'] == True:
+        period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
                                                                   start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="COMPLETE",is_applied = True)
-        else: 
-            period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
-                                                         start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="FAILED",is_applied = False)
+        # else: 
+            # period_to_grade_qs = PeriodTemplateToGrade.objects.filter(academic_session=acad_session,
+                                                        #  start_date=start_date, end_date=end_date, period_template=period_template).update(period_status="FAILED",is_applied = False)
 
         return "Period Creating....."
     except Exception as ex:
