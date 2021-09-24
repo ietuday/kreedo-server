@@ -81,7 +81,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "date_of_joining": request.data.get('date_of_joining', None),
                 "place_of_birth": request.data.get('place_of_birth', None),
                 "blood_group": request.data.get('blood_group', None),
-                "registered_by": request.user,
+                "registered_by": request.user, #request.user
                 "school": School.objects.filter(id=request.data.get('school', None))[0].id,
                 "is_active":  request.data.get('is_active', False)
 
@@ -103,6 +103,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
             parent_detail = {
                 "parents": request.data.get('parents', None)
             }
+            
             academic_session_detail = {
                 "academic_session": request.data.get('academic_session', None),
                 "section": request.data.get('section', None),
@@ -112,7 +113,7 @@ class ChildListCreate(GeneralClass, Mixins, ListCreateAPIView):
                 "subjects": request.data.get('subjects', []),
                 "kreedo_previous_session": request.data.get('kreedo_previous_session', "No"),
             }
-
+            
             """  Pass dictionary through Context """
             context = super().get_serializer_context()
             context.update(
@@ -182,7 +183,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             }
 
             child_qs = Child.objects.filter(id=pk)[0]
-
+           
             child_qs_serializer = ChildUpdateSerializer(
                 child_qs, data=dict(child_detail), partial=True)
             if child_qs_serializer.is_valid():
@@ -281,6 +282,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 else:
                     print("@@@@@@@@@@")
                     acadmic_ids = acadmic_ids[0]['id']
+                
                 child_plan_detail = {
                     "child": pk,
                     "academic_session": acadmic_ids,
@@ -289,6 +291,9 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                     "kreedo_previous_session": request.data.get('kreedo_previous_session', "No")
                 }
                 print("academic_session_detail", child_plan_detail)
+                context = {
+                            "subjects":request.data.get('subjects',None)
+                }
                 child_plan_qs = ChildPlan.objects.filter(academic_session=request.data.get(
                     'academic_session_data', None), child=child_qs.id)
                 """  update child plan """
@@ -296,7 +301,7 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
                 try:
                     if child_plan_qs:
                         child_plan_serializer = ChildPlanUpdateSerailizer(
-                            child_plan_qs[0], data=dict(child_plan_detail), partial=True)
+                            child_plan_qs[0], data=dict(child_plan_detail),context=context ,partial=True)
                         if child_plan_serializer.is_valid():
                             child_plan_serializer.save()
                             return Response(child_qs_serializer.data, status=status.HTTP_200_OK)
@@ -325,27 +330,27 @@ class ChildRetriveUpdateDestroy(GeneralClass, Mixins, RetrieveUpdateDestroyAPIVi
             return Response(ex)
 
     def patch(self, request, pk):
-        try:
-            child_qs = Child.objects.filter(id=pk)[0]
-            child_serializer = ChildUpdateSerializer(
-                child_qs, data=request.data, partial=True)
-            if child_serializer.is_valid():
-                child_serializer.save()
-                return Response("Child updated successfully", status=status.HTTP_200_OK)
-            else:
-                return Response([], status=status.HTTP_200_OK)
+            try:
+                child_qs = Child.objects.filter(id=pk)[0]
+                child_serializer = ChildUpdateSerializer(
+                    child_qs, data=request.data, partial=True)
+                if child_serializer.is_valid():
+                    child_serializer.save()
+                    return Response("Child updated successfully", status=status.HTTP_200_OK)
+                else:
+                    return Response([], status=status.HTTP_200_OK)
 
-        except Exception as ex:
-            print("EX", ex)
-            print("@@@@@@@@@", traceback.print_exc())
-            logger.info(ex)
-            logger.debug(ex)
-            return Response(ex)
+            except Exception as ex:
+                print("EX", ex)
+                print("@@@@@@@@@", traceback.print_exc())
+                logger.info(ex)
+                logger.debug(ex)
+                return Response(ex)
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_200_OK)
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_200_OK)
 
 
 """ Update Child """
