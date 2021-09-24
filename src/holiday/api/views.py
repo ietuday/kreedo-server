@@ -5,6 +5,7 @@ from django.shortcuts import render
 from .serializer import*
 from holiday.models import*
 from kreedo.general_views import *
+from session.api.utils import *
 from rest_framework .generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView
 from rest_framework.permissions import (AllowAny, IsAdminUser, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -50,7 +51,7 @@ class CreateSchoolHoliday(ListCreateAPIView):
             print(request)
             holiday_from = request.data.get('holiday_from', None)
             holiday_till = request.data.get('holiday_till', None)
-
+ 
             if holiday_from > holiday_till:
                 context = {
                     "isSuccess": False, "statusCode": 200, "message": "End date should be greater than start date",
@@ -65,9 +66,29 @@ class CreateSchoolHoliday(ListCreateAPIView):
                     "data": []
                 }
                 return Response(context)
+            
+            request_list = []
+            start_date_time_obj = datetime.strptime(
+                        holiday_from, '%Y-%m-%d')
+            end_date_time_obj = datetime.strptime(
+                        holiday_till, '%Y-%m-%d')
+            date_list_gn = daterange(start_date_time_obj, end_date_time_obj)
+            for dn in date_list_gn:
+                print(dn.date())
+                request_list.append({
+                    	"title":request.data.get('title', None),
+                        "description":request.data.get('description', None),
+                        "school":request.data.get('school', None),
+                        "holiday_from":dn.date(),
+                        "holiday_till":dn.date(),
+                        "school":request.data.get('school', None),
+                        "is_active":request.data.get('is_active', None)
+                })
+            print(request_list)
+
 
             holiday_serializer = CreateSchoolHolidaySerializer(
-                data=request.data)
+                data=request_list, many=True)
             if holiday_serializer.is_valid():
                 holiday_serializer.save()
                 context = {
