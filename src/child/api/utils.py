@@ -75,10 +75,10 @@ def calculate_no_of_working_days_for_child(academic_session,start_date):
                                             academic_session=academic_session
                                             ).count()
 
-    date_list = start_date.split('-')
-    start_date_list = [int(num) for num in date_list]
-    curriculum_start_date = date(start_date_list[0],start_date_list[1],start_date_list[2])
-    date_diff = academic_session.session_till - curriculum_start_date
+    # date_list = start_date.split('-')
+    # start_date_list = [int(num) for num in date_list]
+    # curriculum_start_date = date(start_date_list[0],start_date_list[1],start_date_list[2])
+    date_diff = academic_session.session_till - start_date
     total_days = date_diff.days
     total_working_days = total_days - (total_week_offs + total_school_holidays)
     return total_working_days
