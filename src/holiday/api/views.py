@@ -266,29 +266,6 @@ class Calendar(GeneralClass, Mixins, ListCreateAPIView):
         except Exception as ex:
             return Response(ex, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # list = []
-
-        # for calendar_obj in calendar_data:
-        #     dict = {}
-        #     dict['id'] = calendar_obj.id
-        #     dict['name'] = calendar_obj.name
-        #     dict['description'] = calendar_obj.description
-        #     # dict['academic_session'] = calendar_obj.academic_session
-        #     dict['holiday_from'] = calendar_obj.holiday_from
-        #     dict['holiday_till'] = calendar_obj.holiday_till
-        #     dict['is_active'] = calendar_obj.is_active
-        #     dict['type'] = calendar_obj.type
-        #     list.append(dict)
-        #     print("list", list)
-
-        # return Response(list,status=status.HTTP_200_OK)
-
-        # calendar_serializer = CalendarSerializer(data=request.data)
-        # if calendar_serializer.is_valid():
-        #     print("Calendar", calendar_serializer.data)
-        # else:
-        #     print("Error", calendar_serializer.errors)
-
 
 """ School Calender according to start date and type """
 
