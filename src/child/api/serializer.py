@@ -40,12 +40,12 @@ class ChildPlanSerializer(serializers.ModelSerializer):
 
 
 class ChildPlanOfChildSerializer(serializers.ModelSerializer):
-    # academic_session = AcademicSessionListForChildSerializer()
+    academic_session = AcademicSessionListForChildSerializer()
 
     class Meta:
         model = ChildPlan
         fields = '__all__'
-        # depth = 1
+        depth = 1
 
 
 class ChildPlanOfSubjectChildSerializer(serializers.ModelSerializer):
@@ -297,9 +297,15 @@ class ChildSerializer(serializers.ModelSerializer):
                 child_subject_serializer = ChildPlanOfSubjectChildSerializer(
                     child_subject_id_qs)
                 child_subject_serializer_data = child_subject_serializer.data
-                # pdb.set_trace()
-                subject_list = [obj['subject'] for obj in child_subject_serializer_data['subject_plan']]
-                serialized_data['subject_list'] = subject_list
+                subject_plan = child_subject_serializer_data['subject_plan']
+                if subject_plan:
+                    subject_list = [obj['subject'] for obj in child_subject_serializer_data['subject_plan'] ]
+                    subject_id_list = [obj['subject']['id'] for obj in child_subject_serializer_data['subject_plan']]
+                    serialized_data['academic_session_data'][0]['subjects'] = subject_id_list
+                    serialized_data['subject_list'] = subject_list
+                else:
+                    serialized_data['academic_session_data'][0]['subjects'] = []
+
                 print('###')
             else:
                 serialized_data['subject_list'] = ""
