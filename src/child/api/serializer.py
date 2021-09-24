@@ -361,6 +361,14 @@ class ChildSessionCreateSerializer(serializers.ModelSerializer):
         model = ChildSession
         fields = '__all__'
 
+    def create(self,validated_data):
+        if validated_data['academic_session']:
+            name = validated_data['academic_session'].name
+        else:
+            name = None
+        validated_data['session_name'] = name
+        child_session_obj = super(ChildSessionCreateSerializer,self).create(validated_data)
+        return child_session_obj
 
 """ Attendance Create Serializer """
 
