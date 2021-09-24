@@ -24,7 +24,7 @@ def update_subject_plan(subject_list,child,range_of_working_days):
         else:
             
             plan = get_plan(sub,range_of_working_days)
-            subject = Subject.objects.get(pk=sub['subject'])
+            subject = Subject.objects.get(pk=sub)
             
             subject_plan_obj = ChildSubjectPlan.objects.create(
                                 child=child,
