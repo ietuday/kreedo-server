@@ -37,10 +37,8 @@ failed = "FAILED"
 
 
 Period_Type_Choice = [
-    (Regular_Assessment, 'Regular Assessment'),
-    (Regular, 'Regular'),
-    (Remedial, 'Remedial'),
-    (Remedial_Assessment, 'Remedial Assessment')
+    (Individual, 'Individual'),
+    (Group, 'Group')
 ]
 
 Days_Choice = [
