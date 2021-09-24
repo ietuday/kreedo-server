@@ -82,6 +82,7 @@ class ActivityAsset(TimestampAwareModel):
     type = models.CharField(
         max_length=50, choices=Activity_Asset_Choice)
     activity_data = models.CharField(max_length=200, null=True, blank=True)
+    activity_data_name = models.CharField(max_length=100, null=True, blank=True)
     title = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=False)

@@ -48,7 +48,7 @@ urlpatterns = [
          HolidayListOfMonthBySchool.as_view(), name='HolidayListOfMonthBySchool'),
     path('holiday_list_of_month_by_academic_session',
          HolidayListOfMonthByAcademicSession.as_view(), name='HolidayListOfMonthByAcademicSession'),
-    path('download_list_of_holiday_in_csv_by_school', DownloadListOfHolidaysInCSVBySchool.as_view(),
+    path('_list_of_holiday_in_csv_by_school', DownloadListOfHolidaysInCSVBySchool.as_view(),
          name='DownloadListOfHolidaysInCSVBySchool'),
 
     path('holiday_list_of_month_by_academic_calender', HolidayListOfMonthByAcademicCalender.as_view(),
