@@ -1,5 +1,4 @@
 import traceback
-from datetime import timedelta, date
 from datetime import date, timedelta, datetime
 from collections import OrderedDict
 
@@ -49,8 +48,11 @@ def check_date_day(date):
 
 def Genrate_Month(start_date, end_date):
     try:
+        from datetime import datetime
         date1 = datetime.strptime(str(start_date), "%d-%m-%Y")
         date2 = datetime.strptime(str(end_date), "%d-%m-%Y")
+        print("date1-----------", date1)
+        print("date2-----------", date2)
         date1 = date1.replace(day=1)
         date2 = date2.replace(day=1)
         months_str = calendar.month_name
@@ -63,6 +65,7 @@ def Genrate_Month(start_date, end_date):
             next_month = month+1 if month != 12 else 1
             next_year = year + 1 if next_month == 1 else year
             date1 = date1.replace(month=next_month, year=next_year)
+        print("months", months)
         return months
 
     except Exception as ex:
@@ -82,6 +85,7 @@ def checkFirstDay(date):
 
 
 def checkHoliday(date, holiday_list):
+
     for holiday in holiday_list:
         start = datetime.strptime(holiday['holiday_from'], '%Y-%m-%d').date()
         end = datetime.strptime(holiday['holiday_till'], '%Y-%m-%d').date()
@@ -89,6 +93,7 @@ def checkHoliday(date, holiday_list):
             return True
         else:
             return False
+    return False
 
 
 def checkHolidayType(date, holiday_list):
@@ -99,6 +104,7 @@ def checkHolidayType(date, holiday_list):
             return holiday['holiday_type']['holiday_type']
         else:
             return ''
+    return ''
 
 
 def checkHolidayColor(date, holiday_list):
@@ -149,8 +155,10 @@ def covert_month_by_month(month):
     pass
 
 
-def calculate_working_days(month, year, date, request_data):
+def calculate_working_days(data):
     try:
+
+        print("DATA------------>", data)
         total_no_of_days = calendar.monthrange(year, month)[1]
         date_range_by_month = get_month_day_range(date)
         print(request_data['calendar_type'])
@@ -175,8 +183,8 @@ def calculate_working_days(month, year, date, request_data):
         return working_days
 
     except Exception as Ex:
-        print(Ex)
-        print(traceback.print_exc())
+        print("ERROR1-------->", Ex)
+        print("UTILS------ Error", traceback.print_exc())
 
 
 def get_month_day_range(date):
