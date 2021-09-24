@@ -28,7 +28,7 @@ def update_subject_plan(subject_list,child,range_of_working_days):
             
             subject_plan_obj = ChildSubjectPlan.objects.create(
                                 child=child,
-                                plan=plan[0],
+                                plan=plan,
                                 subject = subject
                                                     )
             plan_list.append(subject_plan_obj)
@@ -40,7 +40,7 @@ def update_subject_plan(subject_list,child,range_of_working_days):
                             subject=subject_id
         )
         subject_plan_obj.delete()
-        print("object deleted")
+        print("object deleted",subject_id)
     return plan_list
 
             
