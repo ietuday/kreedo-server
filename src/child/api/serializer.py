@@ -363,7 +363,7 @@ class ChildSessionCreateSerializer(serializers.ModelSerializer):
 
     def create(self,validated_data):
         if validated_data['academic_session']:
-            name = validated_data['academic_session'].name
+            name = validated_data['academic_session'].academic_calender.session_name
         else:
             name = None
         validated_data['session_name'] = name
